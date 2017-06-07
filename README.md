@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/dylanbstorey/angreal.svg?branch=master)](https://travis-ci.org/dylanbstorey/angreal)
-
+[![PyPI version](https://badge.fury.io/py/angreal.svg)](https://badge.fury.io/py/angreal)
 # angreal
 git repository templating interfacing with webhosts like github and gitlab
 
