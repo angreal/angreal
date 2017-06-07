@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dylanbstorey/angreal.svg?branch=master)](https://travis-ci.org/dylanbstorey/angreal)
+
 # angreal
 git repository templating interfacing with webhosts like github and gitlab
 
