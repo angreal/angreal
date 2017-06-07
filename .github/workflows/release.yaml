@@ -1,0 +1,259 @@
+name: "Angreal Release"
+
+on:
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  macos-x86_64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          architecture: x64
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build wheels - x86_64
+        uses: PyO3/maturin-action@v1
+        with:
+          target: x86_64
+          args: --release --out dist --sdist -i 3.7 3.8 3.9 3.10 3.11 
+      - name: Install built wheel - x86_64
+        run: |
+          pip install angreal --no-index --find-links dist --force-reinstall
+          pip install pytest
+          pytest
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
+
+  macos-universal:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          architecture: x64
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build wheels - universal2
+        uses: PyO3/maturin-action@v1
+        with:
+          args: --release --universal2 --out dist -i 3.8 3.9 3.10 3.11 
+      - name: Install built wheel - universal2
+        run: |
+          pip install angreal --no-index --find-links dist --force-reinstall
+          pip install pytest
+          pytest
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
+
+  windows:
+    runs-on: windows-latest
+    name: windows (${{ matrix.platform.target }})
+    strategy:
+      matrix:
+        platform:
+          - target: x64
+            interpreter: 3.7 3.8 3.9 3.10 3.11 
+          - target: x86
+            interpreter: 3.7 3.8 3.9 3.10 3.11
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          architecture: ${{ matrix.platform.target }}
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist -i ${{ matrix.platform.interpreter }}
+      - name: Install built wheel
+        run: |
+          pip install angreal --no-index --find-links dist --force-reinstall
+          pip install pytest
+          pytest
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
+
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [x86_64, i686]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        architecture: x64
+    - name: Build wheels
+      uses: PyO3/maturin-action@v1
+      with:
+        rust-toolchain: stable
+        target: ${{ matrix.target }}
+        manylinux: auto
+        args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 
+    - name: Install built wheel
+      if: matrix.target == 'x86_64'
+      run: |
+        pip install angreal --no-index --find-links dist --force-reinstall
+        pip install pytest
+        pytest
+    - name: Upload wheels
+      uses: actions/upload-artifact@v3
+      with:
+        name: wheels
+        path: dist
+
+  linux-cross:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [aarch64, armv7, s390x, ppc64le]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Build wheels
+      uses: PyO3/maturin-action@v1
+      with:
+        rust-toolchain: stable
+        target: ${{ matrix.target }}
+        manylinux: auto
+        args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 
+    - uses: uraimo/run-on-arch-action@v2.3.0
+      if: matrix.target != 'ppc64'
+      name: Install built wheel
+      with:
+        arch: ${{ matrix.target }}
+        distro: ubuntu20.04
+        githubToken: ${{ github.token }}
+        install: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3 python3-pip
+          pip3 install -U pip pytest
+        run: |
+          pip3 install angreal --no-index --find-links dist/ --force-reinstall
+          pytest
+    - name: Upload wheels
+      uses: actions/upload-artifact@v3
+      with:
+        name: wheels
+        path: dist
+
+  musllinux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-musl
+          - i686-unknown-linux-musl
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        architecture: x64
+    - name: Build wheels
+      uses: PyO3/maturin-action@v1
+      with:
+        rust-toolchain: stable
+        target: ${{ matrix.target }}
+        manylinux: musllinux_1_2
+        args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11
+    - name: Install built wheel
+      if: matrix.target == 'x86_64-unknown-linux-musl'
+      uses: addnab/docker-run-action@v3
+      with:
+        image: alpine:latest
+        options: -v ${{ github.workspace }}:/io -w /io
+        run: |
+          apk add py3-pip
+          pip3 install -U pip pytest
+          pip3 install angreal --no-index --find-links /io/dist/ --force-reinstall
+          
+    - name: Upload wheels
+      uses: actions/upload-artifact@v3
+      with:
+        name: wheels
+        path: dist
+
+  musllinux-cross:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform:
+          - target: aarch64-unknown-linux-musl
+            arch: aarch64
+          - target: armv7-unknown-linux-musleabihf
+            arch: armv7
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Build wheels
+      uses: PyO3/maturin-action@v1
+      with:
+        rust-toolchain: stable
+        target: ${{ matrix.platform.target }}
+        manylinux: musllinux_1_2
+        args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11
+    - uses: uraimo/run-on-arch-action@v2.3.0
+      name: Install built wheel
+      with:
+        arch: ${{ matrix.platform.arch }}
+        distro: alpine_latest
+        githubToken: ${{ github.token }}
+        install: |
+          apk add py3-pip
+          pip3 install -U pip pytest
+        run: |
+          pip3 install angreal --no-index --find-links dist/ --force-reinstall
+          
+    - name: Upload wheels
+      uses: actions/upload-artifact@v3
+      with:
+        name: wheels
+        path: dist
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs:
+      - macos-universal
+      - macos-x86_64
+      - windows
+      - linux
+      - linux-cross
+      - musllinux
+      - musllinux-cross
+    if: "startsWith(github.ref, 'refs/tags/')"
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: wheels
+      - uses: actions/setup-python@v4
+      - name: Publish to PyPi
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          pip install --upgrade twine
+          twine upload --skip-existing *

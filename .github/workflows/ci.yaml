@@ -1,0 +1,120 @@
+name: "Angreal Tests"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  RUSTUP_MAX_RETRIES: 10
+
+jobs:
+  cargo-build:
+    name: "cargo build"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly-2022-11-01
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - run: cargo build --all
+
+  cargo-fmt:
+    name: "cargo fmt"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly-2022-11-01
+          override: true
+          components: rustfmt
+      - run: cargo fmt --all --check
+
+  cargo_clippy:
+    name: "cargo clippy"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly-2022-11-01
+          override: true
+          components: clippy
+      - uses: Swatinem/rust-cache@v1
+      - run: cargo clippy --workspace --all-targets --all-features
+  
+
+
+  angreal-tests:
+    name: "angreal run-tests"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 1.65.0
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install maturin angreal==2.0.0rc-1 pytest
+      - run: angreal run-tests
+
+  maturin-build:
+    name: "maturin build"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 1.65.0
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install maturin
+      - run: maturin build
+
+  typos:
+    name: Spell Check with Typos
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Actions Repository
+      uses: actions/checkout@v2
+    - name: Spell Check
+      uses: crate-ci/typos@master
+      with:
+        files: ./src
+    - name: Spell Check
+      uses: crate-ci/typos@master
+      with:
+        files: ./docs/content
+    - name: Spell Check
+      uses: crate-ci/typos@master
+      with:
+        files: ./python
+    - name: Spell Check
+      uses: crate-ci/typos@master
+      with:
+        files: ./py_tests
+    - name: Spell Check
+      uses: crate-ci/typos@master
+      with:
+        files: ./tests

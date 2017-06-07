@@ -1,0 +1,21 @@
+[build-system]
+requires = ["maturin>=0.14.10,<0.15"]
+build-backend = "maturin"
+
+[project]
+name = "angreal"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+
+
+[project.scripts]
+angreal = "angreal:main"
+
+[tool.maturin]
+python-source = "python"
+features = ["pyo3/extension-module"]
