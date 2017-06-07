@@ -1,8 +1,5 @@
 language: python
 python:
-  - "2.6"
-  - "2.7"
-  - "3.3"
   - "3.5"
 install:
   - sudo apt-get update
@@ -24,7 +21,11 @@ install:
   # Replace dep1 dep2 ... with your dependencies
   - conda env create -f enviroment.yml
   - source activate angreal
+  - pip install coveralls
 
 script:
   # Your test script goes here
   - doit
+  
+after_success:
+  coveralls
