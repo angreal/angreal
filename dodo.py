@@ -33,10 +33,13 @@ def task_tests():
     """
     Runs unit tests via nose with coverage.
     """
-    pass
+    return {
+        'actions' : ['nosetests --with-coverage --cover-html --cover-erase  --cover-package=angreal']
+        
+    }
 
 
-def task_sphinx_api():
+def task_docs():
     """
     Adds all files from the library to the sphinx api.
     """
@@ -54,4 +57,3 @@ def task_docs():
     return{
         'actions' : ['cd docs && make clean && make html']
         }
-    pass
