@@ -18,18 +18,13 @@ class GitException(Exception):
 class Git(object):
     """ Hyper light weight wrapper for git"""
     
-    def __init__(self, git_path=find_executable('git'), working_dir=os.getcwd()):
+    def __init__(self, working_dir=os.getcwd()):
         """ Constructor for Git"""
         
-        self.git_path = git_path
+        self.git_path = find_executable('git')
         self.working_dir = os.path.abspath(working_dir)
         
-        try:
-            os.path.isfile(self.git_path)
-        except TypeError:
-            module_logger.exception('git not in path')
-            raise OSError('git not in path')
-        
+
         if not self.git_path:
             module_logger.exception('git not in path')
             raise OSError('git not in path')
@@ -45,10 +40,12 @@ class Git(object):
         # unpack a command (git init --this=that -t=7 repo)
         system_call = (
             ('git', command) +
+
+            args +
+
             tuple(('--{0}={1}'.format(k, v) if len(k) > 1
                    else '-{0} {1}'.format(k, v))
-                  for k, v in kwargs.items()) +
-            args
+                  for k, v in kwargs.items())
         )
         
         module_logger.debug('{} recieved.'.format(system_call))

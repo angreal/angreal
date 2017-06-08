@@ -10,5 +10,8 @@ dynamic_files = os.path.join(angreal_location, 'dynamic_files')
 
 
 
-from .git import Git
-from .git import GitException
+from angreal.integrations.git import Git
+from angreal.integrations.git import GitException
+
+from angreal.integrations.conda import Conda
+from angreal.integrations.conda import CondaException

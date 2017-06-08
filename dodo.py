@@ -3,7 +3,6 @@ doit file for repo maintenance
 """
 import doit
 from doit.tools import run_once
-import glob
 import os
 
 
@@ -34,7 +33,7 @@ def task_tests():
     Runs unit tests via nose with coverage.
     """
     return {
-        'actions' : ['nosetests --with-coverage --cover-html --cover-erase  --cover-package=angreal']
+        'actions' : ['nosetests -s --with-coverage --cover-package angreal --cover-html --cover-erase']
         
     }
 

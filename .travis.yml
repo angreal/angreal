@@ -1,6 +1,8 @@
 language: python
 python:
   - "3.5"
+services:
+  - docker
 install:
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
@@ -22,6 +24,9 @@ install:
   - conda env create -f enviroment.yml
   - source activate angreal
   - pip install coveralls
+
+  # https://github.com/dylanbstorey/angreal/blob/travis.ci/angreal/tests/build_gitlab.sh
+  - bash angreal/tests/build_gitlab.sh
 
 script:
   # Your test script goes here

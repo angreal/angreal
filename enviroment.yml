@@ -27,7 +27,6 @@ dependencies:
 - xz=5.2.2=1
 - zlib=1.2.8=3
 - pip:
-  - cloudpickle==0.3.1
+  - cloudpickle==0.2.2
   - doit==0.30.3
-  - pyinotify==0.9.6
 
