@@ -3,6 +3,7 @@
 #
 # angreal documentation build configuration file, created by
 # sphinx-quickstart on Wed Jun  7 22:37:58 2017.
+
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -31,6 +32,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
@@ -160,6 +162,3 @@ texinfo_documents = [
 
 
 
-
-# Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
