@@ -42,13 +42,13 @@ def task_tests():
         }
 
 
-def task_docs():
+def task_sphinx():
     """
     Adds all files from the library to the sphinx api.
     """
     
     return {
-        'actions' : ['sphinx-apidoc -fM -o docs/ angreal/'],
+        'actions' : ['sphinx-apidoc -fMeET -o docs/source/ angreal/'],
      }
 
 
@@ -58,7 +58,7 @@ def task_docs():
     Cleans and generates docs.
     """
     return{
-        'actions' : ['cd docs && make clean && make html']
+        'actions' : ['cd docs && make html']
         }
 
 
