@@ -1,5 +1,5 @@
 .. angreal documentation master file, created by
-   sphinx-quickstart on Tue Jun  6 23:14:44 2017.
+   sphinx-quickstart on Wed Jun  7 21:01:23 2017.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 

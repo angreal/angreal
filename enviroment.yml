@@ -29,4 +29,10 @@ dependencies:
 - pip:
   - cloudpickle==0.2.2
   - doit==0.30.3
+  - pkginfo==1.4.1
+  - pyinotify==0.9.6
+  - python-gitlab==0.21.1
+  - requests-toolbelt==0.8.0
+  - tqdm==4.14.0
+  - twine==1.9.1
 
