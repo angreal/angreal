@@ -15,3 +15,5 @@ from angreal.integrations.git import GitException
 
 from angreal.integrations.conda import Conda
 from angreal.integrations.conda import CondaException
+
+from angreal.integrations.git_lab import GitLabHost
