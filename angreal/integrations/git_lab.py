@@ -3,9 +3,11 @@ import logging
 import getpass
 
 
+
 module_logger = logging.getLogger(__name__)
 """
 1 Generate and store private token
+
 
 2 Test for private token
 - read ~/.angrealrc
