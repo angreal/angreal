@@ -5,22 +5,6 @@ import getpass
 
 
 module_logger = logging.getLogger(__name__)
-"""
-1 Generate and store private token
-
-
-2 Test for private token
-- read ~/.angrealrc
-- if token :
-    test token works via  curl -X GET --header "PRIVATE-TOKEN: kFisv9ksWkydgUiRse5Z" https://sfgitlab.opr.statefarm.org/api/v3/user
-    if 401: 
-        goto Generate and store private token
-    else pass
-- else :
-    generate and store private token
-
-"""
-
 
 
 class GitLabHost(object):
