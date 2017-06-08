@@ -4,31 +4,46 @@ doit file for repo maintenance
 import doit
 from doit.tools import run_once
 import os
+import sys
 import glob
 from shutil import rmtree
 import subprocess
 
 
 
-
-def task_update_enviroment():
+def task_test_environment():
     """
-    Upadates the conda enviroment and stores it in the enviroment.yml file
+    explicitly tests that we're in the correct environment
+    :return:
     """
     try:
-        conda_enviroment = os.environ['CONDA_DEFAULT_ENV']
+        conda_enviroment = os.path.basename(os.environ['CONDA_DEFAULT_ENV'])
     except KeyError:
         conda_enviroment = None
     
     if conda_enviroment == 'angreal':
         return{
-            'actions' :['conda env export | grep -v \'#\' | grep -v \'prefix:\' > enviroment.yml'],
+            'actions' : None
+        }
+    else:
+        msg ="""
+You need to have a conda enviroment running via the following:
+conda env create -f enviroment.yml
+source activate angreal
+"""
+        print(msg, file=sys.stderr)
+        
+
+
+def task_update_enviroment():
+    """
+    Upadates the conda enviroment and stores it in the enviroment.yml file
+    """
+    return{
+            'actions' :['conda env export -n angreal | grep -v \'#\' | grep -v \'prefix:\' > enviroment.yml'],
             'targets' :['enviroment.yml']
             }
 
-    return {
-        'actions' : None
-            }
 
 
 
