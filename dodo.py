@@ -11,37 +11,39 @@ import subprocess
 
 
 
-def task_test_environment():
-    """
-    explicitly tests that we're in the correct environment
-    :return:
-    """
-    try:
-        conda_enviroment = os.path.basename(os.environ['CONDA_DEFAULT_ENV'])
-    except KeyError:
-        conda_enviroment = None
-    
-    if conda_enviroment == 'angreal':
-        return{
-            'actions' : None
-        }
-    else:
-        msg ="""
-You need to have a conda enviroment running via the following:
-conda env create -f enviroment.yml
+
+try:
+    conda_environment = os.path.basename(os.environ['CONDA_DEFAULT_ENV'])
+except KeyError:
+    conda_environment = None
+
+if not conda_environment == 'angreal':
+
+    msg ="""
+You need to have a conda environment running via the following:
+conda env create -f environment.yml
 source activate angreal
 """
-        print(msg, file=sys.stderr)
-        
+    print(msg, file=sys.stderr)
+    exit(0)
 
 
-def task_update_enviroment():
+def task_update_environment():
     """
-    Upadates the conda enviroment and stores it in the enviroment.yml file
+    updates the conda environment
+    :return: 
     """
     return{
-            'actions' :['conda env export -n angreal | grep -v \'#\' | grep -v \'prefix:\' > enviroment.yml'],
-            'targets' :['enviroment.yml']
+        'actions' : ['conda env update -n angreal -f environment.yml']
+        }
+
+def task_update_environment_yml():
+    """
+    Upadates the conda environment and stores it in the environment.yml file
+    """
+    return{
+            'actions' :['conda env export -n angreal | grep -v \'#\' | grep -v \'prefix:\' > environment.yml'],
+            'targets' :['environment.yml']
             }
 
 

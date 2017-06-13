@@ -31,6 +31,7 @@ class GitLabHost(object):
     def get_group_id(self,name_space):
         """
         searches for a group_id given a name
+        
         :param name_space: 
         :return: 
         """
@@ -50,7 +51,8 @@ class GitLabHost(object):
     def create_project(self,name,name_space=None):
         """
         creates a project on the gitlab host
-        :param name: 
+        
+        :param name:
         :param name_space: 
         """
         if name_space:
@@ -99,7 +101,8 @@ class GitLabHost(object):
     def create_label(self,name,color):
         """
         creates a label for a project given a name and a color
-        :param name: 
+        
+        :param name:
         :param color: 
         :raises ValueError:
         """

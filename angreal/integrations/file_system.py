@@ -17,6 +17,7 @@ module_logger = logging.getLogger(__name__)
 def copy_to_angreal(file,dst):
     """
     copy a file from static to destination
+    
     :param file: The name of the static file
     :param dst:
     :raises FileNotFoundError:
@@ -35,6 +36,7 @@ def copy_to_angreal(file,dst):
 def template_to_angreal(file, dst, **kwargs):
     """
     renders a template to a destination
+    
     :param file: the template to render
     :param dst:  where it should wind up
     :param kwargs: template variables
@@ -56,6 +58,7 @@ def template_to_angreal(file, dst, **kwargs):
 def register(src, dst):
     """
     Register a file INTO angreal
+    
     :param src: path to file
     :param dst: destination
     :raises FileNotFoundError:
@@ -82,6 +85,7 @@ def register(src, dst):
 def register_file(file):
     """
     copy a static file to angreal's static_files dir
+    
     :param file:
     :return:
     """
@@ -90,6 +94,7 @@ def register_file(file):
 def register_template(file):
     """
     copy a template to angreal's dynamic_files dir
+    
     :param file:
     :return:
     """
@@ -99,6 +104,7 @@ def register_template(file):
 def touch(file):
     """
     creates a file if it doesn't already exist. Doesn't actually update utime.
+    
     :param file:
     :return:
     """
@@ -108,6 +114,7 @@ def touch(file):
 def mdkir(dir):
     """
     makes a directory
+    
     :param dir:
     :return:
     """
@@ -118,11 +125,23 @@ def mdkir(dir):
 def set_read_on_global_files():
     """
     sets permissions to a+r on static and dynamic files
+    
     :return:
     """
     [os.chmod(i,stat.S_IROTH) for i in glob.glob(os.path.join(static_files),'*')]
     [os.chmod(i,stat.S_IROTH) for i in glob.glob(os.path.join(dynamic_files),'*')]
     os.chmod(global_config,stats.S_IROTH)
 
+def dir_is_empty(dir):
+    """
+    tests if a directory is empty or not
+    
+    :param dir:
+    :return:
+    """
+    dir = os.path.abspath(dir)
+    if not os.listdir(dir):
+        return True
+    return False
 
 
