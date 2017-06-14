@@ -16,37 +16,44 @@ module_logger = logging.getLogger(__name__)
 
 class AngrealConfig(object):
     def __init__(self, file=None,angreal_name=None):
-        if file:
-            self.process_config(file,is_global=True)
-        else :
-            self.valid_sections = {'structure', 'githost', 'template_variables', 'behaviour','user'}
-    
-            self.structure = {
-                'angreal_name': angreal_name,
-                'directories' : [],
-                'files'       : [],
-                'templates'   : []
-            }
-    
-            self.behaviour = {
-                'append'  : [],
-                'override': ['token']
-            }
-    
-            self.githost = {
-                'hostname' : '',
-                'api'      : '',
-                'labels'   : [],
-                'milestone': [],
-            }
-    
-            self.user = {
-                'token' : ''
-                }
-            self.template_variables = {}
+        self.valid_sections = {'structure', 'githost', 'template_variables', 'behaviour','user'}
+        
+        if not angreal_name:
+            angreal_name = ''
             
-        self.process_config(global_config,is_global=True)
-        self.process_config(user_config)
+        self.structure = {
+            'angreal_name': angreal_name,
+            'directories' : [],
+            'files'       : [],
+            'templates'   : []
+        }
+
+        self.behaviour = {
+            'append'  : [],
+            'override': ['token']
+        }
+        
+            
+        self.githost = {
+            'hostname' : '',
+            'api'      : '',
+            'labels'   : [],
+            'milestone': [],
+        }
+
+        self.user = {
+            'token' : ''
+            }
+        self.template_variables = {}
+        
+        if file:
+            self.behaviour['override'].append('angreal_name')
+            self.process_config(file,is_global=True)
+            self.process_config(user_config)
+        else :
+            self.process_config(global_config,is_global=True)
+            self.process_config(user_config)
+
 
 
     def process_config(self, file_path, is_global=False):
@@ -56,11 +63,12 @@ class AngrealConfig(object):
         :param is_global: whether or not to treat a config file as global
         :return:
         """
-        module_logger.warning('processing {}'.format(file_path))
+
+        module_logger.info('processing {}'.format(file_path))
         def set_variable(d, v, s):
             if isinstance(d[v], list):
                 if v in self.behaviour['append'] or is_global:
-                    value = [v.strip() for v in config.get(s, v, fallback=None).split('\n')]
+                    value = [v.strip() for v in config.get(s, v, fallback=None).split('\n') if v]
                     d[v] += value
 
             elif isinstance(d[v], str):
@@ -78,8 +86,10 @@ class AngrealConfig(object):
         for section in config:
             if section in self.valid_sections:
                 for variable in config[section]:
-                    if section is 'template_variables':
-                        if variable[:2] is 't_':
+
+                    if section == 'template_variables':
+                        if variable[:2] == 't_':
+
                             self.template_variables[variable] = config.get(section, variable)
 
                     elif variable in self.structure.keys():
@@ -132,6 +142,8 @@ class AngrealConfig(object):
                 angreal_config.write(f)
 
 
+
 if __name__ == '__main__':
     project = AngrealConfig(angreal_name='test')
     print(project.dump())
+
