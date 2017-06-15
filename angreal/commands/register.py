@@ -9,11 +9,8 @@ module_logger = logging.getLogger(__name__)
 
 
 
-def static():
-    pass
 
-def template():
-    pass
-
-def register():
+def register(args):
+    print(args)
+    print("REGISTERING FILES")
     pass

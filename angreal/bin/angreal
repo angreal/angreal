@@ -1,9 +1,0 @@
-#!/usr/bin/env python3
-
-import angreal
-from angreal import app
-import sys
-
-if __name__ == '__main__':
-    angreal.logger.run()
-    app.AngrealApp(sys.argv)

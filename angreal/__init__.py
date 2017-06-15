@@ -1,10 +1,13 @@
 import os
 
+from angreal import log
 
 
 angreal_location = os.path.abspath(os.path.dirname(__file__))
-static_files = os.path.join(angreal_location, 'static_files')
-dynamic_files = os.path.join(angreal_location, 'dynamic_files')
+
+templates_dir = os.path.join(angreal_location,'templates')
+
+
 global_config = os.path.join(angreal_location,'global.cfg')
 user_config = os.path.join(os.path.expanduser('~'),'.angrealrc')
 
@@ -20,6 +23,6 @@ from angreal.integrations.conda import CondaException
 from angreal.integrations.git_lab import GitLabHost
 import angreal.integrations.file_system
 
-from angreal.config import AngrealConfig
-from angreal import app
 
+
+__version__ = open(os.path.join(angreal_location , 'VERSION'),'r').read().strip()

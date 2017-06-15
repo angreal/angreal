@@ -6,8 +6,7 @@ import logging
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
 
-from angreal import static_files
-from angreal import dynamic_files
+from angreal import templates_dir
 from angreal import global_config
 
 module_logger = logging.getLogger(__name__)
@@ -55,7 +54,7 @@ def template_to_angreal(file, dst, **kwargs):
     with open(dst, 'w') as f:
         f.write(template.render(template_dict))
 
-def register(src, dst):
+def register(src, dst=templates_dir):
     """
     Register a file INTO angreal
     
@@ -81,24 +80,6 @@ def register(src, dst):
     
     shutil.copy(src,dst)
 
-
-def register_file(file):
-    """
-    copy a static file to angreal's static_files dir
-    
-    :param file:
-    :return:
-    """
-    register(file, static_files)
-
-def register_template(file):
-    """
-    copy a template to angreal's dynamic_files dir
-    
-    :param file:
-    :return:
-    """
-    register(file, dynamic_files)
 
 
 def touch(file):

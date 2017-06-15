@@ -14,5 +14,7 @@ import logging
 
 module_logger = logging.getLogger(__name__)
 
-def updating():
+def update(args):
+    print(args)
+    print('UPDATING THIS ANGREAL')
     pass

@@ -6,6 +6,6 @@ import logging
 
 module_logger = logging.getLogger(__name__)
 
-def init():
-    module_logger.info("Initializing angreal object")
-    pass
+def init(args):
+    print(args)
+    print('INITIALIZING ANGREAL')

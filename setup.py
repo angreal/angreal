@@ -2,7 +2,7 @@ import sys
 import os
 import setuptools
 
-VERSION = '0.0.1a'
+VERSION = open('angreal/VERSION').readline().strip()
 
 
 py_version_tag = '-%s.%s'.format(sys.version_info[:2])
@@ -11,6 +11,9 @@ py_version_tag = '-%s.%s'.format(sys.version_info[:2])
 if not sys.version_info >= (3,0):
     print('Python 3 is required',file=sys.stderr)
     exit(1)
+
+with open('requirements.txt' ,'r') as f:
+    requirements = f.read().splitlines()
 
 
 setuptools.setup(
@@ -25,7 +28,12 @@ setuptools.setup(
     author_email='dylan.storey@gmail.com',
     license='GPLv3',
     packages=['angreal'],
-    install_requires = [],
+    install_requires = requirements,
     zip_safe=False,
-    version=VERSION
+    version=VERSION,
+    entry_points={
+        'console_scripts': [
+            'angreal = angreal.app:main'
+            ]
+    }
 )
