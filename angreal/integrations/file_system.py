@@ -2,6 +2,7 @@ import os
 import glob
 import shutil
 import logging
+import stat
 
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
@@ -13,28 +14,10 @@ module_logger = logging.getLogger(__name__)
 
 
 
-def copy_to_angreal(file,dst):
+
+def template_to_project(file, dst, **kwargs):
     """
-    copy a file from static to destination
-    
-    :param file: The name of the static file
-    :param dst:
-    :raises FileNotFoundError:
-    """
-    src = os.path.abspath(os.path.join(static_files,file))
-    dst = os.path.abspath(dst)
-    
-    if not os.path.isfile(src):
-        msg = "file {} doesn't appear to have been registered".format(src)
-        module_logger.error(msg)
-        raise FileNotFoundError(msg)
-        
-    shutil.copy(src, dst)
-    
-    
-def template_to_angreal(file, dst, **kwargs):
-    """
-    renders a template to a destination
+    renders a template to a destination. If the template doesn't have any templated variables amounts to a copy.
     
     :param file: the template to render
     :param dst:  where it should wind up
@@ -43,14 +26,18 @@ def template_to_angreal(file, dst, **kwargs):
     """
     dst = os.path.abspath(dst)
     
-    env = Environment(loader=FileSystemLoader(dynamic_files))
-    
+    env = Environment(loader=FileSystemLoader(templates_dir))
+
+    if os.path.isdir(dst):
+        dst = os.path.join(dst,file)
+
     try:
         template = env.get_template(file)
     except TemplateNotFound:
         module_logger.error("file {} doesn't appear to have been registered".format(file))
-        raise
-        
+        raise EnvironmentError("file {} doesn't appear to have been registered".format(file))
+
+    template_dict = {**kwargs}
     with open(dst, 'w') as f:
         f.write(template.render(template_dict))
 
@@ -64,11 +51,11 @@ def register(src, dst=templates_dir):
     :raises EnviromentError:
     """
     
-    file_base = os.path.splitext(os.path.basename(src))[0]
+    file_base = os.path.basename(src)
     src = os.path.abspath(src)
     dst = os.path.join(dst,file_base)
     
-    if not os.path.isfile(file):
+    if not os.path.isfile(src):
         msg = "file {} doesn't appear to exist".format(src)
         module_logger.error(msg)
         raise FileNotFoundError(msg)
@@ -89,10 +76,11 @@ def touch(file):
     :param file:
     :return:
     """
-    open(file,'a').close()
+    open(file,'a+').close()
+    return
     
 
-def mdkir(dir):
+def make_dir(dir):
     """
     makes a directory
     
@@ -105,13 +93,12 @@ def mdkir(dir):
 
 def set_read_on_global_files():
     """
-    sets permissions to a+r on static and dynamic files
+    sets permissions to a+r on files.
     
     :return:
     """
-    [os.chmod(i,stat.S_IROTH) for i in glob.glob(os.path.join(static_files),'*')]
-    [os.chmod(i,stat.S_IROTH) for i in glob.glob(os.path.join(dynamic_files),'*')]
-    os.chmod(global_config,stats.S_IROTH)
+    [os.chmod(i, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH ) for i in glob.glob(os.path.join(templates_dir,'*'))]
+    os.chmod(global_config,stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 
 def dir_is_empty(dir):
     """

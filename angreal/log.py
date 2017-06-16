@@ -1,5 +1,10 @@
 """
-Shamelessly adapted from Camille Scott's work.
+
+Shamelessly taken from Camille Scott's dammit app. 
+
+https://github.com/camillescott/dammit/blob/master/dammit/log.py
+
+
 """
 import logging
 import os
@@ -30,10 +35,11 @@ class LogFormatter(logging.Formatter):
 
 
 class AngrealLogger(object):
-    '''Set up logging for the dammit application. We insulate it
-    in a class to let us choose to only activate it when the program itself
-    is run, effectively keeping the tests and any use of the API from
-    being noisy.
+
+    '''Set up logging for the angreal application. 
+    
+    Insulated to keep things from getting noisy.
+
     '''
     
     def __init__(self):
@@ -41,8 +47,9 @@ class AngrealLogger(object):
 
         
         self.config = {'format'  : '%(asctime)s %(name)s:%(funcName)s:%(lineno)d ' \
-                                   '[%(levelname)s] \n%(message)s\n-----',
-                       'datefmt' : '%m-%d %H:%M:%S',
+                                   '[%(levelname)s] %(message)s\n',
+                       'datefmt' : '%d-%m-%y %H:%M:%S',
+
                        'filename': self.log_file,
                        'filemode': 'a'}
         
@@ -55,10 +62,10 @@ class AngrealLogger(object):
         logging.basicConfig(level=logging.DEBUG, **self.config)
         
         self.console = logging.StreamHandler(sys.stderr)
-        self.console.setLevel(logging.INFO)
+
+        self.console.setLevel(logging.WARNING)
         self.formatter = LogFormatter()
         self.console.setFormatter(self.formatter)
         logging.getLogger('').addHandler(self.console)
-        logging.getLogger('').debug('*** the wheel turns ***')
-
+        logging.getLogger('main').debug('*** the wheel turns ***')
 

@@ -4,6 +4,8 @@ import shutil
 import sys
 
 from angreal import log
+from angreal import commands
+
 
 
 class AngrealApp(object):
@@ -46,23 +48,17 @@ class AngrealApp(object):
     def init(self):
         """
         init sub command , initializes a angreal project
+        
+        currently doesn't take any arguments, in the future, it is likely that individual config files and some
+        enviroment variables will be able to be passed to the function
         :return:
         """
         parser = argparse.ArgumentParser(
             description='create an angreal project', usage='''
-            angreal init <project name> [optional arguments]
-
-            Arguments:
-            config      a specific configuration file to use
-            token       a personal token code to use for git-host support
+            angreal init [optional arguments]
             ''')
-        parser.add_argument('project_name', help='The name for the project')
-        parser.add_argument(
-            '--config', help='use a specific complete configuration file')
-        parser.add_argument('--token', help='a personal token code to use')
-        init_args = parser.parse_args(self.args[2:])
-        init(init_args)
-        pass
+        args = parser.parse_args(self.args[2:])
+        commands.init(args)
 
     def update(self):
         """
@@ -71,12 +67,17 @@ class AngrealApp(object):
         """
         parser = argparse.ArgumentParser(
             description="update an angreal project", usage='angreal update')
-        update_args = parser.parse_args(self.args[2:])
+        args = parser.parse_args(self.args[2:])
+        commands.update(args)
         pass
 
     def config(self):
         """
         config sub command, lists current settings , or configures(and persists) a configuration parameter for angreal
+        
+        .. todo:
+        Parameter setting still not supported. Especially in the instance of "global" variables, care will be needed to
+        ensure that users have a hard time overriding global config settings.
         """
         parser = argparse.ArgumentParser(
             description="access angreal config",
@@ -88,12 +89,12 @@ class AngrealApp(object):
             '--global', help='change a setting in the global config file (requires root)')
         parser.add_argument(
             '--local', help='change a setting in the local  config file')
-        config_args = parser.parse_args(self.args[2:])
-        pass
+        args = parser.parse_args(self.args[2:])
+        commands.config(args)
 
-    def add_template(self):
+    def register(self):
         """
-        add_template: adds a template file to the angreal application.
+        registers a template to angreal
         :return:
         """
         parser = argparse.ArgumentParser(
@@ -102,27 +103,16 @@ class AngrealApp(object):
         parser.add_argument(
             'file', nargs='+', help='the jinja2 template to register, must have a unique name')
 
-        self.args = parser.parse_args(self.args[2:])
+        args = parser.parse_args(self.args[2:])
+        commands.register(args)
 
-        for file in self.args.file:
-            src = os.path.abspath(file)
-            dst = os.path.join(os.path.abspath(os.path.dirname(
-                __file__)), 'templates', os.path.basename(file.split('.')[0]))
 
-            if os.path.exists(dst):
-                print("The template {} already exists, skipping".format(
-                    file), file=sys.stderr)
-            else:
-                try:
-                    shutil.copy(src, dst)
-                except OSError as e:
-                    print("{}".format(e), file=sys.stderr)
-                    pass
-                except Exception as e:
-                    print("{}".format(e), file=sys.stderr)
-                    pass
 
 
 def main():
+    """
+    Main entry point for the angreal app
+    :return: 
+    """
     log.AngrealLogger().run()
     AngrealApp()

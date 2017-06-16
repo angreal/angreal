@@ -1,9 +1,12 @@
 """
 angreal command for triggering a build process
 
-What does 'build' mean , is it customizable,
+What does 'build' mean , is it customizable, etc. 
+
 ¯\_(ツ)_/¯
 
+
+This process needs to be defined
 """
 import logging
 
