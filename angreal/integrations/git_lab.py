@@ -1,7 +1,7 @@
 import gitlab
 import logging
 import getpass
-
+import colour
 
 
 module_logger = logging.getLogger(__name__)
@@ -67,21 +67,29 @@ class GitLabHost(object):
                                     'name': name
                                     })
 
-
-
+    # noinspection PyUnreachableCode
     def delete_label(self,label_id=None,label_name=None):
         """
         Delete a label from a project based on label_id or label_name. 
         If both are provided, it will check that they're the same.
         
+        .. todo:
+        This doesn't appear to be working when manually testing.
+        
         :param label_id:
         :param label_name:  
         :raises: ValueError
         """
+        
+        raise NotImplementedError
+        
         if not self.project:
             msg = "Attempted to delete a label without a project object being set"
             module_logger.error(msg)
             raise ValueError(msg)
+        
+        t_label_id = None
+        
         if label_name:
             t_label_id = self.project.labels.get(label_name)
 
@@ -120,7 +128,7 @@ class GitLabHost(object):
 
 
 
-    def create_milestone(self,name):
+    def create_milestone(self,name,description=None):
         """
         creates a milestone for a project
         :param name: The name of the milestone
@@ -130,8 +138,11 @@ class GitLabHost(object):
             msg = "Attempted to create a milestone with out a project being set"
             module_logger.error(msg)
             raise ValueError(msg)
-
-        self.project.milestones.create({'title': name})
+        if not description:
+            description = ''
+        self.project.milestones.create({'title': name,
+                                        'description' : description
+                                        })
 
 
 
