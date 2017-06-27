@@ -1,5 +1,4 @@
-# Created by .ignore support plugin (hsz.mobi)
-### Python template
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -199,4 +198,4 @@ $RECYCLE.BIN/
 
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
-/angreal.egg-info/
+

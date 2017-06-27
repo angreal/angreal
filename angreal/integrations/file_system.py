@@ -4,7 +4,7 @@ import shutil
 import logging
 import stat
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, meta
 from jinja2.exceptions import TemplateNotFound
 
 from angreal import templates_dir
@@ -22,7 +22,7 @@ def template_to_project(file, dst, **kwargs):
     :param file: the template to render
     :param dst:  where it should wind up
     :param kwargs: template variables
-    :return:
+    :return dict: template variables used
     """
     dst = os.path.abspath(dst)
     
@@ -37,9 +37,24 @@ def template_to_project(file, dst, **kwargs):
         module_logger.error("file {} doesn't appear to have been registered".format(file))
         raise EnvironmentError("file {} doesn't appear to have been registered".format(file))
 
+    #What was I passed
     template_dict = {**kwargs}
+    
+    #What do I need
+    ast = env.parse(file)
+    variables = meta.find_undeclared_variables(ast)
+    
+    #Diff
+    unset_variables = variables - set(template_dict.keys())
+    
+    #Update
+    for unset in unset_variables:
+        template_dict[unset] = input('value for {}'.format(unset))
+        
     with open(dst, 'w') as f:
         f.write(template.render(template_dict))
+        
+    return template_dict
 
 def register(src, dst=templates_dir):
     """

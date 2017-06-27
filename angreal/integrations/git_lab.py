@@ -140,10 +140,10 @@ class GitLabHost(object):
             raise ValueError(msg)
         if not description:
             description = ''
+
         self.project.milestones.create({'title': name,
                                         'description' : description
                                         })
-
 
 
     def get_token(self):

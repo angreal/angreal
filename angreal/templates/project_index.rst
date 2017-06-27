@@ -8,6 +8,12 @@ Welcome to {{ project_name }}'s documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   project_description
+   project_scope
+   business_minutes
+   project_results
+
+
 
 
 Indices and tables
