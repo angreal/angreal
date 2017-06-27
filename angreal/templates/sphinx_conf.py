@@ -48,7 +48,7 @@ extensions = ['sphinx.ext.autodoc',
 source_suffix = '.rst'
 
 # The master toctree document.
-master_doc = '{{ project_name }}'
+master_doc = '{{ project_name }}_index'
 
 # General information about the project.
 project = '{{ project_name }}'
