@@ -95,7 +95,7 @@ def init(args):
         #make directory structure
         for d in structure['directories']:
             file_system.make_dir(d)
-        
+
         #touches
         for f in structure['files']:
             file_system.touch(f)
@@ -108,7 +108,13 @@ def init(args):
                 module_logger.error(msg)
                 raise TypeError(msg)
             file_system.template_to_project(template_info[1],template_info[0],**template_variables)
-            
+
+        # reloop to add empty dirs
+        # make directory structure
+        for d in structure['directories']:
+            if file_system.dir_is_empty(d):
+                file_system.touch(os.path.join(d,'.empty'))
+
         #git init and git add
         git = Git()
         git.init()
