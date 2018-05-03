@@ -11,7 +11,7 @@ except ImportError: # for pip <= 9.0.3
 try:
     from pip._internal.download import PipSession
 except:
-    from pip..download import PipSession
+    from pip.download import PipSession
 
 VERSION = open(os.path.join('angreal', 'VERSION')).read().strip()
 py_version_tag = '-%s.%s'.format(sys.version_info[:2])
