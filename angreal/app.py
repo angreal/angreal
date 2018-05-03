@@ -1,118 +1,55 @@
-import argparse
-import os
-import shutil
 import sys
+import argparse
+import inspect
 
-from angreal import log
-from angreal import commands
-
+from doit.doit_cmd import DoitMain
+from angreal.utils import get_angreal_task_path,get_task_docs,get_task_names
+from angreal.parser import get_init_parser,get_task_parser
+from angreal.task_loader import AngrealTaskLoader
 
 
 class AngrealApp(object):
-    def __init__(self, args=sys.argv):
+
+    def __init__(self):
         """
-        Main entry for the AngrealApp
-        :param args: sys.argv
+        Initialize the application
         """
-        super(AngrealApp, self).__init__()
-        
-        
-        parser = argparse.ArgumentParser(
-            description='Project Templating for Code Based Projects',
-            usage='''angreal <command> [<self.args>]
 
-            Commands are:
-            init      create a new angreal templated project
-            update      update a current angreal templated project
-            settings    access global and local settings for angreal
-            register    register a new template into angreal
-            
-            
-            For more specific information about a command use:
-            angreal <command> --help
-            ''',
-        )
+        self.tasks = set()
+        #Do I look like I'm in an angreal project
+        try:
+            self.angreal_project = get_angreal_task_path()
+        except FileNotFoundError:
+            self.angreal_project = False
 
-        self.args = args
 
-        parser.add_argument('command', help='a command to run')
-        super_args = parser.parse_args(self.args[1:2])
+        if self.angreal_project:
+            parser=get_task_parser()
+            self.tasks=get_task_names()
+        else :
+            parser=get_init_parser()
 
-        if not hasattr(self, super_args.command):
-            print('Un-recognized command {}'.format(self.args.command), file=sys.stderr)
+
+
+        super_args = parser.parse_args(sys.argv[1:2])
+
+
+        if hasattr(self,super_args.task):
+            getattr(self,super_args.task)()
+        elif super_args.task in self.tasks:
+                self.doit()
+        else:
+            print('Un-recognized command "{}"'.format(super_args.task), file=sys.stderr)
             parser.print_help()
             sys.exit(1)
 
-        getattr(self, super_args.command)()
-
     def init(self):
-        """
-        init sub command , initializes a angreal project
-        
-        currently doesn't take any arguments, in the future, it is likely that individual config files and some
-        enviroment variables will be able to be passed to the function
-        :return:
-        """
-        parser = argparse.ArgumentParser(
-            description='create an angreal project', usage='''
-            angreal init [optional arguments]
-            ''')
-        args = parser.parse_args(self.args[2:])
-        commands.init(args)
+        parser = get_init_parser()
+        super_args = parser.parse_args(sys.argv[1:])
+        print('initializing')
 
-    def update(self):
-        """
-        update sub command, updates an angreal project - this behavior is still undefined.
-        :return:
-        """
-        parser = argparse.ArgumentParser(
-            description="update an angreal project", usage='angreal update')
-        args = parser.parse_args(self.args[2:])
-        commands.update(args)
-        pass
-
-    def config(self):
-        """
-        config sub command, lists current settings , or configures(and persists) a configuration parameter for angreal
-        
-        .. todo:
-        Parameter setting still not supported. Especially in the instance of "global" variables, care will be needed to
-        ensure that users have a hard time overriding global config settings.
-        """
-        parser = argparse.ArgumentParser(
-            description="access angreal config",
-            usage='''angreal config [<self.args>]
-            '''
-        )
-        parser.add_argument('--list', help='list current angreal settings')
-        parser.add_argument(
-            '--global', help='change a setting in the global config file (requires root)')
-        parser.add_argument(
-            '--local', help='change a setting in the local  config file')
-        args = parser.parse_args(self.args[2:])
-        commands.config(args)
-
-    def register(self):
-        """
-        registers a template to angreal
-        :return:
-        """
-        parser = argparse.ArgumentParser(
-            description="register a template to angreal", usage='angreal register <file>')
-
-        parser.add_argument(
-            'file', nargs='+', help='the jinja2 template to register, must have a unique name')
-
-        args = parser.parse_args(self.args[2:])
-        commands.register(args)
+    def doit(self):
+        exit(DoitMain(task_loader=AngrealTaskLoader()).run(sys.argv[1:]))
 
 
 
-
-def main():
-    """
-    Main entry point for the angreal app
-    :return: 
-    """
-    log.AngrealLogger().run()
-    AngrealApp()
