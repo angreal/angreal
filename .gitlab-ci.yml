@@ -6,7 +6,6 @@ variables:
   PYPI_PASSWORD: SECURE
 
 before_script:
-  - pip list
   - VERSION=`cat angreal/VERSION`
 
 
@@ -19,8 +18,8 @@ unit-test:
   image: python:3
   stage: unit-test
   script:
-    - pip install -r requirements/dev.txt
     - doit tests
+    - pip install -e .
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
   except:
     - tags
