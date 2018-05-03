@@ -30,6 +30,7 @@ release:
   stage: release
   before_script:
     - VERSION=`cat angreal/VERSION`
+    - if ! [[ "$CI_COMMIT_REF_NAME" == "master" ]]; then exit -1; fi
     - if ! [[ "$CI_BUILD_TAG" = "$VERSION" ]]; then echo "$VERSION does not match $CI_BUILD_TAG"; exit -1 ; fi
   script:
     - echo "[server-login]" >> ~/.pypirc
@@ -38,7 +39,7 @@ release:
     - python setup.py check sdist bdist upload
     - echo "" > ~/.pypirc && rm ~/.pypirc
   only:
-    - master
+    - tags
 
 
 cleanup_release:
@@ -47,4 +48,4 @@ cleanup_release:
   script:
     - rm -vf ~/.pypirc
   only:
-    - master
+    - tags
