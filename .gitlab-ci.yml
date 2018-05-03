@@ -29,6 +29,7 @@ release:
   image: python:3
   stage: release
   before_script:
+    - pip list
     - VERSION=`cat angreal/VERSION`
     - if ! [[ "$CI_BUILD_TAG" = "$VERSION" ]]; then echo "$VERSION does not match $CI_BUILD_TAG"; exit -1 ; fi
   script:
