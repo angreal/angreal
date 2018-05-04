@@ -1,10 +1,5 @@
 image: python:3
 
-
-variables:
-  PYPI_USER: SECURE
-  PYPI_PASSWORD: SECURE
-
 before_script:
   - VERSION=`cat angreal/VERSION`
 
