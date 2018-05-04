@@ -30,9 +30,9 @@ release:
   script:
     - pip install -r requirements/dev.txt
     - echo "[server-login]" >> ~/.pypirc
-    - echo "username=" ${PYPI_USER} >> ~/.pypirc
-    - echo "password=" ${PYPI_PASSWORD} >> ~/.pypirc
-    - python setup.py check sdist bdist upload
+    - echo "username="$PYPI_USER >> ~/.pypirc
+    - echo "password="$PYPI_PASSWORD >> ~/.pypirc
+    - python setup.py check sdist bdist_wheel upload
     - echo "" > ~/.pypirc && rm ~/.pypirc
   only:
     - tags
