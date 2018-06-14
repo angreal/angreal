@@ -10,10 +10,10 @@ def task_tests():
     :return:
     """
     DEPENDENCIES = [x for x in glob.glob('angreal/*.py', recursive=True) if x[:-3] != 'pyc']
-
+    DEPENDENCIES += list([x for x in glob.glob('test/*.py', recursive=True) if x[:-3] != 'pyc'])
     return {
         'actions': ['nosetests --with-coverage --cover-package=angreal'],
-        'file_dep': DEPENDENCIES,
+        # 'file_dep': DEPENDENCIES,
         'targets': ['.coverage'],
     }
 
@@ -40,3 +40,12 @@ def task_cleanup():
         'actions': [clean]
     }
 
+def task_coverage():
+    """
+    Running nosetests with coverage
+    :return:
+    """
+
+    return {
+        'actions': ['nosetests --logging-level=FATAL --with-coverage --cover-package angreal --cover-html --cover-erase ']
+    }

@@ -1,62 +1,42 @@
 import os
 from pathlib import Path
-from doit import loader
-import inspect
-
-DEFAULT_FILE = os.path.join('.angreal', 'angreal_tasks.py')
-
-DOIT_CMDS = ['list','info','help','auto','clean','forget','ignore']
-
-def get_task_names(file=DEFAULT_FILE):
-    """
-    Get a list of task names in the angreal file
-    :param file:
-    :return:
-    """
-
-    module = loader.get_module(get_angreal_task_path(file))
-    members = dict(inspect.getmembers(module))
-    tasks = loader.load_tasks(members)
-
-    return set([task.name for task in tasks] + DOIT_CMDS)
+import importlib.util
 
 
-def get_task_docs(file=DEFAULT_FILE):
-    """
-    Get task documentation w/o execution
-    :param file:
-    :return:
-    """
-
-    module = loader.get_module(get_angreal_task_path(file))
-    members = dict(inspect.getmembers(module))
-    tasks = loader.load_tasks(members)
-
-    return "\n".join(['    {}        {}'.format(task.name,task.doc) for task in tasks])
+DEFAULT_FOLDER = '.angreal'
 
 
-def get_angreal_task_path(file=DEFAULT_FILE):
+def get_angreal_path(dir=DEFAULT_FOLDER):
     """
     Attempts to find the angreal_tasks file by traversing parent directories until it's found.
 
-    :param file: location of your angreal_tasks file.
+    :param dir: location of your projects angreal folder
     :return: path
     """
 
-    file = list(os.path.split(file))
+
     current_path = Path(os.getcwd())
 
     angreal_path = None
 
+    #Look up the tree until we hit the root directory
     paths_to_test = [os.getcwd()] + list(current_path.parents)
 
     for p in paths_to_test:
-        test_path = os.path.join(p, *file)
-        if os.path.isfile(test_path):
+        test_path = os.path.join(p, dir)
+        if os.path.isdir(test_path):
             angreal_path = test_path
             break
 
     if not angreal_path:
-        raise FileNotFoundError("Unable to find angreal_task file {}.".format(os.path.join(*file)))
+        raise FileNotFoundError("Unable to find angreal_task dir {}.".format(os.path.join(dir)))
 
     return angreal_path
+
+
+def import_from_file(file):
+    module_name = os.path.split(file)[-1][:-3]
+    spec = importlib.util.spec_from_file_location(module_name, file)
+    task = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(task)
+    return task

@@ -2,21 +2,32 @@ import os
 import unittest
 from nose.tools import raises
 
-from angreal.utils import get_angreal_task_path
-
+from angreal.utils import get_angreal_path
 
 class TestUtils(unittest.TestCase):
 
     def test_get_angreal_task_path(self):
         """
-        find a file that exists
+        test that we can find the path to the projects angreal directory
         :return:
         """
         original_dir = os.getcwd()
         os.chdir(os.path.join(os.path.dirname(__file__), 'fake-repo'))
-        file = get_angreal_task_path(file=os.path.join('.angreal', 'angreal_tasks.py'))
-        assert os.path.exists(file)
+        path = get_angreal_path(dir='.angreal')
+        assert os.path.exists(path)
         os.chdir(original_dir)
+
+
+    def test_from_not_root(self):
+        """
+        test that we recurse up correctly
+        """
+        original_dir = os.getcwd()
+        os.chdir(os.path.join(os.path.dirname(__file__), 'fake-repo','fake-project'))
+        path = get_angreal_path(dir='.angreal')
+        assert os.path.exists(path)
+        os.chdir(original_dir)
+
 
     @raises(FileNotFoundError)
     def test_get_angreal_task_path_bad(self):
@@ -25,4 +36,4 @@ class TestUtils(unittest.TestCase):
         :return:
         """
 
-        get_angreal_task_path(file='.angreal/no_angreal_tasks.py')
+        get_angreal_path(dir='.noangreal')

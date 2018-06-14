@@ -48,7 +48,7 @@ setuptools.setup(
     version=VERSION,
     entry_points={
         'console_scripts': [
-            'angreal = angreal.main:main'
+            'angreal = angreal.cli:angreal_cmd'
         ]
     },
     python_requires='>=3.6',

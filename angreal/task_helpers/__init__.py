@@ -4,7 +4,9 @@
 
     functions that help make writing tasks a little easier
 """
-
+import os
+import shutil
+import fnmatch
 
 def check_environment(*name):
     """
@@ -17,6 +19,8 @@ def check_environment(*name):
             return
         if n.lower() in os.environ.keys():
             return
+        if n.upper() in os.environ.keys():
+            return
         raise EnvironmentError('The Environemental variable {} is required.'.format(n))
 
 def check_files(*src):
@@ -27,7 +31,7 @@ def check_files(*src):
     """
     for s in src:
         if not os.path.isfile(s):
-            raise FileExistsError('File {} not found.'.format(s))
+            raise FileNotFoundError('File {} not found.'.format(s))
 
 def copy_files(dst, *src):
     """
