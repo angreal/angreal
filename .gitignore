@@ -161,3 +161,4 @@ q.doit.db.dat
 cover/
 .doit.db.dat
 /tests/fake-repo/.angreal/.doit.db.db
+/docs/build/
