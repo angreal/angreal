@@ -1,8 +1,7 @@
-import unittest
 import os
 
-from tests import AngrealTest
 from angreal import AngrealCLI
+from tests import AngrealTest
 
 
 class TestCLI(AngrealTest):
