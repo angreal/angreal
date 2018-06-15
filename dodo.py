@@ -49,3 +49,25 @@ def task_coverage():
     return {
         'actions': ['nosetests --logging-level=FATAL --with-coverage --cover-package angreal --cover-html --cover-erase ']
     }
+
+
+
+def task_docs():
+    """
+    Build our documentation
+    :return:
+    """
+    return{
+        'actions' : ['sphinx-apidoc -fMTeE -o docs/source angreal/ && cd docs && make clean && make html'] ,
+        }
+
+
+def task_doc_coverage():
+    """
+    Find out what documentation we need to get finished
+    :return:
+    """
+    os.environ['SPHINX_APIDOC_OPTIONS']='members'
+    return {
+        'actions' : ['sphinx-apidoc -fMTeE -o docs/source angreal/ && cd docs && make coverage && cat build/coverage/python.txt >&2'] ,
+}

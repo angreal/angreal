@@ -1,0 +1,2 @@
+.. automodule:: angreal.cli
+    :members:

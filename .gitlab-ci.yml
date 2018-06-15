@@ -8,6 +8,21 @@ before_script:
 stages:
   - unit-test
   - release
+  - pages
+
+pages:
+  image: python:3
+  stage: pages
+  script:
+    - pip install -r requirements/dev.txt
+    - doit docs
+    - mkdir public
+    - cp docs/html/* public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - tags
 
 unit-test:
   image: python:3
