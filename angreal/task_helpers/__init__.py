@@ -4,9 +4,10 @@
 
     functions that help make writing tasks a little easier
 """
+import fnmatch
 import os
 import shutil
-import fnmatch
+
 
 def check_environment(*name):
     """

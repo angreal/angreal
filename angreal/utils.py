@@ -1,7 +1,6 @@
+import importlib.util
 import os
 from pathlib import Path
-import importlib.util
-
 
 DEFAULT_FOLDER = '.angreal'
 

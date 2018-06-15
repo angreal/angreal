@@ -30,7 +30,6 @@ def initialize_cutter(template, **kwargs):
     angreal_hidden = os.path.join(project_path, '.angreal')
     generated_replay = os.path.join(os.environ.get('HOME'), '.cookiecutter_replay', '{}.json'.format(template_name))
 
-
     assert os.path.isfile(generated_replay)
 
 
