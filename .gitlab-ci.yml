@@ -17,7 +17,7 @@ pages:
     - pip install -r requirements/dev.txt
     - doit docs
     - mkdir public
-    - cp docs/build/html/* public/
+    - cp -r docs/build/html/* public/
   artifacts:
     paths:
       - public
