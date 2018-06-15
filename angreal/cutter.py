@@ -18,13 +18,22 @@ def initialize_cutter(template, **kwargs):
     :return:
     """
     kwargs.pop('replay', None)
+
     project_path = cookiecutter(template, **kwargs)
+
+    template_name = os.path.split(template)[-1]
+    if template_name.endswith('.git'):
+        template_name = template_name[:-4]
+
 
     project_name = os.path.split(project_path)[-1]
     angreal_hidden = os.path.join(project_path, '.angreal')
-    generated_replay = os.path.join(os.environ.get('HOME'), '.cookiecutter_replay', '{}.json'.format(template))
+    generated_replay = os.path.join(os.environ.get('HOME'), '.cookiecutter_replay', '{}.json'.format(template_name))
+
 
     assert os.path.isfile(generated_replay)
+
+
     os.makedirs(angreal_hidden, exist_ok=True)
 
     shutil.move(generated_replay, os.path.join(angreal_hidden, '{}-replay.json'.format(project_name)))

@@ -40,3 +40,4 @@ def import_from_file(file):
     task = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(task)
     return task
+
