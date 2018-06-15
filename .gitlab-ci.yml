@@ -8,6 +8,7 @@ before_script:
 stages:
   - unit-test
   - release
+  - pages
 
 pages:
   image: python:3
