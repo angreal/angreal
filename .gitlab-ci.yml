@@ -22,7 +22,7 @@ pages:
     paths:
       - public
   only:
-    - tags
+    - master
 
 unit-test:
   image: python:3
