@@ -1,2 +1,0 @@
-.. automodule:: angreal.cutter
-    :members:

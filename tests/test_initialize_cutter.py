@@ -1,7 +1,8 @@
-import unittest
-import os
 import filecmp
+import os
 import shutil
+import unittest
+
 from angreal.cutter import initialize_cutter
 
 
