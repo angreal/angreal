@@ -29,7 +29,7 @@ def task_cleanup():
         rm_files = ['.coverage', 'test_broker.sqlite3', 'data_logs.sqlite3', '.doit.db.db']
 
         [rm_dirs.append(f) for f in glob.glob('**', recursive=True) if os.path.basename(f) == '__pycache__']
-        [rm_files.append(f) for f in glob.glob('docs/source/*.rst', recursive=True) if package in f]
+        [rm_files.append(f) for f in glob.glob('docs/source/*.rst', recursive=True) if 'angreal' in f]
 
         rm_dirs = [d for d in rm_dirs if os.path.isdir(d)]
         rm_files = [f for f in rm_files if os.path.exists(f)]
