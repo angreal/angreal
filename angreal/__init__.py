@@ -11,12 +11,18 @@ class AngrealCLI(click.MultiCommand):
 
     def list_commands(self,ctx):
         rv = list()
-        angreal_path = get_angreal_path()
+
+        # If we can't find out .angreal , return an empty command listpwd
+        try:
+            angreal_path = get_angreal_path()
+        except FileNotFoundError:
+            return []
+
+        #Otherwise, get all the 'task' files available
         for file in os.listdir(angreal_path):
             if file.endswith('.py') and file.startswith('task_'):
                 rv.append(file[5:-3])
-        rv.sort()
-
+        rv.sort(key= lambda x : x[5:-3])
         #Get base init add to front
         return rv
 
