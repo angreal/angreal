@@ -2,9 +2,8 @@ import angreal
 
 
 @angreal.command()
-@angreal.argument('args')
 @angreal.option('--foo',default='bar')
-def init(args,foo):
+def init(foo):
     """
     This is a test init command
     """
