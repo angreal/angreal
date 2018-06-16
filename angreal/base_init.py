@@ -14,6 +14,8 @@ import tempfile
 import click
 from click.testing import CliRunner
 
+from cookiecutter.exceptions import OutputDirExistsException
+
 import angreal
 from angreal.cutter import initialize_cutter
 from angreal.utils import get_angreal_path, import_from_file
@@ -65,7 +67,10 @@ def base_init(repository,init_args,help):
         print_nested_help(repository)
         exit(0)
 
-    project_path = initialize_cutter(repository)
+    try:
+        project_path = initialize_cutter(repository)
+    except OutputDirExistsException:
+        exit(-2)
     os.chdir(project_path)
     file = os.path.join(get_angreal_path(), 'init.py')
 
@@ -75,19 +80,24 @@ def base_init(repository,init_args,help):
 
         try:
             # Try to run the "init" function in the task_init file, pass through all of the init_args
-            runner = CliRunner()
-            result = runner.invoke(mod.init, init_args)
-            print(result.output)
-        except Exception:
-            # Failures should raise immediately
+            result = CliRunner().invoke(mod.init, init_args)
+            if result.exit_code != 0 :
+                raise Exception
+            if result.exception :
+                raise result.exception
+        except Exception as e:
+            # Something happened in the sub init execution
+            shutil.rmtree(project_path)
             raise
+            exit (-1)
 
         # Init commands should only be run ONCE
         os.unlink(file)
 
     except (ImportError, FileNotFoundError):
         # if the file doesn't exist or import fails pass
-        pass
+        shutil.rmtree(project_path)
+        exit(-1)
 
     return
 
