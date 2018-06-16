@@ -22,8 +22,7 @@ class AngrealCLI(click.MultiCommand):
         for file in os.listdir(angreal_path):
             if file.endswith('.py') and file.startswith('task_'):
                 rv.append(file[5:-3])
-        rv.sort(key= lambda x : x[5:-3])
-        #Get base init add to front
+        rv.sort()
         return rv
 
 

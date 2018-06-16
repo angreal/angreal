@@ -12,9 +12,8 @@ class TestCLI(AngrealTest):
         :return:
         """
         test_cli = AngrealCLI({})
-        print(os.getcwd())
         tasks = test_cli.list_commands({})
-        assert tasks == ['test_1', 'test_2']
+        self.assertListEqual(tasks, ['test_1','test_2'])
 
     def test_get_commands(self):
         test_cli = AngrealCLI({})

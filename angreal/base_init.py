@@ -82,7 +82,7 @@ def base_init(repository,init_args,help):
             # Try to run the "init" function in the task_init file, pass through all of the init_args
             result = CliRunner().invoke(mod.init, init_args)
             if result.exit_code != 0 :
-                raise Exception
+                raise Exception(result.__dict__)
             if result.exception :
                 raise result.exception
         except Exception as e:
