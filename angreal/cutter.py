@@ -21,6 +21,10 @@ def initialize_cutter(template, **kwargs):
 
     project_path = cookiecutter(template, **kwargs)
 
+    #strip trailing slashes
+    if template.endswith('/'):
+        template = template[:-1]
+
     template_name = os.path.split(template)[-1]
     if template_name.endswith('.git'):
         template_name = template_name[:-4]
