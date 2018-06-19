@@ -5,5 +5,3 @@
 Full documentation avaialble [here](https://dylanbstorey.gitlab.io/angreal).
 
 Angreal is a tool for templating projects and associated processes that go with these projects.
-
-
