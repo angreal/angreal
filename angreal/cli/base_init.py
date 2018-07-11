@@ -58,8 +58,9 @@ def print_nested_help(repository):
                  add_help_option=False)
 @angreal.argument('repository')
 @angreal.argument('init_args', nargs=-1, type=click.UNPROCESSED)
+@angreal.option('--no-input', is_flag=True, help='Do not prompt for parameters and only use cookiecutter.json file content')
 @angreal.option('--help','-h', is_flag=True, help='Display a help message')
-def base_init(repository,init_args,help):
+def base_init(repository,init_args,help,no_input=False):
     """
     Initialize an angreal based project.
     """
@@ -68,7 +69,7 @@ def base_init(repository,init_args,help):
         exit(0)
 
     try:
-        project_path = initialize_cutter(repository)
+        project_path = initialize_cutter(repository,no_input=no_input)
     except OutputDirExistsException:
         exit(-2)
     os.chdir(project_path)
@@ -77,14 +78,9 @@ def base_init(repository,init_args,help):
     try:
         # First try to import the file
         mod = import_from_file(file)
-
         try:
             # Try to run the "init" function in the task_init file, pass through all of the init_args
-            result = CliRunner().invoke(mod.init, init_args)
-            if result.exit_code != 0 :
-                raise Exception(result.__dict__)
-            if result.exception :
-                raise result.exception
+            mod.init(init_args)
         except Exception as e:
             # Something happened in the sub init execution
             shutil.rmtree(project_path)

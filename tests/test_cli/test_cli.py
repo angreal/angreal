@@ -1,6 +1,6 @@
 import os
 
-from angreal import AngrealCLI
+from angreal.cli import AngrealCLI
 from tests import AngrealTest
 
 
