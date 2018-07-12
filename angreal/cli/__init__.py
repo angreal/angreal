@@ -1,3 +1,10 @@
+"""
+    angreal.cli
+    ~~~~~~~~~~~
+
+    The command line interface for angreal
+
+"""
 import os
 
 import click

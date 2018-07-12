@@ -1,3 +1,9 @@
+"""
+    angreal.utils
+    ~~~~~~~~~~~~~
+
+    utilities for interacting with angreal files and projects
+"""
 import importlib.util
 import os
 from pathlib import Path

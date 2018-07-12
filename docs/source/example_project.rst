@@ -136,6 +136,7 @@ Let's take see how this works now.
 **Initializing a new set of minutes**
 
 .. code-block:: bash
+
     $: angreal init angreal/example --help
 
     Usage:  [OPTIONS] REPOSITORY [INIT_ARGS]...
@@ -161,6 +162,7 @@ going to assume that we're not holding meetings for the sake of it so lets creat
 
 
 .. code-block:: bash
+
     $: angreal init angreal/example
     name [meeting-minutes]: hall-of-the-tower
     $: ls
@@ -177,6 +179,7 @@ Let's start using our project.
     $: cd hall-of-the-tower
 
     # What commands do i have access to ?
+
     $: angreal --help
     Usage: angreal [OPTIONS] COMMAND [ARGS]...
 
