@@ -13,7 +13,7 @@ import requests
 
 class GitLabProject(object):#pragma : no cover
 
-    def __init__(self,url,token=None,id = None,proxy=False):
+    def __init__(self,url,token=None,proxy=False):
         """
         initialize a connection to Gitlab
 
@@ -103,7 +103,6 @@ class GitLabProject(object):#pragma : no cover
 
         :param name: 
         :param color: 
-
         """
         if self.project:
             self.project.labels.create({
