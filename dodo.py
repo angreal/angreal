@@ -5,6 +5,10 @@ import shutil
 import glob
 
 
+DOIT_CONFIG = {
+    'backend' : 'json'
+}
+
 def task_tests():
     """
     Running nosetests
