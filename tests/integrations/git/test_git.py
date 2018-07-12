@@ -32,8 +32,6 @@ class TestGit(unittest.TestCase):
         test that object fails with bad sub-command
         """
         git = Git()
-        import sys
-        print(git.working_dir, file=sys.stderr)
 
         try:
             git.frombicate()
@@ -54,5 +52,3 @@ class TestGit(unittest.TestCase):
         shutil.rmtree('git_test')
 
 
-
-pass
