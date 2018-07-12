@@ -6,7 +6,6 @@
 """
 
 
-
 class GitHost(object):
 
     def __init__(self):
@@ -38,11 +37,3 @@ class GitHost(object):
 
     def create_issue(self):
         raise NotImplementedError()
-
-
-
-
-
-
-
-
