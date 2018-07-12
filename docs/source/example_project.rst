@@ -43,6 +43,7 @@ Open ``.angreal/init.py`` in your favorite editor and add the following code.
     :linenos:
 
     import angreal
+
     @angreal.command()
     @angreal.option('--no_objectives',is_flag=True, help="These meetings are pointless")
     def init(no_objectives):
@@ -50,10 +51,10 @@ Open ``.angreal/init.py`` in your favorite editor and add the following code.
         Initialize your meetings project.
         """
 
-        if not no_objectives:
-            with open('Introduction.md') as f:
-                print('Meeting Objectives', file=f)
-                print( input("Describe the objective(s) of this meeting series", file=f)
+        with open('Introduction.md','w') as f:
+            print('Meeting Objectives', file=f)
+            if not no_objectives:
+                print( input("Describe the objective(s) of this meeting series"), file=f)
 
         return
 
@@ -81,6 +82,7 @@ Open your favorite editor and add the following code to ``.angreal/task_take_min
 
 
 .. code-block:: python
+    :linenos:
 
     import angreal
 
