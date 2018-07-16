@@ -178,7 +178,9 @@ Let's start using our project.
 
     $: cd hall-of-the-tower
 
-    # What commands do i have access to ?
+What commands do i have access to ?
+
+.. code-block:: bash
 
     $: angreal --help
     Usage: angreal [OPTIONS] COMMAND [ARGS]...
@@ -189,7 +191,9 @@ Let's start using our project.
     Commands:
       take_minutes  create a file for taking minutes
 
-    # How does take_minutes work ?
+How does take_minutes work ?
+.. code-block:: bash
+
     $: angreal take_minutes --help
 
     Usage: angreal take_minutes [OPTIONS]
@@ -201,12 +205,15 @@ Let's start using our project.
       --help  Show this message and exit.
 
 
-    # Let's take some minutes, right now
+Let's take some minutes, right now
+
+.. code-block:: bash
 
     $: export EDITOR='vim'
     $: angreal take_minutes --now
 
-    # This will open a vim editor, write a note to yourself (i) and exit (-Esc-:w:q).
+This will open a vim editor, write a note to yourself (i) and exit (-Esc-:w:q).
+.. code-block:: bash
 
     $: ls
     2018-06-16-13-12.md  Introduction.md

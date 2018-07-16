@@ -4,14 +4,20 @@
 
     Project creation and management within Gitlab servers
 
-    .. todo: Write proper integration tests for this class
+    .. todo::
+        * Write proper integration tests for this class
+        * Lazy methods for update followed by a single api call
+
 """
 import gitlab
 import os
 import requests
 
 
-class GitLabProject(object):#pragma : no cover
+class GitLabProject(object): #pragma: no cover
+    """
+    A class for interacting with projects on GitLab
+    """
 
     def __init__(self,url,token=None,proxy=False):
         """
@@ -32,7 +38,7 @@ class GitLabProject(object):#pragma : no cover
         else :
             self.gl = gitlab.Gitlab(url=url, private_token=token)
 
-
+        self.gl.auth()
         self.project = None
 
         return
@@ -43,7 +49,6 @@ class GitLabProject(object):#pragma : no cover
         Get the project from the server by name or id.
 
         :param id: the project id or path
-        :return:
         """
         self.project = gl.projects.get(id)
 
@@ -53,7 +58,6 @@ class GitLabProject(object):#pragma : no cover
 
         :param name: The name of the project
         :param name_space_id: The id of the name space the project should be set within.
-        :return:
         """
         if self.project :
             raise ValueError('Project ID already set, not creating another project within this class instance.')
@@ -70,18 +74,16 @@ class GitLabProject(object):#pragma : no cover
         """
         Add a runner on the project.
         :param ids:
-        :return:
         """
         if self.project:
             for i in ids :
-                self.project.create({ 'runner_id' : i })
+                self.project.runners.create({ 'runner_id' : i })
 
 
 
     def protect_branch(self, name, merge='developer', push='master'):
         """
         Protect a branch on the project.
-        :return:
         """
         if self.project:
             access_mapper = {
@@ -136,29 +138,40 @@ class GitLabProject(object):#pragma : no cover
     # Project Settings
     def enable_pipelines(self):
         """
-        Enable Pipelines
-        :return:
+        Enable ci-cd pipelines
         """
         if self.project:
             self.project.jobs_enabled = True
             self.project.save()
 
     def enable_gitlfs(self):
+        """
+        Enable git-lfs
+        """
         if self.project:
             self.project.lfs_enabled = True
             self.project.save()
 
     def enable_registry(self):
+        """
+        Enable container registry
+        """
         if self.project:
             self.project.container_registry_enabled = True
             self.project.save()
 
     def enable_issues(self):
+        """
+        Enable issues
+        """
         if self.project:
             self.project.issues_enabled = True
             self.project.save()
 
     def enable_merge_if_pipeline_succeeds(self):
+        """
+        Enable merge only if pipeline succeeds
+        """
         if self.project:
             self.project.only_allow_merge_if_pipeline_succeeds = True
             self.project.save()
