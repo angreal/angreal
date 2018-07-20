@@ -192,6 +192,7 @@ What commands do i have access to ?
       take_minutes  create a file for taking minutes
 
 How does take_minutes work ?
+
 .. code-block:: bash
 
     $: angreal take_minutes --help
@@ -213,6 +214,7 @@ Let's take some minutes, right now
     $: angreal take_minutes --now
 
 This will open a vim editor, write a note to yourself (i) and exit (-Esc-:w:q).
+
 .. code-block:: bash
 
     $: ls
