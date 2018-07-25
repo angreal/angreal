@@ -12,6 +12,21 @@
 import gitlab
 import os
 import requests
+from functools import wraps
+
+def project_required(f):
+
+    @wraps(f)
+    def wrapper(*args,**kwargs):
+        if isinstance(args[0], GitLabProject):
+            if args[0].project:
+                f(*args,**kwargs)
+            else :
+                raise ValueError('project attribute must be set')
+        else:
+            raise ValueError('This does not appear to be a GitLabProject')
+
+    return wrapper
 
 
 class GitLabProject(object): #pragma: no cover
@@ -51,6 +66,7 @@ class GitLabProject(object): #pragma: no cover
         :param id: the project id or path
         """
         self.project = gl.projects.get(id)
+        return self.project
 
     def create_project(self, name, name_space_id=None):
         """
@@ -69,15 +85,18 @@ class GitLabProject(object): #pragma: no cover
             self.project = self.gl.projects.create({'name' : name ,
                                                 'namespace_id' : name_space_id})
 
+        return self.project
 
-    def add_runners(self,*ids):
+    @project_required
+    def add_runner(self,i):
         """
         Add a runner on the project.
-        :param ids:
+
+        :param i: the id of the runner to add to the project
+        :type i: int
         """
-        if self.project:
-            for i in ids :
-                self.project.runners.create({ 'runner_id' : i })
+
+        self.project.runners.create({ 'runner_id' : i })
 
 
 
@@ -175,3 +194,9 @@ class GitLabProject(object): #pragma: no cover
         if self.project:
             self.project.only_allow_merge_if_pipeline_succeeds = True
             self.project.save()
+
+    def destroy_project(self):
+        """
+        destroy the project
+        :return:
+        """
