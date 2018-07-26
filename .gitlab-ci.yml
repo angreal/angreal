@@ -38,7 +38,7 @@ functional-test:
   image: python:3
   stage: unit-test
   script:
-    - pip install -r requirements/dev.txt
+    - pip3 install -r requirements/dev.txt
     - doit functional_tests
   except:
     - tags
