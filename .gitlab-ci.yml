@@ -30,10 +30,21 @@ unit-test:
   script:
     - pip install -r requirements/dev.txt
     - doit tests
-    - pip install -e .
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
   except:
     - tags
+
+unit-test:
+  image: python:3
+  stage: unit-test
+  script:
+    - pip install -r requirements/dev.txt
+    - doit functional_tests
+  coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
+  except:
+    - tags
+  tags:
+    - angreal-runner  
 
 
 release:
