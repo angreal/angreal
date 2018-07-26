@@ -95,7 +95,7 @@ class FunctionTestGitLab(unittest.TestCase):
         polling.poll(
             lambda: requests.get('http://localhost:8080/users/sign_in').status_code == 200, #is it up yet ?
             step=5, # check every five seconds
-            timeout=720 # shouldn't take more than a minute to come up but lets get big
+            timeout=720, # shouldn't take more than a minute to come up but lets get big
             ignore_exceptions=(requests.exceptions.ConnectionError,)
         )
 
