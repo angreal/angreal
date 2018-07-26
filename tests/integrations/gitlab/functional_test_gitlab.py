@@ -1,11 +1,13 @@
+import os
 import sys
-
-
-from bs4 import BeautifulSoup
-import docker
-import requests
-import polling
 import unittest
+
+import docker
+import gitlab
+from nose.tools import raises
+import polling
+import requests
+from bs4 import BeautifulSoup
 
 try:
     from urllib.parse import urljoin
@@ -97,7 +99,12 @@ class FunctionTestGitLab(unittest.TestCase):
             ignore_exceptions=(requests.exceptions.ConnectionError,)
         )
 
-        cls.here = GitLabProject(url=gitlab_hostname,token=generate_token())
+        print('gitlab up and running - starting tests')
+
+        cls.project = GitLabProject(url=gitlab_hostname,token=generate_token())
+
+        cls.group = cls.project.gl.groups.create({'name': 'group1', 'path': 'group1'})
+
 
 
     @classmethod
@@ -105,6 +112,8 @@ class FunctionTestGitLab(unittest.TestCase):
         """
         Not completely necessary, but we're good cooks
         """
+        if os.environ.get('TEARDOWN_WAIT',None):
+            input('Hit enter to teardown')
         cls.container.remove(force=True)
 
 
@@ -113,4 +122,105 @@ class FunctionTestGitLab(unittest.TestCase):
         test no project exists on startup
         :return:
         """
-        assert not self.here.project
+        assert not self.project.project
+
+
+    def function_test_02_no_project(self):
+        """
+        decorator works as intended
+        """
+
+        try :
+            self.project.enable_pipelines
+        except ValueError:
+            pass
+
+    def function_test_03_create_project(self):
+        """
+        project creation
+        """
+        self.project.create_project('test_project', name_space_id=self.group.id)
+        assert self.project.project
+
+    def function_test_04_enable_pipeline(self):
+        """
+        enable pipelines
+        """
+        self.project.enable_pipelines
+
+
+    def function_test_05_enable_lfs(self):
+        """
+        enable git lfs
+        """
+        self.project.enable_gitlfs
+
+    def function_test_06_enable_registry(self):
+        """
+        enable docker registry
+        """
+        self.project.enable_registry
+
+    def function_test_07_enable_issues(self):
+        """
+        enable registry
+        """
+        self.project.enable_issues
+
+    def function_test_08_enable_merge_if_succeed(self):
+        """
+        enable merge only if pipeline succeeds
+        """
+        self.project.enable_merge_if_pipeline_succeeds
+
+    def function_test_09_test_protect_branch(self):
+        """
+        protect a branch
+        """
+        self.project.protect_branch('master',push='noone')
+
+
+    def function_test_10_add_runner(self):
+        """
+        add runner
+        """
+        self.project.add_runner(1)
+
+    @raises(gitlab.exceptions.GitlabCreateError)
+    def function_test_11_add_runner_fail(self):
+        """
+        add runner , pass on fail = False
+        """
+        self.project.add_runner(1, pass_on_fail=False)
+
+    def function_test_12_add_label(self):
+        """
+        add label
+        """
+        self.project.add_label(name='test',color='#112233')
+
+
+    @raises(gitlab.exceptions.GitlabCreateError)
+    def function_test_13_add_label_fail(self):
+        """
+        add label, pass on fail = False
+
+        """
+        self.project.add_label(name='test2', color='notacolor', pass_on_fail=False)
+
+    @raises(gitlab.exceptions.GitlabCreateError)
+    def function_test_14_add_label_fail(self):
+        """
+        add label, multiple copies
+
+        """
+        self.project.add_label(name='test', color='notacolor',pass_on_fail=False)
+
+    def function_test_99_test_delete(self):
+        """
+        test that we can delete a project
+        """
+        self.project.destroy_project
+        assert not self.project.project
+
+

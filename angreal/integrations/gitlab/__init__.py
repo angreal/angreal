@@ -5,12 +5,14 @@
     Project creation and management within Gitlab servers
 
     .. todo::
-        * Write proper integration tests for this class
         * Lazy methods for update followed by a single api call
 
 """
+import datetime
+
 import gitlab
 import os
+import sys
 import requests
 from functools import wraps
 
@@ -32,14 +34,28 @@ def project_required(f):
 class GitLabProject(object): #pragma: no cover
     """
     A class for interacting with projects on GitLab
+
+    Starting with a new project ::
+
+        project = GitLabProject('http://gitlab.com',token='SECRET')
+        project.create_project('projectname')
+
+    Starting with a previous project ::
+
+        project = GitLabProject('http://gitlab.com',token='SECRET')
+        project.get_project('group/projectname')
+        #or project.get_project(1) if you have the actual id
+
     """
 
     def __init__(self,url,token=None,proxy=False):
         """
-        initialize a connection to Gitlab
+        initialize with a connection to Gitlab
 
         :param url: the url for the gitlab instance
+        :type url: str
         :param token: the private token to use for accessing the api
+        :type token: str
         """
 
         # Set up a request session to respect proxy variables
@@ -64,8 +80,9 @@ class GitLabProject(object): #pragma: no cover
         Get the project from the server by name or id.
 
         :param id: the project id or path
+        :type id:  int
         """
-        self.project = gl.projects.get(id)
+        self.project = gl.projects.get(int(id))
         return self.project
 
     def create_project(self, name, name_space_id=None):
@@ -73,8 +90,11 @@ class GitLabProject(object): #pragma: no cover
         Create a project from the remote server.
 
         :param name: The name of the project
+        :type name: str
         :param name_space_id: The id of the name space the project should be set within.
+        :type name_space_id: int
         """
+
         if self.project :
             raise ValueError('Project ID already set, not creating another project within this class instance.')
 
@@ -87,116 +107,171 @@ class GitLabProject(object): #pragma: no cover
 
         return self.project
 
+
+
+
     @project_required
-    def add_runner(self,i):
+    def add_runner(self, i, pass_on_fail=True):
         """
         Add a runner on the project.
 
         :param i: the id of the runner to add to the project
         :type i: int
         """
+        try:
+            self.project.runners.create({'runner_id': i})
+        except gitlab.exceptions.GitlabCreateError as e:
+            if pass_on_fail:
+                print('Unable to add runner {} to project'.format(i), file=sys.stderr)
+                print(e, file=sys.stderr)
+            else :
+                raise
 
-        self.project.runners.create({ 'runner_id' : i })
-
-
-
+    @project_required
     def protect_branch(self, name, merge='developer', push='master'):
         """
-        Protect a branch on the project.
+        protect a branch through gitlab
+
+        :param name: branch regex
+        :type name: str
+        :param merge: who can merge
+        :type merge:
+        :param push: who can push
+        :return:
         """
-        if self.project:
-            access_mapper = {
-                'developer' : gitlab.DEVELOPER_ACCESS,
-                'master'    : gitlab.MASTER_ACCESS,
-                'owner'     : gitlab.OWNER_ACCESS
-            }
+        access_mapper = {
+            'developer': gitlab.DEVELOPER_ACCESS,
+            'master': gitlab.MASTER_ACCESS,
+            'owner': gitlab.OWNER_ACCESS,
+            'none': '0'
+        }
 
-            self.project.protectedbranches.create({
-                'name' : name,
-                'merge_access_level' : access_mapper[merge],
-                'push_access_level'  : access_mapper[push]
-            })
+        self.project.protectedbranches.create({
+            'name': name,
+            'merge_access_level': access_mapper[merge],
+            'push_access_level': access_mapper[push]
+        })
 
 
-    def add_label(self, name, color):
+    @project_required
+    def add_label(self, name, color, pass_on_fail=True):
         """
         Add a label to the project.
 
-        :param name: 
-        :param color: 
+        :param name: the name of the label
+        :param color: the color for the label (must be hex)
         """
-        if self.project:
+
+        try:
             self.project.labels.create({
-                "name" : name,
-                "color" : color
+                "name": name,
+                "color": color
             })
+        except (gitlab.exceptions.GitlabCreateError, AssertionError) as e:
+            if pass_on_fail:
+                print('Unable to add label {} : {}'.format(name,color),file=sys.stderr)
+                print(e,file=sys.stderr)
+            else :
+                raise
 
-
-
-    def add_milestone(self, title,description=None, due_date=None, start_date=None):
+    @project_required
+    def add_milestone(self, title, description=None, due_date=None, start_date=None):
         """
         Create a milestone for the project.
 
         :param title:
         :param description:
         :param due_date: YYYY-MM-DD
+        :type due_date: str, datetime.datetime, datetime.date
         :param start_date: YYYY-MM-DD
+        :type start_date: str, datetime.datetime, datetime.date
         """
 
-        milestone = dict(title=title, description=description,due_date=due_date,start_date=None)
+        if isinstance(start_date,(datetime.datetime, datetime.date)):
+            start_date = start_date.strftime('%Y-%m-%d')
+            pass
 
-        milestone = { k : v for k,v in milestone.items() if v}
+        if isinstance(due_date,(datetime.datetime, datetime.date)):
+            due_date = due_date.strftime('%Y-%m-%d')
+            pass
 
+        def validate(date_text):
+            """
+            validate the format of input date string
+            :param date_text:
+            :type date_text: str
+            :return:
+            """
+            try:
+                datetime.datetime.strptime(date_text, '%Y-%m-%d')
+            except ValueError:
+                raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
-        if self.project:
-            self.project.milestones.create({
-                **milestone
-            })
-            self.project.save()
+        validate(start_date)
+        validate(due_date)
 
-    # Project Settings
+        milestone = dict(title=title, description=description, due_date=due_date, start_date=start_date)
+
+        milestone = {k: v for k, v in milestone.items() if v}
+
+        self.project.milestones.create({
+            **milestone
+        })
+        self.project.save()
+
+# Properties below the line
+    @property
+    @project_required
     def enable_pipelines(self):
         """
         Enable ci-cd pipelines
         """
-        if self.project:
-            self.project.jobs_enabled = True
-            self.project.save()
+        self.project.jobs_enabled = True
+        self.project.save()
 
+
+    @property
+    @project_required
     def enable_gitlfs(self):
         """
         Enable git-lfs
         """
-        if self.project:
-            self.project.lfs_enabled = True
-            self.project.save()
 
+        self.project.lfs_enabled = True
+        self.project.save()
+
+    @property
+    @project_required
     def enable_registry(self):
         """
         Enable container registry
         """
-        if self.project:
-            self.project.container_registry_enabled = True
-            self.project.save()
+        self.project.container_registry_enabled = True
+        self.project.save()
 
+    @property
+    @project_required
     def enable_issues(self):
         """
         Enable issues
         """
-        if self.project:
-            self.project.issues_enabled = True
-            self.project.save()
+        self.project.issues_enabled = True
+        self.project.save()
 
+    @property
+    @project_required
     def enable_merge_if_pipeline_succeeds(self):
         """
         Enable merge only if pipeline succeeds
         """
-        if self.project:
-            self.project.only_allow_merge_if_pipeline_succeeds = True
-            self.project.save()
+        self.project.only_allow_merge_if_pipeline_succeeds = True
+        self.project.save()
 
+    @property
+    @project_required
     def destroy_project(self):
         """
         destroy the project
-        :return:
         """
+        self.project.delete()
+        self.project = None
