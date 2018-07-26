@@ -34,13 +34,12 @@ unit-test:
   except:
     - tags
 
-unit-test:
+functional-test:
   image: python:3
   stage: unit-test
   script:
     - pip install -r requirements/dev.txt
     - doit functional_tests
-  coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
   except:
     - tags
   tags:
