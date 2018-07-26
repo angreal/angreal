@@ -40,7 +40,7 @@ functional-test:
   stage: unit-test
   script:
     - pip install -r requirements/dev.txt
-    - nose -svv tests/functional_tests/functional_test_gitlab.py
+    - nosetests -svv tests/functional_tests/functional_test_gitlab.py
   except:
     - tags
 
