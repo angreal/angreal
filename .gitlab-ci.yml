@@ -35,14 +35,6 @@ unit-test:
   except:
     - tags
 
-functional-test:
-  image: python:3
-  stage: unit-test
-  script:
-    - pip install -r requirements/dev.txt
-    - nosetests -svv tests/functional_tests/functional_test_gitlab.py
-  except:
-    - tags
 
 release:
   image: python:3

@@ -6,3 +6,4 @@ sphinx==1.7.5
 bs4
 lxml
 polling
+docker
