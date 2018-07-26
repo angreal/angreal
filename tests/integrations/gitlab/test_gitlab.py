@@ -13,8 +13,6 @@ except ImportError:
     from urlparse import urljoin
 
 
-
-from generate_token import generate_token
 from angreal.integrations.gitlab import GitLabProject
 
 
