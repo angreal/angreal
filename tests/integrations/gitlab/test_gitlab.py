@@ -86,6 +86,7 @@ class FunctionTestGitLab(unittest.TestCase):
         :return:
         """
         cls.client = docker.from_env()
+        print(cls.client, file=sys.stderr)
         cls.container = cls.client.containers.run('gpocentek/test-python-gitlab:latest',detach=True, name='gitlab-test', ports = {'22':'2222','80':'8080'})
 
         print('Waiting for gitlab host to start', file=sys.stderr)
