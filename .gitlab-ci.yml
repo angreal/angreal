@@ -39,6 +39,7 @@ functional-test:
   stage: unit-test
   script:
     - pip3 install -r requirements/dev.txt
+    - doit list
     - doit functional_tests
   except:
     - tags
