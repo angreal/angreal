@@ -177,7 +177,7 @@ class FunctionTestGitLab(unittest.TestCase):
         """
         protect a branch
         """
-        self.project.protect_branch('master',push='noone')
+        self.project.protect_branch('master',push='none')
 
 
     def function_test_10_add_runner(self):
@@ -215,6 +215,8 @@ class FunctionTestGitLab(unittest.TestCase):
 
         """
         self.project.add_label(name='test', color='notacolor',pass_on_fail=False)
+
+    
 
     def function_test_99_test_delete(self):
         """

@@ -219,6 +219,47 @@ class GitLabProject(object): #pragma: no cover
         })
         self.project.save()
 
+
+    def get_namespace_id(self, namespace, interactive=False):
+        """
+        Get the id of a namespace given a name. Provides functionality to be interactive if multiple namespaces found.
+
+
+        :return:
+        """
+
+        namespace_id = self.gl.namespaces.list(search=namespace)
+
+        # Nothing found
+        if not namespace_id:
+            raise ValueError('The namespace {} can not be found'.format(n))
+
+
+        # Multiple matches found
+        if len(namespace_id) > 1 :
+            if interactive: # user picked based on input
+                possible_ids = [ (x.name , x.id ) for x in namespace_id]
+                possible_ids.append(('None','-1'))
+                print('\n'.join(['{}. {}'.format(i,v[0]) for i,v in enumerate(possible_ids)]))
+
+                selection = None
+                while not selection:
+                    try:
+                        selection = int(input('Multiple matching groups found please select from one of the above'))
+                    except ValueError:
+                        print('Selection must be an integer')
+                        selection = None
+                        pass
+                namespace_id = possible_ids[selection][1] # <- namespace integer set
+                if namespace_id == -1 :
+                    raise ValueError('You selected None')
+
+            return namespace_id #<-  return list or integer
+
+        else : #perfect match
+            return namespace_id[0].id # return the integer
+
+
 # Properties below the line
     @property
     @project_required
