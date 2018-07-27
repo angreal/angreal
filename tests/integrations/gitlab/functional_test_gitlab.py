@@ -1,6 +1,7 @@
 import os
 import sys
 import unittest
+import mock
 
 import docker
 import gitlab
@@ -104,6 +105,7 @@ class FunctionTestGitLab(unittest.TestCase):
         cls.project = GitLabProject(url=gitlab_hostname,token=generate_token())
 
         cls.group = cls.project.gl.groups.create({'name': 'group1', 'path': 'group1'})
+        cls.project.gl.groups.create({'name' : 'group2', 'path' : 'group2'})
 
 
 
@@ -216,7 +218,36 @@ class FunctionTestGitLab(unittest.TestCase):
         """
         self.project.add_label(name='test', color='notacolor',pass_on_fail=False)
 
-    
+
+    def funtion_test_15_get_groups(self):
+        """
+        get single group by name
+        """
+        group_id = self.project.get_namespace_id('group1',interactive=False)
+        assert isinstance(group_id,int)
+
+    @raises(ValueError)
+    def function_test_16_get_bad_group(self):
+        """
+        group doesn't exist
+
+        """
+        self.project.get_namespace_id('group55',interactive=False)
+
+    def function_test_17_get_fuzzy_group(self):
+        """
+        multiple groups
+        """
+        groups = self.project.get_namespace_id('group',interactive=False)
+        assert isinstance(groups,list)
+
+    @mock.patch('builtins.input',side_effect=['Nothing',1])
+    def function_test_18_user_input(self,input):
+        """
+        interactive inputs
+        """
+        group = self.project.get_namespace_id('group',interactive=True)
+        assert isinstance(group,int)
 
     def function_test_99_test_delete(self):
         """

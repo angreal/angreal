@@ -232,7 +232,7 @@ class GitLabProject(object): #pragma: no cover
 
         # Nothing found
         if not namespace_id:
-            raise ValueError('The namespace {} can not be found'.format(n))
+            raise ValueError('The namespace {} can not be found'.format(namespace))
 
 
         # Multiple matches found
@@ -242,6 +242,7 @@ class GitLabProject(object): #pragma: no cover
                 possible_ids.append(('None','-1'))
                 print('\n'.join(['{}. {}'.format(i,v[0]) for i,v in enumerate(possible_ids)]))
 
+
                 selection = None
                 while not selection:
                     try:
@@ -249,8 +250,14 @@ class GitLabProject(object): #pragma: no cover
                     except ValueError:
                         print('Selection must be an integer')
                         selection = None
-                        pass
-                namespace_id = possible_ids[selection][1] # <- namespace integer set
+                        continue
+                    try:
+                        namespace_id = possible_ids[selection][1] # <- namespace integer set
+                    except IndexError:
+                        print('Selection out of range')
+                        selection = None
+                        continue
+
                 if namespace_id == -1 :
                     raise ValueError('You selected None')
 
