@@ -38,13 +38,11 @@ functional-test:
   image: python:3
   stage: unit-test
   script:
-    - pip3 install -r requirements/dev.txt
+    - pip  install -r requirements/dev.txt
     - doit list
     - doit functional_tests
   except:
     - tags
-  tags:
-    - angreal-runner
   allow_failure: true
 
 
