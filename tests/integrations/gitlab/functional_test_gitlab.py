@@ -241,7 +241,7 @@ class FunctionTestGitLab(unittest.TestCase):
         groups = self.project.get_namespace_id('group',interactive=False)
         assert isinstance(groups,list)
 
-    @mock.patch('builtins.input',side_effect=['Nothing',1])
+    @mock.patch('builtins.input',side_effect=['Nothing',4,1])
     def function_test_18_user_input(self,input):
         """
         interactive inputs
