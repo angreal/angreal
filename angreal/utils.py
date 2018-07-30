@@ -36,7 +36,7 @@ def get_angreal_path(dir=DEFAULT_FOLDER):
     if not angreal_path:
         raise FileNotFoundError("Unable to find angreal_task dir {}.".format(os.path.join(dir)))
 
-    return angreal_path
+    return os.path.abspath(angreal_path)
 
 
 def import_from_file(file):

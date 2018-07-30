@@ -22,7 +22,7 @@ class TestCutter(unittest.TestCase):
         assert filecmp.cmp(os.path.join('fake-project', 'README.rst'),
                            os.path.join('fake-repo', 'fake-project', 'README.rst'))
 
-        assert os.path.isfile(os.path.join('fake-project', '.angreal', 'fake-project-replay.json'))
+        assert os.path.isfile(os.path.join('fake-project', '.angreal', 'angreal-replay.json'))
 
         shutil.rmtree('fake-project')
         os.chdir(original_dir)
