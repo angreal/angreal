@@ -1,5 +1,7 @@
 import os
 import shutil
+import sys
+
 from angreal.cli.base_init import base_init
 
 import unittest
@@ -21,7 +23,11 @@ class TestBaseInit(unittest.TestCase):
         os.chdir(os.path.join(os.path.dirname(__file__),'..'))
         runner = CliRunner()
         results =runner.invoke(base_init, ['fake-repo-pre','--foo','baz', '--no-input'])
-        assert results.exit_code == 0
+
+        try :
+            assert results.exit_code == 0
+        except :
+            print(results, file=sys.stderr)
 
         os.chdir(os.path.join(os.path.dirname(__file__), '..'))
         shutil.rmtree('fake-project')

@@ -5,6 +5,7 @@
     Angreal's templating functionality, leaning heavily on cookie cutter.
 """
 
+import json
 import os
 import shutil
 
@@ -39,7 +40,18 @@ def initialize_cutter(template, **kwargs):
 
     os.makedirs(angreal_hidden, exist_ok=True)
 
-    shutil.move(generated_replay, os.path.join(angreal_hidden, '{}-replay.json'.format(project_name)))
+
+
+    #get the cookiecutter data
+    with open(generated_replay,'r') as f:
+        cookiecutter_data = json.load(f)['cookiecutter']
+
+
+    #save it to disk
+    angreal_replay = os.path.join(angreal_hidden,'angreal-replay.json')
+    with open(angreal_replay,'w') as f:
+        json.dump(cookiecutter_data,f)
+
 
     return project_path
 
