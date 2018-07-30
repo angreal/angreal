@@ -1,9 +1,8 @@
 import angreal
 
-@angreal.command(short_help='test_1')
+@angreal.command(name='test_1', short_help='test_1')
 def angreal_cmd():
     """
     Test one's doc string
-    :return:
     """
     print('This is a simple test')

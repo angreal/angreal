@@ -40,6 +40,11 @@ def get_angreal_path(dir=DEFAULT_FOLDER):
 
 
 def import_from_file(file):
+    """
+    load a module based on a file name
+    :param file: The file to be loaded
+    :return:
+    """
     module_name = os.path.split(file)[-1][:-3]
     spec = importlib.util.spec_from_file_location(module_name, file)
     task = importlib.util.module_from_spec(spec)
