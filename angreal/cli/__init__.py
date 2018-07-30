@@ -38,6 +38,11 @@ class AngrealCLI(click.MultiCommand):
                              None, None, ['base_init'])
             return mod.base_init
 
+        if name == 'list':
+            mod = __import__('angreal.cli.list',
+                             None,None, ['list'])
+            return mod.list
+
         file = os.path.join(get_angreal_path(),'task_{}.py'.format(name))
         mod = import_from_file(file)
         return mod.angreal_cmd

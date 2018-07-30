@@ -12,7 +12,7 @@ import shutil
 import tempfile
 
 import click
-from click.testing import CliRunner
+
 
 from cookiecutter.exceptions import OutputDirExistsException
 
@@ -54,7 +54,7 @@ def print_nested_help(repository):
 
 
 
-@angreal.command(context_settings=dict(ignore_unknown_options=True),
+@angreal.command(name='init',context_settings=dict(ignore_unknown_options=True),
                  add_help_option=False)
 @angreal.argument('repository')
 @angreal.argument('init_args', nargs=-1, type=click.UNPROCESSED)
