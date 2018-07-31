@@ -9,6 +9,15 @@ DOIT_CONFIG = {
     'backend' : 'json'
 }
 
+
+def task_functional_tests():
+    """
+    Running functional tests
+    :return:
+    """
+    return {
+        'actions': ['nosetests -sv --with-coverage --cover-erase --cover-package=angreal.integrations.gitlab tests/integrations/gitlab/functional_test_gitlab.py']
+    }
 def task_tests():
     """
     Running nosetests
@@ -52,7 +61,7 @@ def task_coverage():
     """
 
     return {
-        'actions': ['nosetests --logging-level=FATAL --with-coverage --cover-package angreal --cover-html --cover-erase ']
+        'actions': ['nosetests --logging-level=FATAL --cover erase --with-coverage --cover-package angreal --cover-html --cover-erase ']
     }
 
 

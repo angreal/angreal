@@ -1,6 +1,6 @@
 import angreal
 
-@angreal.command()
+@angreal.command(name='test_2')
 @angreal.option('--noun',default='World')
 def angreal_cmd(noun):
     """

@@ -12,7 +12,7 @@ import shutil
 import tempfile
 
 import click
-from click.testing import CliRunner
+
 
 from cookiecutter.exceptions import OutputDirExistsException
 
@@ -20,6 +20,13 @@ import angreal
 from angreal.cutter import initialize_cutter
 from angreal.utils import get_angreal_path, import_from_file
 
+def print_base_help():
+    """
+    Prints the base help information
+    :return:
+    """
+    with click.Context(base_init) as ctx:
+        click.echo(base_init.get_help(ctx))
 
 def print_nested_help(repository):
     """
@@ -28,8 +35,7 @@ def print_nested_help(repository):
     :return:
     """
 
-    with click.Context(base_init) as ctx:
-        click.echo(base_init.get_help(ctx))
+    print_base_help()
 
     try:
         tmp_dir = tempfile.mkdtemp()
@@ -54,7 +60,7 @@ def print_nested_help(repository):
 
 
 
-@angreal.command(context_settings=dict(ignore_unknown_options=True),
+@angreal.command(name='init',context_settings=dict(ignore_unknown_options=True),
                  add_help_option=False)
 @angreal.argument('repository')
 @angreal.argument('init_args', nargs=-1, type=click.UNPROCESSED)
