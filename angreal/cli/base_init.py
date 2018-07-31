@@ -20,6 +20,13 @@ import angreal
 from angreal.cutter import initialize_cutter
 from angreal.utils import get_angreal_path, import_from_file
 
+def print_base_help():
+    """
+    Prints the base help information
+    :return:
+    """
+    with click.Context(base_init) as ctx:
+        click.echo(base_init.get_help(ctx))
 
 def print_nested_help(repository):
     """
@@ -28,8 +35,7 @@ def print_nested_help(repository):
     :return:
     """
 
-    with click.Context(base_init) as ctx:
-        click.echo(base_init.get_help(ctx))
+    print_base_help()
 
     try:
         tmp_dir = tempfile.mkdtemp()

@@ -14,7 +14,8 @@ from angreal.utils import get_angreal_path,import_from_file
 import click
 
 @angreal.command()
-def list():
+@angreal.argument('nothing', nargs=-1, type=click.UNPROCESSED)
+def list_cmd(nothing):
     """
     list available commands
     """
