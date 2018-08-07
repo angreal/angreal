@@ -1,6 +1,7 @@
 from angreal.utils import get_angreal_path, import_from_file
 from angreal.decorators import *
 import importlib
+import os
 
 importlib.import_module('click')
 
@@ -15,3 +16,5 @@ __all__ = [
     'format_filename', 'get_app_dir', 'get_os_args',
 
 ]
+
+__version__ = open( os.path.join( os.path.dirname(__file__), 'VERSION')).read().strip()
