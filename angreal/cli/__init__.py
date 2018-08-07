@@ -12,7 +12,7 @@ import click
 import angreal
 from angreal import get_angreal_path, import_from_file
 from angreal.cli.list_cmd import list_cmd
-
+from angreal.compat import get_template_version,is_compat
 
 class AngrealCLI(click.MultiCommand):
 
@@ -45,8 +45,16 @@ class AngrealCLI(click.MultiCommand):
             return mod.list_cmd
 
 
+
+
         try:
             file = os.path.join(get_angreal_path(),'task_{}.py'.format(name))
+
+            template_version = get_template_version()
+            if template_version:
+                if not is_compat(template_version):
+                    raise ValueError('This template needs to be run using angreal {}'.format(template_version))
+
         except FileNotFoundError:
             click.echo("This doesn't appear to be an angreal!\n")
             list_cmd()
