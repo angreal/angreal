@@ -19,7 +19,7 @@ class AngrealCLI(click.MultiCommand):
     def list_commands(self,ctx):
         rv = []
 
-        # If we can't find out .angreal , return an empty command listpwd
+        # If we can't find out .angreal , return an empty command list
         try:
             angreal_path = get_angreal_path()
         except FileNotFoundError:
