@@ -1,35 +1,30 @@
 ==================
-An Example Project
+Your First Angreal
 ==================
 
-The easiest way to demo this tool is to just build an angreal, and then use it.
+Angreal's are more useful when you build your own or tweak others.
 
-
-Our Project
-===========
 This project is available as part of the git repository `here <https://gitlab.com/dylanbstorey/angreal/tree/master/example>`_.
+
 It's a very simple project for taking meeting minutes !
-
-
 
 Create our Project Template
 ---------------------------
-As mentioned previously the project template is a cookie cutter.
+.. note::
+    The templating engine is a thin layer over the cookie cutter project, thats why the name cookie cutter is used here!
 
-- ``mkdir example``
-- ``cd example``
-- ``mkdir {{cookiecutter.name}}``
-- ``echo '{ "name" : meeting-minutes }' >> cookiecutter.json``
+.. code-block:: bash
+
+    $: mkdir example
+    $: cd example
+    $: mkdir {{cookiecutter.name}}
+    $: echo '{ "name" : meeting-minutes }' >> cookiecutter.json
 
 Our basic template is complete, when created we'll have a folder that's simply the name of the meeting series we attend.
 
 
 Create our Init Script
 ----------------------
-
-.. note::
-    This could get handled with cookie cutter prehooks or as an actual jinja temlpate in cookiecutter. This isn't a particularly
-    good example of an intro script but should give you the basic ideas to make things that are infinitely more useful.
 
 When the project is set up we'd like a file called ``Introduction.md`` to be created.
 
@@ -54,7 +49,7 @@ Open ``.angreal/init.py`` in your favorite editor and add the following code.
         with open('Introduction.md','w') as f:
             print('Meeting Objectives', file=f)
             if not no_objectives:
-                print( input("Describe the objective(s) of this meeting series"), file=f)
+                print( input("Describe the objective(s) of this meeting series:\n"), file=f)
 
         return
 
@@ -129,7 +124,7 @@ Open your favorite editor and add the following code to ``.angreal/task_take_min
 
 
 Using our Angreal
-#################
+-----------------
 
 Let's take see how this works now.
 
@@ -213,7 +208,9 @@ Let's take some minutes, right now
     $: export EDITOR='vim'
     $: angreal take_minutes --now
 
+
 This will open a vim editor, write a note to yourself (i) and exit (-Esc-:w:q).
+
 
 .. code-block:: bash
 
