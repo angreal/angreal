@@ -1,3 +1,9 @@
+"""
+    angreal
+    ~~~~~~~
+
+
+"""
 from angreal.utils import get_angreal_path, import_from_file
 from angreal.decorators import *
 import importlib

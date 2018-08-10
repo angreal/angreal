@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 
 
-@angreal.command()
+@angreal.command(name='take_minutes')
 @angreal.option('--now',is_flag=True,help='start taking minutes immediately (requires EDITOR to be set)')
 def angreal_cmd(now):
     """

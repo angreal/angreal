@@ -3,6 +3,7 @@
     ~~~~~~~~~~~~~~~~~~~~
 
     functions that help make writing tasks a little easier
+
 """
 import fnmatch
 import os

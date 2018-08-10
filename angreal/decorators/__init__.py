@@ -1,3 +1,9 @@
+"""
+     angreal.decorators
+     ~~~~~~~~~~~~~~~~~~
+
+     simply pulling click dependencies into angreal's angreal.decorators names space
+"""
 # Decorators
 from click.decorators import pass_context, pass_obj, make_pass_decorator, \
      command, group, argument, option, confirmation_option, \

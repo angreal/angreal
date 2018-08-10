@@ -42,6 +42,7 @@ def get_angreal_path(dir=DEFAULT_FOLDER):
 def import_from_file(file):
     """
     load a module based on a file name
+
     :param file: The file to be loaded
     :return:
     """

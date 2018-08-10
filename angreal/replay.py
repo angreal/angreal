@@ -16,6 +16,20 @@ from angreal.utils import get_angreal_path
 class Replay(dict):
     """
     Replays are a subclassed dictionary that are meant to be used to track/modify project specific attributes.
+
+    They do support contextual management via the `with` keyword. ::
+
+        with Replay('File.json') as r:
+            r.get('thing')
+            assert r['thing'] == r.get('thing',None)
+            r['tracked'] = 'setting'
+        #on exit the replay will be automatically saved
+
+        #without a manager, saves are explicit
+        r = Replay('File.json')
+        r['tracked'] = 'setting'
+        r.save()
+
     """
 
 

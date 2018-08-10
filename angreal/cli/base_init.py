@@ -2,7 +2,8 @@
     angreal.base_init
     ~~~~~~~~~~~~~~~~~
 
-    Just a pass through to cookie-cutter
+    The initialization command for angreals is here, handles initial clone/templating and executing
+    template specific initialization steps.
 
 """
 
