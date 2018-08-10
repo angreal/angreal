@@ -10,6 +10,6 @@ def init(no_objectives):
     with open('Introduction.md','w') as f:
         print('Meeting Objectives', file=f)
         if not no_objectives:
-            print( input("Describe the objective(s) of this meeting series"), file=f)
+            print( input("Describe the objective(s) of this meeting series:\n"), file=f)
 
     return

@@ -2,7 +2,8 @@
     angreal.base_init
     ~~~~~~~~~~~~~~~~~
 
-    Just a pass through to cookie-cutter
+    The initialization command for angreals is here, handles initial clone/templating and executing
+    template specific initialization steps.
 
 """
 
@@ -19,6 +20,7 @@ from cookiecutter.exceptions import OutputDirExistsException
 import angreal
 from angreal.cutter import initialize_cutter
 from angreal.utils import get_angreal_path, import_from_file
+from angreal.compat import get_template_version,is_compat
 
 def print_base_help():
     """
@@ -79,6 +81,13 @@ def base_init(repository,init_args,help,no_input=False):
     except OutputDirExistsException:
         exit(-2)
     os.chdir(project_path)
+
+    template_version = get_template_version()
+
+    if template_version:
+        if not is_compat(template_version):
+            raise ValueError('This template needs to be run using angreal {}'.format(template_version))
+
     file = os.path.join(get_angreal_path(), 'init.py')
 
     try:

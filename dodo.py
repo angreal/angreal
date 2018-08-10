@@ -16,18 +16,15 @@ def task_functional_tests():
     :return:
     """
     return {
-        'actions': ['nosetests -sv --with-coverage --cover-erase --cover-package=angreal.integrations.gitlab tests/integrations/gitlab/functional_test_gitlab.py']
+        'actions': ['nosetests -sv --with-coverage --cover-erase --cover-package=angreal.integrations.gitlab tests/integrations/functional_tests/functional_test_gitlab.py']
     }
 def task_tests():
     """
     Running nosetests
     :return:
     """
-    DEPENDENCIES = [x for x in glob.glob('angreal/*.py', recursive=True) if x[:-3] != 'pyc']
-    DEPENDENCIES += list([x for x in glob.glob('test/*.py', recursive=True) if x[:-3] != 'pyc'])
     return {
         'actions': ['nosetests -sv --with-coverage --cover-package=angreal'],
-        # 'file_dep': DEPENDENCIES,
         'targets': ['.coverage'],
     }
 
