@@ -1,21 +1,15 @@
+.. include:: ../../README.rst
 
-
-Welcome to Angreal
-==================
+.. include:: intro.rst
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
-   intro
-   installation
-   example_project
+   quickstart
+   tutorials
+   how-to-guides
+   reference
+   discussion
    contributing
    code_of_conduct
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

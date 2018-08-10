@@ -1,5 +1,19 @@
 import  unittest
 import os
+import functools
+
+
+def return_to_cwd(f,*args,**kwargs):
+    """
+    ensure that we return to cwd after a test
+    """
+    @functools.wraps(f)
+    def wrapper(*args,**kwargs):
+        current_dir = os.getcwd()
+        f(*args, **kwargs)
+        os.chdir(current_dir)
+    return wrapper
+
 
 
 

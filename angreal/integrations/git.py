@@ -76,6 +76,13 @@ class Git(object):
         """
         Make calls to git sub commands via method calls.
 
+        i.e. ::
+
+            git = Git()
+            git.add('.')
+            git.clone('gitlab.git')
+
+
 
         :param name: the subcommand you wish to call
         :param args: mandatory parameters

@@ -15,6 +15,7 @@ from cookiecutter.main import cookiecutter
 def initialize_cutter(template, **kwargs):
     """
     Just pass through to cookie cutter making sure to get the replay
+
     :param template:
     :return:
     """

@@ -1,3 +1,9 @@
+"""
+    angreal.integrations.doit
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Angreal integrates with pydoit
+"""
 from functools import wraps
 
 from doit.task import dict_to_task
@@ -6,7 +12,8 @@ from doit.doit_cmd import DoitMain
 
 def make_doit_task(f):
     """
-    Function decorator takes a pydoit `Task` dictionary returning a pydoit `Task` objects
+    Function decorator takes a pydoit `Task` dictionary returning a pydoit `Task` object.
+
     :param task_dict_function: pydoit dictionary generator
     :return:
     """
@@ -24,7 +31,8 @@ def make_doit_task(f):
 
 def run_doit_tasks(tasks,args,config={'verbosity' : 0}):
     """
-    Run a series of task objects.
+    Runs a series of task objects.
+
     :param tasks:
     :param args:
     :param config:
@@ -44,6 +52,7 @@ def run_doit_tasks(tasks,args,config={'verbosity' : 0}):
 def doit_task(f):
     """
     Execute a single function as though it was a doit task
+
     :param f:
     :return:
     """
