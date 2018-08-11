@@ -58,10 +58,12 @@ class DoitTests(unittest.TestCase):
             return { 'actions' : ['echo {} > {}'.format(foo,tmp_file_name)]}
 
 
+
         runner = CliRunner()
         result = runner.invoke(echo)
         assert result.exit_code == 0
 
+        print(os.listdir(os.path.dirname(__file__)))
         file_result = open(tmp_file_name,'r').read().strip()
         assert file_result == 'bar'
         os.unlink(tmp_file_name)
