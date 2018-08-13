@@ -6,7 +6,8 @@ import glob
 
 
 DOIT_CONFIG = {
-    'backend' : 'json'
+    'backend' : 'json',
+    'dep_file': 'doit-db.json'
 }
 
 
