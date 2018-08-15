@@ -2,7 +2,10 @@ image: python:3
 
 before_script:
   - VERSION=`cat angreal/VERSION`
-
+  - pip install virtualenv
+  - virtualenv ~/.venv/angreal
+  - source ~/.venv/angreal/bin/activate
+  - pip install -r requirements/dev.txt
 
 
 stages:
@@ -14,7 +17,6 @@ pages:
   image: python:3
   stage: pages
   script:
-    - pip install -r requirements/dev.txt
     - doit docs
     - mkdir public
     - cp -r docs/build/html/* public/
@@ -28,7 +30,6 @@ unit-test:
   image: python:3
   stage: unit-test
   script:
-    - pip install -r requirements/dev.txt
     - doit tests
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
   except:
@@ -46,7 +47,8 @@ functional-test:
     - tags
   allow_failure: false
   when: manual
-
+  only:
+    - tags
 
 release:
   image: python:3
