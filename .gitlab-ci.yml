@@ -47,7 +47,8 @@ functional-test:
     - tags
   allow_failure: false
   when: manual
-
+  only:
+    - tags
 
 release:
   image: python:3
