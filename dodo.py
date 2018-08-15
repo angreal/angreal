@@ -59,7 +59,7 @@ def task_coverage():
     """
 
     return {
-        'actions': ['nosetests --logging-level=FATAL --cover erase --with-coverage --cover-package angreal --cover-html --cover-erase ']
+        'actions': ['nosetests -vv --with-coverage  --cover-html  --cover-package angreal']
     }
 
 
