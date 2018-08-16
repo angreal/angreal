@@ -25,6 +25,10 @@ class DoitTests(unittest.TestCase):
         assert isinstance(task, Task)
 
     def test_run_doit_tasks(self):
+        """
+        run a doit task pipeline
+        :return:
+        """
 
         @make_doit_task
         def echo1():
@@ -34,7 +38,7 @@ class DoitTests(unittest.TestCase):
         def echo2():
             return { 'actions' : []}
 
-        run_doit_tasks([echo1(),echo2()],['run'])
+        run_doit_tasks([echo1,echo2()],['run'])
 
 
     def test_doit_task(self):
