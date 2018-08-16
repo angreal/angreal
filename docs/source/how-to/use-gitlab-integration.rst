@@ -48,3 +48,15 @@ From here there are a two routes forward :
     #get a project by specific id, keep in mind the namespace needs to be explicit
     gitlab.get_project('namespace/project_name')
 
+Once you have a project a number of methods/attributes become available to you :
+
+* :meth:`add_milestone <angreal.integrations.gitlab.GitLabProject.add_milestone>`
+* :meth:`add_milestone <angreal.integrations.gitlab.GitLabProject.add_label>`
+* :meth:`add_milestone <angreal.integrations.gitlab.GitLabProject.protect_branch>`
+* :meth:`add_milestone <angreal.integrations.gitlab.GitLabProject.enable_pipelines>`
+* :meth:`add_milestone <angreal.integrations.gitlab.GitLabProject.enable_gitlfs>`
+* :meth:`add_milestone <angreal.integrations.gitlab.GitLabProject.enable_registry>`
+* :meth:`add_milestone <angreal.integrations.gitlab.GitLabProject.enable_issues>`
+
+
+
