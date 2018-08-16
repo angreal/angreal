@@ -1,8 +1,8 @@
 Using Doit Integration
 ======================
 
-Angreal includes the ability to interact with `doit` for tasks with dependencies.
-
+Angreal includes the ability to interact with `doit` for tasks with dependencies. It is strongly recommended that
+you take some time to read the introductory material from `doit <http://pydoit.org/tasks.html#intro>`_.
 
 To create a simple doit task :
 
