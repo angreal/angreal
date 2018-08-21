@@ -52,7 +52,7 @@ setuptools.setup(
         ]
     },
     python_requires='>=3',
-    include_pacakge_data=True,
+    include_package_data=True,
     tests_require=['nose'],
     test_suite='nose.collector',
     extras_requires={

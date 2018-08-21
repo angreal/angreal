@@ -43,8 +43,6 @@ functional-test:
 #    - pip  install -r requirements/dev.txt
 #    - doit list
 #    - doit functional_tests
-  except:
-    - tags
   allow_failure: false
   when: manual
   only:
