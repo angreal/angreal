@@ -3,3 +3,4 @@ cookiecutter==1.6.0
 click==6.7
 python-gitlab==1.5.1
 semver==2.8.1
+virtualenv==16.0.0

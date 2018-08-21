@@ -17,8 +17,10 @@ def task_functional_tests():
     :return:
     """
     return {
-        'actions': ['nosetests -sv --with-coverage --cover-erase --cover-package=angreal.integrations.gitlab tests/integrations/functional_tests/functional_test_gitlab.py']
+        'actions': ['nosetests -sv --with-coverage --cover-erase --cover-package=angreal.integrations.gitlab tests/integrations/gitlab/functional_test_gitlab.py']
     }
+
+
 def task_tests():
     """
     Running nosetests

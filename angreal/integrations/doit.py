@@ -6,6 +6,8 @@
 """
 from functools import wraps
 
+from collections import Callable
+
 from doit.task import dict_to_task
 from doit.cmd_base import TaskLoader
 from doit.doit_cmd import DoitMain
@@ -41,6 +43,10 @@ def run_doit_tasks(tasks,args,config={'verbosity' : 0}):
 
     if not isinstance(tasks,list):
         tasks = [tasks]
+
+    tasks = [ task() if isinstance(task,Callable) else task for task in tasks]
+
+
 
     class Loader(TaskLoader):
         @staticmethod
