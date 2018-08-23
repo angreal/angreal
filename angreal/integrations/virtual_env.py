@@ -77,6 +77,14 @@ class VirtualEnv(object):
 
 
     def __init__(self,name, python=None,requirements=None,now=True):
+        """
+        Initializes the object either creating or activating the named environment.
+
+        :param name: the name of the virtual environment
+        :param python: the path (or basename) of the python executable to use for an interpreter
+        :param requirements: a requirements file to use for creation
+        :param now: should the environment be created on init
+        """
         self.name = name
 
         if not python:
