@@ -57,23 +57,39 @@ class VirtualEnv(object):
         return os.path.basename(sys.prefix) == self.name
         return
 
+
+    @property
+    def bin(self):
+        return os.path.join(self.path,'bin')
+
+    @property
+    def pip(self):
+        return os.path.join(self.bin,'pip')
+
+    @property
+    def python_exe(self):
+        return os.path.join(self.bin,'python')
+
+    @property
+    def lib(self):
+        return os.path.join(self.path,'lib')
+
+    @property
+    def include(self):
+        return os.path.join(self.path,'include')
+
     @property
     def exists(self):
         """
         determine if the current environment exists
         :return:
         """
-        lib = os.path.join(self.path,'lib')
-        include = os.path.join(self.path,'include')
-        bin = os.path.join(self.path,'bin')
-        python = os.path.join(bin,'python')
-        pip = os.path.join(bin,'pip')
 
-        return ( os.path.isdir(lib) and
-                 os.path.isdir(include) and
-                 os.path.isdir(bin) and
-                 os.path.isfile(python) and
-                 os.path.isfile(pip) )
+        return ( os.path.isdir(self.lib) and
+                 os.path.isdir(self.include) and
+                 os.path.isdir(self.bin) and
+                 os.path.isfile(self.python_exe) and
+                 os.path.isfile(self.pip) )
 
 
     def __init__(self,name, python=None,requirements=None,now=True):
@@ -98,6 +114,25 @@ class VirtualEnv(object):
 
         if now:
             self.activate_or_create()
+
+
+        self.install_requirements(self.requirements)
+
+
+    def install_requirements(self,requirements):
+        """
+        install requirements from a file
+
+        :param requirements: path to a requirements file
+        """
+        args = [self.pip, 'install', '-r', requirements]
+        proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output,error = proc.communicate()
+
+        print(' '.join(args),file=sys.stderr)
+
+        if proc.returncode:
+            raise EnvironmentError('{} failed with the following information :\n{}\n{} '.format(self.name, proc.returncode, output))
 
 
     def __str__(self):
