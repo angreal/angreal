@@ -5,7 +5,7 @@ import shutil
 import sys
 from nose.tools import raises
 
-
+test_requirements = os.path.join(os.path.dirname(__file__),'test_r.txt')
 
 class TestVirtualEnv(unittest.TestCase):
 
@@ -41,9 +41,18 @@ class TestVirtualEnv(unittest.TestCase):
         this_venv = os.path.expanduser(os.path.join('~','.venv','test'))
         assert not os.path.isdir(this_venv)
 
-        venv = VirtualEnv(name='test')
-        assert venv.base_path == os.path.expanduser(os.path.join('~','.venv'))
-        assert venv.path == os.path.join(venv.base_path,venv.name)
+        venv = VirtualEnv(name='test', requirements=test_requirements)
 
-        shutil.rmtree(this_venv)
-        sys.prefix = initial_sys_prefix
+        try:
+            import flask
+            assert venv.base_path == os.path.expanduser(os.path.join('~', '.venv'))
+            assert venv.path == os.path.join(venv.base_path, venv.name)
+        except (ImportError,AssertionError):
+            raise
+        finally:
+            shutil.rmtree(this_venv)
+            sys.prefix = initial_sys_prefix
+
+
+
+
