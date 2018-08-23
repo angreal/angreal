@@ -4,8 +4,6 @@ How-To Guides
 
 .. toctree::
    :maxdepth: 2
+   :glob:
 
-   how-to/use-gitlab-integration
-   how-to/use-git-integration
-   how-to/use-doit-integration
-   how-to/include-jinja-templates
+   how-to/*
