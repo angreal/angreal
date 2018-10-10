@@ -36,6 +36,14 @@ def venv_required(name):
 
 
 class VirtualEnv(object):
+    """
+    Interacting with virtual environments from within a currently running script.
+
+    :param name: the name of the virtual environment
+    :param python: the path (or basename) of the python executable to use for an interpreter
+    :param requirements: a requirements file to use for creation
+    :param now: should the environment be created on init
+    """
 
     base_path = os.path.expanduser(os.path.join('~','.venv'))
 
@@ -96,10 +104,7 @@ class VirtualEnv(object):
         """
         Initializes the object either creating or activating the named environment.
 
-        :param name: the name of the virtual environment
-        :param python: the path (or basename) of the python executable to use for an interpreter
-        :param requirements: a requirements file to use for creation
-        :param now: should the environment be created on init
+
         """
         self.name = name
 
