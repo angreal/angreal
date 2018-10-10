@@ -30,15 +30,14 @@ class Replay(dict):
         r['tracked'] = 'setting'
         r.save()
 
+    :param file: the replay to load (defaults to looking in the .angreal directory)
+    :type file: string
     """
 
 
     def __init__(self,file=None):
         """
         Initialize the Replay object, if no file is provided angreal will attempt to find one in parent directories.
-
-        :param file: the replay to load (defaults to looking in the .angreal directory)
-        :type file: string
         """
 
         if not file: #Default, go try and find it
