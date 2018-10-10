@@ -22,7 +22,12 @@ class GitException(Exception):
 
 
 class Git(object):
-    """ Hyper light weight wrapper for git"""
+    """
+    Hyper light weight wrapper for git
+
+    :param git_path: path to the git file
+    :param working_dir: the working directory to work from
+    """
 
     def __init__(self, git_path=find_executable('git'), working_dir=None):
 
