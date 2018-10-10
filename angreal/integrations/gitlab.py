@@ -46,16 +46,15 @@ class GitLabProject(object): #pragma: no cover
         project.get_project('group/projectname')
         #or project.get_project(1) if you have the actual id
 
+
+    :param url: the url for the gitlab instance
+    :type url: str
+    :param token: the private token to use for accessing the api
+    :type token: str
     """
 
     def __init__(self,url,token=None,proxy=False):
         """
-        initialize with a connection to Gitlab
-
-        :param url: the url for the gitlab instance
-        :type url: str
-        :param token: the private token to use for accessing the api
-        :type token: str
         """
 
         # Set up a request session to respect proxy variables
