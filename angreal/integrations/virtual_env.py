@@ -15,11 +15,11 @@ import subprocess
 
 def venv_required(name,requirements_file=None):
     """
-    Ensure that you're operating in the "correct" environment via sys.prefix.
-
-    - sys.prefix =~ name
+    Ensure that you're operating in the "correct" environment via sys.prefix. Will create and activate the environment
+    if it doesn't exist.
 
     :param name: The name of the environment
+    :param requirements_file: full path the requirements file for activation
     :return:
     """
 
