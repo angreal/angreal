@@ -20,13 +20,19 @@ class TestVirtualEnv(unittest.TestCase):
 
         assert test(1, 2) == 3
 
-    @raises(ValueError)
     def test_venv_required_bad(self):
-        @venv_required('not_angreal')
+        initial_sys_prefix = sys.prefix
+
+        @venv_required('not_angreal',requirements_file=test_requirements)
         def test(a, b):
             return a + b
 
         test(1, 2)
+        this_venv = os.path.expanduser(os.path.join('~', '.venv', 'not_angreal'))
+        assert os.path.isdir(this_venv)
+
+        shutil.rmtree(this_venv)
+        sys.prefix = initial_sys_prefix
 
 
     def test_init(self):

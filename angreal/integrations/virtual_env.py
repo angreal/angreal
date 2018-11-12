@@ -13,16 +13,18 @@ import sys
 import subprocess
 
 
-def venv_required(name):
+def venv_required(name,requirements_file=None):
     """
-    Ensure that you're operating in the "correct" environment via sys.prefix.
-
-    - sys.prefix =~ name
+    Ensure that you're operating in the "correct" environment via sys.prefix. Will create and activate the environment
+    if it doesn't exist.
 
     :param name: The name of the environment
+    :param requirements_file: full path the requirements file for activation
     :return:
     """
 
+    initial_sys_prefix = sys.prefix
+    venv = VirtualEnv(name=name,requirements=requirements_file)
     #more checks against current python + os.environ.VIRTUAL_ENV
     if not os.path.basename(sys.prefix) == name :
         raise ValueError('virtualenv {} is not activated (active: {})'.format(name,os.path.basename(sys.prefix)))
@@ -30,7 +32,9 @@ def venv_required(name):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            return f(*args,**kwargs)
+            rv =  f(*args,**kwargs)
+            sys.prefix = initial_sys_prefix
+            return rv
         return wrapper
     return decorator
 
@@ -120,8 +124,8 @@ class VirtualEnv(object):
         if now:
             self.activate_or_create()
 
-
-        self.install_requirements(self.requirements)
+        if self.requirements:
+            self.install_requirements(self.requirements)
 
 
     def install_requirements(self,requirements):
