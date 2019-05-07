@@ -17,7 +17,7 @@ def task_functional_tests():
     :return:
     """
     return {
-        'actions': ['nosetests -sv --with-coverage --cover-erase --cover-package=angreal.integrations.gitlab tests/integrations/gitlab/functional_test_gitlab.py']
+        'actions': ['nosetests -sv tests/functional']
     }
 
 
@@ -27,7 +27,7 @@ def task_tests():
     :return:
     """
     return {
-        'actions': ['nosetests -sv --with-coverage --cover-package=angreal'],
+        'actions': ['nosetests -sv --with-coverage --cover-package=angreal tests/unit'],
         'targets': ['.coverage'],
     }
 

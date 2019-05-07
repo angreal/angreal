@@ -22,7 +22,7 @@ class AngrealTest(unittest.TestCase):
 
     def setUp(self):
         self.start_dir = os.getcwd()
-        os.chdir(os.path.join(os.path.dirname(__file__), 'fake-repo'))
+        os.chdir(os.path.join(os.path.dirname(__file__), 'unit', 'fake-repo'))
 
     def tearDown(self):
         os.chdir(self.start_dir)

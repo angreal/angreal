@@ -39,13 +39,9 @@ functional-test:
   image: python:3
   stage: unit-test
   script:
-     - echo "RUN THE FUNCTIONAL TESTS DWEEB"
-#    - pip  install -r requirements/dev.txt
-#    - doit list
-#    - doit functional_tests
+     - doit functional_tests
   allow_failure: false
-  when: manual
-  only:
+  except:
     - tags
 
 release:

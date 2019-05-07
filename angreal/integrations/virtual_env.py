@@ -116,7 +116,7 @@ class VirtualEnv(object):
             python='python'
 
         self.python=python
-
+        self.devnull = open(os.devnull,'w')
 
         self.requirements=requirements
         self.env = os.environ.copy()
@@ -135,7 +135,9 @@ class VirtualEnv(object):
         :param requirements: path to a requirements file
         """
         args = [self.pip, 'install', '-r', requirements]
-        proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+
+        proc = subprocess.Popen(args, stdout=self.devnull, stderr=self.devnull)
         output,error = proc.communicate()
 
         print(' '.join(args),file=sys.stderr)
@@ -175,7 +177,7 @@ class VirtualEnv(object):
 
         args.append(self.path)
 
-        proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(args, stdout=self.devnull, stderr=self.devnull)
         output,error = proc.communicate()
 
         if proc.returncode:

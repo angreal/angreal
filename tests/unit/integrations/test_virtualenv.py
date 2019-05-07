@@ -21,6 +21,9 @@ class TestVirtualEnv(unittest.TestCase):
         assert test(1, 2) == 3
 
     def test_venv_required_bad(self):
+        """
+        teste venv_required missing venv created if not present
+        """
         initial_sys_prefix = sys.prefix
 
         @venv_required('not_angreal',requirements_file=test_requirements)
@@ -38,7 +41,6 @@ class TestVirtualEnv(unittest.TestCase):
     def test_init(self):
         """
         testing creation of an environment
-        :return:
         """
 
         #activation edits sys.prefix, save and reset it when this test passes

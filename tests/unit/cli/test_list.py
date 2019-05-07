@@ -21,7 +21,9 @@ from click.testing import CliRunner
 class TestBaseInit(unittest.TestCase):
 
     def test_list(self):
-
+        """
+        test list out repo
+        """
         runner = CliRunner()
         results = runner.invoke(list_cmd, [])
 
@@ -32,6 +34,9 @@ class TestBaseInit(unittest.TestCase):
 
 
     def test_list(self):
+        """
+        test list in repo
+        """
         original_dir = os.getcwd()
         os.chdir(os.path.join(os.path.dirname(__file__), '..','fake-repo'))
 
