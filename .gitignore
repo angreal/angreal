@@ -163,7 +163,7 @@ q.doit.db.dat
 .coverage
 cover/
 .doit.db.dat
-/tests/fake-repo/.angreal/.doit.db.db
+/tests/unit/fake-repo/.angreal/.doit.db.db
 /docs/build/
 ### Linux template
 *~

@@ -16,6 +16,9 @@ class DoitTests(unittest.TestCase):
 
 
     def test_make_doit_task(self):
+        """
+        test make doit task
+        """
 
         @make_doit_task
         def echo():
@@ -27,7 +30,6 @@ class DoitTests(unittest.TestCase):
     def test_run_doit_tasks(self):
         """
         run a doit task pipeline
-        :return:
         """
 
         @make_doit_task
@@ -42,6 +44,9 @@ class DoitTests(unittest.TestCase):
 
 
     def test_doit_task(self):
+        """
+        test doit task
+        """
 
         @doit_task
         def echo1():
@@ -53,6 +58,9 @@ class DoitTests(unittest.TestCase):
         os.unlink('test.txt')
 
     def test_doit_with_click(self):
+        """
+        test doit from within click
+        """
 
         tmp_file_name = os.path.join(os.path.dirname(__file__),'test.txt')
         @click.command()
