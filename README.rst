@@ -10,11 +10,7 @@ Angreal
 .. image:: https://badge.fury.io/py/angreal.svg
     :target: https://badge.fury.io/py/angreal
 
-
-
-Angreal is a tool for templating projects and associated processes to hopefully
-lessen the cognitive load that goes with project management.
-
+Angreal is a tool for templating projects and associated processes to hopefully lessen the cognitive load that goes with project management.
 
 Installation :
 
