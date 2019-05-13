@@ -9,7 +9,7 @@ before_script:
 
 
 stages:
-  - unit-test
+  - test
   - release
   - pages
 
@@ -28,7 +28,7 @@ pages:
 
 unit-test:
   image: python:3
-  stage: unit-test
+  stage: test
   script:
     - doit tests
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
@@ -37,9 +37,18 @@ unit-test:
 
 functional-test:
   image: python:3
-  stage: unit-test
+  stage: test
   script:
      - doit functional_tests
+  allow_failure: false
+  except:
+    - tags
+
+install-test:
+  image: python:3
+  stage: test
+  script:
+    - pip install .
   allow_failure: false
   except:
     - tags
