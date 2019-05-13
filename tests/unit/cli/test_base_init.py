@@ -15,8 +15,8 @@ class TestBaseInit(unittest.TestCase):
 
     def test_base_init(self):
         """
-        Base init appears to work
-        :return:
+        test base init
+
         """
 
         original_dir = os.getcwd()
@@ -38,8 +38,7 @@ class TestBaseInit(unittest.TestCase):
 
     def test_print_nested_help(self):
         """
-        Printing nested help
-        :return:
+        test nested help
         """
         original_dir = os.getcwd()
         os.chdir(os.path.join(os.path.dirname(__file__), '..'))
