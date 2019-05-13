@@ -42,7 +42,7 @@ setuptools.setup(
     author='dylanbstorey',
     author_email='dylan.storey@gmail.com',
     license='GPLv3',
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=['tests*']),
     install_requires=read_requirements('requirements/requirements.txt'),
     zip_safe=False,
     version=VERSION,
