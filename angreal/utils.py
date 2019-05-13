@@ -26,6 +26,9 @@ def get_angreal_path(dir=DEFAULT_FOLDER):
 
     #Look up the tree until we hit the root directory
     paths_to_test = [os.getcwd()] + list(current_path.parents)
+    #explicit string conversion to get PosixPath error to knock it off
+    paths_to_test = [str(p) for p in paths_to_test]
+
 
     for p in paths_to_test:
         test_path = os.path.join(p, dir)

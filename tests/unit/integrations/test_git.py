@@ -40,6 +40,9 @@ class TestGit(unittest.TestCase):
 
 
     def test_git_4(self):
+        """
+        test git init
+        """
         os.mkdir('git_test')
         os.chdir('git_test')
         git = Git()
