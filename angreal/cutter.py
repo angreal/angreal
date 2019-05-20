@@ -7,7 +7,8 @@
 
 import json
 import os
-import shutil
+import subprocess
+import sys
 
 from cookiecutter.main import cookiecutter
 
@@ -21,7 +22,26 @@ def initialize_cutter(template, **kwargs):
     """
     kwargs.pop('replay', None)
 
-    project_path = cookiecutter(template, **kwargs)
+    template_path = None
+
+    if os.path.isdir(template):
+        template_path = template
+
+    else:
+        rc = subprocess.call([sys.executable,'-m','pip','install','angreal-{}'.format(template)])
+        if rc != 0 :
+            exit("failed to install angreal-{}".format(template))
+
+        template_path = os.path.abspath(
+                            os.path.join(
+                                sys.prefix, 'angreal_{}'.format(template)
+                            )
+                )
+
+
+
+    project_path = cookiecutter(template_path, **kwargs)
+
 
     #strip trailing slashes
     if template.endswith('/'):
@@ -35,8 +55,6 @@ def initialize_cutter(template, **kwargs):
     project_name = os.path.split(project_path)[-1]
     angreal_hidden = os.path.join(project_path, '.angreal')
     generated_replay = os.path.join(os.environ.get('HOME'), '.cookiecutter_replay', '{}.json'.format(template_name))
-
-    assert os.path.isfile(generated_replay)
 
 
     os.makedirs(angreal_hidden, exist_ok=True)
