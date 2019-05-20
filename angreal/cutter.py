@@ -34,7 +34,7 @@ def initialize_cutter(template, **kwargs):
 
         template_path = os.path.abspath(
                             os.path.join(
-                                sys.prefix, 'angreal-{}'.format(template)
+                                sys.prefix, 'angreal_{}'.format(template)
                             )
                 )
 
