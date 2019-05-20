@@ -23,6 +23,7 @@ def initialize_cutter(template, **kwargs):
 
     project_path = cookiecutter(template, **kwargs)
 
+
     #strip trailing slashes
     if template.endswith('/'):
         template = template[:-1]
