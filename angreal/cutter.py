@@ -22,12 +22,22 @@ def initialize_cutter(template, **kwargs):
     """
     kwargs.pop('replay', None)
 
+
     template_path = None
 
     if os.path.isdir(template):
         template_path = template
 
+        # strip trailing slashes
+        if template.endswith('/'):
+            template_path = template_path[:-1]
+
+        template_name = os.path.split(template_path)[-1]
+        if template_name.endswith('.git'):
+            template_name = template_name[:-4]
+
     else:
+        template = template.replace('-', '_')
         rc = subprocess.call([sys.executable,'-m','pip','install','angreal-{}'.format(template)])
         if rc != 0 :
             exit("failed to install angreal-{}".format(template))
@@ -37,22 +47,14 @@ def initialize_cutter(template, **kwargs):
                                 sys.prefix, 'angreal_{}'.format(template)
                             )
                 )
-
+        template_name = 'angreal_{}'.format(template)
 
 
     project_path = cookiecutter(template_path, **kwargs)
 
 
-    #strip trailing slashes
-    if template.endswith('/'):
-        template = template[:-1]
-
-    template_name = os.path.split(template)[-1]
-    if template_name.endswith('.git'):
-        template_name = template_name[:-4]
 
 
-    project_name = os.path.split(project_path)[-1]
     angreal_hidden = os.path.join(project_path, '.angreal')
     generated_replay = os.path.join(os.environ.get('HOME'), '.cookiecutter_replay', '{}.json'.format(template_name))
 

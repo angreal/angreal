@@ -27,12 +27,12 @@ class TestAngrealInit(unittest.TestCase):
 
     def test_init_pypi(self):
         """
-        test pypi init - $HOME currently breaks this in GitLab Runner. Come back to it later
+        test pypi init
         """
         rc = subprocess.call(['angreal','init','--no-input', 'template'])
-        # assert os.path.isdir('angreal-template')
-        # assert rc == 0
-        # shutil.rmtree('angreal-template')
+        assert os.path.isdir('angreal-template')
+        assert rc == 0
+        shutil.rmtree('angreal-template')
 
 
 

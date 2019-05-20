@@ -76,9 +76,9 @@ def base_init(repository,init_args,help,no_input=False):
         exit(0)
 
     try:
-        project_path = initialize_cutter(repository,no_input=no_input)
+        project_path = initialize_cutter(repository,no_input=no_input, replay=True)
     except OutputDirExistsException:
-        exit(-2)
+        exit("Output directory exists")
     os.chdir(project_path)
 
     template_version = get_template_version()
@@ -86,6 +86,7 @@ def base_init(repository,init_args,help,no_input=False):
     if template_version:
         if not is_compat(template_version):
             raise ValueError('This template needs to be run using angreal {}'.format(template_version))
+
 
     file = os.path.join(get_angreal_path(), 'init.py')
 
