@@ -8,12 +8,13 @@
 import os
 
 import click
-from collections import defaultdict
 
 import angreal
+# noinspection PyProtectedMember,PyProtectedMember
 from angreal import get_angreal_path, import_from_file
-from angreal.cli.list_cmd import list_cmd,get_angreal_commands,get_adjacent_commands
-from angreal.compat import get_template_version,is_compat
+from angreal.cli.list_cmd import list_cmd, get_angreal_commands, get_adjacent_commands
+from angreal.compat import get_template_version, is_compat
+
 
 class AngrealCLI(click.MultiCommand):
 

@@ -7,10 +7,11 @@
 
 """
 
-from angreal.integrations import GitRemote
 import sys
 
 from github import Github
+
+from angreal.integrations import GitRemote
 
 
 class GitHub(GitRemote): # pragma: no cover

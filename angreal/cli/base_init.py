@@ -13,14 +13,13 @@ import shutil
 import tempfile
 
 import click
-
-
 from cookiecutter.exceptions import OutputDirExistsException
 
 import angreal
+from angreal.compat import get_template_version, is_compat
 from angreal.cutter import initialize_cutter
 from angreal.utils import get_angreal_path, import_from_file
-from angreal.compat import get_template_version,is_compat
+
 
 def print_base_help():
     """

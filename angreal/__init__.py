@@ -4,10 +4,11 @@
 
 
 """
-from angreal.utils import get_angreal_path, import_from_file
-from angreal.decorators import *
 import importlib
 import os
+
+from angreal.decorators import *
+from angreal.utils import get_angreal_path, import_from_file
 
 importlib.import_module('click')
 

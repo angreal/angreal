@@ -5,15 +5,15 @@
     working with gitlab hosted remotes
 """
 
-import sys
-import os
 import datetime
+import os
+import requests
+import sys
 
-from angreal.integrations import GitRemote,repo_required
-
+from gitlab import DEVELOPER_ACCESS, MASTER_ACCESS, OWNER_ACCESS
 from gitlab import Gitlab
-from gitlab import DEVELOPER_ACCESS, MASTER_ACCESS,OWNER_ACCESS
 
+from angreal.integrations import GitRemote, repo_required
 
 
 class GitLab(GitRemote): # pragma: no cover

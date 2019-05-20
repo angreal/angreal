@@ -4,13 +4,13 @@
 
     Angreal integrates with pydoit
 """
+from collections import Callable
 from functools import wraps
 
-from collections import Callable
-
-from doit.task import dict_to_task
 from doit.cmd_base import TaskLoader
 from doit.doit_cmd import DoitMain
+from doit.task import dict_to_task
+
 
 def make_doit_task(f):
     """
@@ -31,6 +31,7 @@ def make_doit_task(f):
     return d2t
 
 
+# noinspection PyDefaultArgument
 def run_doit_tasks(tasks,args,config={'verbosity' : 0}):
     """
     Runs a series of task objects.
