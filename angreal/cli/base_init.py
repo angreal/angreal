@@ -99,16 +99,20 @@ def base_init(repository,init_args,help,no_input=False):
         except Exception as e:
             # Something happened in the sub init execution
             shutil.rmtree(project_path)
-            raise
-            exit (-1)
+            exit ("Exiting at line 103:\n{}".format(e))
 
         # Init commands should only be run ONCE
         os.unlink(file)
 
-    except (ImportError, FileNotFoundError):
+    except ImportError:
         # if the file doesn't exist or import fails pass
+        response = input("Import error on init.py, do you want to keep the file? [y/n]")
+        if response == 'y':
+            exit("Failed to input init.py")
         shutil.rmtree(project_path)
-        exit(-1)
+    except  FileNotFoundError:
+        shutil.rmtree(project_path)
+        exit("Could not find file: {}".format(file))
 
     return
 
