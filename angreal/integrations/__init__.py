@@ -62,6 +62,7 @@ class GitRemote(object): # pragma: no cover
         """
         Get a repository by some canonical id
 
+        :param id:
         :param self:
         :return:
         """
@@ -85,7 +86,6 @@ class GitRemote(object): # pragma: no cover
         Protect a branch, this usually blocks pushes and deletions.
 
         :param name: branch name/pattern to protect
-        :param **kwargs: provider specific settings
         :return:
         """
 

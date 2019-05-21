@@ -7,11 +7,13 @@
 
 """
 import os
+
 import semver
+
 import angreal
 from angreal.utils import get_angreal_path
 
-
+#DEPRECIATED FOR THE TIME BEING.
 
 def is_compat(template_semver):
     """

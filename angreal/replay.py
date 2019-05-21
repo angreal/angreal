@@ -9,9 +9,8 @@ import fnmatch
 import json
 import os
 
-
-
 from angreal.utils import get_angreal_path
+
 
 class Replay(dict):
     """

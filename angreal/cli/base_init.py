@@ -13,14 +13,13 @@ import shutil
 import tempfile
 
 import click
-
-
 from cookiecutter.exceptions import OutputDirExistsException
 
 import angreal
+from angreal.compat import get_template_version, is_compat
 from angreal.cutter import initialize_cutter
 from angreal.utils import get_angreal_path, import_from_file
-from angreal.compat import get_template_version,is_compat
+
 
 def print_base_help():
     """
@@ -77,18 +76,23 @@ def base_init(repository,init_args,help,no_input=False):
         exit(0)
 
     try:
-        project_path = initialize_cutter(repository,no_input=no_input)
+        project_path = initialize_cutter(repository,no_input=no_input, replay=True)
     except OutputDirExistsException:
-        exit(-2)
+        exit("Output directory exists")
+
     os.chdir(project_path)
 
-    template_version = get_template_version()
+    # Version checking would be nice - need to think about it more though.
 
-    if template_version:
-        if not is_compat(template_version):
-            raise ValueError('This template needs to be run using angreal {}'.format(template_version))
+    # template_version = get_template_version()
+    #
+    # if template_version:
+    #     if not is_compat(template_version):
+    #         raise ValueError('This template needs to be run using angreal {}'.format(template_version))
+
 
     file = os.path.join(get_angreal_path(), 'init.py')
+
 
     try:
         # First try to import the file
@@ -96,19 +100,24 @@ def base_init(repository,init_args,help,no_input=False):
         try:
             # Try to run the "init" function in the task_init file, pass through all of the init_args
             mod.init(init_args)
+
         except Exception as e:
             # Something happened in the sub init execution
             shutil.rmtree(project_path)
-            raise
-            exit (-1)
+            exit ("Exiting at line 103:\n{}".format(e))
 
         # Init commands should only be run ONCE
         os.unlink(file)
 
-    except (ImportError, FileNotFoundError):
+    except ImportError:
         # if the file doesn't exist or import fails pass
+        response = input("Import error on init.py, do you want to keep the file? [y/n]")
+        if response == 'y':
+            exit("Failed to input init.py")
         shutil.rmtree(project_path)
-        exit(-1)
+    except  FileNotFoundError:
+        shutil.rmtree(project_path)
+        exit("Could not find file: {}".format(file))
 
     return
 

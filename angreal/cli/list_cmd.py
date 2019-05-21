@@ -5,13 +5,14 @@
     default command lists available commands in the angreal
 
 """
-from collections import defaultdict
 import os
-
-import angreal
-from angreal.utils import get_angreal_path,import_from_file
+from collections import defaultdict
 
 import click
+
+import angreal
+from angreal.utils import get_angreal_path, import_from_file
+
 
 def get_adjacent_commands():
     """

@@ -7,9 +7,8 @@
 
 """
 import os
-from distutils.spawn import find_executable
 import subprocess
-
+from distutils.spawn import find_executable
 
 
 class GitException(Exception):

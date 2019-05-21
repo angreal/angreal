@@ -1,6 +1,7 @@
 image: python:3
 
 before_script:
+  - echo $HOME
   - VERSION=`cat angreal/VERSION`
   - pip install virtualenv
   - virtualenv ~/.venv/angreal

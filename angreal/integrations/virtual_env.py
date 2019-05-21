@@ -6,11 +6,11 @@
 
 """
 
-from distutils.spawn import find_executable
 import functools
 import os
-import sys
 import subprocess
+import sys
+from distutils.spawn import find_executable
 
 
 def venv_required(name,requirements_file=None):
@@ -168,7 +168,7 @@ class VirtualEnv(object):
         if find_executable(self.python):
             self.python = find_executable(self.python)
         else :
-            raise ValueError("Unable to find '{}' in $PATH".format(python))
+            raise ValueError("Unable to find '{}' in $PATH".format(self.python))
 
         args = ['virtualenv']
 
@@ -181,7 +181,7 @@ class VirtualEnv(object):
         output,error = proc.communicate()
 
         if proc.returncode:
-            raise EnvironmentError('{} failed with the following information :\n{5:}\n{5:}'.format(self.name, proc.returncode, output))
+            raise EnvironmentError('{} failed with the following information :\n{}\n{}'.format(self.name, proc.returncode, output))
 
 
 
@@ -191,7 +191,7 @@ class VirtualEnv(object):
         :return:
         """
         if not os.path.isdir(self.path):
-            raise FileNotFoundError('No Virtual Environment found for {}'.format(name))
+            raise FileNotFoundError('No Virtual Environment found for {}'.format(self.name))
 
         with open(self.activate_script,'w') as f:
             print(self.activate_this_text, file=f)
