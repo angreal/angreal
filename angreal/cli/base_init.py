@@ -82,11 +82,13 @@ def base_init(repository,init_args,help,no_input=False):
 
     os.chdir(project_path)
 
-    template_version = get_template_version()
+    # Version checking would be nice - need to think about it more though.
 
-    if template_version:
-        if not is_compat(template_version):
-            raise ValueError('This template needs to be run using angreal {}'.format(template_version))
+    # template_version = get_template_version()
+    #
+    # if template_version:
+    #     if not is_compat(template_version):
+    #         raise ValueError('This template needs to be run using angreal {}'.format(template_version))
 
 
     file = os.path.join(get_angreal_path(), 'init.py')
