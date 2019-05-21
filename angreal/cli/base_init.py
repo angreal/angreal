@@ -79,6 +79,7 @@ def base_init(repository,init_args,help,no_input=False):
         project_path = initialize_cutter(repository,no_input=no_input, replay=True)
     except OutputDirExistsException:
         exit("Output directory exists")
+
     os.chdir(project_path)
 
     template_version = get_template_version()
@@ -90,12 +91,14 @@ def base_init(repository,init_args,help,no_input=False):
 
     file = os.path.join(get_angreal_path(), 'init.py')
 
+
     try:
         # First try to import the file
         mod = import_from_file(file)
         try:
             # Try to run the "init" function in the task_init file, pass through all of the init_args
             mod.init(init_args)
+
         except Exception as e:
             # Something happened in the sub init execution
             shutil.rmtree(project_path)
