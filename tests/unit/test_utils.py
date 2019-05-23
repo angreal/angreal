@@ -3,6 +3,7 @@ import unittest
 from nose.tools import raises
 
 from angreal.utils import get_angreal_path
+from angreal import warn,win,error
 
 class TestUtils(unittest.TestCase):
 
@@ -33,7 +34,27 @@ class TestUtils(unittest.TestCase):
     def test_get_angreal_task_path_bad(self):
         """
         bad file path raises FileNotFoundError
-        :return:
         """
 
         get_angreal_path(dir='.noangreal')
+
+    def test_warn(self):
+        """
+        Test a warning
+        """
+
+        warn("THIS IS A WARNING")
+
+    def test_error(self):
+        """
+        Test an error
+        """
+
+        error("THIS IS AN ERROR")
+
+    def test_win(self):
+        """
+        Test a win
+        """
+
+        win("WINNING")
