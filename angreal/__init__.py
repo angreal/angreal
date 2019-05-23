@@ -25,3 +25,35 @@ __all__ = [
 ]
 
 __version__ = open( os.path.join( os.path.dirname(__file__), 'VERSION')).read().strip()
+
+
+import click
+
+def win(string):
+    """
+    print a green message for successful
+
+    :param string:
+    :return:
+    """
+    click.echo(click.style(string, fg='green', bold=True))
+    pass
+
+def warn(string):
+    """
+    print a yellow message as a warning
+
+    :param string:
+    :return:
+    """
+    click.echo(click.style(string, fg='yellow',bold=True))
+    pass
+
+def error(string):
+    """
+    print a red message as an error
+
+    :param string:
+    :return:
+    """
+    click.echo(click.style(string, fg='red',bold=True))
