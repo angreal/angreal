@@ -36,7 +36,7 @@ class Git(object):
 
         if not working_dir:
             self.working_dir = os.path.abspath(os.getcwd())
-        else :
+        else:
             if not os.path.isdir(working_dir):
                 raise FileNotFoundError()
             self.working_dir = os.path.abspath(working_dir)
@@ -94,5 +94,3 @@ class Git(object):
         :return:
         """
         return lambda *args, **kwargs: self(name, *args, **kwargs)
-
-

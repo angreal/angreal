@@ -13,7 +13,6 @@ import semver
 import angreal
 from angreal.utils import get_angreal_path
 
-#DEPRECIATED FOR THE TIME BEING.
 
 def is_compat(template_semver):
     """
@@ -33,6 +32,6 @@ def get_template_version():
     :rtype: str
     """
     version_file = os.path.join(get_angreal_path(), 'VERSION')
-    if os.path.exists(  version_file ):
+    if os.path.exists(version_file):
         return open(version_file).read().strip()
     return None

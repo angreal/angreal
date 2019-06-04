@@ -14,19 +14,18 @@ from github import Github
 from angreal.integrations import GitRemote
 
 
-class GitHub(GitRemote): # pragma: no cover
+class GitHub(GitRemote):  # pragma: no cover
     """
 
     Basic manipulations to a remote github project.
 
     """
 
-    def __init__(self,base_url='https://api.github.com',access_token=None):
+    def __init__(self, base_url='https://api.github.com', access_token=None):
         super(GitHub, self).__init__()
-        self.remote = Github(base_url=base_url,login_or_token=access_token)
+        self.remote = Github(base_url=base_url, login_or_token=access_token)
 
-
-    def get_repo(self,id):
+    def get_repo(self, id):
         """
         Get our namespace by integer id.
 
@@ -36,8 +35,7 @@ class GitHub(GitRemote): # pragma: no cover
 
         self.repo = self.remote.get_repo(id)
 
-
-    def create_repository(self,name,namespace=None):
+    def create_repository(self, name, namespace=None):
         """
         Create a repository on the remote, sets the `repo` attribute on return.
 
@@ -49,7 +47,7 @@ class GitHub(GitRemote): # pragma: no cover
         assert not self.repo
         if namespace:
             self.repo = self.remote.get_organization(namespace).create_repo(name)
-        else :
+        else:
             self.repo = self.remote.get_user().create_repo(name)
 
     def protect_branch(self, name, **kwargs):
@@ -76,7 +74,7 @@ class GitHub(GitRemote): # pragma: no cover
         if color.startswith('#'):
             color = color[1:]
         try:
-            self.repo.create_label(name,color)
+            self.repo.create_label(name, color)
         except Exception as e:
             if pass_on_fail:
                 print('Unable to add label {} : {}'.format(name, color), file=sys.stderr)
@@ -94,7 +92,7 @@ class GitHub(GitRemote): # pragma: no cover
         :param start_date:
         :return:
         """
-        self.repo.create_milestone(title,description=description,due_on=due_date)
+        self.repo.create_milestone(title, description=description, due_on=due_date)
         pass
 
     def enable_issues(self):
@@ -119,7 +117,3 @@ class GitHub(GitRemote): # pragma: no cover
         :return:
         """
         self.repo.delete()
-
-
-
-

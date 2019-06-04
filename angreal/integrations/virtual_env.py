@@ -13,7 +13,7 @@ import sys
 from distutils.spawn import find_executable
 
 
-def venv_required(name,requirements_file=None):
+def venv_required(name, requirements_file=None):
     """
     Ensure that you're operating in the "correct" environment via sys.prefix. Will create and activate the environment
     if it doesn't exist.
@@ -24,15 +24,18 @@ def venv_required(name,requirements_file=None):
     """
 
     initial_sys_prefix = sys.prefix
-    venv = VirtualEnv(name=name,requirements=requirements_file)
-    #more checks against current python + os.environ.VIRTUAL_ENV
-    if not os.path.basename(sys.prefix) == name :
-        raise ValueError('virtualenv {} is not activated (active: {})'.format(name,os.path.basename(sys.prefix)))
+    VirtualEnv(name=name,
+               requirements=requirements_file)
+
+    # more checks against current python + os.environ.VIRTUAL_ENV
+
+    if not os.path.basename(sys.prefix) == name:
+        raise ValueError('virtualenv {} is not activated (active: {})'.format(name, os.path.basename(sys.prefix)))
 
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            rv =  f(*args,**kwargs)
+            rv = f(*args, **kwargs)
             sys.prefix = initial_sys_prefix
             return rv
         return wrapper
@@ -49,7 +52,7 @@ class VirtualEnv(object):
     :param now: should the environment be created on init
     """
 
-    base_path = os.path.expanduser(os.path.join('~','.venv'))
+    base_path = os.path.expanduser(os.path.join('~', '.venv'))
 
     @property
     def path(self):
@@ -57,8 +60,8 @@ class VirtualEnv(object):
         What's the path to the virtual environment
         :return:
         """
-        os.makedirs(self.base_path,exist_ok=True)
-        return os.path.join(self.base_path,self.name)
+        os.makedirs(self.base_path, exist_ok=True)
+        return os.path.join(self.base_path, self.name)
 
     @property
     def active(self):
@@ -69,26 +72,25 @@ class VirtualEnv(object):
         return os.path.basename(sys.prefix) == self.name
         return
 
-
     @property
     def bin(self):
-        return os.path.join(self.path,'bin')
+        return os.path.join(self.path, 'bin')
 
     @property
     def pip(self):
-        return os.path.join(self.bin,'pip')
+        return os.path.join(self.bin, 'pip')
 
     @property
     def python_exe(self):
-        return os.path.join(self.bin,'python')
+        return os.path.join(self.bin, 'python')
 
     @property
     def lib(self):
-        return os.path.join(self.path,'lib')
+        return os.path.join(self.path, 'lib')
 
     @property
     def include(self):
-        return os.path.join(self.path,'include')
+        return os.path.join(self.path, 'include')
 
     @property
     def exists(self):
@@ -97,28 +99,26 @@ class VirtualEnv(object):
         :return:
         """
 
-        return ( os.path.isdir(self.lib) and
-                 os.path.isdir(self.include) and
-                 os.path.isdir(self.bin) and
-                 os.path.isfile(self.python_exe) and
-                 os.path.isfile(self.pip) )
+        return (os.path.isdir(self.lib) and
+                os.path.isdir(self.include) and
+                os.path.isdir(self.bin) and
+                os.path.isfile(self.python_exe) and
+                os.path.isfile(self.pip))
 
-
-    def __init__(self,name, python=None,requirements=None,now=True):
+    def __init__(self, name, python=None, requirements=None, now=True):
         """
         Initializes the object either creating or activating the named environment.
-
 
         """
         self.name = name
 
         if not python:
-            python='python'
+            python = 'python'
 
-        self.python=python
-        self.devnull = open(os.devnull,'w')
+        self.python = python
+        self.devnull = open(os.devnull, 'w')
 
-        self.requirements=requirements
+        self.requirements = requirements
         self.env = os.environ.copy()
 
         if now:
@@ -127,8 +127,7 @@ class VirtualEnv(object):
         if self.requirements:
             self.install_requirements(self.requirements)
 
-
-    def install_requirements(self,requirements):
+    def install_requirements(self, requirements):
         """
         install requirements from a file
 
@@ -136,28 +135,22 @@ class VirtualEnv(object):
         """
         args = [self.pip, 'install', '-r', requirements]
 
-
         proc = subprocess.Popen(args, stdout=self.devnull, stderr=self.devnull)
-        output,error = proc.communicate()
+        output, error = proc.communicate()
 
-        print(' '.join(args),file=sys.stderr)
+        print(' '.join(args), file=sys.stderr)
 
         if proc.returncode:
             raise EnvironmentError('{} failed with the following information :\n{}\n{} '.format(self.name, proc.returncode, output))
 
-
     def __str__(self):
         return self.path
-
 
     def activate_or_create(self):
         if not self.exists:
             self._create()
         if not self.active:
             self._activate()
-
-
-
 
     def _create(self):
         """
@@ -167,23 +160,21 @@ class VirtualEnv(object):
 
         if find_executable(self.python):
             self.python = find_executable(self.python)
-        else :
+        else:
             raise ValueError("Unable to find '{}' in $PATH".format(self.python))
 
         args = ['virtualenv']
 
-        if self.python :
+        if self.python:
             args.extend(['-p', self.python])
 
         args.append(self.path)
 
         proc = subprocess.Popen(args, stdout=self.devnull, stderr=self.devnull)
-        output,error = proc.communicate()
+        output, error = proc.communicate()
 
         if proc.returncode:
             raise EnvironmentError('{} failed with the following information :\n{}\n{}'.format(self.name, proc.returncode, output))
-
-
 
     def _activate(self):
         """
@@ -193,19 +184,18 @@ class VirtualEnv(object):
         if not os.path.isdir(self.path):
             raise FileNotFoundError('No Virtual Environment found for {}'.format(self.name))
 
-        with open(self.activate_script,'w') as f:
+        with open(self.activate_script, 'w') as f:
             print(self.activate_this_text, file=f)
 
-        exec( self.activate_this_text, dict(__file__=self.activate_script))
+        exec(self.activate_this_text, dict(__file__=self.activate_script))
         pass
-
 
     @property
     def activate_script(self):
         """
         The path to this environments activate_this.py
         """
-        return os.path.join(self.path,'bin','activate_this.py')
+        return os.path.join(self.path, 'bin', 'activate_this.py')
 
     @property
     def activate_this_text(self):
@@ -248,4 +238,3 @@ for item in list(sys.path):
         sys.path.remove(item)
 sys.path[:0] = new_sys_path
     '''
-
