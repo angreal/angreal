@@ -33,33 +33,30 @@ class Replay(dict):
     :type file: string
     """
 
-
-    def __init__(self,file=None):
+    def __init__(self, file=None):
         """
         Initialize the Replay object, if no file is provided angreal will attempt to find one in parent directories.
         """
 
-        if not file: #Default, go try and find it
+        if not file:  # Default, go try and find it
             file = []
             directory = get_angreal_path()
             for f in os.listdir(directory):
-                if fnmatch.fnmatch(f,'angreal-replay.json'):
+                if fnmatch.fnmatch(f, 'angreal-replay.json'):
                     file.append(f)
 
-            if len(file) > 1 :
+            if len(file) > 1:
                 raise ValueError('Found multiple files matching the replay pattern.')
 
-            file = os.path.join(directory,file[0])
-
+            file = os.path.join(directory, file[0])
 
         else:
             if not os.path.isfile(file):
                 raise FileNotFoundError()
 
-
         self.file = file
 
-        with open (self.file,'r') as f:
+        with open(self.file, 'r') as f:
             here = json.load(f)
 
         super(Replay, self).__init__(**here)
@@ -71,10 +68,9 @@ class Replay(dict):
         self.save()
         return
 
-
     def save(self):
         """
         save the current replay
         """
-        with open(self.file,'w') as f:
+        with open(self.file, 'w') as f:
             json.dump(self, f)

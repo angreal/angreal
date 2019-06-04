@@ -6,11 +6,20 @@
 """
 import importlib
 import os
+import click
 
 from angreal.decorators import *
-from angreal.utils import get_angreal_path, import_from_file
+from angreal.utils import get_angreal_path, import_from_file, win, warn, error
+from angreal.integrations.gh import GitHub
+from angreal.integrations.gl import GitLab
+from angreal.integrations.virtual_env import VirtualEnv
+from angreal.replay import Replay
 
 importlib.import_module('click')
+
+
+__version__ = open(os.path.join(os.path.dirname(__file__), 'VERSION')).read().strip()
+
 
 __all__ = [
     # Click Decorators
@@ -22,38 +31,13 @@ __all__ = [
     'echo', 'get_binary_stream', 'get_text_stream', 'open_file',
     'format_filename', 'get_app_dir', 'get_os_args',
 
+    # Angreal Utilities
+    get_angreal_path, import_from_file, win, warn, error,
+
+    # Core classes
+    GitLab, GitHub, VirtualEnv, Replay,
+
+    # Angreal decorators
+    venv_required, doit_task
+
 ]
-
-__version__ = open( os.path.join( os.path.dirname(__file__), 'VERSION')).read().strip()
-
-
-import click
-
-def win(string):
-    """
-    print a green message for successful
-
-    :param string:
-    :return:
-    """
-    click.echo(click.style(string, fg='green', bold=True))
-    pass
-
-def warn(string):
-    """
-    print a yellow message as a warning
-
-    :param string:
-    :return:
-    """
-    click.echo(click.style(string, fg='yellow',bold=True))
-    pass
-
-def error(string):
-    """
-    print a red message as an error
-
-    :param string:
-    :return:
-    """
-    click.echo(click.style(string, fg='red',bold=True))

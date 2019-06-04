@@ -4,6 +4,8 @@
 
     utilities for interacting with angreal files and projects
 """
+
+import click
 import importlib.util
 import os
 from pathlib import Path
@@ -19,16 +21,14 @@ def get_angreal_path(dir=DEFAULT_FOLDER):
     :return: path
     """
 
-
     current_path = Path(os.getcwd())
 
     angreal_path = None
 
-    #Look up the tree until we hit the root directory
+    # Look up the tree until we hit the root directory
     paths_to_test = [os.getcwd()] + list(current_path.parents)
-    #explicit string conversion to get PosixPath error to knock it off
+    # explicit string conversion to get PosixPath error to knock it off
     paths_to_test = [str(p) for p in paths_to_test]
-
 
     for p in paths_to_test:
         test_path = os.path.join(p, dir)
@@ -55,3 +55,33 @@ def import_from_file(file):
     spec.loader.exec_module(task)
     return task
 
+
+def win(string):
+    """
+    print a green message for successful
+
+    :param string:
+    :return:
+    """
+    click.echo(click.style(string, fg='green', bold=True))
+
+
+def warn(string):
+    """
+    print a yellow message as a warning
+
+    :param string:
+    :return:
+    """
+    click.echo(click.style(string, fg='yellow', bold=True))
+    pass
+
+
+def error(string):
+    """
+    print a red message as an error
+
+    :param string:
+    :return:
+    """
+    click.echo(click.style(string, fg='red', bold=True))
