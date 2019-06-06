@@ -17,6 +17,11 @@ from angreal.integrations import GitRemote, repo_required
 
 
 class GitLab(GitRemote):  # pragma: no cover
+    """A class for interacting with GitLab remotes
+    
+    :ivar remote: a binding to a python-gitlab Gitlab object
+    :ivar repo:   a repository object
+    """
     def __init__(self, base_url='https://gitlab.com', access_token=None):
 
         super(GitLab, self).__init__()
