@@ -95,22 +95,24 @@ def base_init(repository, init_args, help, no_input=False):
             # Try to run the "init" function in the task_init file, pass through all of the init_args
             mod.init(init_args)
 
+        except AttributeError as e:
+            pass
+
         except Exception as e:
             # Something happened in the sub init execution
             shutil.rmtree(project_path)
             exit("Exiting at line 103:\n{}".format(e))
-
         # Init commands should only be run ONCE
         os.unlink(file)
 
-    except ImportError:
-        # if the file doesn't exist or import fails pass
-        response = input("Import error on init.py, do you want to keep the file? [y/n]")
-        if response == 'y':
-            exit("Failed to input init.py")
-        shutil.rmtree(project_path)
     except FileNotFoundError:
-        shutil.rmtree(project_path)
-        exit("Could not find file: {}".format(file))
+        # No init.py means no special startup instructions.
+        pass
+
+    except (ImportError, AttributeError):
+        # if the init function doesn't exist or import fails pass
+        response = input("Import error on init.py, do you want to keep the generated project? [y/n]")
+        if response == 'n':
+            shutil.rmtree(project_path)
 
     return

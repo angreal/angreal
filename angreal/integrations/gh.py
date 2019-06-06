@@ -15,10 +15,10 @@ from angreal.integrations import GitRemote
 
 
 class GitHub(GitRemote):  # pragma: no cover
-    """
-
-    Basic manipulations to a remote github project.
-
+    """A class for interacting with Github remotes
+    
+    :ivar remote: a binding to a python-gitlab Gitlab object
+    :ivar repo:   a repository object
     """
 
     def __init__(self, base_url='https://api.github.com', access_token=None):

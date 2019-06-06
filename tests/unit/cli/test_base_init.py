@@ -9,8 +9,6 @@ import unittest
 from click.testing import CliRunner
 
 
-
-
 class TestBaseInit(unittest.TestCase):
 
     def test_base_init(self):
@@ -20,14 +18,16 @@ class TestBaseInit(unittest.TestCase):
         """
 
         original_dir = os.getcwd()
-        os.chdir(os.path.join(os.path.dirname(__file__),'..'))
-        runner = CliRunner()
-        results =runner.invoke(base_init, ['fake-repo-pre','--foo','baz', '--no-input'])
+        os.chdir(os.path.join(os.path.dirname(__file__), '..'))
 
-        try :
+        runner = CliRunner()
+        results = runner.invoke(base_init, ['fake-repo-pre', '--foo', 'baz', '--no-input'])
+
+        try:
             assert results.exit_code == 0
-        except :
+        except Exception as e:
             print(results, file=sys.stderr)
+            raise(e)
 
         os.chdir(os.path.join(os.path.dirname(__file__), '..'))
         shutil.rmtree('fake-project')

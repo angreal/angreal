@@ -9,8 +9,8 @@ import json
 import os
 import subprocess
 import sys
+from angreal.integrations.cookiecutter import cookiecutter
 
-from cookiecutter.main import cookiecutter
 
 
 def initialize_cutter(template, **kwargs):
@@ -22,24 +22,25 @@ def initialize_cutter(template, **kwargs):
     """
     kwargs.pop('replay', None)
 
+    if template.endswith('/'):
+        template = template[:-1]
 
     template_path = None
+    template_name = None
 
-    if os.path.isdir(template):
+    if os.path.isdir(template):  # the template is a directory
+        template_path = template
+        template_name = os.path.split(template)[-1]
+
+    elif template.endswith('.git'):  # the template appears to be a remote git repo
+        template_name = os.path.split(template)[-1]
+        template_name = template_name[:-4]
         template_path = template
 
-        # strip trailing slashes
-        if template.endswith('/'):
-            template_path = template_path[:-1]
-
-        template_name = os.path.split(template_path)[-1]
-        if template_name.endswith('.git'):
-            template_name = template_name[:-4]
-
-    else:
-        template = template.replace('-', '_') #All pypi based angreals use underscores and not dashes.
-        rc = subprocess.call([sys.executable,'-m','pip','install','angreal_{}'.format(template)])
-        if rc != 0 :
+    else:  # the template is in pypi
+        template = template.replace('-', '_')  # All pypi based angreals use underscores and not dashes.
+        rc = subprocess.call([sys.executable, '-m', 'pip', 'install', 'angreal_{}'.format(template)])
+        if rc != 0:
             exit("failed to install angreal_{}".format(template))
 
         template_path = os.path.abspath(
@@ -49,9 +50,7 @@ def initialize_cutter(template, **kwargs):
                 )
         template_name = 'angreal_{}'.format(template)
 
-
     project_path = cookiecutter(template_path, **kwargs)
-
 
 
 
@@ -65,7 +64,7 @@ def initialize_cutter(template, **kwargs):
 
     #get the cookiecutter data
     with open(generated_replay,'r') as f:
-        cookiecutter_data = json.load(f)['cookiecutter']
+        cookiecutter_data = json.load(f)['angreal']
 
 
     #save it to disk
