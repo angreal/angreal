@@ -71,6 +71,59 @@ release:
     - tags
 
 
+init_gitlab_python:
+  image: python:3
+  stage: test
+  script:
+    - pip install .
+    - angreal init gitlab_python --no-input --no_pypi --no_gitlab
+  allow_failure: true
+  except:
+    - tags
+
+
+init_data_science_project:
+  image: python:3
+  stage: test
+  script:
+    - pip install .
+    - angreal init data_science_project --no-input
+  allow_failure: true
+  except:
+    - tags
+
+init_presentation:
+  image: python:3
+  stage: test
+  script:
+    - pip install .
+    - angreal init presentation --no-input
+  allow_failure: true
+  except:
+    - tags
+
+
+init_meeting_minutes:
+  image: python:3
+  stage: test
+  script:
+    - pip install .
+    - angreal init meeting-minutes --no-input
+  allow_failure: true
+  except:
+    - tags
+
+init_template:
+  image: python:3
+  stage: test
+  script:
+    - pip install .
+    - angreal init template --no-input
+  allow_failure: true
+  except:
+    - tags
+
+
 cleanup_release:
   stage: release
   when: always
