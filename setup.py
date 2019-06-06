@@ -38,8 +38,7 @@ def read_requirements(f):
 setuptools.setup(
     name='angreal',
     description='making data science projects portable and consistent',
-    long_description='''
-    ''',
+    long_description='''''',
     url='https://gitlab.com/dylanbstorey/angreal',
     author='dylanbstorey',
     author_email='dylan.storey@gmail.com',
