@@ -37,8 +37,6 @@ def print_nested_help(repository):
     :return:
     """
 
-    print_base_help()
-
     try:
         tmp_dir = tempfile.mkdtemp()
         project_path = initialize_cutter(repository, no_input=True, output_dir=tmp_dir)
@@ -46,15 +44,14 @@ def print_nested_help(repository):
         mod = import_from_file(os.path.join(get_angreal_path(), 'init.py'))
 
         mod = mod.init
-        click.echo("""
-    These are the options for the repository ({}) you are attempting to initialize
-        """.format(repository))
+        click.echo("\nThese are the options for the repository ({}) you are attempting to initialize\n".format(repository))
         with click.Context(mod) as ctx:
             click.echo(mod.get_help(ctx))
 
         shutil.rmtree(tmp_dir)
+
     except Exception:
-        pass
+        click.echo("Something happened while fetching this temlpates help information, you should check the source for more information")
 
     exit(0)
 

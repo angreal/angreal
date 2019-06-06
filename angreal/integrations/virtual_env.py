@@ -135,13 +135,10 @@ class VirtualEnv(object):
         """
         args = [self.pip, 'install', '-r', requirements]
 
-        proc = subprocess.Popen(args, stdout=self.devnull, stderr=self.devnull)
-        output, error = proc.communicate()
+        rc = subprocess.call(args, stdout=self.devnull, stderr=self.devnull)
 
-        print(' '.join(args), file=sys.stderr)
-
-        if proc.returncode:
-            raise EnvironmentError('{} failed with the following information :\n{}\n{} '.format(self.name, proc.returncode, output))
+        if rc != 0:
+            raise EnvironmentError('{} failed to install requirements file.'.format(self.name))
 
     def __str__(self):
         return self.path
@@ -170,11 +167,10 @@ class VirtualEnv(object):
 
         args.append(self.path)
 
-        proc = subprocess.Popen(args, stdout=self.devnull, stderr=self.devnull)
-        output, error = proc.communicate()
+        rc = subprocess.call(args, stdout=self.devnull, stderr=self.devnull)
 
-        if proc.returncode:
-            raise EnvironmentError('{} failed with the following information :\n{}\n{}'.format(self.name, proc.returncode, output))
+        if rc != 0:
+            raise EnvironmentError('{} failed to create virtual environment.'.format(self.name))
 
     def _activate(self):
         """
