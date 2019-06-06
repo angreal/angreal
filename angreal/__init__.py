@@ -12,6 +12,7 @@ from angreal.decorators import *
 from angreal.utils import get_angreal_path, import_from_file, win, warn, error
 from angreal.integrations.gh import GitHub
 from angreal.integrations.gl import GitLab
+from angreal.integrations.git import Git
 from angreal.integrations.virtual_env import VirtualEnv
 from angreal.integrations.doit import make_doit_task, doit_task, run_doit_tasks
 
@@ -37,7 +38,7 @@ __all__ = [
     'get_angreal_path', 'import_from_file', 'win', 'warn', 'error',
 
     # Core classes
-    'GitLab', 'GitHub', 'VirtualEnv', 'Replay',
+    'GitLab', 'GitHub', 'VirtualEnv', 'Replay', 'Git',
 
     # Virtual Environmets
     'venv_required',
