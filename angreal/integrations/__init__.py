@@ -8,21 +8,23 @@ from functools import wraps
 
 def repo_required(f):
     @wraps(f)
-    def wrapper(*args,**kwargs):
+    def wrapper(*args, **kwargs):
         if isinstance(args[0], GitRemote):
             if args[0].repo:
-                f(*args,**kwargs)
-            else :
+                f(*args, **kwargs)
+            else:
                 raise ValueError('project attribute must be set')
         else:
             raise ValueError('This does not appear to be a GitLabProject')
     return wrapper
 
-class GitRemote(object): # pragma: no cover
-    """
-    Abstract Base Class for working with git remotes repository hosts
-    """
 
+class GitRemote(object):  # pragma: no cover
+    """
+    Abstract Base Class for working with git remotes repository hosts.
+    This class describes a minimum set of methods we would expect when working with remote repo providers.
+
+    """
 
     def __init__(self):
         """
@@ -33,8 +35,6 @@ class GitRemote(object): # pragma: no cover
         """
         self.__remote = None
         self.__repo = None
-
-
 
     @property
     def remote(self):
@@ -51,14 +51,12 @@ class GitRemote(object): # pragma: no cover
         return self.__repo
 
     @repo.setter
-    def repo(self,value):
+    def repo(self, value):
         if self.__repo:
             raise ValueError("Repo can only be set once !")
         self.__repo = value
 
-
-
-    def get_repo(self,id):
+    def get_repo(self, id):
         """
         Get a repository by some canonical id
 
@@ -69,8 +67,7 @@ class GitRemote(object): # pragma: no cover
 
         raise NotImplementedError
 
-
-    def create_repository(self,name,namespace=None):
+    def create_repository(self, name, namespace=None):
         """
         Create a repo
 
@@ -81,7 +78,7 @@ class GitRemote(object): # pragma: no cover
 
         raise NotImplementedError
 
-    def protect_branch(self,name,**kwargs):
+    def protect_branch(self, name, **kwargs):
         """
         Protect a branch, this usually blocks pushes and deletions.
 
@@ -91,8 +88,7 @@ class GitRemote(object): # pragma: no cover
 
         raise NotImplementedError
 
-
-    def add_label(self,name,color,pass_on_fail=True):
+    def add_label(self, name, color, pass_on_fail=True):
         """
         Attempt to add a label to the project issue tracker
 
@@ -104,8 +100,7 @@ class GitRemote(object): # pragma: no cover
 
         raise NotImplementedError
 
-
-    def add_milestone(self,title,description=None,due_date=None,start_date=None):
+    def add_milestone(self, title, description=None, due_date=None, start_date=None):
         """
         Add a milestone/deadline to the project.
 
@@ -116,9 +111,7 @@ class GitRemote(object): # pragma: no cover
         :return:
         """
 
-
         raise NotImplementedError
-
 
     def enable_issues(self):
         """
@@ -129,7 +122,6 @@ class GitRemote(object): # pragma: no cover
 
         raise NotImplementedError
 
-
     def enable_gitlfs(self):
         """
         enable git-lfs based file tracking
@@ -138,7 +130,6 @@ class GitRemote(object): # pragma: no cover
         """
 
         raise NotImplementedError
-
 
     def destroy_project(self):
         """

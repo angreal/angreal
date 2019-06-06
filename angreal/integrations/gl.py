@@ -16,7 +16,12 @@ from gitlab import Gitlab
 from angreal.integrations import GitRemote, repo_required
 
 
-class GitLab(GitRemote): # pragma: no cover
+class GitLab(GitRemote):  # pragma: no cover
+    """A class for interacting with GitLab remotes
+    
+    :ivar remote: a binding to a python-gitlab Gitlab object
+    :ivar repo:   a repository object
+    """
     def __init__(self, base_url='https://gitlab.com', access_token=None):
 
         super(GitLab, self).__init__()
@@ -25,19 +30,17 @@ class GitLab(GitRemote): # pragma: no cover
         proxy = os.environ.get("https_proxy",
                                os.environ.get("http_proxy", None))
 
-
-        if proxy : # if we detected proxy vars, respect them
+        if proxy:  # if we detected proxy vars, respect them
             session = requests.Session()
             session.proxies = {
-                "https": os.environ.get("https_proxy",None),
-                "http": os.environ.get("http_proxy",None),
+                "https": os.environ.get("https_proxy", None),
+                "http": os.environ.get("http_proxy", None),
             }
             self.remote = Gitlab(url=base_url, private_token=access_token, session=session)
-        else :
+        else:
             self.remote = Gitlab(url=base_url, private_token=access_token)
 
         self.remote.auth()
-
 
     def get_repo(self, id):
         """
@@ -58,19 +61,18 @@ class GitLab(GitRemote): # pragma: no cover
         """
         assert not self.repo
 
-
         if not namespace:
-            self.repo = self.remote.projects.create({'name' : name})
+            self.repo = self.remote.projects.create({'name': name})
 
         else:
-            self.repo = self.remote.projects.create({'name' : name ,
-                                                'namespace_id': self.remote.namespaces.get(namespace).id })
+            self.repo = self.remote.projects.create({'name': name,
+                                                     'namespace_id': self.remote.namespaces.get(namespace).id})
 
     @repo_required
     def protect_branch(self, name, **kwargs):
 
-        merge = kwargs.pop('merge','developer')
-        push  = kwargs.pop('push','master')
+        merge = kwargs.pop('merge', 'developer')
+        push = kwargs.pop('push', 'master')
 
         access_mapper = {
             'developer': DEVELOPER_ACCESS,
@@ -99,9 +101,9 @@ class GitLab(GitRemote): # pragma: no cover
             })
         except Exception as e:
             if pass_on_fail:
-                print('Unable to add label {} : {}'.format(name,color),file=sys.stderr)
-                print(e,file=sys.stderr)
-            else :
+                print('Unable to add label {} : {}'.format(name, color), file=sys.stderr)
+                print(e, file=sys.stderr)
+            else:
                 raise
         pass
 
@@ -129,11 +131,10 @@ class GitLab(GitRemote): # pragma: no cover
             except ValueError:
                 raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
-        if isinstance(start_date,(datetime.datetime, datetime.date)):
+        if isinstance(start_date, (datetime.datetime, datetime.date)):
             start_date = start_date.strftime('%Y-%m-%d')
 
-
-        if isinstance(due_date,(datetime.datetime, datetime.date)):
+        if isinstance(due_date, (datetime.datetime, datetime.date)):
             due_date = due_date.strftime('%Y-%m-%d')
 
         if start_date:
@@ -172,6 +173,3 @@ class GitLab(GitRemote): # pragma: no cover
     def enable_registry(self):
         self.repo.container_registry_enabled = True
         self.repo.save()
-
-
-

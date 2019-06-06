@@ -25,6 +25,7 @@ def check_environment(*name):
             return
         raise EnvironmentError('The Environemental variable {} is required.'.format(n))
 
+
 def check_files(*src):
     """
     Check that a needed file is present.
@@ -35,6 +36,7 @@ def check_files(*src):
         if not os.path.isfile(s):
             raise FileNotFoundError('File {} not found.'.format(s))
 
+
 def copy_files(dst, *src):
     """
     Copy files from source(s) to destination.
@@ -43,7 +45,8 @@ def copy_files(dst, *src):
     """
     for f in src:
         if os.path.isfile(f):
-            shutil.copy(f,dst)
+            shutil.copy(f, dst)
+
 
 def clean_files(*src):
     """
@@ -64,4 +67,4 @@ def get_project_source_files(dir):
     for path, subdirs, files in os.walk(dir):
         for name in files:
             if fnmatch.fnmatch(name, '*.py'):
-                yield os.path.join(path,name)
+                yield os.path.join(path, name)

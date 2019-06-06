@@ -20,11 +20,11 @@ def make_doit_task(f):
     :return:
     """
     @wraps(f)
-    def d2t(*args,**kwargs):
+    def d2t(*args, **kwargs):
         r_dict = f(*args, **kwargs)
 
-        #Tasks require names, if they're not set default to the function name
-        if not 'name' in r_dict.keys():
+        # Tasks require names, if they're not set default to the function name
+        if 'name' not in r_dict.keys():
             r_dict['name'] = f.__name__
         return dict_to_task(r_dict)
 
@@ -32,7 +32,7 @@ def make_doit_task(f):
 
 
 # noinspection PyDefaultArgument
-def run_doit_tasks(tasks,args,config={'verbosity' : 0}):
+def run_doit_tasks(tasks, args, config={'verbosity': 0}):
     """
     Runs a series of task objects.
 
@@ -42,12 +42,10 @@ def run_doit_tasks(tasks,args,config={'verbosity' : 0}):
     :return:
     """
 
-    if not isinstance(tasks,list):
+    if not isinstance(tasks, list):
         tasks = [tasks]
 
-    tasks = [ task() if isinstance(task,Callable) else task for task in tasks]
-
-
+    tasks = [task() if isinstance(task, Callable) else task for task in tasks]
 
     class Loader(TaskLoader):
         @staticmethod
@@ -55,6 +53,7 @@ def run_doit_tasks(tasks,args,config={'verbosity' : 0}):
             return tasks, config
 
     return DoitMain(Loader()).run(args)
+
 
 def doit_task(f):
     """
@@ -69,7 +68,7 @@ def doit_task(f):
         r_dict = f(*args, **kwargs)
 
         # Tasks require names, if they're not set default to the function name
-        if not 'name' in r_dict.keys():
+        if 'name' not in r_dict.keys():
             r_dict['name'] = f.__name__
 
         run_doit_tasks([dict_to_task(r_dict)],

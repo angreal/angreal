@@ -29,6 +29,7 @@ def print_base_help():
     with click.Context(base_init) as ctx:
         click.echo(base_init.get_help(ctx))
 
+
 def print_nested_help(repository):
     """
     Prints a general
@@ -40,9 +41,9 @@ def print_nested_help(repository):
 
     try:
         tmp_dir = tempfile.mkdtemp()
-        project_path = initialize_cutter(repository,no_input=True,output_dir=tmp_dir)
+        project_path = initialize_cutter(repository, no_input=True, output_dir=tmp_dir)
         os.chdir(project_path)
-        mod = import_from_file(os.path.join(get_angreal_path(),'init.py'))
+        mod = import_from_file(os.path.join(get_angreal_path(), 'init.py'))
 
         mod = mod.init
         click.echo("""
@@ -55,19 +56,16 @@ def print_nested_help(repository):
     except Exception:
         pass
 
-
     exit(0)
 
 
-
-
-@angreal.command(name='init',context_settings=dict(ignore_unknown_options=True),
+@angreal.command(name='init', context_settings=dict(ignore_unknown_options=True),
                  add_help_option=False)
 @angreal.argument('repository')
 @angreal.argument('init_args', nargs=-1, type=click.UNPROCESSED)
 @angreal.option('--no-input', is_flag=True, help='Do not prompt for parameters and only use cookiecutter.json file content')
-@angreal.option('--help','-h', is_flag=True, help='Display a help message')
-def base_init(repository,init_args,help,no_input=False):
+@angreal.option('--help', '-h', is_flag=True, help='Display a help message')
+def base_init(repository, init_args, help, no_input=False):
     """
     Initialize an angreal based project.
     """
@@ -76,23 +74,19 @@ def base_init(repository,init_args,help,no_input=False):
         exit(0)
 
     try:
-        project_path = initialize_cutter(repository,no_input=no_input, replay=True)
+        project_path = initialize_cutter(repository, no_input=no_input, replay=True)
     except OutputDirExistsException:
         exit("Output directory exists")
 
     os.chdir(project_path)
 
-    # Version checking would be nice - need to think about it more though.
-
-    # template_version = get_template_version()
-    #
-    # if template_version:
-    #     if not is_compat(template_version):
-    #         raise ValueError('This template needs to be run using angreal {}'.format(template_version))
-
+    # Check compat of executing angreal binary against .angreal/VERSION
+    template_version = get_template_version()
+    if template_version:
+        if not is_compat(template_version):
+            raise ValueError('This template needs to be run using angreal {}'.format(template_version))
 
     file = os.path.join(get_angreal_path(), 'init.py')
-
 
     try:
         # First try to import the file
@@ -101,26 +95,24 @@ def base_init(repository,init_args,help,no_input=False):
             # Try to run the "init" function in the task_init file, pass through all of the init_args
             mod.init(init_args)
 
+        except AttributeError as e:
+            pass
+
         except Exception as e:
             # Something happened in the sub init execution
             shutil.rmtree(project_path)
-            exit ("Exiting at line 103:\n{}".format(e))
-
+            exit("Exiting at line 103:\n{}".format(e))
         # Init commands should only be run ONCE
         os.unlink(file)
 
-    except ImportError:
-        # if the file doesn't exist or import fails pass
-        response = input("Import error on init.py, do you want to keep the file? [y/n]")
-        if response == 'y':
-            exit("Failed to input init.py")
-        shutil.rmtree(project_path)
-    except  FileNotFoundError:
-        shutil.rmtree(project_path)
-        exit("Could not find file: {}".format(file))
+    except FileNotFoundError:
+        # No init.py means no special startup instructions.
+        pass
+
+    except (ImportError, AttributeError):
+        # if the init function doesn't exist or import fails pass
+        response = input("Import error on init.py, do you want to keep the generated project? [y/n]")
+        if response == 'n':
+            shutil.rmtree(project_path)
 
     return
-
-
-
-
