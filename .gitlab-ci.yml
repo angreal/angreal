@@ -13,6 +13,7 @@ stages:
   - test
   - release
   - pages
+  - template_tests
 
 pages:
   image: python:3
@@ -130,4 +131,60 @@ cleanup_release:
   script:
     - rm -vf ~/.pypirc
   only:
+    - tags
+
+init_gitlab_python:
+  image: python:3
+  stage: template_tests
+  script:
+    - pip install .
+    - angreal init gitlab_python --no-input --no_pypi --no_gitlab
+  allow_failure: true
+  except:
+    - tags
+
+
+init_data_science_project:
+  image: python:3
+  stage: template_tests
+  script:
+    - pip install .
+    - git config --global user.email "no@noone.com"
+    - git config --global user.name  "no-one"
+    - angreal init data_science_project --no-input
+  allow_failure: true
+  except:
+    - tags
+
+init_presentation:
+  image: python:3
+  stage: template_tests
+  script:
+    - pip install .
+    - git config --global user.email "no@noone.com"
+    - git config --global user.name  "no-one"
+    - angreal init presentation --no-input
+  allow_failure: true
+  except:
+    - tags
+
+
+init_meeting_minutes:
+  image: python:3
+  stage: template_tests
+  script:
+    - pip install .
+    - angreal init meeting-minutes --no-input --no_objectives
+  allow_failure: true
+  except:
+    - tags
+
+init_template:
+  image: python:3
+  stage: template_tests
+  script:
+    - pip install .
+    - angreal init template --no-input
+  allow_failure: true
+  except:
     - tags
