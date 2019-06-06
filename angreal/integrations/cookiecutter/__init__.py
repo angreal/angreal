@@ -167,7 +167,7 @@ def dump(replay_dir, template_name, context):
             json.dump(context, outfile)
 
 
-def cookiecutter(template, no_input=False):
+def cookiecutter(template, no_input=False, output_dir='.'):
     """A clone of cookiecutter's main entry point.
 
     This does alot less than cookiecutter's main entry point but flavors it for ``angreal`` .
@@ -209,7 +209,7 @@ def cookiecutter(template, no_input=False):
     result = generate_files(repo_dir=repo_dir,
                             context=context,
                             overwrite_if_exists=False,
-                            output_dir='.'
+                            output_dir=output_dir
                             )
 
     if cleanup:

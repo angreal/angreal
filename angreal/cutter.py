@@ -39,7 +39,8 @@ def initialize_cutter(template, **kwargs):
 
     else:  # the template is in pypi
         template = template.replace('-', '_')  # All pypi based angreals use underscores and not dashes.
-        rc = subprocess.call([sys.executable, '-m', 'pip', 'install', 'angreal_{}'.format(template)])
+        rc = subprocess.call([sys.executable, '-m', 'pip', 'install', 'angreal_{}'.format(template)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
         if rc != 0:
             exit("failed to install angreal_{}".format(template))
 
