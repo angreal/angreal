@@ -70,6 +70,10 @@ class AngrealCLI(click.MultiCommand):
                              None, None, ['list_cmd'])
             return mod.list_cmd
 
+        if name == 'version':
+            print_version()
+            exit(0)
+
         try:
             file = os.path.join(get_angreal_path(), 'task_{}.py'.format(name))
 
@@ -98,10 +102,11 @@ def get_base_commands():
     """
     available_commands = get_adjacent_commands()
     commands = [(m, available_commands[m]) for m in available_commands]
+    commands += [('version', 'Get the version of the angreal executor')]
     return commands
 
 
-def print_version(ctx, param, value):
+def print_version():
     """
     print current version of angreal
     """
