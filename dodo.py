@@ -40,7 +40,7 @@ def task_cleanup():
 
     def clean():
         rm_dirs = ['.mypy_cache', 'cover','angreal.egg-info']
-        rm_files = ['.coverage', 'test_broker.sqlite3', 'data_logs.sqlite3', '.doit.db.db']
+        rm_files = ['.coverage', 'test_broker.sqlite3', 'data_logs.sqlite3', '.doit.db.db','doit-db.json']
 
         [rm_dirs.append(f) for f in glob.glob('**', recursive=True) if os.path.basename(f) == '__pycache__']
         [rm_files.append(f) for f in glob.glob('docs/source/*.rst', recursive=True) if 'angreal' in f]

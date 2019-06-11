@@ -20,22 +20,16 @@ class TestVirtualEnv(unittest.TestCase):
 
         assert test(1, 2) == 3
 
+    @raises(EnvironmentError)
     def test_venv_required_bad(self):
         """
         teste venv_required missing venv created if not present
         """
-        initial_sys_prefix = sys.prefix
 
-        @venv_required('not_angreal',requirements_file=test_requirements)
+        @venv_required('not_angreal')
         def test(a, b):
             return a + b
 
-        test(1, 2)
-        this_venv = os.path.expanduser(os.path.join('~', '.venv', 'not_angreal'))
-        assert os.path.isdir(this_venv)
-
-        shutil.rmtree(this_venv)
-        sys.prefix = initial_sys_prefix
 
 
     def test_init(self):
