@@ -13,7 +13,7 @@ import sys
 from distutils.spawn import find_executable
 
 
-def venv_required(name, requirements_file=None):
+def venv_required(name):
     """
     Ensure that you're operating in the "correct" environment via sys.prefix. Will create and activate the environment
     if it doesn't exist.
@@ -24,13 +24,16 @@ def venv_required(name, requirements_file=None):
     """
 
     initial_sys_prefix = sys.prefix
-    VirtualEnv(name=name,
-               requirements=requirements_file)
+    venv = VirtualEnv(name=name,
+               now=False)
 
     # more checks against current python + os.environ.VIRTUAL_ENV
 
-    if not os.path.basename(sys.prefix) == name:
-        raise ValueError('virtualenv {} is not activated (active: {})'.format(name, os.path.basename(sys.prefix)))
+    if venv.exists:
+        venv._activate()
+    else:
+        raise EnvironmentError('virtual environment {} does not exist at {}'.format(venv.name, venv.path))
+
 
     def decorator(f):
         @functools.wraps(f)
@@ -89,10 +92,6 @@ class VirtualEnv(object):
         return os.path.join(self.path, 'lib')
 
     @property
-    def include(self):
-        return os.path.join(self.path, 'include')
-
-    @property
     def exists(self):
         """
         determine if the current environment exists
@@ -100,7 +99,6 @@ class VirtualEnv(object):
         """
 
         return (os.path.isdir(self.lib) and
-                os.path.isdir(self.include) and
                 os.path.isdir(self.bin) and
                 os.path.isfile(self.python_exe) and
                 os.path.isfile(self.pip))
@@ -160,7 +158,7 @@ class VirtualEnv(object):
         else:
             raise ValueError("Unable to find '{}' in $PATH".format(self.python))
 
-        args = ['virtualenv']
+        args = ['python','-m', 'virtualenv']
 
         if self.python:
             args.extend(['-p', self.python])
