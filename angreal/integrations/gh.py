@@ -24,6 +24,7 @@ class GitHub(GitRemote):  # pragma: no cover
     def __init__(self, base_url='https://api.github.com', access_token=None):
         super(GitHub, self).__init__()
         self.remote = Github(base_url=base_url, login_or_token=access_token)
+        self.repo = None
 
     def get_repo(self, id):
         """
