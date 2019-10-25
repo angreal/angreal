@@ -17,7 +17,8 @@ def task_functional_tests():
     :return:
     """
     return {
-        'actions': ['nosetests -sv tests/functional']
+        'actions': ['pytest -vvv --disable-pytest-warnings tests/functional'],
+        'verbosity' : 2
     }
 
 
@@ -27,8 +28,8 @@ def task_tests():
     :return:
     """
     return {
-        'actions': ['nosetests -sv --with-coverage --cover-package=angreal tests/unit'],
-        'targets': ['.coverage'],
+        'actions': ['pytest -svvvrxX --cov=angreal/ --cov-report html --cov-report=term --disable-pytest-warnings tests/unit'],
+        'verbosity': 2
     }
 
 
@@ -53,17 +54,6 @@ def task_cleanup():
     return {
         'actions': [clean]
     }
-
-def task_coverage():
-    """
-    Running nosetests with coverage
-    :return:
-    """
-
-    return {
-        'actions': ['nosetests -vv --with-coverage  --cover-html  --cover-package angreal']
-    }
-
 
 
 def task_docs():

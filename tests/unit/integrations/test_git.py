@@ -1,4 +1,4 @@
-import unittest
+import pytest
 import os
 import  shutil
 
@@ -6,52 +6,43 @@ from angreal.integrations.git import Git, GitException
 
 
 
-class TestGit(unittest.TestCase):
-
-    def test_git_1(self):
-        """
-        test that object fails without path
-        """
-        try:
-            git = Git(git_path=None)
-        except OSError:
-            pass
 
 
-    def test_git_1(self):
-        """
-        test that object fails with bad path
-        """
-        try:
-            git = Git(git_path='not git')
-        except OSError:
-            pass
-
-    def test_git_3(self):
-        """
-        test that object fails with bad sub-command
-        """
-        git = Git()
-
-        try:
-            git.frombicate()
-        except GitException:
-            pass
+def test_git_no_path():
+    """
+    test git object fails with no path
+    """
+    git = Git(git_path=None)
 
 
-    def test_git_4(self):
-        """
-        test git init
-        """
-        os.mkdir('git_test')
-        os.chdir('git_test')
-        git = Git()
-        git.init()
+def test_git_bad_path():
+    """
+    test git object fails with bad path
+    """
+    with pytest.raises(OSError):
+        git = Git(git_path='not git')
 
-        assert os.path.isdir('.git')
+def test_git_bad_subcommand():
+    """
+    test that object fails with bad sub-command
+    """
+
+    git = Git()
+
+    with pytest.raises(GitException):
+        git.frombicate()
 
 
-        os.chdir('..')
-        shutil.rmtree('git_test')
+def test_git_initialization():
+    """
+    test git object initialization
+    """
+    os.mkdir('git_test')
+    os.chdir('git_test')
+    git = Git()
+    git.init()
+    assert os.path.isdir('.git')
+    os.chdir('..')
+    shutil.rmtree('git_test')
 
 

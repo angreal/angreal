@@ -28,10 +28,12 @@ class Git(object):
     :param working_dir: the working directory to work from
     """
 
-    def __init__(self, git_path=find_executable('git'), working_dir=None):
+    def __init__(self, git_path=None, working_dir=None):
 
         """ Constructor for Git"""
 
+        if not git_path:
+            git_path = find_executable('git')
         self.git_path = git_path
 
         if not working_dir:
@@ -42,12 +44,10 @@ class Git(object):
             self.working_dir = os.path.abspath(working_dir)
 
         try:
-            os.path.isfile(self.git_path)
-        except TypeError:
+            assert os.path.isfile(self.git_path)
+        except (TypeError,AssertionError):
             raise OSError('git not in path')
 
-        if not self.git_path:
-            raise OSError('git not in path')
 
     def __call__(self, command, *args, **kwargs):
         """

@@ -5,3 +5,4 @@ python-gitlab==1.5.1
 semver==2.8.1
 virtualenv==16.0.0
 PyGithub==1.43.7
+docker==3.4.1

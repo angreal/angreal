@@ -4,7 +4,7 @@
 
     Angreal integrates with pydoit
 """
-from collections import Callable
+from collections.abc import Callable
 from functools import wraps
 
 from doit.cmd_base import TaskLoader

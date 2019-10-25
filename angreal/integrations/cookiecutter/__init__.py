@@ -21,8 +21,7 @@ from cookiecutter.exceptions import RepositoryNotFound
 from cookiecutter.vcs import clone
 from cookiecutter.zipfile import unzip
 
-REPO_REGEX = re.compile(r"""
-(?x)
+REPO_REGEX = re.compile(r"""(?x)
 ((((git|hg)\+)?(git|ssh|https?):(//)?)  # something like git:// ssh:// etc.
  |                                      # or
  (\w+@[\w\.]+)                          # something like user@...

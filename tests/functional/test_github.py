@@ -27,25 +27,26 @@ def get_GH_token():
 
     key = os.environ.get('GITHUB_TESTING_KEY')
     if not key:
-        key = '385528338a0de4c56fd1e2ac2916b28169d9a8a9'
+        key = 'a8348925dc86b711649551596057762acb7097bb'
     return key
 
 class TestGithub(unittest.TestCase):
 
-    def setUp(cls) -> None:
+
+    def setUp(cls):
         cls.repo_name = generate_random_string()
         cls.gh = GitHub(access_token=get_GH_token())
         pass
 
 
-    def tearDown(cls) -> None:
+    def tearDown(cls):
         """
         if a repo was created , attempt to clean it up
         """
         if cls.gh.repo:
             time.sleep(2)
             cls.gh.destroy_project()
-        pass
+
 
 
     def test_create_repo(self):

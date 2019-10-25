@@ -13,7 +13,8 @@ import sys
 from gitlab import DEVELOPER_ACCESS, MASTER_ACCESS, OWNER_ACCESS
 from gitlab import Gitlab
 
-from angreal.integrations import GitRemote, repo_required
+from angreal.integrations import GitRemote
+from angreal.integrations.gitremote import repo_required
 
 
 class GitLab(GitRemote):  # pragma: no cover
