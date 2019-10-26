@@ -27,7 +27,7 @@ def get_GH_token():
 
     key = os.environ.get('GITHUB_TESTING_KEY')
     if not key:
-        key = 'a8348925dc86b711649551596057762acb7097bb'
+        key = '74c55705bf1a8adfb855d0332730c63200b72804'
     return key
 
 class TestGithub(unittest.TestCase):
