@@ -25,9 +25,8 @@ def get_GH_token():
     :return:
     """
 
-    key = os.environ.get('GITHUB_TESTING_KEY')
-    if not key:
-        key = '74c55705bf1a8adfb855d0332730c63200b72804'
+    key = os.environ.get('GITHUB_TESTING_KEY',None)
+
     return key
 
 class TestGithub(unittest.TestCase):
