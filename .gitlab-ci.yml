@@ -183,6 +183,8 @@ trigger_docs:
   stage: pages
   variables:
     APP_PROJECT_ID : 12432876
+  before_script:
+    - echo "No need to setup"
   script:
     - curl --request POST --form "token=$GITLAB_TRIGGER_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/$APP_PROJECT_ID/trigger/pipeline
   only:
