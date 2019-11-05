@@ -32,12 +32,16 @@ def in_container():
 
 
 class Container(object):
+    """
+    Describes a container and provides some minimal interactions with the container
+    """
 
-    def __init__(self, source, ports: dict = None, volumes: dict=None,):
+    def __init__(self, source):
+        """
+        :param source: the file or image name to use
+        """
 
         self.source = source
-        self.ports = ports
-        self.volumes = volumes
         self.image = None
         self.client = docker.client.from_env()
 
