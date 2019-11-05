@@ -3,6 +3,9 @@
 .. toctree::
    :maxdepth: 1
 
+   angreal
+   use_case
+   angreal_template
    tutorials
    how-to-guides
    cache
