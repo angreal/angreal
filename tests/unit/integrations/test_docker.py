@@ -31,7 +31,7 @@ def test_containter_pull_run():
     """we can pull and run"""
     c = Container('python:3')
     c.pull()
-    c.run('ls -la')
+    c.run('ls -la',verbose=False)
 
 @pytest.mark.skipif(in_cicd,reason="Doing these tests from within gitlab's CI is too hard")
 def test_container_in_container():
@@ -39,7 +39,24 @@ def test_container_in_container():
     c = Container('python:3')
     c.pull()
     mount_volume = os.path.join(os.path.dirname(__file__),'..','..','..')
-    c.run('bash -c "cp -r /angreal angreal_test && cd angreal_test && pip install . && python -c \'from angreal.integrations.docker import in_container; assert in_container()\' "',volumes={mount_volume:{'bind': '/angreal', 'mode':'ro'}})
+    c.run('bash -c "cp -r /angreal angreal_test && cd angreal_test && pip install . && python -c \'from angreal.integrations.docker import in_container; assert in_container()\' "',
+          volumes={mount_volume:{'bind': '/angreal', 'mode':'ro'}},verbose=False)
 
     result = c.container.wait()
     assert result['StatusCode'] == 0
+
+
+@pytest.mark.skipif(in_cicd,reason="Doing these tests from within gitlab's CI is too hard")
+def test_container_build():
+    """we can  build and run"""
+    with open("Dockerfile",'w') as f:
+        print("""
+FROM python:3
+EXPOSE 5000
+CMD ["python -c 'print("inside container")'"]
+        """,file=f)
+
+    c = Container('Dockerfile')
+    c.build()
+    c.run('')
+    os.unlink('Dockerfile')

@@ -14,7 +14,6 @@ DOIT_CONFIG = {
 def task_functional_tests():
     """
     Running functional tests
-    :return:
     """
     return {
         'actions': ['pytest -vvv --disable-pytest-warnings tests/functional'],

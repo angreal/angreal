@@ -29,17 +29,17 @@ REPO_REGEX = re.compile(r"""(?x)
 """)
 
 
-def is_repo_url(value):
+def is_repo_url(value):# pragma: no cover
     """Return True if value is a repository URL."""
     return bool(REPO_REGEX.match(value))
 
 
-def is_zip_file(value):
+def is_zip_file(value):# pragma: no cover
     """Return True if value is a zip file."""
     return value.lower().endswith('.zip')
 
 
-def expand_abbreviations(template, abbreviations):
+def expand_abbreviations(template, abbreviations):# pragma: no cover
     """Expand abbreviations in a template name.
 
     :param template: The project template name.
@@ -57,7 +57,7 @@ def expand_abbreviations(template, abbreviations):
     return template
 
 
-def repository_has_cookiecutter_json(repo_directory):
+def repository_has_cookiecutter_json(repo_directory):# pragma: no cover
     """Determine if `repo_directory` contains a `cookiecutter.json` file.
 
     :param repo_directory: The candidate repository directory.
@@ -72,7 +72,7 @@ def repository_has_cookiecutter_json(repo_directory):
 
 
 def determine_repo_dir(template, abbreviations, clone_to_dir, checkout,
-                       no_input, password=None):
+                       no_input, password=None):# pragma: no cover
     """
     Locate the repository directory from a template reference.
 
@@ -134,12 +134,12 @@ def determine_repo_dir(template, abbreviations, clone_to_dir, checkout,
     )
 
 
-def get_file_name(replay_dir, template_name):
+def get_file_name(replay_dir, template_name):# pragma: no cover
     file_name = '{}.json'.format(template_name)
     return os.path.join(replay_dir, file_name)
 
 
-def dump(replay_dir, template_name, context):
+def dump(replay_dir, template_name, context):# pragma: no cover
         """dump our replay to disk.
 
         [description]
@@ -166,7 +166,7 @@ def dump(replay_dir, template_name, context):
             json.dump(context, outfile)
 
 
-def cookiecutter(template, no_input=False, output_dir='.'):
+def cookiecutter(template, no_input=False, output_dir='.'):# pragma: no cover
     """A clone of cookiecutter's main entry point.
 
     This does alot less than cookiecutter's main entry point but flavors it for ``angreal`` .

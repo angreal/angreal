@@ -16,7 +16,7 @@ from angreal.cli.list_cmd import list_cmd, get_adjacent_commands
 from angreal.compat import get_template_version, is_compat
 
 
-class AngrealCLI(click.MultiCommand):
+class AngrealCLI(click.MultiCommand):# pragma: no cover
 
     def format_commands(self, ctx, formatter):
         rows = []

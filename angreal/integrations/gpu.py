@@ -9,7 +9,7 @@ import platform
 import os
 
 
-def gpu_available():
+def gpu_available(): # pragma: no cover
     """
     Is a GPU available to us
 

@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 def generate_files(repo_dir, context=None, output_dir='.',
-                   overwrite_if_exists=False):
+                   overwrite_if_exists=False):# pragma: no cover
     """Render the templates and saves them to files.
    
     :param repo_dir: Project template input directory.

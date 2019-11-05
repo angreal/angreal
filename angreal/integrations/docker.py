@@ -19,7 +19,7 @@ def in_container():
     :return: bool
     """
 
-    def text_in_file( text, file):
+    def text_in_file( text, file):# pragma: no cover
         try:
             return any(text in line for line in open(file))
         except FileNotFoundError:
@@ -57,7 +57,7 @@ class Container(object):
         """
         self.image = self.client.images.pull(self.source)
 
-    def build(self, context='.', tag=None, buildargs=None):
+    def build(self, context='.', tag=None, buildargs=None,verbose=True):
         """
         build a docker image from a file
 
@@ -76,10 +76,13 @@ class Container(object):
                                                    forcerm=True,
                                                    buildargs=buildargs
                                                    )
+        if verbose:
+            for f in log:
+                f = str(f.get('stream', '')).strip()
+                if f:
+                    print(f)
 
-        print('\n'.join(log))
-
-    def run(self,command, *args, detach=True, auto_remove=True, ports=None, volumes=None, **kwargs):
+    def run(self,command, *args, detach=True, auto_remove=True, ports=None, volumes=None, verbose=True, **kwargs):
         """
         run your compiled image
 
@@ -106,7 +109,9 @@ class Container(object):
                                    volumes = volumes,
                                    **kwargs)
 
-
+        if verbose:
+            for f in (self.container.logs(stream=True)):
+                print(f.decode().strip())
 
 
 def get_bound_host_ports():

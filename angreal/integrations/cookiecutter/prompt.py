@@ -23,7 +23,7 @@ from cookiecutter.exceptions import UndefinedVariableInTemplate
 from cookiecutter.environment import StrictEnvironment
 
 
-def read_user_variable(var_name, default_value):
+def read_user_variable(var_name, default_value):# pragma: no cover
     """Prompt the user for the given variable and return the entered value
     or the given default.
 
@@ -34,7 +34,7 @@ def read_user_variable(var_name, default_value):
     return click.prompt(var_name, default=default_value)
 
 
-def read_user_yes_no(question, default_value):
+def read_user_yes_no(question, default_value):# pragma: no cover
     """Prompt the user to reply with 'yes' or 'no' (or equivalent values).
 
     Note:
@@ -51,7 +51,7 @@ def read_user_yes_no(question, default_value):
     )
 
 
-def read_repo_password(question):
+def read_repo_password(question):# pragma: no cover
     """Prompt the user to enter a password
 
     :param str question: Question to the user
@@ -60,7 +60,7 @@ def read_repo_password(question):
     return click.prompt(question, hide_input=True)
 
 
-def read_user_choice(var_name, options):
+def read_user_choice(var_name, options):# pragma: no cover
     """Prompt the user to choose from several options for the given variable.
 
     The first item will be returned if no input happens.
@@ -95,7 +95,7 @@ def read_user_choice(var_name, options):
     return choice_map[user_choice]
 
 
-def process_json(user_value):
+def process_json(user_value):# pragma: no cover
     try:
         user_dict = json.loads(
             user_value,
@@ -112,7 +112,7 @@ def process_json(user_value):
     return user_dict
 
 
-def read_user_dict(var_name, default_value):
+def read_user_dict(var_name, default_value):# pragma: no cover
     """Prompt the user to provide a dictionary of data.
 
     :param str var_name: Variable as specified in the context
@@ -138,7 +138,7 @@ def read_user_dict(var_name, default_value):
     return user_value
 
 
-def render_variable(env, raw, cookiecutter_dict):
+def render_variable(env, raw, cookiecutter_dict):# pragma: no cover
     """Inside the prompting taken from the cookiecutter.json file, this renders
     the next variable. For example, if a project_name is "Peanut Butter
     Cookie", the repo_name could be be rendered with:
@@ -175,7 +175,7 @@ def render_variable(env, raw, cookiecutter_dict):
     return rendered_template
 
 
-def prompt_choice_for_config(cookiecutter_dict, env, key, options, no_input):
+def prompt_choice_for_config(cookiecutter_dict, env, key, options, no_input):# pragma: no cover
     """Prompt the user which option to choose from the given. Each of the
     possible choices is rendered beforehand.
     """
@@ -188,7 +188,7 @@ def prompt_choice_for_config(cookiecutter_dict, env, key, options, no_input):
     return read_user_choice(key, rendered_options)
 
 
-def prompt_for_config(context, no_input=False):
+def prompt_for_config(context, no_input=False):# pragma: no cover
     """
     Prompts the user to enter new config, using context as a source for the
     field names and sample values.
