@@ -130,8 +130,8 @@ init_gitlab_python:
     - pip install .
     - angreal init gitlab_python --no-input --no_pypi --no_gitlab
   allow_failure: true
-  except:
-    - tags
+  only:
+    - master
 
 
 init_data_science_project:
@@ -143,8 +143,8 @@ init_data_science_project:
     - git config --global user.name  "no-one"
     - angreal init data_science_project --no-input
   allow_failure: true
-  except:
-    - tags
+  only:
+    - master
 
 init_presentation:
   image: python:3
@@ -155,8 +155,8 @@ init_presentation:
     - git config --global user.name  "no-one"
     - angreal init presentation --no-input
   allow_failure: true
-  except:
-    - tags
+  only:
+    - master
 
 
 init_meeting_minutes:
@@ -166,8 +166,8 @@ init_meeting_minutes:
     - pip install .
     - angreal init meeting-minutes --no-input --no_objectives
   allow_failure: true
-  except:
-    - tags
+  only:
+    - master
 
 init_template:
   image: python:3
@@ -176,8 +176,8 @@ init_template:
     - pip install .
     - angreal init template --no-input
   allow_failure: true
-  except:
-    - tags
+  only:
+    - master
 
 trigger_docs:
   stage: pages
