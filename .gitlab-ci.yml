@@ -12,12 +12,10 @@ before_script:
 stages:
   - test
   - release
+  - post_release
   - pages
-  - template_tests
 
-
-
-unit-test:
+  unit-test:
   image: python:3
   stage: test
   script:
@@ -97,83 +95,6 @@ init_template:
   except:
     - tags
 
-
-cleanup_release:
-  stage: release
-  when: always
-  script:
-    - rm -vf ~/.pypirc
-  only:
-    - tags
-
-init_gitlab_python:
-  image: python:3
-  stage: template_tests
-  script:
-    - pip install .
-    - angreal init gitlab_python --no-input --no_pypi --no_gitlab
-  allow_failure: true
-  only:
-    - master
-
-
-init_data_science_project:
-  image: python:3
-  stage: template_tests
-  script:
-    - pip install .
-    - git config --global user.email "no@noone.com"
-    - git config --global user.name  "no-one"
-    - angreal init data_science_project --no-input
-  allow_failure: true
-  only:
-    - master
-
-init_presentation:
-  image: python:3
-  stage: template_tests
-  script:
-    - pip install .
-    - git config --global user.email "no@noone.com"
-    - git config --global user.name  "no-one"
-    - angreal init presentation --no-input
-  allow_failure: true
-  only:
-    - master
-
-
-init_meeting_minutes:
-  image: python:3
-  stage: template_tests
-  script:
-    - pip install .
-    - angreal init meeting-minutes --no-input --no_objectives
-  allow_failure: true
-  only:
-    - master
-
-init_template:
-  image: python:3
-  stage: template_tests
-  script:
-    - pip install .
-    - angreal init template --no-input
-  allow_failure: true
-  only:
-    - master
-
-trigger_docs:
-  stage: pages
-  variables:
-    APP_PROJECT_ID : 12432876
-  before_script:
-    - echo "No need to setup"
-  script:
-    - curl --request POST --form "token=$GITLAB_TRIGGER_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/$APP_PROJECT_ID/trigger/pipeline
-  only:
-    - master
-
-
 release-test:
   image: python:3
   stage: release
@@ -193,116 +114,6 @@ release-test:
   only:
     - tags
 
-    
-init_gitlab_python:
-  image: python:3
-  stage: test
-  script:
-    - pip install --index-url https://test.pypi.org/simple/ angreal
-    - angreal init gitlab_python --no-input --no_pypi --no_gitlab
-  allow_failure: true
-  only:
-    - tags
-
-
-init_data_science_project:
-  image: python:3
-  stage: test
-  script:
-    - pip install --index-url https://test.pypi.org/simple/ angreal
-    - angreal init data_science_project --no-input
-  allow_failure: true
-  only:
-    - tags
-
-init_presentation:
-  image: python:3
-  stage: test
-  script:
-    - pip install --index-url https://test.pypi.org/simple/ angreal
-    - angreal init presentation --no-input
-  allow_failure: true
-  only:
-    - tags
-
-
-init_meeting_minutes:
-  image: python:3
-  stage: test
-  script:
-    - pip install --index-url https://test.pypi.org/simple/ angreal
-    - angreal init meeting-minutes --no-input
-  allow_failure: true
-  only:
-    - tags
-
-init_template:
-  image: python:3
-  stage: test
-  script:
-    - pip install --index-url https://test.pypi.org/simple/ angreal
-    - angreal init template --no-input
-  allow_failure: true
-  only:
-    - tags
-
-
-init_gitlab_python:
-  image: python:3
-  stage: release
-  script:
-    - pip install --index-url https://test.pypi.org/simple/ angreal
-    - angreal init gitlab_python --no-input --no_pypi --no_gitlab
-  allow_failure: true
-  only:
-    - tags
-
-
-init_data_science_project:
-  image: python:3
-  stage: release
-  script:
-    - pip install --index-url https://test.pypi.org/simple/ angreal
-    - git config --global user.email "no@noone.com"
-    - git config --global user.name  "no-one"
-    - angreal init data_science_project --no-input
-  allow_failure: true
-  only:
-    - tags
-
-init_presentation:
-  image: python:3
-  stage: release
-  script:
-    - pip install --index-url https://test.pypi.org/simple/ angreal
-    - git config --global user.email "no@noone.com"
-    - git config --global user.name  "no-one"
-    - angreal init presentation --no-input
-  allow_failure: true
-  only:
-    - tags
-
-
-init_meeting_minutes:
-  image: python:3
-  stage: release
-  script:
-    - pip install --index-url https://test.pypi.org/simple/ angreal
-    - angreal init meeting-minutes --no-input --no_objectives
-  allow_failure: true
-  only:
-    - tags
-
-init_template:
-  image: python:3
-  stage: release
-  script:
-    - pip install --index-url https://test.pypi.org/simple/ angreal
-    - angreal init template --no-input
-  allow_failure: true
-  only:
-    - tags
-    
 release:
   image: python:3
   stage: release
@@ -328,3 +139,90 @@ cleanup_release:
     - rm -vf ~/.pypirc
   only:
     - tags
+
+trigger_docs:
+  stage: pages
+  variables:
+    APP_PROJECT_ID : 12432876
+  before_script:
+    - echo "No need to setup"
+  script:
+    - curl --request POST --form "token=$GITLAB_TRIGGER_TOKEN" --form ref=master https://gitlab.com/api/v4/projects/$APP_PROJECT_ID/trigger/pipeline
+  only:
+    - master
+
+
+
+  
+
+
+
+
+
+init_gitlab_python:
+  image: python:3
+  stage: post_release
+  before_script:
+    - echo ""
+  script:
+    - pip install angreal
+    - angreal init gitlab_python --no-input --no_pypi --no_gitlab
+  allow_failure: true
+  only:
+    - tags
+
+
+init_data_science_project:
+  image: python:3
+  stage: post_release
+  before_script:
+    - echo ""
+  script:
+    - pip install angreal
+    - angreal init data_science_project --no-input
+  allow_failure: true
+  only:
+    - tags
+
+init_presentation:
+  image: python:3
+  stage: post_release
+  before_script:
+    - echo ""
+  script:
+    - pip install angreal
+    - angreal init presentation --no-input
+  allow_failure: true
+  only:
+    - tags
+
+
+init_meeting_minutes:
+  image: python:3
+  stage: post_release
+  before_script:
+    - echo ""
+  script:
+    - pip install angreal
+    - angreal init meeting-minutes --no-input
+  allow_failure: true
+  only:
+    - tags
+
+init_template:
+  image: python:3
+  stage: post_release
+  before_script:
+    - echo ""
+  script:
+    - pip install angreal
+    - angreal init template --no-input
+  allow_failure: true
+  only:
+    - tags
+
+
+
+
+
+
