@@ -15,7 +15,7 @@ stages:
   - post_release
   - pages
 
-  unit-test:
+unit-test:
   image: python:3
   stage: test
   script:
