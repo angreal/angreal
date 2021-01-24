@@ -14,7 +14,7 @@ from angreal.integrations.gh import GitHub
 from angreal.integrations.gl import GitLab
 from angreal.integrations.git import Git
 from angreal.integrations.virtual_env import VirtualEnv
-from angreal.integrations.doit import make_doit_task, doit_task, run_doit_tasks
+
 
 from angreal.replay import Replay
 
@@ -43,6 +43,4 @@ __all__ = [
     # Virtual Environmets
     'venv_required',
 
-    # Doit functions
-    'doit_task', 'make_doit_task', 'run_doit_tasks'
 ]
