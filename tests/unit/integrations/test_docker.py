@@ -1,8 +1,10 @@
 import os
+import sys
 from angreal.integrations.docker import get_bound_host_ports, get_open_port, in_container, Container
 import pytest
 
-in_cicd = os.environ.get('GITLAB_CI',False) == '1'
+in_cicd = os.environ.get('GITLAB_CI',False)
+
 
 @pytest.mark.skipif(in_cicd,reason="Doing these tests from within gitlab's CI is too hard")
 def test_bound_ports():
