@@ -14,7 +14,6 @@ if not sys.version_info >= (3, 0):
 
 
 requirements = [
-    'doit>=0.31.1',
     'cookiecutter>=1.6.0,<2.0.0',
     'click>6.0',
     'python-gitlab>=1.5.1,<2.0.0',
@@ -26,6 +25,7 @@ requirements = [
 ]
 
 dev_requirements = [
+    'doit>=0.31.1',
     'pytest-cov==2.8.1',
     'sphinx_rtd_theme==0.4.0',
     'sphinx==1.7.5',

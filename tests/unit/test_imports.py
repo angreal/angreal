@@ -18,4 +18,4 @@ class TestUtils(unittest.TestCase):
                      get_angreal_path, import_from_file, win, warn, error,
                      GitLab, GitHub, VirtualEnv, Replay,Git,
                      venv_required,
-                     doit_task, make_doit_task, run_doit_tasks)
+                     )
