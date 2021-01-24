@@ -10,6 +10,7 @@ import functools
 import os
 import subprocess
 import sys
+from virtualenv import cli_run
 from distutils.spawn import find_executable
 
 
@@ -131,7 +132,7 @@ class VirtualEnv(object):
 
         :param requirements: path to a requirements file
         """
-        args = [self.pip, 'install', '-r', requirements]
+        args = ['python', '-m', 'pip', 'install', '-r', requirements]
 
         rc = subprocess.call(args, stdout=self.devnull, stderr=self.devnull)
 
@@ -153,35 +154,22 @@ class VirtualEnv(object):
         :return:
         """
 
-        if find_executable(self.python):
-            self.python = find_executable(self.python)
-        else:
-            raise ValueError("Unable to find '{}' in $PATH".format(self.python))
+        cli_run(['-p', self.python, self.path])
 
-        args = ['python','-m', 'virtualenv']
-
-        if self.python:
-            args.extend(['-p', self.python])
-
-        args.append(self.path)
-
-        rc = subprocess.call(args, stdout=self.devnull, stderr=self.devnull)
-
-        if rc != 0:
-            raise EnvironmentError('{} failed to create virtual environment.'.format(self.name))
 
     def _activate(self):
         """
         activate the current virtual environment
         :return:
         """
+        
         if not os.path.isdir(self.path):
             raise FileNotFoundError('No Virtual Environment found for {}'.format(self.name))
+            
+            
 
-        with open(self.activate_script, 'w') as f:
-            print(self.activate_this_text, file=f)
-
-        exec(self.activate_this_text, dict(__file__=self.activate_script))
+        exec(open(self.activate_script,'r').read(), dict(__file__=self.activate_script))
+        
         pass
 
     @property
@@ -191,44 +179,3 @@ class VirtualEnv(object):
         """
         return os.path.join(self.path, 'bin', 'activate_this.py')
 
-    @property
-    def activate_this_text(self):
-        """
-        The text that belongs in the activate_this.py file.
-        """
-        return '''
-"""By using execfile(this_file, dict(__file__=this_file)) you will
-activate this virtualenv environment.
-
-This can be used when you must use an existing Python interpreter, not
-the virtualenv bin/python
-"""
-
-try:
-    __file__
-except NameError:
-    raise AssertionError(
-        "You must run this like execfile('path/to/activate_this.py', dict(__file__='path/to/activate_this.py'))")
-import sys
-import os
-
-old_os_path = os.environ.get('PATH', '')
-os.environ['PATH'] = os.path.dirname(os.path.abspath(__file__)) + os.pathsep + old_os_path
-base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if sys.platform == 'win32':
-    site_packages = os.path.join(base, 'Lib', 'site-packages')
-else:
-    site_packages = os.path.join(base, 'lib', 'python%s' % sys.version[:3], 'site-packages')
-prev_sys_path = list(sys.path)
-import site
-site.addsitedir(site_packages)
-sys.real_prefix = sys.prefix
-sys.prefix = base
-# Move the added items to the front of the path:
-new_sys_path = []
-for item in list(sys.path):
-    if item not in prev_sys_path:
-        new_sys_path.append(item)
-        sys.path.remove(item)
-sys.path[:0] = new_sys_path
-    '''

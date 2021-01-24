@@ -1,4 +1,4 @@
-image: python:3
+image: python:3.6
 
 before_script:
   - echo $HOME
@@ -16,7 +16,7 @@ stages:
   - pages
 
 unit-test:
-  image: python:3
+  image: python:3.6
   stage: test
   script:
     - export GITLAB_CI=1
@@ -26,7 +26,7 @@ unit-test:
     - tags
 
 functional-test:
-  image: python:3
+  image: python:3.6
   stage: test
   script:
      - doit functional_tests
@@ -35,7 +35,7 @@ functional-test:
     - tags
 
 install-test:
-  image: python:3
+  image: python:3.6
   stage: test
   script:
     - pip install .
@@ -44,7 +44,7 @@ install-test:
     - tags
 
 init_gitlab_python:
-  image: python:3
+  image: python:3.6
   stage: test
   script:
     - pip install .
@@ -55,7 +55,7 @@ init_gitlab_python:
 
 
 init_data_science_project:
-  image: python:3
+  image: python:3.6
   stage: test
   script:
     - pip install .
@@ -65,7 +65,7 @@ init_data_science_project:
     - tags
 
 init_presentation:
-  image: python:3
+  image: python:3.6
   stage: test
   script:
     - pip install .
@@ -76,7 +76,7 @@ init_presentation:
 
 
 init_meeting_minutes:
-  image: python:3
+  image: python:3.6
   stage: test
   script:
     - pip install .
@@ -86,7 +86,7 @@ init_meeting_minutes:
     - tags
 
 init_template:
-  image: python:3
+  image: python:3.6
   stage: test
   script:
     - pip install .
@@ -96,7 +96,7 @@ init_template:
     - tags
 
 release-test:
-  image: python:3
+  image: python:3.6
   stage: release
   script:
     - pip install twine
@@ -116,7 +116,7 @@ release-test:
     - tags
 
 release:
-  image: python:3
+  image: python:3.6
   stage: release
   before_script:
     - VERSION=`cat angreal/VERSION`

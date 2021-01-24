@@ -1,8 +1,13 @@
 import os
-from angreal.integrations.docker import get_bound_host_ports, get_open_port, in_container, Container
+import sys
+
 import pytest
 
-in_cicd = os.environ.get('GITLAB_CI',False) == '1'
+in_cicd = os.environ.get('GITLAB_CI',False)
+
+if not in_cicd:
+    from angreal.integrations.docker import get_bound_host_ports, get_open_port, in_container, Container
+
 
 @pytest.mark.skipif(in_cicd,reason="Doing these tests from within gitlab's CI is too hard")
 def test_bound_ports():
@@ -26,6 +31,7 @@ def test_not_in_container():
     """
 
     assert not in_container()
+
 @pytest.mark.skipif(in_cicd ,reason="Doing these tests from within gitlab's CI is too hard")
 def test_containter_pull_run():
     """we can pull and run"""
