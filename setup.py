@@ -19,7 +19,7 @@ requirements = [
     'click>6.0',
     'python-gitlab>=1.5.1,<2.0.0',
     'semver>=2.8.1',
-    'virtualenv>=16.0.0,<17.0.0',
+    'virtualenv>=16.0.0',
     'PyGithub>=1.43.7,<2.0.0',
     'docker>=3.4.1',
     'future',
