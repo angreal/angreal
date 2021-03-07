@@ -57,7 +57,7 @@ class Container(object):
         """
         self.image = self.client.images.pull(self.source)
 
-    def build(self, context='.', tag=None, buildargs=None,verbose=True):
+    def build(self, context='.', tag=None, buildargs=None,verbose=True, **kwargs):
         """
         build a docker image from a file
 
@@ -70,11 +70,8 @@ class Container(object):
         self.image, log = self.client.images.build(dockerfile = self.source,
                                                    path=context,
                                                    tag = tag,
-                                                   nocache=True,
-                                                   quiet=False,
-                                                   pull=True,
-                                                   forcerm=True,
-                                                   buildargs=buildargs
+                                                   buildargs=buildargs,
+                                                   **kwargs
                                                    )
         if verbose:
             for f in log:
