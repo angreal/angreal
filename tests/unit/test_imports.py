@@ -16,6 +16,6 @@ class TestUtils(unittest.TestCase):
                      echo, get_binary_stream, get_text_stream, open_file,
                      format_filename, get_app_dir, get_os_args,
                      get_angreal_path, import_from_file, win, warn, error,
-                     GitLab, GitHub, VirtualEnv, Replay,Git,
+                      VirtualEnv, Replay,Git,
                      venv_required,
                      )
