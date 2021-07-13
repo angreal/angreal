@@ -16,10 +16,8 @@ if not sys.version_info >= (3, 0):
 requirements = [
     'cookiecutter>=1.6.0,<2.0.0',
     'click>6.0',
-    'python-gitlab>=1.5.1,<2.0.0',
     'semver>=2.8.1',
     'virtualenv>=16.0.0',
-    'PyGithub>=1.43.7,<2.0.0',
     'docker>=3.4.1',
     'future',
 ]
