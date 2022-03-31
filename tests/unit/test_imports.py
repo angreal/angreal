@@ -14,7 +14,7 @@ class TestUtils(unittest.TestCase):
                      argument, option, confirmation_option, password_option,
                      version_option, help_option,
                      echo, get_binary_stream, get_text_stream, open_file,
-                     format_filename, get_app_dir, get_os_args,
+                     format_filename, get_app_dir, 
                      get_angreal_path, import_from_file, win, warn, error,
                       VirtualEnv, Replay,Git,
                      venv_required,
