@@ -116,7 +116,7 @@ mod tests {
     use std::fs;
     use std::path::Path;
 
-    use super::get_task_files;
+    
     #[test]
     fn test_is_not_angreal_project() {
         fs::create_dir(Path::new(".angreal")).unwrap();

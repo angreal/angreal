@@ -1,6 +1,6 @@
-use rand::{thread_rng, Rng};
+use rand::{Rng};
 use std::path::{Path, PathBuf};
-use std::{env, fs, result};
+use std::{env, fs};
 
 #[cfg(test)]
 
@@ -15,7 +15,7 @@ pub fn generate_random_string() -> String {
             CHARSET[idx] as char
         })
         .collect();
-    return rstring;
+    rstring
 }
 
 pub fn make_tmp_dir() -> PathBuf {
@@ -25,5 +25,5 @@ pub fn make_tmp_dir() -> PathBuf {
 
     fs::create_dir(&tmp_dir).unwrap();
 
-    return tmp_dir.clone();
+    tmp_dir.clone()
 }

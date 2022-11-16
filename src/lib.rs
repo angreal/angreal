@@ -6,7 +6,7 @@
 //!
 pub mod utils;
 
-use log::{debug, error, info, warn};
+use log::{info};
 use std::process::exit;
 
 use pyo3::prelude::*;
