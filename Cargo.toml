@@ -1,0 +1,23 @@
+[package]
+name = "angreal"
+version = "1.0.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "angreal"
+crate-type = ["cdylib","lib"]
+
+[dependencies]
+pyo3 = { version = "0.16.5", features = ["extension-module"] }
+clap = { version = "4.0.22" }
+log = { version = "0.4" }
+env_logger = { version = "0.9" }
+glob = { version = "0.3.0" }
+anyhow = { version = "1.0.31" }
+
+[dev-dependencies]
+rand = { version="0.8.5" }
+
+[package.metadata.maturin]
+python-source = "python"
