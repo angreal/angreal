@@ -17,3 +17,11 @@ Installation :
 .. code-block:: bash
 
     pip install angreal
+
+
+Development : 
+
+.. code-block:: bash  
+    
+    maturin develop
+    maturin test
