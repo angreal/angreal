@@ -23,5 +23,16 @@ Development :
 
 .. code-block:: bash  
     
+    #install as python wheel
     maturin develop
-    maturin test
+
+    #run tests
+    cargo test
+    
+    #rustfmt
+    find . -name "*.rs" | xargs rustfmt
+
+    #clippy
+
+    cargo clippy --fix 
+    

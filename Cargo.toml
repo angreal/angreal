@@ -6,10 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "angreal"
-crate-type = ["cdylib","lib"]
+crate-type = ["cdylib","rlib"]
 
 [dependencies]
-pyo3 = { version = "0.16.5", features = ["extension-module"] }
+pyo3 = { version = "0.17.3", extension-module = ["extension-module"], default = ["extension-module"], features = ["auto-initialize"] }
 clap = { version = "4.0.22" }
 log = { version = "0.4" }
 env_logger = { version = "0.9" }

@@ -2,8 +2,6 @@ use rand::{Rng};
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 
-#[cfg(test)]
-
 pub fn generate_random_string() -> String {
     const CHARSET: &[u8] = b"abcdefghijklmnopqrstuvwxyz";
     const RSTRING_LEN: usize = 8;
@@ -27,3 +25,6 @@ pub fn make_tmp_dir() -> PathBuf {
 
     tmp_dir.clone()
 }
+
+
+

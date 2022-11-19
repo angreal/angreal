@@ -74,12 +74,16 @@ pub fn is_angreal_project() -> Result<PathBuf, &'static str> {
     }
 }
 
-pub fn load_python(file: &PathBuf) -> Result<(), PyErr> {
+pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
     let mut dir = file.clone();
     dir.pop();
 
     let dir = dir.to_str();
     let file = fs::read_to_string(file).unwrap();
+
+
+    
+
 
     let r_value = Python::with_gil(|py| -> PyResult<()> {
         // Allow the file to search for modules it might be importing
@@ -111,12 +115,57 @@ pub fn load_python(file: &PathBuf) -> Result<(), PyErr> {
 }
 
 #[cfg(test)]
+#[path = "../tests"]
 mod tests {
     use std::env;
     use std::fs;
     use std::path::Path;
+    use std::path::PathBuf;
+    mod common;
 
     
+    #[test]
+    fn test_load_python_files() {
+
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        
+        let should_pass = [
+            "tests/common/test_assets/good_init.py" ,
+            "tests/common/test_assets/good_task.py" ,
+            "tests/common/test_assets/no_func_init.py",
+            "tests/common/test_assets/no_func_task.py",
+            "tests/common/test_assets/exception_init.py", 
+            "tests/common/test_assets/exception_task.py",  
+        ];
+        
+
+        for f_name in &should_pass {
+            let file = PathBuf::from(String::from(*f_name));
+            let rv = crate::utils::load_python(root.join(file)).is_ok();
+            assert!(rv);
+        }
+
+
+        let shouldnt_pass = [
+        "tests/common/test_assets/bad_import_init.py",
+        "tests/common/test_assets/bad_import_task.py",
+        ];
+        
+        for f_name in &shouldnt_pass{
+
+            let file = PathBuf::from(String::from(*f_name));
+            let rv = crate::utils::load_python(root.join(file)).is_err();
+            assert!(rv);
+        }
+    }
+
+    #[test]
+
+    fn test_load_2_python() {
+
+    }
+
+
     #[test]
     fn test_is_not_angreal_project() {
         fs::create_dir(Path::new(".angreal")).unwrap();
