@@ -1,4 +1,4 @@
-use rand::{Rng};
+use rand::Rng;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 
@@ -25,6 +25,3 @@ pub fn make_tmp_dir() -> PathBuf {
 
     tmp_dir.clone()
 }
-
-
-
