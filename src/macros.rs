@@ -1,58 +1,38 @@
-macro_rules! arg_set_raw {
+macro_rules! attr_copy_str {
     ($o:ident, $v:ident, $a:ident) => {
-        
-        let w = &*Box::leak(Box::new($a.$v));
-        if w.is_some() {
-            $o = $o.$v(w.unwrap());
+        if $a.$v.is_some() {
+            let w = Box::leak(Box::new($a.$v.unwrap()));    
+            $o = $o.$v(w.as_str());
         }
     };
 }
 
-macro_rules! arg_set_str {
+macro_rules! attr_copy_bool {
     ($o:ident, $v:ident, $a:ident) => {
-        
-        let w = &*Box::leak(Box::new($a.$v));
-        if w.is_some() {
-            $o = $o.$v(w.unwrap().as_str());
+        if $a.$v.is_some() {
+            let w = Box::leak(Box::new($a.$v.unwrap()));
+            $o = $o.$v(*w);
         }
     };
 }
 
-macro_rules! arg_set_bool {
+macro_rules! attr_copy_char {
     ($o:ident, $v:ident, $a:ident) => {
         
-        let w = &*Box::leak(Box::new($a.$v));
-        if w.is_some() {
-            $o = $o.$v(w.as_bool());
+        
+        if $a.$v.is_some() {
+            let w = Box::leak(Box::new($a.$v.unwrap()));
+            $o = $o.$v(*w);
         }
     };
 }
 
-macro_rules! arg_set_char {
+macro_rules! attr_copy_u64 {
     ($o:ident, $v:ident, $a:ident) => {
         
-        let w = &*Box::leak(Box::new($a.$v));
-        if w.is_some() {
-            $o = $o.$v(w.as_char());
-        }
-    };
-}
-
-macro_rules! arg_set_u64 {
-    ($o:ident, $v:ident, $a:ident) => {
-        
-        let w = &*Box::leak(Box::new($a.$v));
-        if w.is_some() {
-            $o = $o.$v(w.as_i64() as u64);
-        }
-    };
-}
-
-macro_rules! arg_set_usize {
-    ($o:ident, $v:ident, $a:ident) => {
-        let w = &*Box::leak(Box::new($a.$v));
-        if w.is_some() {
-            $o = $o.$v(w.as_i64() as usize);
+        if $a.$v.is_some() {
+            let w = Box::leak(Box::new($a.$v.unwrap()));
+            $o = $o.$v((*w as u64).try_into().unwrap());
         }
     };
 }

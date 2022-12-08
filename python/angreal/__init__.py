@@ -22,8 +22,7 @@ def command(name=None, about="", long_help="", **attrs):
 
         if not hasattr(f, "__arguments"):
             f.__arguments = []
-
-        angreal.Command(name=name, about=about, long_help=f.__doc__, func=f)
+        angreal.Command(name=name, about=about, long_about=f.__doc__, func=f)
 
         for arg in f.__arguments :
             Arg(**{**arg, **dict(command_name=name)})

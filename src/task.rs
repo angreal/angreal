@@ -2,20 +2,13 @@ use once_cell::sync::Lazy;
 use pyo3::prelude::*;
 use std::sync::Mutex;
 
-use log::{debug, info};
-
 pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_class::<AngrealCommand>()?;
     m.add_class::<AngrealArg>()?;
     Ok(())
 }
 
-#[derive(Clone)]
-enum PyType {
-    PyUnicode,
-    PyLong,
-    PyFloat,
-}
+
 
 pub static ANGREAL_TASKS: Lazy<Mutex<Vec<AngrealCommand>>> = Lazy::new(|| Mutex::new(vec![]));
 
@@ -25,30 +18,20 @@ pub static ANGREAL_ARGS: Lazy<Mutex<Vec<AngrealArg>>> = Lazy::new(|| Mutex::new(
 #[pyclass(name = "Command")]
 pub struct AngrealCommand {
     pub name: String,
-    pub about: String,
-    pub long_help: String,
+    pub about: Option<String>,
+    pub long_about: Option<String>,
     pub func: Py<PyAny>,
 }
 
 #[pymethods]
 impl AngrealCommand {
     #[new]
-    #[args(about = "\"\"", long_help = "\"\"")]
-    fn __new__(name: &str, func: Py<PyAny>, about: Option<&str>, long_help: Option<&str>) -> Self {
-        let long_help = match long_help {
-            None => "".to_string(),
-            Some(long_help) => long_help.to_string(),
-        };
-
-        let about = match about {
-            None => "".to_string(),
-            Some(about) => about.to_string(),
-        };
-
+    #[args(about = "None", long_about = "None")]
+    fn __new__(name: &str, func: Py<PyAny>, about: Option<&str>, long_about: Option<&str>) -> Self {
         let cmd = AngrealCommand {
             name: name.to_string(),
-            about: about.to_string(),
-            long_help: long_help,
+            about: about.map(|i| i.to_string()),
+            long_about: long_about.map(|i| i.to_string()),
             func: func,
         };
         ANGREAL_TASKS.lock().unwrap().push(cmd.clone());
@@ -74,7 +57,6 @@ pub struct AngrealArg {
     pub long_help: Option<String>,
     pub help: Option<String>,
     pub required: Option<bool>,
-    pub boolean: Option<bool>,
 }
 
 #[pymethods]
@@ -95,7 +77,6 @@ impl AngrealArg {
         long_help = "None",
         help = "None",
         required = "None",
-        boolean = "None"
     )]
     fn __new__(
         name: Option<&str>,
@@ -113,7 +94,6 @@ impl AngrealArg {
         long_help: Option<&str>,
         help: Option<&str>,
         required: Option<bool>,
-        boolean: Option<bool>,
     ) -> Self {
         let arg = AngrealArg {
             name: name.map(|i| i.to_string()),
@@ -130,8 +110,7 @@ impl AngrealArg {
             long: long.map(|i| i.to_string()),
             long_help: long_help.map(|i| i.to_string()),
             help: help.map(|i| i.to_string()),
-            required: required.map(|i| i),
-            boolean: boolean.map(|i| i),
+            required: required.map(|i| i)
         };
         ANGREAL_ARGS.lock().unwrap().push(arg.clone());
         return arg;

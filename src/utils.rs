@@ -117,6 +117,7 @@ mod tests {
     use std::fs;
     use std::path::Path;
     use std::path::PathBuf;
+
     mod common;
 
     #[test]
@@ -150,51 +151,66 @@ mod tests {
         }
     }
 
-    #[test]
 
-    fn test_load_2_python() {}
+    #[test]
+    fn test_is_angreal_project() {
+        let starting_dir = std::env::current_dir().unwrap();
+        let tmp_dir = common::make_tmp_dir();
+        std::env::set_current_dir(&tmp_dir);
+
+        assert!(crate::utils::is_angreal_project().is_err());
+
+        std::env::set_current_dir(&starting_dir).unwrap();
+        fs::remove_dir_all(&tmp_dir).unwrap();
+    }
 
     #[test]
     fn test_is_not_angreal_project() {
+        let starting_dir = std::env::current_dir().unwrap();
+        let tmp_dir = common::make_tmp_dir();
+        std::env::set_current_dir(&tmp_dir);
+
+
         fs::create_dir(Path::new(".angreal")).unwrap();
-        let mut is_angreal = crate::utils::is_angreal_project();
-        fs::remove_dir(Path::new(".angreal")).unwrap();
-
-        let mut current_dir = env::current_dir().unwrap();
-        current_dir.push(Path::new(".angreal"));
-
-        assert!(is_angreal.is_ok());
-
-        is_angreal = crate::utils::is_angreal_project();
-        assert!(is_angreal.is_err())
+        assert!(crate::utils::is_angreal_project().is_ok());
+        
+        std::env::set_current_dir(&starting_dir).unwrap();
+        fs::remove_dir_all(&tmp_dir).unwrap();
     }
 
     #[test]
     fn test_get_task_files() {
-        let mut tmp_dir = env::temp_dir();
-        tmp_dir.push(Path::new(".angreal"));
-        let mut file_1 = tmp_dir.clone();
-        let mut file_2 = tmp_dir.clone();
-        let mut file_3 = tmp_dir.clone();
+        let starting_dir = std::env::current_dir().unwrap();
+        let tmp_dir = common::make_tmp_dir();
+        std::env::set_current_dir(&tmp_dir);
+        fs::create_dir(Path::new(".angreal")).unwrap();
+        
+        
+        
+        let files_to_make = [
+            "task_test_task.py",
+            "not_this_file.py",
+            "task_not_this.txt"
+        ];
 
-        fs::create_dir(tmp_dir.clone()).unwrap();
-        file_1.push(Path::new("task_test_task.py"));
-        file_2.push(Path::new("not_this_file.py"));
-        file_3.push(Path::new("task_not_this.txt"));
+        
+        for f_name in &files_to_make {
+            let mut f_path = tmp_dir.clone();
+            f_path.push(Path::new(".angreal"));
+            f_path.push(Path::new(f_name));
+            println!("{:?}", f_path);
+            fs::File::create(&f_path);
+        }
 
-        let files_should_find = vec![file_1.clone()];
-        fs::File::create(file_1.clone()).unwrap();
-        fs::File::create(file_2.clone()).unwrap();
-        fs::File::create(file_3.clone()).unwrap();
+        let files_should_find = vec![tmp_dir.join(".angreal").join("task_test_task.py")];
+        
 
-        let files_found = crate::utils::get_task_files(tmp_dir.clone()).unwrap();
-
-        fs::remove_dir_all(tmp_dir.clone()).unwrap();
+        let files_found = crate::utils::get_task_files(tmp_dir.join(".angreal")).unwrap();
 
         assert_eq!(files_found, files_should_find);
 
-        for f in files_found.iter() {
-            println!("{:?}", f.display());
-        }
+        std::env::set_current_dir(&starting_dir).unwrap();
+        fs::remove_dir_all(&tmp_dir).unwrap();
+        
     }
 }
