@@ -26,6 +26,11 @@ Development :
     #install as python wheel
     maturin develop
 
+    #pytests
+    maturin develop
+    pip install pytest
+    python -m pytest
+
     #run tests
     cargo test
     

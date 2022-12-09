@@ -116,3 +116,15 @@ impl AngrealArg {
         return arg;
     }
 }
+
+
+#[cfg(test)]
+#[path = "../tests"]
+mod tests {
+
+    #[test]
+    fn test_arg(){
+        let a = crate::task::AngrealArg::__new__("test");
+    }
+
+}
