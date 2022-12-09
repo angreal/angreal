@@ -15,15 +15,12 @@ pub mod utils;
 
 use crate::task::ANGREAL_TASKS;
 use builder::build_app;
-use env_logger::Builder;
 
 use log::{debug, error};
 use pyo3::types::IntoPyDict;
 use std::vec::Vec;
 
 use std::process::exit;
-use std::io::Write;
-
 
 use pyo3::prelude::*;
 
@@ -35,14 +32,10 @@ fn main() -> PyResult<()> {
     argvs.remove(0);
     argvs.remove(0);
 
-    
-    env_logger::Builder::from_env(
-        env_logger::Env::default()
-        .default_filter_or("error")
-        )
-    .format_timestamp(None)
-    .format_module_path(true)
-    .init();
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("error"))
+        .format_timestamp(None)
+        .format_module_path(true)
+        .init();
 
     // Load any angreal task assets that are available to us
     let in_angreal_project = utils::is_angreal_project().is_ok();
