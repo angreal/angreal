@@ -1,7 +1,7 @@
 
 use clap::{App, AppSettings, Arg, Command};
 use crate::task::{AngrealArg, ANGREAL_ARGS, ANGREAL_TASKS};
-use std::fmt::Display;
+
 
 pub fn select_args(name: String) -> Vec<AngrealArg> {
     let this = ANGREAL_ARGS.lock().unwrap().clone();
@@ -55,7 +55,7 @@ pub fn build_app() -> App<'static>{
 
         app = app.subcommand(sc);
     }
-    return app
+    app
 }
 
     

@@ -23,7 +23,7 @@ use std::vec::Vec;
 
 
 
-use std::ops::Deref;
+
 use std::process::exit;
 
 use pyo3::prelude::*;

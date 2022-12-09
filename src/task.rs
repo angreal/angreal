@@ -32,10 +32,10 @@ impl AngrealCommand {
             name: name.to_string(),
             about: about.map(|i| i.to_string()),
             long_about: long_about.map(|i| i.to_string()),
-            func: func,
+            func,
         };
         ANGREAL_TASKS.lock().unwrap().push(cmd.clone());
-        return cmd;
+        cmd
     }
 }
 
@@ -98,22 +98,22 @@ impl AngrealArg {
         let arg = AngrealArg {
             name: name.to_string(),
             command_name: command_name.map(|i| i.to_string()),
-            takes_value: takes_value.map(|i| i),
+            takes_value: takes_value,
             default_value: default_value.map(|i| i.to_string()),
-            require_equals: require_equals.map(|i| i),
-            multiple_values: multiple_values.map(|i| i),
-            number_of_values: number_of_values.map(|i| i),
-            max_values: max_values.map(|i| i),
-            min_values: min_values.map(|i| i),
+            require_equals: require_equals,
+            multiple_values: multiple_values,
+            number_of_values: number_of_values,
+            max_values: max_values,
+            min_values: min_values,
             python_type: python_type.map(|i| i.to_string()),
-            short: short.map(|i| i),
+            short: short,
             long: long.map(|i| i.to_string()),
             long_help: long_help.map(|i| i.to_string()),
             help: help.map(|i| i.to_string()),
-            required: required.map(|i| i)
+            required: required
         };
         ANGREAL_ARGS.lock().unwrap().push(arg.clone());
-        return arg;
+        arg
     }
 }
 
@@ -121,10 +121,5 @@ impl AngrealArg {
 #[cfg(test)]
 #[path = "../tests"]
 mod tests {
-
-    #[test]
-    fn test_arg(){
-        let a = crate::task::AngrealArg::__new__("test");
-    }
 
 }
