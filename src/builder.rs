@@ -1,8 +1,9 @@
 
 use clap::{App, AppSettings, Arg, Command};
 use crate::task::{AngrealArg, ANGREAL_ARGS, ANGREAL_TASKS};
+use std::fmt::Display;
 
-fn select_args(name: String) -> Vec<AngrealArg> {
+pub fn select_args(name: String) -> Vec<AngrealArg> {
     let this = ANGREAL_ARGS.lock().unwrap().clone();
 
     this.iter()
@@ -33,7 +34,7 @@ pub fn build_app() -> App<'static>{
         let args = select_args(cmd.name.clone());
         for arg in args.into_iter() {
         
-            let name = &*Box::leak(Box::new(arg.name.unwrap()));
+            let name = &*Box::leak(Box::new(arg.name));
             
             let mut a = Arg::new(name.as_str());
             
@@ -58,8 +59,6 @@ pub fn build_app() -> App<'static>{
 }
 
     
-
-
 
 
 

@@ -16,6 +16,7 @@ pub mod utils;
 
 
 use builder::build_app;
+use pyo3::types::IntoPyDict;
 use crate::task::ANGREAL_TASKS;
 use log::{debug, error};
 use std::vec::Vec;
@@ -73,9 +74,9 @@ fn main() -> PyResult<()> {
             println!("INIT");
         }
         Some((task, sub_m)) => {
-            let mutex_guard = ANGREAL_TASKS.lock().unwrap();
-            let real_registery = mutex_guard.deref();
-            let some_command = real_registery.iter().find(|&x| x.name == task);
+            let some_command = ANGREAL_TASKS.lock().unwrap().clone();
+            let some_command = some_command.iter().find(|&x| x.name == task);
+
 
             let command = match some_command {
                 None => {
@@ -86,13 +87,23 @@ fn main() -> PyResult<()> {
                 Some(some_command) => some_command,
             };
 
-            // let args: Vec<String> = select_args(command.name.clone())
-            //     .iter()
-            //     .map(|x| x.name.unwrap().as_ref())
-            //     .collect();
+            let args = builder::select_args(task.to_string());
+
+            let mut kwargs: Vec<(&str,&str)> = Vec::new();
+
+            for arg in args.into_iter(){
+                let n = Box::leak(Box::new(arg.name));
+                let v = sub_m.value_of(n.clone().as_str());
+
+                match v {
+                    None => (),
+                    Some(v) => kwargs.push((n.as_str(),v)),
+                }
+                
+            }
 
             Python::with_gil(|py| {
-                command.func.call1(py, ());
+                command.func.call(py, (), Some(kwargs.into_py_dict(py)));
             });
         }
         _ => {

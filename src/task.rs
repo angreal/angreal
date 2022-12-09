@@ -42,7 +42,7 @@ impl AngrealCommand {
 #[derive(Clone, Debug)]
 #[pyclass(name = "Arg")]
 pub struct AngrealArg {
-    pub name: Option<String>,
+    pub name: String,
     pub command_name: Option<String>,
     pub takes_value: Option<bool>,
     pub default_value: Option<String>,
@@ -79,7 +79,7 @@ impl AngrealArg {
         required = "None",
     )]
     fn __new__(
-        name: Option<&str>,
+        name: &str,
         command_name: Option<&str>,
         takes_value: Option<bool>,
         default_value: Option<&str>,
@@ -96,7 +96,7 @@ impl AngrealArg {
         required: Option<bool>,
     ) -> Self {
         let arg = AngrealArg {
-            name: name.map(|i| i.to_string()),
+            name: name.to_string(),
             command_name: command_name.map(|i| i.to_string()),
             takes_value: takes_value.map(|i| i),
             default_value: default_value.map(|i| i.to_string()),
