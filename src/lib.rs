@@ -9,27 +9,23 @@ extern crate version;
 #[macro_use]
 pub mod macros;
 
-
 pub mod builder;
 pub mod task;
 pub mod utils;
 
-
-use builder::build_app;
-use pyo3::types::IntoPyDict;
 use crate::task::ANGREAL_TASKS;
+use builder::build_app;
+use env_logger::Builder;
+
 use log::{debug, error};
+use pyo3::types::IntoPyDict;
 use std::vec::Vec;
 
-
-
-
 use std::process::exit;
+use std::io::Write;
+
 
 use pyo3::prelude::*;
-
-
-
 
 /// The main function is just an entry point to be called from the core angreal library.
 #[pyfunction]
@@ -39,15 +35,20 @@ fn main() -> PyResult<()> {
     argvs.remove(0);
     argvs.remove(0);
 
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("error")).init();
-
-
+    
+    env_logger::Builder::from_env(
+        env_logger::Env::default()
+        .default_filter_or("error")
+        )
+    .format_timestamp(None)
+    .format_module_path(true)
+    .init();
 
     // Load any angreal task assets that are available to us
     let in_angreal_project = utils::is_angreal_project().is_ok();
-    let angreal_path = utils::is_angreal_project().unwrap();
 
     if in_angreal_project {
+        let angreal_path = utils::is_angreal_project().unwrap();
         debug!("Angreal project detected, loading found tasks.");
         // get a list of files
         let angreal_tasks_to_load = utils::get_task_files(angreal_path);
@@ -64,7 +65,6 @@ fn main() -> PyResult<()> {
         }
     }
 
-    
     let app = build_app();
     let mut app_copy = app.clone();
     let sub_command = app.get_matches_from(&argvs);
@@ -74,9 +74,12 @@ fn main() -> PyResult<()> {
             println!("INIT");
         }
         Some((task, sub_m)) => {
+            if !in_angreal_project {
+                error!("This doesn't appear to be an angreal project.");
+                exit(1)
+            }
             let some_command = ANGREAL_TASKS.lock().unwrap().clone();
             let some_command = some_command.iter().find(|&x| x.name == task);
-
 
             let command = match some_command {
                 None => {
@@ -89,17 +92,16 @@ fn main() -> PyResult<()> {
 
             let args = builder::select_args(task.to_string());
 
-            let mut kwargs: Vec<(&str,&str)> = Vec::new();
+            let mut kwargs: Vec<(&str, &str)> = Vec::new();
 
-            for arg in args.into_iter(){
+            for arg in args.into_iter() {
                 let n = Box::leak(Box::new(arg.name));
                 let v = sub_m.value_of(n.clone().as_str());
 
                 match v {
                     None => (),
-                    Some(v) => kwargs.push((n.as_str(),v)),
+                    Some(v) => kwargs.push((n.as_str(), v)),
                 }
-                
             }
 
             Python::with_gil(|py| {

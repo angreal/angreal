@@ -8,8 +8,6 @@ pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     Ok(())
 }
 
-
-
 pub static ANGREAL_TASKS: Lazy<Mutex<Vec<AngrealCommand>>> = Lazy::new(|| Mutex::new(vec![]));
 
 pub static ANGREAL_ARGS: Lazy<Mutex<Vec<AngrealArg>>> = Lazy::new(|| Mutex::new(vec![]));
@@ -17,9 +15,13 @@ pub static ANGREAL_ARGS: Lazy<Mutex<Vec<AngrealArg>>> = Lazy::new(|| Mutex::new(
 #[derive(Clone, Debug)]
 #[pyclass(name = "Command")]
 pub struct AngrealCommand {
+    #[pyo3(get)]
     pub name: String,
+    #[pyo3(get)]
     pub about: Option<String>,
+    #[pyo3(get)]
     pub long_about: Option<String>,
+    #[pyo3(get)]
     pub func: Py<PyAny>,
 }
 
@@ -42,20 +44,35 @@ impl AngrealCommand {
 #[derive(Clone, Debug)]
 #[pyclass(name = "Arg")]
 pub struct AngrealArg {
+    #[pyo3(get)]
     pub name: String,
-    pub command_name: Option<String>,
+    #[pyo3(get)]
+    pub command_name: String,
+    #[pyo3(get)]
     pub takes_value: Option<bool>,
+    #[pyo3(get)]
     pub default_value: Option<String>,
+    #[pyo3(get)]
     pub require_equals: Option<bool>,
+    #[pyo3(get)]
     pub multiple_values: Option<bool>,
+    #[pyo3(get)]
     pub number_of_values: Option<u32>,
+    #[pyo3(get)]
     pub max_values: Option<u32>,
+    #[pyo3(get)]
     pub min_values: Option<u32>,
+    #[pyo3(get)]
     pub python_type: Option<String>,
+    #[pyo3(get)]
     pub short: Option<char>,
+    #[pyo3(get)]
     pub long: Option<String>,
+    #[pyo3(get)]
     pub long_help: Option<String>,
+    #[pyo3(get)]
     pub help: Option<String>,
+    #[pyo3(get)]
     pub required: Option<bool>,
 }
 
@@ -76,11 +93,11 @@ impl AngrealArg {
         long = "None",
         long_help = "None",
         help = "None",
-        required = "None",
+        required = "None"
     )]
     fn __new__(
         name: &str,
-        command_name: Option<&str>,
+        command_name: &str,
         takes_value: Option<bool>,
         default_value: Option<&str>,
         require_equals: Option<bool>,
@@ -97,29 +114,22 @@ impl AngrealArg {
     ) -> Self {
         let arg = AngrealArg {
             name: name.to_string(),
-            command_name: command_name.map(|i| i.to_string()),
-            takes_value: takes_value,
+            command_name: command_name.to_string(),
+            takes_value,
             default_value: default_value.map(|i| i.to_string()),
-            require_equals: require_equals,
-            multiple_values: multiple_values,
-            number_of_values: number_of_values,
-            max_values: max_values,
-            min_values: min_values,
+            require_equals,
+            multiple_values,
+            number_of_values,
+            max_values,
+            min_values,
             python_type: python_type.map(|i| i.to_string()),
-            short: short,
+            short,
             long: long.map(|i| i.to_string()),
             long_help: long_help.map(|i| i.to_string()),
             help: help.map(|i| i.to_string()),
-            required: required
+            required,
         };
         ANGREAL_ARGS.lock().unwrap().push(arg.clone());
         arg
     }
-}
-
-
-#[cfg(test)]
-#[path = "../tests"]
-mod tests {
-
 }

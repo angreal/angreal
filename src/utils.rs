@@ -48,7 +48,6 @@ pub fn is_angreal_project() -> Result<PathBuf, &'static str> {
     check_dir.push(angreal_path);
 
     let found = loop {
-        debug!("checking for {}", check_dir.display());
         if check_dir.is_dir() {
             break true;
         }
@@ -66,10 +65,8 @@ pub fn is_angreal_project() -> Result<PathBuf, &'static str> {
     };
 
     if found {
-        info!(".angreal found at : {:?}", check_dir.display());
         Ok(check_dir)
     } else {
-        error!("This doesn't appear to be an angreal project.");
         Err("This doesn't appear to be an angreal project.")
     }
 }
@@ -151,7 +148,6 @@ mod tests {
         }
     }
 
-
     #[test]
     fn test_is_angreal_project() {
         let starting_dir = std::env::current_dir().unwrap();
@@ -170,10 +166,9 @@ mod tests {
         let tmp_dir = common::make_tmp_dir();
         std::env::set_current_dir(&tmp_dir);
 
-
         fs::create_dir(Path::new(".angreal")).unwrap();
         assert!(crate::utils::is_angreal_project().is_ok());
-        
+
         std::env::set_current_dir(&starting_dir).unwrap();
         fs::remove_dir_all(&tmp_dir).unwrap();
     }
@@ -184,16 +179,9 @@ mod tests {
         let tmp_dir = common::make_tmp_dir();
         std::env::set_current_dir(&tmp_dir);
         fs::create_dir(Path::new(".angreal")).unwrap();
-        
-        
-        
-        let files_to_make = [
-            "task_test_task.py",
-            "not_this_file.py",
-            "task_not_this.txt"
-        ];
 
-        
+        let files_to_make = ["task_test_task.py", "not_this_file.py", "task_not_this.txt"];
+
         for f_name in &files_to_make {
             let mut f_path = tmp_dir.clone();
             f_path.push(Path::new(".angreal"));
@@ -203,7 +191,6 @@ mod tests {
         }
 
         let files_should_find = vec![tmp_dir.join(".angreal").join("task_test_task.py")];
-        
 
         let files_found = crate::utils::get_task_files(tmp_dir.join(".angreal")).unwrap();
 
@@ -211,6 +198,5 @@ mod tests {
 
         std::env::set_current_dir(&starting_dir).unwrap();
         fs::remove_dir_all(&tmp_dir).unwrap();
-        
     }
 }
