@@ -16,12 +16,13 @@ def command(name=None, about="", long_help="", **attrs):
         _wrapped = name
         name = _wrapped.__name__.lower().replace("_", "-")
 
-    
-    
+
     def decorator(f):
 
         if not hasattr(f, "__arguments"):
             f.__arguments = []
+                        
+                        
         angreal.Command(name=name, about=about, long_about=f.__doc__, func=f)
 
         for arg in f.__arguments :

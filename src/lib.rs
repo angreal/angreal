@@ -54,7 +54,7 @@ fn main() -> PyResult<()> {
 
         // load the files , IF a file has command or task decorators - they'll register themselves now
         for task in _angreal_tasks_to_load.iter() {
-            utils::load_python(task.clone());
+            utils::load_python(task.clone()).unwrap_or(());
         }
     }
 
@@ -77,7 +77,7 @@ fn main() -> PyResult<()> {
             let command = match some_command {
                 None => {
                     error!("Task {}, not found.", task.clone());
-                    app_copy.print_help();
+                    app_copy.print_help().unwrap_or(());
                     exit(1)
                 }
                 Some(some_command) => some_command,
@@ -98,7 +98,7 @@ fn main() -> PyResult<()> {
             }
 
             Python::with_gil(|py| {
-                command.func.call(py, (), Some(kwargs.into_py_dict(py)));
+                let _r_value = command.func.call(py, (), Some(kwargs.into_py_dict(py)));
             });
         }
         _ => {

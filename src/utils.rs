@@ -152,33 +152,33 @@ mod tests {
     fn test_is_angreal_project() {
         let starting_dir = std::env::current_dir().unwrap();
         let tmp_dir = common::make_tmp_dir();
-        std::env::set_current_dir(&tmp_dir);
+        std::env::set_current_dir(&tmp_dir).unwrap_or(());
 
         assert!(crate::utils::is_angreal_project().is_err());
 
-        std::env::set_current_dir(&starting_dir).unwrap();
-        fs::remove_dir_all(&tmp_dir).unwrap();
+        std::env::set_current_dir(&starting_dir).unwrap_or(());
+        fs::remove_dir_all(&tmp_dir).unwrap_or(());
     }
 
     #[test]
     fn test_is_not_angreal_project() {
         let starting_dir = std::env::current_dir().unwrap();
         let tmp_dir = common::make_tmp_dir();
-        std::env::set_current_dir(&tmp_dir);
+        std::env::set_current_dir(&tmp_dir).unwrap_or(());
 
-        fs::create_dir(Path::new(".angreal")).unwrap();
+        fs::create_dir(Path::new(".angreal")).unwrap_or(());
         assert!(crate::utils::is_angreal_project().is_ok());
 
-        std::env::set_current_dir(&starting_dir).unwrap();
-        fs::remove_dir_all(&tmp_dir).unwrap();
+        std::env::set_current_dir(&starting_dir).unwrap_or(());
+        fs::remove_dir_all(&tmp_dir).unwrap_or(());
     }
 
     #[test]
     fn test_get_task_files() {
         let starting_dir = std::env::current_dir().unwrap();
         let tmp_dir = common::make_tmp_dir();
-        std::env::set_current_dir(&tmp_dir);
-        fs::create_dir(Path::new(".angreal")).unwrap();
+        std::env::set_current_dir(&tmp_dir).unwrap_or(());
+        fs::create_dir(Path::new(".angreal")).unwrap_or(());
 
         let files_to_make = ["task_test_task.py", "not_this_file.py", "task_not_this.txt"];
 
@@ -187,7 +187,7 @@ mod tests {
             f_path.push(Path::new(".angreal"));
             f_path.push(Path::new(f_name));
             println!("{:?}", f_path);
-            fs::File::create(&f_path);
+            let _ = fs::File::create(&f_path);
         }
 
         let files_should_find = vec![tmp_dir.join(".angreal").join("task_test_task.py")];
@@ -196,7 +196,7 @@ mod tests {
 
         assert_eq!(files_found, files_should_find);
 
-        std::env::set_current_dir(&starting_dir).unwrap();
-        fs::remove_dir_all(&tmp_dir).unwrap();
+        std::env::set_current_dir(&starting_dir).unwrap_or(());
+        fs::remove_dir_all(&tmp_dir).unwrap_or(());
     }
 }
