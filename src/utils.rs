@@ -186,7 +186,6 @@ mod tests {
             let mut f_path = tmp_dir.clone();
             f_path.push(Path::new(".angreal"));
             f_path.push(Path::new(f_name));
-            println!("{:?}", f_path);
             let _ = fs::File::create(&f_path);
         }
 
