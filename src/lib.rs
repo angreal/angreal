@@ -10,9 +10,9 @@ extern crate version;
 pub mod macros;
 
 pub mod builder;
+pub mod init;
 pub mod task;
 pub mod utils;
-pub mod init;
 
 use crate::task::ANGREAL_TASKS;
 use builder::build_app;
