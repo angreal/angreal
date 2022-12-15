@@ -15,6 +15,18 @@ use std::io::Write;
 
 use tera::{Tera,Context};
 
+
+// fn init(template:str){
+
+//     let angreal_home = create_home_dot_angreal();
+//     let try_template = angreal_home.clone();
+//     try_template.push(Path::new(template));
+    
+//     if try_template.is_dir(){
+
+//     } 
+
+// }
 fn get_scheme(u: &str)-> Result<String, ()>{
     let s = GitUrl::parse(u.clone()).unwrap();
     
