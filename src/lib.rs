@@ -14,6 +14,7 @@ pub mod init;
 pub mod task;
 pub mod utils;
 
+use init::init;
 use crate::task::ANGREAL_TASKS;
 use builder::build_app;
 
@@ -65,7 +66,7 @@ fn main() -> PyResult<()> {
 
     match sub_command.subcommand() {
         Some(("init", _sub_matches)) => {
-            println!("INIT");
+            init::init(_sub_matches.value_of("template").unwrap(), _sub_matches.is_present("force"), _sub_matches.is_present("defaults"))
         }
         Some((task, sub_m)) => {
             if !in_angreal_project {

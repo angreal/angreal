@@ -16,7 +16,29 @@ pub fn build_app() -> App<'static> {
         .setting(AppSettings::NoBinaryName)
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .allow_external_subcommands(true)
-        .subcommand(Command::new("init").about("Initialize an Angreal template from source."))
+        .subcommand(Command::new("init")
+                    .about("Initialize an Angreal template from source.")
+                    .arg(
+                        Arg::new("force")
+                        .short('f')
+                        .long("--force")
+                        .takes_value(false)
+                        .help("Force the rendering of a template, even if paths/files already exist.")
+                    )
+                    .arg(
+                        Arg::new("defaults")
+                        .short('d')
+                        .long("--defaults")
+                        .takes_value(false)
+                        .help("Use default values provided in the angreal.toml.")
+                    )
+                    .arg(
+                        Arg::new("template")
+                        .takes_value(true)
+                        .required(true)
+                        .help("The template to use. Either a pre-downloaded template name, or url to a git repo.")
+                    )
+                )
         .version(version!());
 
     let commands = ANGREAL_TASKS.lock().unwrap().clone();
