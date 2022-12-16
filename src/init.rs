@@ -2,51 +2,48 @@ use git2::Repository;
 use git_url_parse::{GitUrl, Scheme};
 use home::home_dir;
 
-
+use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::ops::Not;
+use std::path::{Path, PathBuf};
 use std::process::exit;
-use std::{fs};
-use std::{
-    path::{Path, PathBuf},
-};
 use text_io::read;
 use toml::Value;
-use walkdir::{WalkDir};
+use walkdir::WalkDir;
 
 use tera::{Context, Tera};
 
-pub fn init(template: &str, force: bool, use_defaults: bool){
-
+pub fn init(template: &str, force: bool, use_defaults: bool) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
 
-    
     let template = match template_type.as_str() {
-        "https"|"gitssh"|"ssh"|"git" => {
+        "https" | "gitssh" | "ssh" | "git" => {
             let remote = GitUrl::parse(template).unwrap();
-            let mut dst = angreal_home.clone();
+            let mut dst = angreal_home;
             dst.push(remote.name.as_str());
-            Repository::clone(template, &dst).unwrap().path().to_path_buf()
-        },
+            Repository::clone(template, &dst)
+                .unwrap()
+                .path()
+                .to_path_buf()
+        }
         "file" => {
             let mut try_template = angreal_home;
             try_template.push(Path::new(template));
 
-            if try_template.is_dir(){
+            if try_template.is_dir() {
                 Repository::open(try_template).unwrap().path().to_path_buf()
             } else {
                 exit(1);
             }
-        },
-        &_ =>{
+        }
+        &_ => {
             exit(1);
         }
     };
 
     render_template(Path::new(&template), use_defaults, force);
-
 }
 
 fn get_scheme(u: &str) -> Result<String, ()> {
@@ -73,10 +70,7 @@ fn create_home_dot_angreal() -> PathBuf {
     home_dir
 }
 
-
-
 fn render_template(path: &Path, take_input: bool, force: bool) {
-    
     // Build our context from the toml/CLI
     let mut toml = path.clone().to_path_buf();
     toml.push(Path::new("angreal.toml"));
@@ -137,32 +131,31 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
         let path_postfix = path_template.path();
         let path_template = path_postfix.strip_prefix(path).unwrap().to_str().unwrap();
         let real_path = Tera::one_off(path_template, &context, false).unwrap();
-        
+
         if Path::new(real_path.as_str()).is_dir() & force.not() {
             exit(1)
         }
-        if real_path.starts_with("."){
+        if real_path.starts_with('.') {
             continue;
         }
         fs::create_dir(real_path.as_str());
     }
 
     for template in tera.get_template_names() {
-        if template == "angreal.toml"{
+        if template == "angreal.toml" {
             continue;
         }
 
-        if template.starts_with("."){
+        if template.starts_with('.') {
             continue;
         }
 
-        println!("{:?}",template);
+        println!("{:?}", template);
         let rendered = tera.render(template, &context).unwrap();
         let path = Tera::one_off(template, &context, false).unwrap();
 
         let mut output = File::create(path).unwrap();
         write!(output, "{}", rendered.as_str());
-        
     }
 }
 
@@ -170,9 +163,8 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
 #[path = "../tests"]
 mod tests {
     use std::path::{Path, PathBuf};
-    use git2::Repository;
+
     use std::env;
-    
 
     mod common;
 
@@ -182,7 +174,7 @@ mod tests {
         template_root.push(Path::new("tests/common/test_assets/test_template"));
         crate::init::render_template(&template_root, false, true);
     }
-   
+
     #[test]
     fn test_home_dot_angreal() {
         crate::init::create_home_dot_angreal();
@@ -214,6 +206,5 @@ mod tests {
 
         let str_schema = crate::init::get_scheme(str_str);
         assert_eq!(str_schema.unwrap(), "file");
-
     }
 }
