@@ -2,6 +2,8 @@ use git2::Repository;
 use git_url_parse::{GitUrl, Scheme};
 use home::home_dir;
 
+use glob::glob;
+use std::env;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -121,9 +123,37 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
         }
     }
 
+    /// first we create an "empty" Tera instance
+    let mut tmp_dir = env::temp_dir();
+    tmp_dir.push(Path::new("angreal_tmp"));
+    fs::create_dir(&tmp_dir);
+    tmp_dir.push(Path::new("*"));
+    let mut tera = Tera::new(tmp_dir.to_str().unwrap()).unwrap();
+    fs::remove_dir_all(&tmp_dir);
+
+    /// We get our temaplates path and glob
     let mut template = path.clone().to_path_buf();
     template.push(Path::new("**/*"));
-    let tera = Tera::new(template.to_str().unwrap()).unwrap();
+
+    /// We build our exclusion path
+    /// TODO : Expand on this as an angreal.toml config in the future
+    let mut exclude = path.clone().to_path_buf();
+    exclude.push(Path::new(".git/"));
+
+    for file in glob(template.to_str().unwrap()).expect("Failed to read glob pattern") {
+        let file_path = file.as_ref().unwrap();
+        let rel_path = file_path.strip_prefix(path).unwrap().to_str().unwrap();
+
+        /// If the file isn't in our exclusion list register as a template with the relative path for the name
+        if file
+            .as_ref()
+            .unwrap()
+            .starts_with(exclude.to_str().unwrap())
+            .not()
+        {
+            tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path));
+        }
+    }
 
     let walker = WalkDir::new(path).into_iter();
     for entry in walker.filter_entry(|e| e.file_type().is_dir()) {
@@ -150,7 +180,6 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
             continue;
         }
 
-        println!("{:?}", template);
         let rendered = tera.render(template, &context).unwrap();
         let path = Tera::one_off(template, &context, false).unwrap();
 
@@ -162,9 +191,9 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
 #[cfg(test)]
 #[path = "../tests"]
 mod tests {
+    use std::ops::Not;
     use std::path::{Path, PathBuf};
-
-    use std::env;
+    use std::{env, fs};
 
     mod common;
 
@@ -173,6 +202,33 @@ mod tests {
         let mut template_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         template_root.push(Path::new("tests/common/test_assets/test_template"));
         crate::init::render_template(&template_root, false, true);
+
+        let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        rendered_root.push(Path::new("root_folder"));
+
+        assert!(rendered_root.is_dir());
+
+        let mut angreal_toml = rendered_root.clone();
+        angreal_toml.push("angreal.toml");
+        assert!(angreal_toml.is_file().not());
+
+        let mut dot_gee = rendered_root.clone();
+        dot_gee.push(".gee");
+        assert!(dot_gee.is_dir().not());
+
+        let mut dot_angreal = rendered_root.clone();
+        dot_angreal.push(".angreal");
+        assert!(dot_angreal.is_dir());
+
+        let mut rendered_folder = rendered_root.clone();
+        rendered_folder.push("folder_name");
+        assert!(rendered_root.is_dir());
+
+        let mut index_txt = rendered_folder.clone();
+        index_txt.push("index.txt");
+        assert!(index_txt.is_file());
+
+        fs::remove_dir_all(&rendered_root).unwrap_or(());
     }
 
     #[test]
