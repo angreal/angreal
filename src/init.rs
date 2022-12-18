@@ -28,14 +28,32 @@ pub fn init(template: &str, force: bool, use_defaults: bool) {
             Repository::clone(template, &dst)
                 .unwrap()
                 .path()
-                .to_path_buf()
+                .to_path_buf();
+            dst
         }
         "file" => {
             let mut try_template = angreal_home;
             try_template.push(Path::new(template));
 
             if try_template.is_dir() {
-                Repository::open(try_template).unwrap().path().to_path_buf()
+                let repo = Repository::open(&try_template).unwrap();
+                repo.find_remote("origin").unwrap().fetch(&["main"], None, None).unwrap();
+                let fetch_head = repo.find_reference("FETCH_HEAD").unwrap();
+                let fetch_commit = repo.reference_to_annotated_commit(&fetch_head).unwrap();
+                let analysis = repo.merge_analysis(&[&fetch_commit]).unwrap();
+                if analysis.0.is_up_to_date() {
+                    repo.path().to_path_buf()
+                } else if analysis.0.is_fast_forward() {
+                    let refname = format!("refs/heads/{}", "main");
+                    let mut reference = repo.find_reference(&refname).unwrap();
+                    reference.set_target(fetch_commit.id(), "Fast-Forward").unwrap();
+                    repo.set_head(&refname).unwrap();
+                    repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()));
+                    try_template
+                } else {
+                    exit(1);
+                }
+
             } else {
                 exit(1);
             }
@@ -74,12 +92,13 @@ fn create_home_dot_angreal() -> PathBuf {
 
 fn render_template(path: &Path, take_input: bool, force: bool) {
     // Build our context from the toml/CLI
+    println!("{:?}",path);
     let mut toml = path.clone().to_path_buf();
     toml.push(Path::new("angreal.toml"));
     let file_contents = match fs::read_to_string(toml) {
         Ok(c) => c,
-        Err(_) => {
-            //LOG ERROR
+        Err(e) => {
+            println!("{:?}",e);
             exit(1);
         }
     };
@@ -197,6 +216,10 @@ mod tests {
 
     mod common;
 
+    #[test]
+    fn test_init(){
+        crate::init::init("https://gitlab.com/angreal/angreal2_test_template.git", true, true);
+    }
     #[test]
     fn test_render_template() {
         let mut template_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
