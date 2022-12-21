@@ -1,3 +1,5 @@
+
+use crate::git::{git_clone, git_pull_ff};
 use git2::Repository;
 use git_url_parse::{GitUrl, Scheme};
 use home::home_dir;
@@ -16,54 +18,38 @@ use walkdir::WalkDir;
 
 use tera::{Context, Tera};
 
-pub fn init(template: &str, force: bool, use_defaults: bool) {
+pub fn ff_pull(_rep: &Repository, _branch: &str) {}
+
+pub fn init(template: &str, force: bool, take_inputs: bool) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
 
     let template = match template_type.as_str() {
         "https" | "gitssh" | "ssh" | "git" => {
             let remote = GitUrl::parse(template).unwrap();
-            let mut dst = angreal_home;
+            let mut dst = angreal_home.clone();
             dst.push(remote.name.as_str());
-            Repository::clone(template, &dst)
-                .unwrap()
-                .path()
-                .to_path_buf();
-            dst
+
+            if dst.is_dir() {
+                git_pull_ff(dst.to_str().unwrap())
+            } else {
+                git_clone(template, angreal_home.to_str().unwrap())
+            }
         }
         "file" => {
             let mut try_template = angreal_home;
             try_template.push(Path::new(template));
 
-            if try_template.is_dir() {
-                let repo = Repository::open(&try_template).unwrap();
-                repo.find_remote("origin").unwrap().fetch(&["main"], None, None).unwrap();
-                let fetch_head = repo.find_reference("FETCH_HEAD").unwrap();
-                let fetch_commit = repo.reference_to_annotated_commit(&fetch_head).unwrap();
-                let analysis = repo.merge_analysis(&[&fetch_commit]).unwrap();
-                if analysis.0.is_up_to_date() {
-                    repo.path().to_path_buf()
-                } else if analysis.0.is_fast_forward() {
-                    let refname = format!("refs/heads/{}", "main");
-                    let mut reference = repo.find_reference(&refname).unwrap();
-                    reference.set_target(fetch_commit.id(), "Fast-Forward").unwrap();
-                    repo.set_head(&refname).unwrap();
-                    repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()));
-                    try_template
-                } else {
-                    exit(1);
-                }
-
-            } else {
+            if try_template.is_dir().not() {
                 exit(1);
             }
+            git_pull_ff(try_template.to_str().unwrap())
         }
         &_ => {
             exit(1);
         }
     };
-
-    render_template(Path::new(&template), use_defaults, force);
+    render_template(Path::new(&template), take_inputs, force);
 }
 
 fn get_scheme(u: &str) -> Result<String, ()> {
@@ -92,13 +78,13 @@ fn create_home_dot_angreal() -> PathBuf {
 
 fn render_template(path: &Path, take_input: bool, force: bool) {
     // Build our context from the toml/CLI
-    println!("{:?}",path);
+    println!("{:?}", path);
     let mut toml = path.clone().to_path_buf();
     toml.push(Path::new("angreal.toml"));
     let file_contents = match fs::read_to_string(toml) {
         Ok(c) => c,
         Err(e) => {
-            println!("{:?}",e);
+            println!("{:?}", e);
             exit(1);
         }
     };
@@ -217,8 +203,12 @@ mod tests {
     mod common;
 
     #[test]
-    fn test_init(){
-        crate::init::init("https://gitlab.com/angreal/angreal2_test_template.git", true, true);
+    fn test_init() {
+        crate::init::init(
+            "https://gitlab.com/angreal/angreal2_test_template.git",
+            true,
+            false,
+        );
     }
     #[test]
     fn test_render_template() {
