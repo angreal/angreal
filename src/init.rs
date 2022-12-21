@@ -1,10 +1,10 @@
-
 use crate::git::{git_clone, git_pull_ff};
-use git2::Repository;
+
 use git_url_parse::{GitUrl, Scheme};
 use home::home_dir;
 
 use glob::glob;
+use log::{error};
 use std::env;
 use std::fs;
 use std::fs::File;
@@ -12,20 +12,23 @@ use std::io::Write;
 use std::ops::Not;
 use std::path::{Path, PathBuf};
 use std::process::exit;
+use tera::{Context, Tera};
 use text_io::read;
 use toml::Value;
 use walkdir::WalkDir;
 
-use tera::{Context, Tera};
-
-pub fn ff_pull(_rep: &Repository, _branch: &str) {}
-
+/// Initialize a new project by rendering a template.
+/// If we wish a full over write use force == True
+/// If we wish to use the angreal.toml defaults take_inputs == False
 pub fn init(template: &str, force: bool, take_inputs: bool) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
 
+    // todo - implement a local file system template branch
     let template = match template_type.as_str() {
         "https" | "gitssh" | "ssh" | "git" => {
+            // If we get a git url , go get it either by a clone if it doesn't
+            // already exist, or as a ff pull if it does
             let remote = GitUrl::parse(template).unwrap();
             let mut dst = angreal_home.clone();
             dst.push(remote.name.as_str());
@@ -37,15 +40,23 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             }
         }
         "file" => {
+            // if someone runs `angreal init template`, we check ~/.angreal/template
+            // for the template to use and attempt a ff-pull on that repo
             let mut try_template = angreal_home;
             try_template.push(Path::new(template));
 
             if try_template.is_dir().not() {
+                error!("The template {}, doesn't appear to exist locally", template);
                 exit(1);
             }
             git_pull_ff(try_template.to_str().unwrap())
         }
         &_ => {
+            error!(
+                "Unhandled template type {} from {}, exiting.",
+                template_type.as_str(),
+                template
+            );
             exit(1);
         }
     };
@@ -78,13 +89,12 @@ fn create_home_dot_angreal() -> PathBuf {
 
 fn render_template(path: &Path, take_input: bool, force: bool) {
     // Build our context from the toml/CLI
-    println!("{:?}", path);
     let mut toml = path.clone().to_path_buf();
     toml.push(Path::new("angreal.toml"));
     let file_contents = match fs::read_to_string(toml) {
         Ok(c) => c,
         Err(e) => {
-            println!("{:?}", e);
+            error!("{:?}", e);
             exit(1);
         }
     };
@@ -141,7 +151,8 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
     template.push(Path::new("**/*"));
 
     /// We build our exclusion path
-    /// TODO : Expand on this as an angreal.toml config in the future
+    /// TODO : Expand on this as an angreal.toml config as an inclusion/exclusion glob in the future
+    /// Still keep some sensible defaults
     let mut exclude = path.clone().to_path_buf();
     exclude.push(Path::new(".git/"));
 
@@ -160,6 +171,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
         }
     }
 
+    // build our directory structure first
     let walker = WalkDir::new(path).into_iter();
     for entry in walker.filter_entry(|e| e.file_type().is_dir()) {
         let path_template = entry.unwrap().clone();
@@ -168,20 +180,31 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
         let real_path = Tera::one_off(path_template, &context, false).unwrap();
 
         if Path::new(real_path.as_str()).is_dir() & force.not() {
+            error!(
+                "{} already exists. Will not proceed unless `--force`/force=True is used.",
+                real_path.as_str()
+            );
             exit(1)
         }
         if real_path.starts_with('.') {
+            //skip any sort of top level dot files - extend with an exclusion glob in the future
+            // todo: exclusion glob
             continue;
         }
         fs::create_dir(real_path.as_str());
     }
 
+    // render templates
     for template in tera.get_template_names() {
         if template == "angreal.toml" {
+            // never render the angreal.toml
+            // todo: exclusion glob
             continue;
         }
 
         if template.starts_with('.') {
+            // we don't render dot files eiterh
+            // todo: exclusion glob
             continue;
         }
 

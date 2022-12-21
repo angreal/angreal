@@ -1,11 +1,12 @@
 use git2::Repository;
-use git_url_parse::{GitUrl};
+use git_url_parse::GitUrl;
+use log::{error};
 use std::path::{Path, PathBuf};
 use std::process::exit;
 
 /// Attempts to clone a repo within the current working directory.
 /// Mimics the command `git clone repo`
-/// ```
+/// ```ignore
 /// let clone_path = git_clone_here("http://github.com/remote/test.git")
 /// ```
 pub fn git_clone_here(remote: &str) -> PathBuf {
@@ -17,7 +18,7 @@ pub fn git_clone_here(remote: &str) -> PathBuf {
 /// The full path to the target repo needs to be provided, i.e.
 /// if the repo is https://github.com/test.git you would probably want to
 /// provide a target as /path/to/clone/test
-/// ```
+/// ```ignore
 /// let clone_path = git_clone("http://github.com/remote/test.git","path/to/target/test")
 /// ```
 pub fn git_clone(remote: &str, local: &str) -> PathBuf {
@@ -31,7 +32,7 @@ pub fn git_clone(remote: &str, local: &str) -> PathBuf {
 }
 
 /// Attempts a fast forward pull on a pre existing repo
-/// ```
+/// ```ignore
 /// let pull_path = git_pull_ff("path/to/target/test")
 /// ```
 pub fn git_pull_ff(repo: &str) -> PathBuf {
@@ -55,7 +56,8 @@ pub fn git_pull_ff(repo: &str) -> PathBuf {
         repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()));
         repo.workdir().unwrap().to_path_buf()
     } else {
-        exit(1);
+        error!("Fast forward pull not available on {}, suggest manually deleting and re cloning the repo.", repo.workdir().unwrap().to_str().unwrap() );
+        exit(127);
     }
 }
 
