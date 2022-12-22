@@ -4,7 +4,7 @@ use git_url_parse::{GitUrl, Scheme};
 use home::home_dir;
 
 use glob::glob;
-use log::{error};
+use log::error;
 use std::env;
 use std::fs;
 use std::fs::File;

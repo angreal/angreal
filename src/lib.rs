@@ -4,6 +4,7 @@
 //! for the creation and management of common operational tasks associated with the
 //! project.
 //!
+
 #[macro_use]
 extern crate version;
 #[macro_use]
@@ -89,19 +90,27 @@ fn main() -> PyResult<()> {
 
             let args = builder::select_args(task.to_string());
 
-            let mut kwargs: Vec<(&str, &str)> = Vec::new();
-
-            for arg in args.into_iter() {
-                let n = Box::leak(Box::new(arg.name));
-                let v = sub_m.value_of(n.clone().as_str());
-
-                match v {
-                    None => (),
-                    Some(v) => kwargs.push((n.as_str(), v)),
-                }
-            }
-
             Python::with_gil(|py| {
+                let mut kwargs: Vec<(&str, PyObject)> = Vec::new();
+
+                for arg in args.into_iter() {
+                    let n = Box::leak(Box::new(arg.name));
+                    let v = sub_m.value_of(n.clone());
+                    println!("{:?}", arg.python_type);
+                    match v {
+                        None => (),
+                        Some(v) => {
+                            match arg.python_type.unwrap().as_str() {
+                                "str" => kwargs.push((n.as_str(), v.to_object(py))),
+                                "int" => kwargs
+                                    .push((n.as_str(), v.parse::<i32>().unwrap().to_object(py))),
+                                "float" => kwargs
+                                    .push((n.as_str(), v.parse::<f32>().unwrap().to_object(py))),
+                                _ => kwargs.push((n.as_str(), v.to_object(py))),
+                            }
+                        }
+                    }
+                }
                 let _r_value = command.func.call(py, (), Some(kwargs.into_py_dict(py)));
             });
         }

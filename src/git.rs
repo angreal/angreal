@@ -1,6 +1,6 @@
 use git2::Repository;
 use git_url_parse::GitUrl;
-use log::{error};
+use log::error;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 
