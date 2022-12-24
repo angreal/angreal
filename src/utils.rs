@@ -8,6 +8,7 @@ use log::{debug, error, info};
 use std::env;
 use std::path::{Path, PathBuf};
 use std::vec::Vec;
+use home::home_dir;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyList, PyModule};
@@ -44,7 +45,6 @@ pub fn is_angreal_project() -> Result<PathBuf, &'static str> {
     let angreal_path = Path::new(".angreal");
 
     let mut check_dir = env::current_dir().unwrap();
-
     check_dir.push(angreal_path);
 
     let found = loop {
@@ -63,6 +63,7 @@ pub fn is_angreal_project() -> Result<PathBuf, &'static str> {
 
         check_dir = next_dir.clone();
     };
+
 
     if found {
         Ok(check_dir)

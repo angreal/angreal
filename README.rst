@@ -16,7 +16,7 @@ Installation :
 
 .. code-block:: bash
 
-    pip install angreal
+    pip install angreal>2
 
 
 Development : 
@@ -32,7 +32,7 @@ Development :
     python -m pytest
 
     #run tests
-    cargo test
+    cargo test -- --test-threads=1 
     
     #rustfmt
     find . -name "*.rs" | xargs rustfmt

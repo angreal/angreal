@@ -49,11 +49,25 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             let mut try_template = angreal_home;
             try_template.push(Path::new(template));
 
-            if try_template.is_dir().not() {
+            //  First we try ~/.angreal for a teamplate with that name
+            if try_template.is_dir(){
+                git_pull_ff(try_template.to_str().unwrap()) 
+            } else if Path::new(template).is_dir(){             // then we see if it's just a local angreal template
+                let mut angreal_toml = Path::new(template).to_path_buf();
+                angreal_toml.push("angreal.toml");
+
+                if angreal_toml.is_file(){            
+                    Path::new(template).to_path_buf()
+                } else {
+                    error!("The template {}, doesn't appear to exist locally", template);
+                    exit(1);    
+                }
+
+            } else {
                 error!("The template {}, doesn't appear to exist locally", template);
                 exit(1);
             }
-            git_pull_ff(try_template.to_str().unwrap())
+
         }
         &_ => {
             error!(
@@ -66,6 +80,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
     };
     render_template(Path::new(&template), take_inputs, force);
 }
+
 
 fn get_scheme(u: &str) -> Result<String, ()> {
     let s = GitUrl::parse(u.clone()).unwrap();
@@ -83,7 +98,7 @@ fn get_scheme(u: &str) -> Result<String, ()> {
 
 fn create_home_dot_angreal() -> PathBuf {
     let mut home_dir = home_dir().unwrap();
-    home_dir.push(".angreal");
+    home_dir.push(".angrealrc");
 
     if home_dir.exists().not() {
         fs::create_dir(&home_dir).unwrap();
