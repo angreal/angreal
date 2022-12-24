@@ -22,6 +22,7 @@ use builder::build_app;
 use log::{debug, error};
 use pyo3::types::IntoPyDict;
 use std::vec::Vec;
+use std::ops::Not;
 
 use std::process::exit;
 
@@ -66,11 +67,13 @@ fn main() -> PyResult<()> {
     let sub_command = app.get_matches_from(&argvs);
 
     match sub_command.subcommand() {
-        Some(("init", _sub_matches)) => init::init(
+        Some(("init", _sub_matches)) => {
+            init::init(
             _sub_matches.value_of("template").unwrap(),
             _sub_matches.is_present("force"),
-            _sub_matches.is_present("defaults"),
-        ),
+            _sub_matches.is_present("defaults").not(),
+        )
+        },
         Some((task, sub_m)) => {
             if !in_angreal_project {
                 error!("This doesn't appear to be an angreal project.");
