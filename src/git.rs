@@ -36,7 +36,7 @@ pub fn git_clone(remote: &str, local: &str) -> PathBuf {
 /// let pull_path = git_pull_ff("path/to/target/test")
 /// ```
 pub fn git_pull_ff(repo: &str) -> PathBuf {
-    let repo = Repository::open(&repo).unwrap();
+    let repo = Repository::open(repo).unwrap();
     repo.find_remote("origin")
         .unwrap()
         .fetch(&["main"], None, None)
@@ -53,7 +53,8 @@ pub fn git_pull_ff(repo: &str) -> PathBuf {
             .set_target(fetch_commit.id(), "Fast-Forward")
             .unwrap();
         repo.set_head(&refname).unwrap();
-        repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()));
+        repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()))
+            .unwrap();
         repo.workdir().unwrap().to_path_buf()
     } else {
         error!("Fast forward pull not available on {}, suggest manually deleting and re cloning the repo.", repo.workdir().unwrap().to_str().unwrap() );
@@ -89,7 +90,7 @@ mod tests {
 
         tmp_dir.push("angreal2_test_template");
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
-        std::env::set_current_dir(&starting_dir).unwrap_or(());
+        std::env::set_current_dir(starting_dir).unwrap_or(());
         assert_eq!(path, tmp_dir);
     }
 

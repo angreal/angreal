@@ -27,14 +27,14 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
     // todo - implement a local file system template branch
     // "file" should cover the following scenarios
     // - a template that already exists at ~/.angreal, "ff_pull" and go
-    // - a filesystem git repo, clone and go 
+    // - a filesystem git repo, clone and go
     // - a file not in ~/.angreal, "copy?" and go
     let template = match template_type.as_str() {
         "https" | "gitssh" | "ssh" | "git" => {
             // If we get a git url , go get it either by a clone if it doesn't
             // already exist, or as a ff pull if it does
             let remote = GitUrl::parse(template).unwrap();
-            let mut dst = angreal_home.clone();
+            let mut dst = angreal_home;
             dst.push(remote.name.as_str());
 
             if dst.is_dir() {
@@ -50,24 +50,23 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             try_template.push(Path::new(template));
 
             //  First we try ~/.angreal for a teamplate with that name
-            if try_template.is_dir(){
-                git_pull_ff(try_template.to_str().unwrap()) 
-            } else if Path::new(template).is_dir(){             // then we see if it's just a local angreal template
+            if try_template.is_dir() {
+                git_pull_ff(try_template.to_str().unwrap())
+            } else if Path::new(template).is_dir() {
+                // then we see if it's just a local angreal template
                 let mut angreal_toml = Path::new(template).to_path_buf();
                 angreal_toml.push("angreal.toml");
 
-                if angreal_toml.is_file(){            
+                if angreal_toml.is_file() {
                     Path::new(template).to_path_buf()
                 } else {
                     error!("The template {}, doesn't appear to exist locally", template);
-                    exit(1);    
+                    exit(1);
                 }
-
             } else {
                 error!("The template {}, doesn't appear to exist locally", template);
                 exit(1);
             }
-
         }
         &_ => {
             error!(
@@ -81,10 +80,8 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
     render_template(Path::new(&template), take_inputs, force);
 }
 
-
 fn get_scheme(u: &str) -> Result<String, ()> {
-    let s = GitUrl::parse(u.clone()).unwrap();
-
+    let s = GitUrl::parse(u).unwrap();
 
     match s.scheme {
         Scheme::Https => Ok("https".to_string()),
@@ -109,11 +106,14 @@ fn create_home_dot_angreal() -> PathBuf {
 
 fn render_template(path: &Path, take_input: bool, force: bool) {
     // Verify the provided template path is minimially compliant.
-    let mut toml = path.clone().to_path_buf();
+    let mut toml = path.to_path_buf();
     toml.push(Path::new("angreal.toml"));
 
-    if toml.is_file().not(){
-        error!("`angreal.toml` not found where expected {:}", toml.display());
+    if toml.is_file().not() {
+        error!(
+            "`angreal.toml` not found where expected {:}",
+            toml.display()
+        );
     }
 
     let file_contents = match fs::read_to_string(toml) {
@@ -124,7 +124,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
         }
     };
 
-    // build our tera context from toml file. 
+    // build our tera context from toml file.
     let value = file_contents.parse::<Value>().unwrap();
     let extract = value.as_table().unwrap();
     let mut context = Context::new();
@@ -165,7 +165,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
         }
     }
 
-    /// first we create a Tera instance from an empty directory so we can extend it
+    // first we create a Tera instance from an empty directory so we can extend it
     let mut tmp_dir = env::temp_dir();
     tmp_dir.push(Path::new("angreal_tmp"));
     fs::create_dir(&tmp_dir);
@@ -173,18 +173,18 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
     let mut tera = Tera::new(tmp_dir.to_str().unwrap()).unwrap();
     fs::remove_dir_all(&tmp_dir);
 
-    /// We get our templates glob
+    // We get our templates glob
     let mut template = path.clone().to_path_buf();
     template.push(Path::new("**/*"));
 
     // And build our full prefix
-    let template_name = path.clone().file_name().unwrap();
+    let _template_name = path.clone().file_name().unwrap();
 
     for file in glob(template.to_str().unwrap()).expect("Failed to read glob pattern") {
         let file_path = file.as_ref().unwrap();
         let rel_path = file_path.strip_prefix(path).unwrap().to_str().unwrap();
 
-        if rel_path.starts_with("{{") && rel_path.contains("}}"){
+        if rel_path.starts_with("{{") && rel_path.contains("}}") {
             tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path));
         }
     }
@@ -196,8 +196,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
         let path_postfix = path_template.path();
         let path_template = path_postfix.strip_prefix(path).unwrap().to_str().unwrap();
 
-        if  path_template.starts_with("{{") && path_template.contains("}}"){
-
+        if path_template.starts_with("{{") && path_template.contains("}}") {
             let real_path = Tera::one_off(path_template, &context, false).unwrap();
 
             if Path::new(real_path.as_str()).is_dir() & force.not() {
@@ -212,9 +211,8 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
                 // todo: exclusion glob
                 continue;
             }
-            
-            fs::create_dir(real_path.as_str());
 
+            fs::create_dir(real_path.as_str());
         }
     }
 
@@ -243,7 +241,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
 #[cfg(test)]
 #[path = "../tests"]
 mod tests {
-    use std::fs::read;
+
     use std::ops::Not;
     use std::path::{Path, PathBuf};
     use std::{env, fs};
@@ -263,8 +261,6 @@ mod tests {
         let mut template_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         template_root.push(Path::new("tests/common/test_assets/test_template"));
         crate::init::render_template(&template_root, false, true);
-
-
 
         let mut angreal_toml = template_root.clone();
         angreal_toml.push("angreal.toml");
@@ -288,12 +284,10 @@ mod tests {
 
         fs::remove_dir_all(&rendered_root).unwrap_or(());
 
-
         assert!(assets_no_exists);
         assert!(rendered_root_exists);
         assert!(dot_angreal_exists);
         assert!(readme_rst_exists);
-
     }
 
     #[test]

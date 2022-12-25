@@ -8,7 +8,6 @@ use log::{debug, error, info};
 use std::env;
 use std::path::{Path, PathBuf};
 use std::vec::Vec;
-use home::home_dir;
 
 use pyo3::prelude::*;
 use pyo3::types::{PyList, PyModule};
@@ -64,7 +63,6 @@ pub fn is_angreal_project() -> Result<PathBuf, &'static str> {
         check_dir = next_dir.clone();
     };
 
-
     if found {
         Ok(check_dir)
     } else {
@@ -82,7 +80,7 @@ pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
     let r_value = Python::with_gil(|py| -> PyResult<()> {
         // Allow the file to search for modules it might be importing
         let syspath: &PyList = py.import("sys")?.getattr("path")?.downcast::<PyList>()?;
-        syspath.insert(0, &dir)?;
+        syspath.insert(0, dir)?;
 
         // Import the file.
         let result = PyModule::from_code(py, &file, "", "");
@@ -157,7 +155,7 @@ mod tests {
 
         assert!(crate::utils::is_angreal_project().is_err());
 
-        std::env::set_current_dir(&starting_dir).unwrap_or(());
+        std::env::set_current_dir(starting_dir).unwrap_or(());
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
     }
 
@@ -170,7 +168,7 @@ mod tests {
         fs::create_dir(Path::new(".angreal")).unwrap_or(());
         assert!(crate::utils::is_angreal_project().is_ok());
 
-        std::env::set_current_dir(&starting_dir).unwrap_or(());
+        std::env::set_current_dir(starting_dir).unwrap_or(());
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
     }
 
@@ -196,7 +194,7 @@ mod tests {
 
         assert_eq!(files_found, files_should_find);
 
-        std::env::set_current_dir(&starting_dir).unwrap_or(());
+        std::env::set_current_dir(starting_dir).unwrap_or(());
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
     }
 }
