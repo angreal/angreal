@@ -114,7 +114,17 @@ fn main() -> PyResult<()> {
                         }
                     }
                 }
-                let _r_value = command.func.call(py, (), Some(kwargs.into_py_dict(py)));
+                let r_value = command.func.call(py, (), Some(kwargs.into_py_dict(py)));
+
+                match r_value {
+                    Ok(r_value) => { },
+                    Err(r_value) => {
+                        error!("An error occured :");
+                        error!("{:?}",r_value.traceback(py).unwrap().format());
+                        exit(1);
+                    }
+                }
+            
             });
         }
         _ => {
