@@ -17,7 +17,7 @@ pub mod py_logger;
 pub mod task;
 pub mod utils;
 
-use crate::task::ANGREAL_TASKS;
+use task::ANGREAL_TASKS;
 use builder::build_app;
 
 use log::{debug, error};
