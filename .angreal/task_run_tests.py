@@ -29,5 +29,3 @@ def run_tests():
     if cargo_rv.returncode or pytest_rv.returncode:
         raise RuntimeError(f"Tests failed with status codes : {cargo_rv} (cargo) and {pytest_rv}(pytest)")
 
-    print('wee')
-    angreal.logger.debug("test")
