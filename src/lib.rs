@@ -13,6 +13,7 @@ pub mod macros;
 pub mod builder;
 pub mod git;
 pub mod init;
+pub mod py_logger;
 pub mod task;
 pub mod utils;
 
@@ -36,9 +37,9 @@ fn main() -> PyResult<()> {
     argvs.remove(0);
     argvs.remove(0);
 
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("error"))
-        .format_timestamp(None)
-        .format_module_path(true)
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("trace"))
+        // .format_timestamp(None)
+        // .format_module_path(true)
         .init();
 
     // Load any angreal task assets that are available to us
@@ -137,5 +138,6 @@ fn main() -> PyResult<()> {
 fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(main, m)?)?;
     task::register(_py, m)?;
+    py_logger::register();
     Ok(())
 }

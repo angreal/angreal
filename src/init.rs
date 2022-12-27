@@ -168,10 +168,10 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
     // first we create a Tera instance from an empty directory so we can extend it
     let mut tmp_dir = env::temp_dir();
     tmp_dir.push(Path::new("angreal_tmp"));
-    fs::create_dir(&tmp_dir);
+    fs::create_dir(&tmp_dir).unwrap();
     tmp_dir.push(Path::new("*"));
     let mut tera = Tera::new(tmp_dir.to_str().unwrap()).unwrap();
-    fs::remove_dir_all(&tmp_dir);
+    fs::remove_dir_all(&tmp_dir).unwrap();
 
     // We get our templates glob
     let mut template = path.clone().to_path_buf();
@@ -185,7 +185,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
         let rel_path = file_path.strip_prefix(path).unwrap().to_str().unwrap();
 
         if rel_path.starts_with("{{") && rel_path.contains("}}") {
-            tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path));
+            tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path)).unwrap();
         }
     }
 
@@ -212,7 +212,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
                 continue;
             }
 
-            fs::create_dir(real_path.as_str());
+            fs::create_dir(real_path.as_str()).unwrap();
         }
     }
 
@@ -234,7 +234,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
         let path = Tera::one_off(template, &context, false).unwrap();
 
         let mut output = File::create(path).unwrap();
-        write!(output, "{}", rendered.as_str());
+        write!(output, "{}", rendered.as_str()).unwrap();
     }
 }
 

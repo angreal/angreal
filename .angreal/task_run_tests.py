@@ -1,4 +1,5 @@
 import angreal
+
 import subprocess
 
 
@@ -13,15 +14,20 @@ def run_tests():
 
     subprocess.run(["maturin", "develop", "-q"])
 
+
     print(green + "====================" + end )
     print(green + "Starting Cargo tests" + end )
     print(green + "====================" + end )
 
-    cargo_rv = subprocess.run(["cargo", "test", "--", "--nocapture", "--test-threads=1", "-v"])
+    cargo_rv = subprocess.run(["cargo", "test", "-v", "--", "--nocapture", "--test-threads=1", ])
 
     print(green + "=====================" + end )
     print(green + "Starting python tests" + end)
     print(green + "=====================" + end )
     pytest_rv = subprocess.run(["python","-m","pytest", "-vv"])
 
-    exit(cargo_rv.returncode + pytest_rv.returncode)
+    if cargo_rv.returncode or pytest_rv.returncode:
+        raise RuntimeError(f"Tests failed with status codes : {cargo_rv} (cargo) and {pytest_rv}(pytest)")
+
+    print('wee')
+    angreal.logger.debug("test")

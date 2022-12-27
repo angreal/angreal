@@ -2,6 +2,7 @@ use rand::Rng;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 
+#[allow(dead_code)]
 pub fn generate_random_string() -> String {
     const CHARSET: &[u8] = b"abcdefghijklmnopqrstuvwxyz";
     const RSTRING_LEN: usize = 8;
@@ -15,7 +16,7 @@ pub fn generate_random_string() -> String {
         .collect();
     rstring
 }
-
+#[allow(dead_code)]
 pub fn make_tmp_dir() -> PathBuf {
     let mut tmp_dir = env::temp_dir();
 
