@@ -26,14 +26,10 @@ You interact with an angreal in two steps :
 
  .. code-block:: bash
 
-    # initialize and render the template angreal in pypi
-    $: angreal init python3
-
     # initialize and render the template angreal at the remote URI
     $: angreal init https://gitlab.com/angreal/python3.git
-
-    # clone a local copy of the template angreal from github and render that local copy
-    $: git clone https://gitlab.com/angreal/python3.git && git init python3
+    # Once a project has already been initialized once - you simply need to 
+    $: angreal init python3
 
 2. **Execution** : Executing an angreal task through the ``angreal`` command line interface. This can only happen after the template has been rendered.
 
