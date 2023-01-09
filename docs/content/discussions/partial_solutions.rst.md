@@ -1,5 +1,5 @@
 ---
-title: Partial solutions
+title: Partial Solutions
 ---
 
 -   [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/)
