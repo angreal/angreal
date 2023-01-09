@@ -168,10 +168,10 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
     // first we create a Tera instance from an empty directory so we can extend it
     let mut tmp_dir = env::temp_dir();
     tmp_dir.push(Path::new("angreal_tmp"));
-    fs::create_dir(&tmp_dir).unwrap();
+    fs::create_dir(&tmp_dir); // we don't unwrap/check because we know and expect this might exist
     tmp_dir.push(Path::new("*"));
     let mut tera = Tera::new(tmp_dir.to_str().unwrap()).unwrap();
-    fs::remove_dir_all(&tmp_dir).unwrap();
+    // fs::remove_dir_all(&tmp_dir).unwrap();
 
     // We get our templates glob
     let mut template = path.clone().to_path_buf();
@@ -184,8 +184,10 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
         let file_path = file.as_ref().unwrap();
         let rel_path = file_path.strip_prefix(path).unwrap().to_str().unwrap();
 
-        if rel_path.starts_with("{{") && rel_path.contains("}}") {
-            tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path)).unwrap();
+        if file.as_ref().unwrap().is_file() {
+            if rel_path.starts_with("{{") && rel_path.contains("}}") {
+                tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path)).unwrap();
+            }
         }
     }
 
@@ -249,12 +251,16 @@ mod tests {
     mod common;
 
     #[test]
-    fn test_init() {
+    fn test_init_from_git() {
         crate::init::init(
             "https://gitlab.com/angreal/angreal2_test_template.git",
             true,
             false,
         );
+        let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        rendered_root.push(Path::new("angreal_test_project"));
+        fs::remove_dir_all(&rendered_root);
+
     }
     #[test]
     fn test_render_template() {
@@ -275,7 +281,7 @@ mod tests {
 
         let mut dot_angreal = rendered_root.clone();
         dot_angreal.push(".angreal");
-
+        println!("{:?}", dot_angreal);
         let dot_angreal_exists = dot_angreal.is_dir();
 
         let mut readme_rst = rendered_root.clone();
