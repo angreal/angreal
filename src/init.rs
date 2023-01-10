@@ -16,7 +16,9 @@ use tera::{Context, Tera};
 use text_io::read;
 use toml::Value;
 use walkdir::WalkDir;
-
+use pyo3::prelude::*;
+use pyo3::types::{PyList, PyModule};
+use pyo3::PyResult;
 /// Initialize a new project by rendering a template.
 /// If we wish a full over write use force == True
 /// If we wish to use the angreal.toml defaults take_inputs == False
@@ -77,7 +79,23 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             exit(1);
         }
     };
-    render_template(Path::new(&template), take_inputs, force);
+    let rendered_dot_angreal_path = render_template(Path::new(&template), take_inputs, force);
+
+    let mut rendered_angreal_init = Path::new(&rendered_dot_angreal_path).to_path_buf();
+    rendered_angreal_init.push("init.py");
+
+    if rendered_angreal_init.is_file(){
+        let init_contents = fs::read_to_string(rendered_angreal_init).unwrap();
+        // Get our init function
+        Python::with_gil(|py| {
+            let syspath: &PyList = py.import("sys").unwrap().getattr("path").unwrap().downcast::<PyList>().unwrap();
+            syspath.insert(0, rendered_dot_angreal_path.clone()).unwrap();
+
+            let function: Py<PyAny> = PyModule::from_code(py, & init_contents, "", "").unwrap().getattr("init").unwrap().into();
+            function.call0(py).unwrap();
+        });
+    }
+    
 }
 
 fn get_scheme(u: &str) -> Result<String, ()> {
@@ -104,7 +122,8 @@ fn create_home_dot_angreal() -> PathBuf {
     home_dir
 }
 
-fn render_template(path: &Path, take_input: bool, force: bool) {
+fn render_template(path: &Path, take_input: bool, force: bool) -> String {
+    let mut angreal_path = String::new();
     // Verify the provided template path is minimially compliant.
     let mut toml = path.to_path_buf();
     toml.push(Path::new("angreal.toml"));
@@ -168,10 +187,18 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
     // first we create a Tera instance from an empty directory so we can extend it
     let mut tmp_dir = env::temp_dir();
     tmp_dir.push(Path::new("angreal_tmp"));
-    fs::create_dir(&tmp_dir); // we don't unwrap/check because we know and expect this might exist
+    
+    if tmp_dir.is_dir().not(){
+        fs::create_dir(&tmp_dir).unwrap();
+    }
+
     tmp_dir.push(Path::new("*"));
     let mut tera = Tera::new(tmp_dir.to_str().unwrap()).unwrap();
-    // fs::remove_dir_all(&tmp_dir).unwrap();
+    
+    tmp_dir.pop();
+    if tmp_dir.is_dir(){
+        fs::remove_dir_all(&tmp_dir).unwrap();
+    }
 
     // We get our templates glob
     let mut template = path.clone().to_path_buf();
@@ -214,6 +241,10 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
                 continue;
             }
 
+            if real_path.ends_with(".angreal"){
+                angreal_path = real_path.clone();
+            }
+
             fs::create_dir(real_path.as_str()).unwrap();
         }
     }
@@ -238,6 +269,11 @@ fn render_template(path: &Path, take_input: bool, force: bool) {
         let mut output = File::create(path).unwrap();
         write!(output, "{}", rendered.as_str()).unwrap();
     }
+
+
+    angreal_path
+
+    // return path to .angreal
 }
 
 #[cfg(test)]
