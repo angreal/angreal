@@ -1,6 +1,6 @@
 ---
 title: Why Angreal ?
-weight: 20
+weight: 10
 ---
 
 ## Why use this tool?
