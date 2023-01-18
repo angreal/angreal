@@ -75,10 +75,6 @@ enableMissingTranslationPlaceholders = false
 home = [ "HTML", "RSS", "JSON"]
 
 
-[[menu.shortcuts]]
-name = "<i class='fab fa-rust'></i> API Docs"
-url="https://docs.rs/angreal"
-weight = 5
 
 [[menu.shortcuts]]
 name = "<i class='fab fa-gitlab'></i> Git Repo"
@@ -87,12 +83,13 @@ url = "https://gitlab.com/angreal/angreal"
 weight = 10
 
 [[menu.shortcuts]]
+name = "<i class='fab fa-rust'></i> API Docs"
+identifier="rust"
+url="https://docs.rs/angreal"
+weight = 5
+
+[[menu.shortcuts]]
 name = "<i class='fa fa-download'></i> Download"
 url = "https://gitlab.com/angreal/angreal/-/archive/master/angreal-master.zip"
 weight = 20
-
-#[[menu.shortcuts]]
-#name = "<i class='fa fa-bullhorn'></i> <label>Credits</label>"
-#url = "/credits"
-#weight = 30
 
