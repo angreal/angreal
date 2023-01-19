@@ -1,5 +1,6 @@
 ---
 title: Contributing
+weight: 50
 ---
 
 Angreal is hosted on [gitlab](https://gitlab.com/angreal/angreal).
@@ -16,22 +17,8 @@ Before submitting a merge request, it would be best if you open a new
 issue that outlines what the problem you wish to solve is (and perhaps
 see if anyone else is working on it).
 
-**Setting up for development:**
+## Development setup
 
-You will need the following software available in your development
-environment.
-
--   [git](https://git-scm.com/)
--   [git-lfs](https://git-lfs.github.com/)
--   [python3.5+](https://www.python.org/downloads/)
-
-It\'s suggested that you also install virtualenv via pip.
-
--   Clone the source code :
-    `git clone git@gitlab.com:angreal/angreal.git`
--   Get a fresh branch : `git checkout -b "branch-name"`
--   Navigate to angreal : `cd angreal`
--   Set up an environment :
-    `python -m virtualenv -p python3 .venv/angreal`
--   Activate environment : `source .venv/angreal/bin/activate`
--   Install dependencies : `pip install -r requirements/dev.txt`
+1. `pip install angreal`, install angreal for executing our defined tasks
+1. `angreal bootstrap-dev`, setup your environment
+1. `angreal run-tests`, run our test suite

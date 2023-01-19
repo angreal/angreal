@@ -1,6 +1,6 @@
 ---
 title: Code of Conduct
-weight: 9000
+weight: 60
 ---
 
 **Our Pledge**

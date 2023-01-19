@@ -1,6 +1,6 @@
 ---
 title: How To Guides
-weight: 40
+weight: 30
 ---
 
 {{% children %}}
