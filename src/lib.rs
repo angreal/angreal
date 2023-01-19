@@ -98,9 +98,17 @@ fn main() -> PyResult<()> {
                 for arg in args.into_iter() {
                     let n = Box::leak(Box::new(arg.name));
                     let v = sub_m.value_of(n.clone());
-                    println!("{:?}", arg.python_type);
                     match v {
-                        None => (),
+                        None => {
+                            // We need to handle "boolean flags" that are present w/o a value
+                            // should probably test that the name is a "boolean type also"
+                            let v = if sub_m.is_present(n.clone()){
+                                true
+                            } else{
+                                false
+                            };
+                            kwargs.push((n.as_str(),v.to_object(py)));
+                        },
                         Some(v) => {
                             match arg.python_type.unwrap().as_str() {
                                 "str" => kwargs.push((n.as_str(), v.to_object(py))),
@@ -113,6 +121,8 @@ fn main() -> PyResult<()> {
                         }
                     }
                 }
+
+                println!("{:?}",kwargs);
                 let r_value = command.func.call(py, (), Some(kwargs.into_py_dict(py)));
 
                 match r_value {

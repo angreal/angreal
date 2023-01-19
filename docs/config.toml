@@ -83,7 +83,7 @@ url = "https://gitlab.com/angreal/angreal"
 weight = 10
 
 [[menu.shortcuts]]
-name = "<i class='fab fa-rust'></i> API Docs"
+name = "<i class='fab fa-rust'></i> RUST API Docs"
 identifier="rust"
 url="https://docs.rs/angreal"
 weight = 5
