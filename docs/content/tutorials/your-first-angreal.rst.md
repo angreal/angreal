@@ -13,7 +13,7 @@ We have some basic requirements for this template :
     exist as an initial README.
 -   a task to take minutes using an editor
 
-## Directory Template
+## Template Layout
 
 Based on the above planned requirements we'll need files and folders created as follows : 
 
@@ -26,8 +26,40 @@ meeting_notes
     │   └── task_take_notes.py
     └── README.md
 ```
+## `angreal.toml`
 
-## Init Script
+The `angreal.toml` file tells angreal what variables it needs to template and provides default values for them. 
+Our template will have the following variables: 
+- name
+- cadence
+- standing_agenda
+
+```toml
+name="another_meeting"
+cadence="weekly"
+standing_agenda="Complaints"
+```
+
+## `README.md`
+
+The `README.md` is just meant to be a highlevel description of the meeting so you can remember why you're there every week.
+
+```markdown
+# {{ name }}
+
+
+## Cadence
+
+{{ cadence }}
+
+
+## Standing Agenda
+
+{{ standing_agenda }}
+```
+
+
+## `init.py`
 {{% notice info %}}
 **Optional:** In this very trivial example, not much happens after the folder structure is created so the init isn't required. 
 {{% /notice %}}
@@ -38,10 +70,10 @@ def init():
     return
 ```
 
-## Create our Task to Take Minutes
+## `task_take_notes.py`
 
 {{% notice info %}}
-Angreal tasks must be a function in a python file that starts with `task_`.
+Angreal tasks must be a function in a python file that starts with `task_` in the `.angreal` folder.
 {{% /notice %}}
 
 
