@@ -122,7 +122,6 @@ fn main() -> PyResult<()> {
                     }
                 }
 
-                println!("{:?}",kwargs);
                 let r_value = command.func.call(py, (), Some(kwargs.into_py_dict(py)));
 
                 match r_value {

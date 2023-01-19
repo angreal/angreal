@@ -54,8 +54,9 @@ import subprocess
 import tempfile
 
 
-@angreal.command(name='take-notes', about='take notes for our meeting')
-def angreal_cmd(now):
+@angreal.command(name='take-notes', about='Take notes for our meeting')
+@angreal.argument(name='now',long='now', takes_value=False)
+def angreal_cmd(now=False):
     """
     create a file for taking minutes
     """
@@ -85,5 +86,108 @@ def angreal_cmd(now):
     # Clean up behind our selves
     os.unlink(path)
 ```
+A brief explanation of this code: 
+    - import angreal and other libraries 
+    - decorate a function with the `command`
+    - we decorate the same function with an `argument`
+
+The function itself: 
+- determines the current date/time
+- tries to get an EDITOR variable from the environment, falling back to the `editor` command from Ubuntu
+- if you pass the `--now` argument, opens a temporary file using your editor
+- saves the notes taken to a file with the date and time the minutes were started.
 
 ## Using our Angreal
+
+1. Initialize our template. 
+```bash
+$ angreal init docs/content/tutorials/meeting_notes
+
+cadence? ["weekly"]
+>
+name? ["another_meeting"]
+> Hall of the Tower
+standing_agenda? ["Complaints"]
+> Discussing embroidery and fine turned calves
+
+Initializing Hall of the Tower !
+```
+```bash
+$ tree 'Hall of the Tower'
+Hall of the Tower
+└── README.md
+```
+
+```bash
+$ cat Hall\ of\ the\ Tower/README.md                                                                                                            ─╯ 
+# Hall of the Tower
+
+
+## Cadence
+
+Weekly
+
+
+## Standing Agenda
+
+Discussing embroidery and fine turned calves.
+
+```
+
+2. What commands do i have access to ?
+
+```bash
+$ cd 'Hall of the Tower'
+$ angreal 
+
+angreal 2.0.0-rc.1
+
+USAGE:
+    angreal <SUBCOMMAND>
+
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+
+SUBCOMMANDS:
+    help          Print this message or the help of the given subcommand(s)
+    init          Initialize an Angreal template from source.
+    take-notes    Take notes for our meeting
+
+```
+
+3. How do i use `take-notes` ?
+
+```bash
+$ angreal take-notes --help                                                                                                                  
+
+take-notes
+
+    create a file for taking minutes
+
+
+USAGE:
+    take-notes [OPTIONS]
+
+OPTIONS:
+    -h, --help
+            Print help information
+
+        --now
+            open editor immediately
+```
+
+Lets take some minutes, right now
+
+```bash
+$ export EDITOR='vim'
+$ angreal take-minutes --now
+```
+
+This will open an editor (vim if you set the `EDITOR` variable) write a note.
+
+```
+$ ls                                                                                                                                            ─╯ 
+2023-01-19-09-19.md  README.md
+```
+
