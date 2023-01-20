@@ -24,6 +24,7 @@ unit-test:
     - virtualenv --seeder=pip --download /venv; source /venv/bin/activate
     - pip install maturin
     - maturin develop  
+    - angreal test
   
 
 
