@@ -1,12 +1,12 @@
 image: python:3.6
 
-before_script:
-  - echo $HOME
-  - VERSION=`cat angreal/VERSION`
-  - pip install virtualenv
-  - virtualenv ~/.venv/angreal
-  - source ~/.venv/angreal/bin/activate
-  - pip install .[dev]
+# before_script:
+#   - echo $HOME
+#   - VERSION=`cat angreal/VERSION`
+#   - pip install virtualenv
+#   - virtualenv ~/.venv/angreal
+#   - source ~/.venv/angreal/bin/activate
+#   - pip install .[dev]
 
 
 stages:
@@ -17,9 +17,10 @@ stages:
   # - pages
 
 unit-test:
-  image: python:3.6
+  image: python
   stage: test
   script:
+    - pip install maturin
     - maturin develop
     - angreal tests
 
