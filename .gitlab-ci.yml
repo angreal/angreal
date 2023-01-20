@@ -23,6 +23,8 @@ unit-test:
     entrypoint: ["/bin/sh", "-c"]
   stage: test
   script:
+    - python3 -m venv /opt/venv/angreal
+    - /opt/venv/angreal/bin/activate
     - maturin develop
 
 
