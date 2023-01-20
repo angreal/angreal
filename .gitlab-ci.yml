@@ -18,15 +18,13 @@ stages:
 
 
 unit-test:
-  image: 
-    name: ghcr.io/pyo3/maturin:v0.14.10
-    entrypoint: ["/bin/bash", "-c"]
-  stage: test
+  image: ubuntu:20.04
   script:
-    - python3 -m venv ~/angreal_venv
-    - ~/angreal_venv/bin/activate
-    - maturin develop
-
+    - apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends python3 python3-pip python3-virtualenv cargo
+    - virtualenv --seeder=pip --download /venv; source /venv/bin/activate
+    - pip install maturin
+    - maturin develop  
+  
 
 
 # release-test:
