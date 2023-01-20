@@ -20,11 +20,11 @@ stages:
 unit-test:
   image: 
     name: ghcr.io/pyo3/maturin:v0.14.10
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: ["/bin/bash", "-c"]
   stage: test
   script:
     - python3 -m venv ~/angreal_venv
-    - ~/angreal_venv
+    - ~/angreal_venv/bin/activate
     - maturin develop
 
 
