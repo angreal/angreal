@@ -16,9 +16,11 @@ stages:
   # - post_release
   # - pages
 
+
 unit-test:
-  image: ghcr.io/pyo3/maturin:v0.14.10
-  entrypoint: ["/bin/sh", "-c"]
+  image: 
+    name: ghcr.io/pyo3/maturin:v0.14.10
+    entrypoint: ["/bin/sh", "-c"]
   stage: test
   script:
     - maturin develop
