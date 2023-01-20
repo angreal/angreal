@@ -320,6 +320,11 @@ mod tests {
         println!("{:?}", dot_angreal);
         let dot_angreal_exists = dot_angreal.is_dir();
 
+        let paths = fs::read_dir(rendered_root.clone()).unwrap();
+        for path in paths {
+            println!("Name: {}", path.unwrap().path().display())
+        }
+
         let mut readme_rst = rendered_root.clone();
         readme_rst.push("README.rst");
         let readme_rst_exists = readme_rst.is_file();
