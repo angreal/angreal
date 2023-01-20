@@ -17,10 +17,9 @@ stages:
   # - pages
 
 unit-test:
-  image: python
+  image: ghcr.io/pyo3/maturin:v0.14.10
   stage: test
   script:
-    - pip install maturin
     - maturin develop
     - angreal tests
 
