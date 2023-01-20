@@ -316,7 +316,7 @@ mod tests {
         let rendered_root_exists = rendered_root.is_dir();
 
         let mut dot_angreal = rendered_root.clone();
-        dot_angreal.push(".angreal");
+        dot_angreal.push(Path::new(".angreal"));
         println!("{:?}", dot_angreal);
         let dot_angreal_exists = dot_angreal.is_dir();
 
