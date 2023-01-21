@@ -21,7 +21,7 @@ unit-test:
   image: registry.gitlab.com/angreal/angreal/testing
   script:
     - . /venv/bin/activate
-    - angreal run-tests || true
+    - angreal run-tests
     - ls -la folder_name
   
 
