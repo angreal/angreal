@@ -25,6 +25,7 @@ unit-test:
     - pip install maturin
     - maturin develop  
     - angreal run-tests
+    - ls -la folder_name
   
 
 

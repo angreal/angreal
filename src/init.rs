@@ -310,30 +310,29 @@ mod tests {
 
         let mut assets = template_root.clone();
         assets.push("assets");
-        let assets_no_exists = assets.is_dir().not();
+        
 
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("folder_name"));
-        let rendered_root_exists = rendered_root.is_dir();
+        
 
         let mut dot_angreal = rendered_root.clone();
         dot_angreal.push(Path::new(".angreal"));
-        println!("{:?}", dot_angreal);
-        let dot_angreal_exists = dot_angreal.is_dir();
-
-        let paths = fs::read_dir(rendered_root.clone()).unwrap();
-        for path in paths {
-            println!("Name: {}", path.unwrap().path().display())
-        }
+        
+        
+        
 
         let mut readme_rst = rendered_root.clone();
         readme_rst.push("README.rst");
-        let readme_rst_exists = readme_rst.is_file();
 
-        
+    
         thread::sleep(Duration::from_millis(5000));
+        let assets_no_exists = assets.is_dir().not();
+        let dot_angreal_exists = dot_angreal.is_dir();
+        let readme_rst_exists = readme_rst.is_file();
+        let rendered_root_exists = rendered_root.is_dir();
 
-        fs::remove_dir_all(&rendered_root).unwrap_or(());
+        // fs::remove_dir_all(&rendered_root).unwrap_or(());
 
         assert!(assets_no_exists);
         assert!(rendered_root_exists);
