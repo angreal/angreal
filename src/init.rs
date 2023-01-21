@@ -282,7 +282,8 @@ mod tests {
 
     use std::ops::Not;
     use std::path::{Path, PathBuf};
-    use std::{env, fs};
+    use std::{env, fs, thread, time::Duration};
+    
 
     mod common;
 
@@ -328,6 +329,9 @@ mod tests {
         let mut readme_rst = rendered_root.clone();
         readme_rst.push("README.rst");
         let readme_rst_exists = readme_rst.is_file();
+
+        
+        thread::sleep(Duration::from_millis(5000));
 
         fs::remove_dir_all(&rendered_root).unwrap_or(());
 
