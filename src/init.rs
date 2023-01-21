@@ -331,7 +331,7 @@ mod tests {
         let readme_rst_exists = readme_rst.is_file();
         let rendered_root_exists = rendered_root.is_dir();
 
-        // fs::remove_dir_all(&rendered_root).unwrap_or(());
+        fs::remove_dir_all(&rendered_root).unwrap_or(());
 
         assert!(assets_no_exists);
         assert!(rendered_root_exists);
