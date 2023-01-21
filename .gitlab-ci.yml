@@ -22,7 +22,6 @@ unit-test:
   script:
     - . /venv/bin/activate
     - angreal run-tests
-    - ls -la folder_name
   
 
 
