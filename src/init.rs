@@ -51,7 +51,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             let mut try_template = angreal_home;
             try_template.push(Path::new(template));
 
-            //  First we try ~/.angreal for a teamplate with that name
+            //  First we try ~/.angreal for a template with that name
             if try_template.is_dir() {
                 git_pull_ff(try_template.to_str().unwrap())
             } else if Path::new(template).is_dir() {

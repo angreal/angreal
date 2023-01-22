@@ -12,9 +12,6 @@ def run_tests():
     Run tests for both cargo test and pytest
     """
 
-    subprocess.run(["maturin", "develop", "-q"])
-
-
     print(green + "====================" + end )
     print(green + "Starting Cargo tests" + end )
     print(green + "====================" + end )
