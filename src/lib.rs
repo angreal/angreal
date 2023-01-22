@@ -13,6 +13,7 @@ pub mod macros;
 pub mod builder;
 pub mod git;
 pub mod init;
+pub mod logger;
 pub mod py_logger;
 pub mod task;
 pub mod utils;
@@ -32,6 +33,7 @@ use pyo3::prelude::*;
 /// The main function is just an entry point to be called from the core angreal library.
 #[pyfunction]
 fn main() -> PyResult<()> {
+    let handle = logger::init_logger();
     // we have to do this because we're calling the main function through python - when lib+bin build support is available, we can factor away
     let mut argvs: Vec<String> = std::env::args().collect();
     argvs.remove(0);
@@ -67,14 +69,8 @@ fn main() -> PyResult<()> {
 
     // Get our asked for verbosity and set the logger up. TODO: find a way to initialize earlier and reset after.
     let verbosity = sub_command.get_count("verbose");
-    let filter = match verbosity {
-        0 => "warning",
-        1 => "info",
-        2 => "debug",
-        3.. => "trace",
-    };
 
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or(filter)).init();
+    logger::update_verbosity(&handle, verbosity);
 
     match sub_command.subcommand() {
         Some(("init", _sub_matches)) => init::init(
