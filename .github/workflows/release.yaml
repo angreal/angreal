@@ -24,6 +24,9 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
+      - name: install openssl
+        run: |
+          brew install openssl@1.1
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -51,6 +54,9 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
+      - name: install openssl
+        run: |
+          brew install openssl@1.1
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -113,6 +119,9 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
+      - name: install openssl
+        run: |
+          sudo apt-get install -y pkg-config libssl-dev
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
@@ -139,6 +148,9 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+      - name: install openssl
+        run: |
+          sudo apt-get install -y pkg-config libssl-dev
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
@@ -177,6 +189,9 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
+      - name: install openssl
+        run: |
+          sudo apt-get install -y pkg-config libssl-dev
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
@@ -212,6 +227,9 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+      - name: install openssl
+        run: |
+          sudo apt-get install -y pkg-config libssl-dev
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
@@ -252,6 +270,9 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: pypy${{ matrix.python-version }}
+      - name: install openssl
+        run: |
+          sudo apt-get install -y pkg-config libssl-dev
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
