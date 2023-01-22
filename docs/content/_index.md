@@ -37,7 +37,7 @@ something not the actual steps to complete the task.
 Angreal provides a way to template the structure of projects and a way
 of executing methods for interacting with that project in a consistent
 manner. These methods (called tasks) travel with the project so while
-templated intially, they\'re customizable to the project - allowing some
+templated initially, they\'re customizable to the project - allowing some
 level of flexibility in how a task functions between projects.
 
 ### Why 2.0 ?

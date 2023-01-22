@@ -128,7 +128,7 @@ fn main() -> PyResult<()> {
                 match r_value {
                     Ok(_r_value) => {}
                     Err(r_value) => {
-                        error!("An error occured :");
+                        error!("An error occurred :");
                         error!("{:?}", r_value.traceback(py).unwrap().format());
                         exit(1);
                     }

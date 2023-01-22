@@ -52,6 +52,6 @@ provided it would print \"Hello world!\" to the screen.
 For a full treatment of what you can do, I\'d strongly recommend reading
 :
 
--   [paramaters](https://click.palletsprojects.com/en/7.x/parameters/)
+-   [parameters](https://click.palletsprojects.com/en/7.x/parameters/)
 -   [options](https://click.palletsprojects.com/en/7.x/options/)
 -   [arguments](https://click.palletsprojects.com/en/7.x/arguments/)
