@@ -222,7 +222,8 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
         let file_path = file.as_ref().unwrap();
         let rel_path = file_path.strip_prefix(path).unwrap().to_str().unwrap();
 
-        if file.as_ref().unwrap().is_file() && rel_path.starts_with("{{") && rel_path.contains("}}") {
+        if file.as_ref().unwrap().is_file() && rel_path.starts_with("{{") && rel_path.contains("}}")
+        {
             tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path))
                 .unwrap();
         }
