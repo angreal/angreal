@@ -212,11 +212,11 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
     }
 
     // We get our templates glob
-    let mut template = path.clone().to_path_buf();
+    let mut template = <&std::path::Path>::clone(&path).to_path_buf();
     template.push(Path::new("**/*"));
 
     // And build our full prefix
-    let _template_name = path.clone().file_name().unwrap();
+    let _template_name = <&std::path::Path>::clone(&path).file_name().unwrap();
 
     for file in glob(template.to_str().unwrap()).expect("Failed to read glob pattern") {
         let file_path = file.as_ref().unwrap();

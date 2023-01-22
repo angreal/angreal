@@ -83,7 +83,7 @@ fn main() -> PyResult<()> {
 
             let command = match some_command {
                 None => {
-                    error!("Task {}, not found.", task.clone());
+                    error!("Task {}, not found.", <&str>::clone(&task));
                     app_copy.print_help().unwrap_or(());
                     exit(1)
                 }
