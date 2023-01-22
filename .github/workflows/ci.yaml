@@ -56,71 +56,47 @@ jobs:
       - uses: Swatinem/rust-cache@v1
       - run: cargo clippy --workspace --all-targets --all-features
   
+angreal-tests:
+  name: "angreal run-tests"
+  steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 1.65.0
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install maturin angreal==2.0.0rc-1
+      - run: angreal run-tests
 
-#   cargo-test:
-#     name: "cargo test"
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v3
-#       - uses: actions-rs/toolchain@v1
-#         with:
-#           profile: minimal
-#           toolchain: 1.65.0
-#           override: true
-#       - uses: Swatinem/rust-cache@v1
-#       - run: cargo install cargo-insta
-#       - run: pip install black[d]==22.12.0
-#       - name: Run tests
-#         run: |
-#           cargo insta test --all --delete-unreferenced-snapshots
-#           git diff --exit-code
-#       - run: cargo test --package ruff_cli --test black_compatibility_test -- --ignored
-#       # Check for broken links in the documentation.
-#       # Setting RUSTDOCFLAGS because `cargo doc --check` isn't yet implemented (https://github.com/rust-lang/cargo/issues/10025).
-#       - run: RUSTDOCFLAGS="-D warnings" cargo doc --all --no-deps
+ maturin-build:
+    name: "maturin build"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 1.65.0
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install maturin
+      - run: maturin build
 
-#   scripts:
-#     name: "test scripts"
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v3
-#       - uses: actions-rs/toolchain@v1
-#         with:
-#           profile: minimal
-#           override: true
-#       - uses: Swatinem/rust-cache@v1
-#       - run: ./scripts/add_rule.py --name DoTheThing --code PLC999 --linter pylint
-#       - run: cargo check
-#       - run: |
-#          ./scripts/add_plugin.py test --url https://pypi.org/project/-test/0.1.0/ --prefix TST
-#          ./scripts/add_rule.py --name FirstRule --code TST001 --linter test
-#       - run: cargo check
+  typos:
+    name: Spell Check with Typos
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Actions Repository
+      uses: actions/checkout@v2
 
-#   maturin-build:
-#     name: "maturin build"
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v3
-#       - uses: actions-rs/toolchain@v1
-#         with:
-#           profile: minimal
-#           toolchain: 1.65.0
-#           override: true
-#       - uses: Swatinem/rust-cache@v1
-#       - uses: actions/setup-python@v4
-#         with:
-#           python-version: "3.11"
-#       - run: pip install maturin
-#       - run: maturin build -b bin
-
-#   typos:
-#     name: Spell Check with Typos
-#     runs-on: ubuntu-latest
-#     steps:
-#     - name: Checkout Actions Repository
-#       uses: actions/checkout@v2
-
-#     - name: Check spelling of file.txt
-#       uses: crate-ci/typos@master
-#       with:
-#         files: .
+    - name: Check spelling of file.txt
+      uses: crate-ci/typos@master
+      with:
+        files: .
