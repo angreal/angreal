@@ -26,6 +26,7 @@ walkdir = {version = "2.3.2" }
 toml = {version = "0.5" }
 text_io = {version = "0.1.12" }
 log4rs = {version ="1.2.0"}
+openssl = { version = "0.10", features = ["vendored"] }
 
 [dev-dependencies]
 rand = { version="0.8.5" }
