@@ -5,6 +5,9 @@ use home::home_dir;
 
 use glob::glob;
 use log::error;
+use pyo3::prelude::*;
+use pyo3::types::{PyList, PyModule};
+
 use std::env;
 use std::fs;
 use std::fs::File;
@@ -16,9 +19,6 @@ use tera::{Context, Tera};
 use text_io::read;
 use toml::Value;
 use walkdir::WalkDir;
-use pyo3::prelude::*;
-use pyo3::types::{PyList, PyModule};
-use pyo3::PyResult;
 /// Initialize a new project by rendering a template.
 /// If we wish a full over write use force == True
 /// If we wish to use the angreal.toml defaults take_inputs == False
@@ -51,7 +51,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             let mut try_template = angreal_home;
             try_template.push(Path::new(template));
 
-            //  First we try ~/.angreal for a teamplate with that name
+            //  First we try ~/.angreal for a template with that name
             if try_template.is_dir() {
                 git_pull_ff(try_template.to_str().unwrap())
             } else if Path::new(template).is_dir() {
@@ -84,18 +84,29 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
     let mut rendered_angreal_init = Path::new(&rendered_dot_angreal_path).to_path_buf();
     rendered_angreal_init.push("init.py");
 
-    if rendered_angreal_init.is_file(){
+    if rendered_angreal_init.is_file() {
         let init_contents = fs::read_to_string(rendered_angreal_init).unwrap();
         // Get our init function
         Python::with_gil(|py| {
-            let syspath: &PyList = py.import("sys").unwrap().getattr("path").unwrap().downcast::<PyList>().unwrap();
-            syspath.insert(0, rendered_dot_angreal_path.clone()).unwrap();
+            let syspath: &PyList = py
+                .import("sys")
+                .unwrap()
+                .getattr("path")
+                .unwrap()
+                .downcast::<PyList>()
+                .unwrap();
+            syspath
+                .insert(0, rendered_dot_angreal_path.clone())
+                .unwrap();
 
-            let function: Py<PyAny> = PyModule::from_code(py, & init_contents, "", "").unwrap().getattr("init").unwrap().into();
+            let function: Py<PyAny> = PyModule::from_code(py, &init_contents, "", "")
+                .unwrap()
+                .getattr("init")
+                .unwrap()
+                .into();
             function.call0(py).unwrap();
         });
     }
-    
 }
 
 fn get_scheme(u: &str) -> Result<String, ()> {
@@ -187,34 +198,34 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
     // first we create a Tera instance from an empty directory so we can extend it
     let mut tmp_dir = env::temp_dir();
     tmp_dir.push(Path::new("angreal_tmp"));
-    
-    if tmp_dir.is_dir().not(){
+
+    if tmp_dir.is_dir().not() {
         fs::create_dir(&tmp_dir).unwrap();
     }
 
     tmp_dir.push(Path::new("*"));
     let mut tera = Tera::new(tmp_dir.to_str().unwrap()).unwrap();
-    
+
     tmp_dir.pop();
-    if tmp_dir.is_dir(){
+    if tmp_dir.is_dir() {
         fs::remove_dir_all(&tmp_dir).unwrap();
     }
 
     // We get our templates glob
-    let mut template = path.clone().to_path_buf();
+    let mut template = <&std::path::Path>::clone(&path).to_path_buf();
     template.push(Path::new("**/*"));
 
     // And build our full prefix
-    let _template_name = path.clone().file_name().unwrap();
+    let _template_name = <&std::path::Path>::clone(&path).file_name().unwrap();
 
     for file in glob(template.to_str().unwrap()).expect("Failed to read glob pattern") {
         let file_path = file.as_ref().unwrap();
         let rel_path = file_path.strip_prefix(path).unwrap().to_str().unwrap();
 
-        if file.as_ref().unwrap().is_file() {
-            if rel_path.starts_with("{{") && rel_path.contains("}}") {
-                tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path)).unwrap();
-            }
+        if file.as_ref().unwrap().is_file() && rel_path.starts_with("{{") && rel_path.contains("}}")
+        {
+            tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path))
+                .unwrap();
         }
     }
 
@@ -241,7 +252,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
                 continue;
             }
 
-            if real_path.ends_with(".angreal"){
+            if real_path.ends_with(".angreal") {
                 angreal_path = real_path.clone();
             }
 
@@ -270,7 +281,6 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
         write!(output, "{}", rendered.as_str()).unwrap();
     }
 
-
     angreal_path
 
     // return path to .angreal
@@ -282,8 +292,7 @@ mod tests {
 
     use std::ops::Not;
     use std::path::{Path, PathBuf};
-    use std::{env, fs, thread, time::Duration};
-    
+    use std::{env, fs};
 
     mod common;
 
@@ -296,8 +305,7 @@ mod tests {
         );
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
-        fs::remove_dir_all(&rendered_root);
-
+        let _ = fs::remove_dir_all(&rendered_root);
     }
     #[test]
     fn test_render_template() {
@@ -310,21 +318,15 @@ mod tests {
 
         let mut assets = template_root.clone();
         assets.push("assets");
-        
 
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("folder_name"));
-        
 
         let mut dot_angreal = rendered_root.clone();
         dot_angreal.push(Path::new(".angreal"));
-        
-        
-        
 
         let mut readme_rst = rendered_root.clone();
         readme_rst.push("README.rst");
-
 
         let assets_no_exists = assets.is_dir().not();
         let dot_angreal_exists = dot_angreal.is_dir();

@@ -13,12 +13,13 @@ pub mod macros;
 pub mod builder;
 pub mod git;
 pub mod init;
+pub mod logger;
 pub mod py_logger;
 pub mod task;
 pub mod utils;
 
-use task::ANGREAL_TASKS;
 use builder::build_app;
+use task::ANGREAL_TASKS;
 
 use log::{debug, error};
 use pyo3::types::IntoPyDict;
@@ -32,15 +33,14 @@ use pyo3::prelude::*;
 /// The main function is just an entry point to be called from the core angreal library.
 #[pyfunction]
 fn main() -> PyResult<()> {
+    let handle = logger::init_logger();
     // we have to do this because we're calling the main function through python - when lib+bin build support is available, we can factor away
     let mut argvs: Vec<String> = std::env::args().collect();
     argvs.remove(0);
     argvs.remove(0);
 
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("trace"))
-        // .format_timestamp(None)
-        // .format_module_path(true)
-        .init();
+    // env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("warning"))
+    // .init();
 
     // Load any angreal task assets that are available to us
     let in_angreal_project = utils::is_angreal_project().is_ok();
@@ -67,6 +67,11 @@ fn main() -> PyResult<()> {
     let mut app_copy = app.clone();
     let sub_command = app.get_matches_from(&argvs);
 
+    // Get our asked for verbosity and set the logger up. TODO: find a way to initialize earlier and reset after.
+    let verbosity = sub_command.get_count("verbose");
+
+    logger::update_verbosity(&handle, verbosity);
+
     match sub_command.subcommand() {
         Some(("init", _sub_matches)) => init::init(
             _sub_matches.value_of("template").unwrap(),
@@ -83,7 +88,7 @@ fn main() -> PyResult<()> {
 
             let command = match some_command {
                 None => {
-                    error!("Task {}, not found.", task.clone());
+                    error!("Task {}, not found.", <&str>::clone(&task));
                     app_copy.print_help().unwrap_or(());
                     exit(1)
                 }
@@ -102,13 +107,9 @@ fn main() -> PyResult<()> {
                         None => {
                             // We need to handle "boolean flags" that are present w/o a value
                             // should probably test that the name is a "boolean type also"
-                            let v = if sub_m.is_present(n.clone()){
-                                true
-                            } else{
-                                false
-                            };
-                            kwargs.push((n.as_str(),v.to_object(py)));
-                        },
+                            let v = sub_m.is_present(n.clone());
+                            kwargs.push((n.as_str(), v.to_object(py)));
+                        }
                         Some(v) => {
                             match arg.python_type.unwrap().as_str() {
                                 "str" => kwargs.push((n.as_str(), v.to_object(py))),
@@ -127,7 +128,7 @@ fn main() -> PyResult<()> {
                 match r_value {
                     Ok(_r_value) => {}
                     Err(r_value) => {
-                        error!("An error occured :");
+                        error!("An error occurred :");
                         error!("{:?}", r_value.traceback(py).unwrap().format());
                         exit(1);
                     }

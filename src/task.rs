@@ -95,6 +95,7 @@ impl AngrealArg {
         help = "None",
         required = "None"
     )]
+    #[allow(clippy::too_many_arguments)]
     fn __new__(
         name: &str,
         command_name: &str,
