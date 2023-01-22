@@ -75,8 +75,7 @@ jobs:
       - run: pip install maturin angreal==2.0.0rc-1
       - run: angreal run-tests
 
-
- maturin-build:
+  maturin-build:
     name: "maturin build"
     runs-on: ubuntu-latest
     steps:
