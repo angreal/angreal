@@ -305,7 +305,7 @@ mod tests {
         );
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
-        fs::remove_dir_all(&rendered_root);
+        let _ = fs::remove_dir_all(&rendered_root);
     }
     #[test]
     fn test_render_template() {
