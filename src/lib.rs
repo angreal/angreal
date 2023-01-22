@@ -37,10 +37,8 @@ fn main() -> PyResult<()> {
     argvs.remove(0);
     argvs.remove(0);
 
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("trace"))
-        // .format_timestamp(None)
-        // .format_module_path(true)
-        .init();
+    // env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("warning"))
+    // .init();
 
     // Load any angreal task assets that are available to us
     let in_angreal_project = utils::is_angreal_project().is_ok();
@@ -66,6 +64,17 @@ fn main() -> PyResult<()> {
     let app = build_app();
     let mut app_copy = app.clone();
     let sub_command = app.get_matches_from(&argvs);
+
+    // Get our asked for verbosity and set the logger up. TODO: find a way to initialize earlier and reset after.
+    let verbosity = sub_command.get_count("verbose");
+    let filter = match verbosity {
+        0 => "warning",
+        1 => "info",
+        2 => "debug",
+        3.. => "trace",
+    };
+
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or(filter)).init();
 
     match sub_command.subcommand() {
         Some(("init", _sub_matches)) => init::init(

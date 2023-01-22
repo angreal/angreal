@@ -1,5 +1,5 @@
 use crate::task::{AngrealArg, ANGREAL_ARGS, ANGREAL_TASKS};
-use clap::{App, AppSettings, Arg, Command};
+use clap::{App, AppSettings, Arg, ArgAction, Command};
 
 pub fn select_args(name: String) -> Vec<AngrealArg> {
     let this = ANGREAL_ARGS.lock().unwrap().clone();
@@ -15,7 +15,13 @@ pub fn build_app() -> App<'static> {
     let mut app = App::new("angreal")
         .setting(AppSettings::NoBinaryName)
         .setting(AppSettings::SubcommandRequiredElseHelp)
-        .allow_external_subcommands(true)
+        .arg(Arg::new("verbose")
+            .short('v')
+            .long("verbose")
+            .action(ArgAction::Count)
+            .global(true)
+            .help("verbose level, (may be used multiple times for more verbosity)")
+        )
         .subcommand(Command::new("init")
                     .about("Initialize an Angreal template from source.")
                     .arg(
