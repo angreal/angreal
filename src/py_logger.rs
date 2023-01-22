@@ -5,7 +5,8 @@ pub fn register() {
     Python::with_gil(|py| {
         // Extend the `logging` module to interact with log
         setup_logging(py)
-    }).unwrap();
+    })
+    .unwrap();
 }
 /// Consume a Python `logging.LogRecord` and emit a Rust `Log` instead.
 #[pyfunction]

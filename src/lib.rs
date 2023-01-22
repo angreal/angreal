@@ -17,8 +17,8 @@ pub mod py_logger;
 pub mod task;
 pub mod utils;
 
-use task::ANGREAL_TASKS;
 use builder::build_app;
+use task::ANGREAL_TASKS;
 
 use log::{debug, error};
 use pyo3::types::IntoPyDict;
@@ -102,13 +102,9 @@ fn main() -> PyResult<()> {
                         None => {
                             // We need to handle "boolean flags" that are present w/o a value
                             // should probably test that the name is a "boolean type also"
-                            let v = if sub_m.is_present(n.clone()){
-                                true
-                            } else{
-                                false
-                            };
-                            kwargs.push((n.as_str(),v.to_object(py)));
-                        },
+                            let v = sub_m.is_present(n.clone());
+                            kwargs.push((n.as_str(), v.to_object(py)));
+                        }
                         Some(v) => {
                             match arg.python_type.unwrap().as_str() {
                                 "str" => kwargs.push((n.as_str(), v.to_object(py))),
