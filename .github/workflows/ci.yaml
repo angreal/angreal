@@ -29,34 +29,33 @@ jobs:
       - uses: Swatinem/rust-cache@v1
       - run: cargo build --all
 
-#   cargo-fmt:
-#     name: "cargo fmt"
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v3
-#       - uses: actions-rs/toolchain@v1
-#         with:
-#           profile: minimal
-#           toolchain: nightly-2022-11-01
-#           override: true
-#           components: rustfmt
-#       - run: cargo fmt --all --check
+  cargo-fmt:
+    name: "cargo fmt"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly-2022-11-01
+          override: true
+          components: rustfmt
+      - run: cargo fmt --all --check
 
-#   cargo_clippy:
-#     name: "cargo clippy"
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v3
-#       - uses: actions-rs/toolchain@v1
-#         with:
-#           profile: minimal
-#           toolchain: nightly-2022-11-01
-#           override: true
-#           components: clippy
-#           target: wasm32-unknown-unknown
-#       - uses: Swatinem/rust-cache@v1
-#       - run: cargo clippy --workspace --all-targets --all-features -- -D warnings -W clippy::pedantic
-#       - run: cargo clippy -p ruff --target wasm32-unknown-unknown --all-features -- -D warnings -W clippy::pedantic
+  cargo_clippy:
+    name: "cargo clippy"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly-2022-11-01
+          override: true
+          components: clippy
+      - uses: Swatinem/rust-cache@v1
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings -W clippy::pedantic
+  
 
 #   cargo-test:
 #     name: "cargo test"
