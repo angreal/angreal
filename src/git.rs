@@ -73,7 +73,7 @@ mod tests {
     fn test_clone() {
         let mut tmp_dir = common::make_tmp_dir();
         let remote = "https://github.com/angreal/angreal_test_template.git";
-        tmp_dir.push("angreal2_test_template");
+        tmp_dir.push("angreal_test_template");
         let local_repo = git_clone(remote, tmp_dir.to_str().unwrap());
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
         assert_eq!(local_repo, tmp_dir);
@@ -88,7 +88,7 @@ mod tests {
         let remote = "https://github.com/angreal/angreal_test_template.git";
         let path = git_clone_here(remote);
 
-        tmp_dir.push("angreal2_test_template");
+        tmp_dir.push("angreal_test_template");
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
         std::env::set_current_dir(starting_dir).unwrap_or(());
         assert_eq!(path, tmp_dir);
@@ -97,7 +97,7 @@ mod tests {
     #[test]
     fn test_git_pull_ff() {
         let mut tmp_dir = common::make_tmp_dir();
-        tmp_dir.push("angreal2_test_template");
+        tmp_dir.push("angreal_test_template");
         let remote = "https://github.com/angreal/angreal_test_template.git";
 
         let local_repo = git_clone(remote, tmp_dir.to_str().unwrap());
