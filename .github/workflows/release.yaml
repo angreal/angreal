@@ -37,7 +37,7 @@ jobs:
         with:
           targets: aarch64-apple-darwin
       - name: Build
-        run: cargo build --release
+        run: brew info openssl@1.1 && cargo build --release
       - name: Build wheels - x86_64
         uses: PyO3/maturin-action@v1
         with:
