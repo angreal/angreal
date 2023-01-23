@@ -17,7 +17,5 @@ classifiers = [
 angreal = "angreal:main"
 
 [tool.maturin]
-bindings = "bin"
 python-source = "python"
-strip = true
 features = ["pyo3/extension-module"]
