@@ -11,8 +11,13 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
-[tool.maturin]
-features = ["pyo3/extension-module"]
+
 
 [project.scripts]
 angreal = "angreal:main"
+
+[tool.maturin]
+bindings = "bin"
+python-source = "python"
+strip = true
+features = ["pyo3/extension-module"]
