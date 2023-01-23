@@ -13,3 +13,7 @@ classifiers = [
 
 [project.scripts]
 angreal = "angreal:main"
+
+[tool.maturin]
+python-source = "python"
+strip = true
