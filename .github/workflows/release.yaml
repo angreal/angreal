@@ -127,7 +127,7 @@ jobs:
           architecture: x64
       - name: install openssl
         run: |
-          sudo apt-get install -y pkg-config libssl-dev && which -a openssl
+          sudo apt-get install -y pkg-config libssl-dev  && export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
       - name: Build wheels
         uses: messense/maturin-action@v1
         with:
