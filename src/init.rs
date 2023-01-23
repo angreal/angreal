@@ -299,7 +299,7 @@ mod tests {
     #[test]
     fn test_init_from_git() {
         crate::init::init(
-            "https://gitlab.com/angreal/angreal2_test_template.git",
+            "https://github.com/angreal/angreal_test_template.git",
             true,
             false,
         );
@@ -348,9 +348,9 @@ mod tests {
 
     #[test]
     fn test_get_schema() {
-        let url_https = "https://gitlab.com/angreal/angreal.git";
-        let url_ssh = "git@gitlab.com:angreal/angreal.git";
-        let url_git = "git:gitlab.com/angreal/angreal.git";
+        let url_https = "https://github.com/angreal/angreal_test_template.git";
+        let url_ssh = "git@github.com:angreal/angreal_test_template.git";
+        let url_git = "git:github.com/angreal/angreal_test_template.git";
         let url_file = "path/angreal/angreal.git";
         let url_dir = "tests/common/test_assets/";
         let str_str = "python3";
