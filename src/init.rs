@@ -17,7 +17,7 @@ use std::path::{Path, PathBuf};
 use std::process::exit;
 use tera::{Context, Tera};
 use text_io::read;
-use toml::Value;
+use toml::{Value,Table};
 use walkdir::WalkDir;
 /// Initialize a new project by rendering a template.
 /// If we wish a full over write use force == True
@@ -155,41 +155,49 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
     };
 
     // build our tera context from toml file.
-    let value = file_contents.parse::<Value>().unwrap();
-    let extract = value.as_table().unwrap();
+    let extract = file_contents.parse::<Table>().unwrap();
     let mut context = Context::new();
-    for (k, v) in extract.iter() {
+    for (k , v) in extract.iter() {
+        let value = if v.is_str() && v.as_str().unwrap().starts_with("{{") && v.as_str().unwrap().contains("}}") {
+            let temp_value = v.clone();
+            let rendered_value = Tera::one_off(&temp_value.as_str().unwrap(), &context, false).unwrap();
+            Value::from(rendered_value)
+        } else {
+            v.clone()
+        };
+        
+
         let input = if take_input {
-            println!("{}? [{}]", k, v);
+            println!("{}? [{}]", k, value);
             read!("{}\n")
         } else {
             String::new()
         };
 
         if input.trim().is_empty() | take_input.not() {
-            if v.is_str() {
-                context.insert(k, &v.as_str().unwrap());
+            if value.is_str() {
+                context.insert(k, &value.as_str().unwrap());
             }
-            if v.is_integer() {
-                context.insert(k, &v.as_integer().unwrap());
+            if value.is_integer() {
+                context.insert(k, &value.as_integer().unwrap());
             }
-            if v.is_bool() {
-                context.insert(k, &v.as_bool().unwrap());
+            if value.is_bool() {
+                context.insert(k, &value.as_bool().unwrap());
             }
-            if v.is_float() {
-                context.insert(k, &v.as_float().unwrap());
+            if value.is_float() {
+                context.insert(k, &value.as_float().unwrap());
             }
         } else {
-            if v.is_str() {
+            if value.is_str() {
                 context.insert(k, &input.as_str());
             }
-            if v.is_integer() {
+            if value.is_integer() {
                 context.insert(k, &input.parse::<i32>().unwrap());
             }
-            if v.is_bool() {
+            if value.is_bool() {
                 context.insert(k, &input.as_str());
             }
-            if v.is_float() {
+            if value.is_float() {
                 context.insert(k, &input.parse::<f64>().unwrap());
             }
         }
