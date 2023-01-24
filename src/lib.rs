@@ -148,6 +148,7 @@ fn main() -> PyResult<()> {
 fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(main, m)?)?;
     task::register(_py, m)?;
+    utils::register(_py, m)?;
     py_logger::register();
     Ok(())
 }

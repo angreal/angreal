@@ -40,6 +40,18 @@ pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>, &'static str> {
     }
 }
 
+
+pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(get_root,m)?);
+    Ok(())
+}
+
+#[pyfunction]
+fn get_root()-> PyResult<String>{
+    let angreal_root = is_angreal_project().unwrap();
+    Ok(String::from(angreal_root.to_string_lossy()))
+}
+
 pub fn is_angreal_project() -> Result<PathBuf, &'static str> {
     let angreal_path = Path::new(".angreal");
 
