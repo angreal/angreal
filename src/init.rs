@@ -17,7 +17,7 @@ use std::path::{Path, PathBuf};
 use std::process::exit;
 use tera::{Context, Tera};
 use text_io::read;
-use toml::{Value,Table};
+use toml::{Table, Value};
 use walkdir::WalkDir;
 /// Initialize a new project by rendering a template.
 /// If we wish a full over write use force == True
@@ -157,15 +157,18 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
     // build our tera context from toml file.
     let extract = file_contents.parse::<Table>().unwrap();
     let mut context = Context::new();
-    for (k , v) in extract.iter() {
-        let value = if v.is_str() && v.as_str().unwrap().starts_with("{{") && v.as_str().unwrap().contains("}}") {
+    for (k, v) in extract.iter() {
+        let value = if v.is_str()
+            && v.as_str().unwrap().starts_with("{{")
+            && v.as_str().unwrap().contains("}}")
+        {
             let temp_value = v.clone();
-            let rendered_value = Tera::one_off(&temp_value.as_str().unwrap(), &context, false).unwrap();
+            let rendered_value =
+                Tera::one_off(temp_value.as_str().unwrap(), &context, false).unwrap();
             Value::from(rendered_value)
         } else {
             v.clone()
         };
-        
 
         let input = if take_input {
             println!("{}? [{}]", k, value);
@@ -301,8 +304,6 @@ mod tests {
     use std::ops::Not;
     use std::path::{Path, PathBuf};
     use std::{env, fs};
-
-    mod common;
 
     #[test]
     fn test_init_from_git() {
