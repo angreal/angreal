@@ -24,7 +24,7 @@ $: angreal init https://gitlab.com/angreal/angreal_python3
 
 ## What is it?
 
-Angreal is an attempt to solve two problems that i was running into in
+Angreal is an attempt to solve two problems that I was running into in
 both my personal and professional life as a data scientist and software
 developer. I do things often enough that they needed automation, I
 don\'t do things so often that I remember all of the steps/commands I
