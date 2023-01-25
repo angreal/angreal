@@ -101,4 +101,4 @@ jobs:
     - name: Spell Check
       uses: crate-ci/typos@master
       with:
-        files: ^(src/|python/|docs/content/)
+        files: ^(./src/*|./python/*|./docs/content/*)
