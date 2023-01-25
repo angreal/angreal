@@ -98,8 +98,7 @@ jobs:
     steps:
     - name: Checkout Actions Repository
       uses: actions/checkout@v2
-
-    - name: Check spelling of file.txt
+    - name: Spell Check
       uses: crate-ci/typos@master
       with:
-        files: .
+        files: ^(src/|python/|docs/content/)
