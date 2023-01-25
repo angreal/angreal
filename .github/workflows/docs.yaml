@@ -46,7 +46,7 @@ jobs:
       - name: Install Node.js dependencies
         run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
       - name: Build with Hugo
-        run: cd docs/ && pwd && ls -la themes/ && hugo --minify
+        run: cd docs/ && pwd && ls -la themes/hugo-theme-learn && hugo --minify
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
