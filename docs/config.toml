@@ -1,4 +1,4 @@
-baseURL = "angreal.gitlab.io"
+baseURL = "https://angreal.github.io/angreal/"
 
 languageCode = "en-us"
 DefaultContentLanguage = "en"
