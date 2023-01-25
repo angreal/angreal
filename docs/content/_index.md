@@ -18,7 +18,7 @@ type: page
 
 ```bash
 $: pip install 'angreal>=2' #pip install angreal will also work
-$: angreal init https://gitlab.com/angreal/angreal_python3
+$: angreal init https://github.com/angreal/python.git
 ```
 --- 
 
