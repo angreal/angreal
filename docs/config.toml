@@ -15,19 +15,8 @@ enableMissingTranslationPlaceholders = false
 
 
 
-#themeVariant = "blue" # choose theme variant "green", "gold" , "gray", "blue" (default)
-#ordersectionsby = "weight" # ordersectionsby = "title"
-#disableHomeIcon = false # default is false
-#disableSearch = false # default is false
-#disableNavChevron = true # set true to hide next/prev chevron, default is false
-#menushortcutsnewtab = true # set true to open shortcuts links to a new tab/window
-#enableGitInfo = true
-
 
 [params]
-  # Prefix URL to edit current page. Will display an "Edit this page" button on top right hand corner of every page.
-  # Useful to give opportunity to people to create merge request for your doc.
-  # See the config.toml file from this documentation site to have an example.
   editURL = "https://gitlab.com/-/ide/project/angreal/angreal/edit/master/-/docs/content"
   # Author of the site, will be used in meta information
   author = "Dylan Storey"
@@ -65,9 +54,6 @@ enableMissingTranslationPlaceholders = false
   #custom_css = ["css/foo.css", "css/bar.css"]
   # Change the title separator. Default to "::".
   #titleSeparator = "-"
-
-
-
 
 
 
