@@ -33,9 +33,9 @@ You interact with an angreal in two steps :
 
 ```bash
 # initialize and render the template angreal at the remote URI
-$: angreal init https://gitlab.com/angreal/python3.git
+$: angreal init https://github.com/angreal/python.git   
 # If you've used this template before you simply need to ...
-$: angreal init python3
+$: angreal init python 
 ```
 
 2.  **Execution** : Executing an angreal task through the `angreal`
@@ -60,137 +60,112 @@ use it.
 1.  You initialize the project with :
 
 ```bash
-$: angreal init python3
+$: angreal init https://github.com/angreal/python.git   
 ```
 
 2.  You provide values for template variables with the interactive CLI :
 
 ```bash
-source
-name [package-name]: next_big_thing
-author [joesmith]: Jane Smith
-author_email [joesmit@email.com]: JaneSmith@email.com
+author_name? ["Your name"]
+Dylan Storey
+author_email? ["Your email address (eq. you@example.com)"]
+dylan.storey@gmai.com
+github_username? ["yourname"]
+dylanbstorey
+project_name? ["Name of the project (will be shown e.g. as the title in the readme)"]
+Angreal Python Demo
+project_slug? ["angreal-python-demo"] #enter accepts the provided devault value
+
+package_name? ["angreal_python_demo"]
+
+project_short_description? ["A short description of the project"]
+A demo project 
 ```
 
 3.  Angreal creates a project for you, using your provided variables to
     fill in some of the blanks.
 
 ```bash
+cd angreal-python-demo && tree
 .
-├── LICENSE
-├── MANIFEST.in
-├── README.rst
-├── conftest.py
-├── docs
-│   ├── Makefile
-│   └── source
-│       ├── _static
-│       │   └── logo.png
-│       ├── conf.py
-│       └── index.rst
-├── next_big_thing
-│   ├── VERSION
+├── angreal_python_demo
 │   ├── __init__.py
-│   └── cli.py
-├── requirements
-│   ├── dev.txt
-│   └── requirements.txt
+│   └── __main__.py
+├── CHANGELOG.md
+├── conftest.py
+├── LICENCE
+├── MANIFEST.in
+├── pyproject.toml
+├── README.md
+├── setup.cfg
 ├── setup.py
 └── tests
-    ├── fixtures.py
     ├── integration
     │   └── __init__.py
     └── unit
         └── __init__.py
 
-8 directories, 17 files
+4 directories, 12 files
 ```
 
 4.  Next lets find out what tasks come with the template
 
 ```bash
-$: cd next_big_thing
-$: angreal list
+$: angreal                                                                                                                                       ─╯ 
+angreal 2.0.0-rc.1
 
-Usage: angreal [OPTIONS] COMMAND [ARGS]...
+USAGE:
+    angreal [OPTIONS] <SUBCOMMAND>
 
-Options:
-  --help  Show this message and exit.
+OPTIONS:
+    -h, --help       Print help information
+    -v, --verbose    verbose level, (may be used multiple times for more verbosity)
+    -V, --version    Print version information
 
-Project Commands:
-  bump         bump the current package version
-  docs         compile documentation for the project
-  integration  run package tests
-  setup        update/create the package_name environment.
-  static       run static typing
-  tests        run package tests
+SUBCOMMANDS:
+    build        build your project for distribution
+    clean        cleans out generated cruft
+    dev-setup    setup a development environment
+    help         Print this message or the help of the given subcommand(s)
+    init         Initialize an Angreal template from source.
+    run-tests    run our test suite. default is unit tests only
 
-Global Commands:
-  list  get a list of currently available commands
-  init  Initialize an angreal based project.
 ```
 
 5.  Now you do your thing and start developing on your software. At some
     point (hopefully early and often) you\'ll need to run unit tests.
 
 ```bash
-$: angreal tests
+$: angreal run-tests --open
 
+================================================================ test session starts ================================================================platform linux -- Python 3.8.10, pytest-7.2.0, pluggy-1.0.0 -- /home/dstorey/.venvs/angreal-2/bin/python3
 cachedir: .pytest_cache
-rootdir: /Users/dstorey/Desktop/next_big_thing, inifile:
-plugins: cov-2.6.0
-collected 0 items
-Coverage.py warning: No data was collected. (no-data-collected)
+rootdir: /home/dstorey/angreal-python-demo, configfile: setup.cfg
+plugins: cov-4.0.0
+collected 0 items                                                                                                                                    
+/home/dstorey/.venvs/angreal-2/lib/python3.8/site-packages/coverage/control.py:836: CoverageWarning: No data was collected. (no-data-collected)      
+  self._warn("No data was collected.", slug="no-data-collected")
 
 
----------- coverage: platform darwin, python 3.7.3-final-0 -----------
-Name                         Stmts   Miss  Cover
-------------------------------------------------
-next_big_thing/__init__.py       0      0   100%
-next_big_thing/cli.py            5      5     0%
-------------------------------------------------
-TOTAL                            5      5     0%
+---------- coverage: platform linux, python 3.8.10-final-0 -----------
+Name                              Stmts   Miss  Cover
+-----------------------------------------------------
+angreal_python_demo/__init__.py       1      1     0%
+angreal_python_demo/__main__.py       2      2     0%
+-----------------------------------------------------
+TOTAL                                 3      3     0%
+Coverage HTML written to dir htmlcov
+
+========
 ```
 
-6.  Or maybe you need to compile the documentation you\'re writing as
-    you go :
 
-```bash
-$: angreal docs
-
-
-Creating file source/next_big_thing.cli.rst.
-Creating file source/next_big_thing.rst.
-Running Sphinx v1.8.0
-making output directory...
-building [mo]: targets for 0 po files that are out of date
-building [html]: targets for 3 source files that are out of date
-updating environment: 3 added, 0 changed, 0 removed
-reading sources... [100%] next_big_thing.cli
-/Users/dstorey/Desktop/next_big_thing/docs/source/index.rst:6: WARNING: Problems with "include" directive path:
-InputError: [Errno 2] No such file or directory: 'source/intro.rst'.
-looking for now-outdated files... none found
-pickling environment... done
-checking consistency... /Users/dstorey/Desktop/next_big_thing/docs/source/next_big_thing.rst: WARNING: document isn't included in any toctree
-done
-preparing documents... done
-writing output... [100%] next_big_thing.cli
-generating indices... genindex py-modindex
-writing additional pages... search
-copying static files... done
-copying extra files... done
-dumping search index in English (code: en) ... done
-dumping object inventory... done
-build succeeded, 2 warnings.
-
-The HTML pages are in build/html.
-```
-
-7.  Or maybe you just started developing on a new computer and want to
+6.  Or maybe you just started developing on a new computer and want to
     make sure you\'re setup :
 
 ```bash
-$: angreal setup
-
-Virtual environment next_big_thing updated.
+$: pip install angreal
+$: git clone https://github.com/dylanbstorey/angreal-test-project
+$: cd angreal-test-project
+$: angreal dev-setup
 ```
