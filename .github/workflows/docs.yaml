@@ -40,8 +40,6 @@ jobs:
         run: sudo snap install dart-sass-embedded
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v2
