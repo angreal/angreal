@@ -1,10 +1,13 @@
 [package]
 name = "angreal"
-version = "2.0.0-rc.1"
+version = "2.0.0"
 edition = "2021"
 description = "Angreal is a tool for templating projects and associated processes to provide a consistent developer experience across multiple projects."
 license = "GPL-3.0-only"
-
+readme = "README.md"
+homepage = "https://github.com/angreal/angreal"
+repository = "https://github.com/angreal/angreal"
+documentation = "https://angreal.github.io/angreal"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]

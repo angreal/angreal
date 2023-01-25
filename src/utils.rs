@@ -41,7 +41,7 @@ pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>, &'static str> {
 }
 
 pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(get_root, m)?);
+    m.add_function(wrap_pyfunction!(get_root, m)?)?;
     Ok(())
 }
 
