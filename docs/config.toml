@@ -17,7 +17,7 @@ enableMissingTranslationPlaceholders = false
 
 
 [params]
-  editURL = "https://gitlab.com/-/ide/project/angreal/angreal/edit/master/-/docs/content"
+  editURL = https://github.dev/angreal/angreal/blob/main/docs/
   # Author of the site, will be used in meta information
   author = "Dylan Storey"
   # Description of the site, will be used in meta information
