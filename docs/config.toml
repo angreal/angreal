@@ -65,12 +65,12 @@ home = [ "HTML", "RSS", "JSON"]
 [[menu.shortcuts]]
 name = "<i class='fab fa-gitlab'></i> Git Repo"
 identifier = "ds"
-url = "https://gitlab.com/angreal/angreal"
+url = "https://github.com/angreal/angreal"
 weight = 10
 
 
 [[menu.shortcuts]]
 name = "<i class='fa fa-download'></i> Download"
-url = "https://gitlab.com/angreal/angreal/-/archive/master/angreal-master.zip"
+url = "https://github.com/angreal/angreal/archive/refs/heads/main.zip"
 weight = 20
 
