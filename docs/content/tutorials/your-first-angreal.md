@@ -3,7 +3,7 @@ title: Your First Angreal
 weight: 10
 ---
 
-{{% notice note %}}This project is available as part of the git repository[here](https://gitlab.com/dylanbstorey/angreal/tree/master/example).{{% /notice %}}
+{{% notice note %}}This project is available under the [example folder of the git repository](https://gitlab.com/dylanbstorey/angreal/tree/master/example).{{% /notice %}}
 
 This a very simple project for taking meeting minutes !
 
