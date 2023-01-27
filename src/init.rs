@@ -65,9 +65,8 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
                 let mut angreal_toml = Path::new(template).to_path_buf();
                 angreal_toml.push("angreal.toml");
                 
-                debug!("Directory exists at {:?}, checking for angreal.toml at {:?}", try_template, angreal_toml);
-
                 if angreal_toml.is_file() {
+                    debug!("Directory exists at {:?}, checking for angreal.toml at {:?}", try_template, angreal_toml);
                     Path::new(template).to_path_buf()
                 } else {
                     error!("The template {}, doesn't appear to exist locally", template);
@@ -140,12 +139,12 @@ fn create_home_dot_angreal() -> PathBuf {
     let mut home_dir = home_dir().unwrap();
     home_dir.push(".angrealrc");
 
-    debug!("Angreal home directory location is {:?}", home_dir);
+
 
     if home_dir.exists().not() {
         fs::create_dir(&home_dir).unwrap();
     }
-
+    debug!("Angreal home directory location is {:?}", home_dir);
     home_dir
 }
 
@@ -227,6 +226,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
     tmp_dir.push(Path::new("angreal_tmp"));
 
     if tmp_dir.is_dir().not() {
+        debug!("Creating tmpdir at {:?}", tmp_dir);
         fs::create_dir(&tmp_dir).unwrap();
     }
 
@@ -235,6 +235,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
 
     tmp_dir.pop();
     if tmp_dir.is_dir() {
+        debug!("Destroying tmpdir at {:?}", tmp_dir);
         fs::remove_dir_all(&tmp_dir).unwrap();
     }
 
@@ -248,9 +249,10 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
     for file in glob(template.to_str().unwrap()).expect("Failed to read glob pattern") {
         let file_path = file.as_ref().unwrap();
         let rel_path = file_path.strip_prefix(path).unwrap().to_str().unwrap();
-
+        
         if file.as_ref().unwrap().is_file() && rel_path.starts_with("{{") && rel_path.contains("}}")
         {
+            debug!("Adding template with relative path {:?} to tera instance.",rel_path);
             tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path))
                 .unwrap();
         }
@@ -283,6 +285,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
                 angreal_path = real_path.clone();
             }
             
+            debug!("Creating directory {:?}",real_path);
             fs::create_dir(real_path.as_str()).unwrap();
         }
     }
@@ -303,7 +306,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
 
         let rendered = tera.render(template, &context).unwrap();
         let path = Tera::one_off(template, &context, false).unwrap();
-
+        debug!("Rendering file at {:?}",path);
         let mut output = File::create(path).unwrap();
         write!(output, "{}", rendered.as_str()).unwrap();
     }
