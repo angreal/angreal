@@ -207,16 +207,16 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
             }
         } else {
             if value.is_str() {
-                context.insert(k, &input.as_str());
+                context.insert(k, &input.trim());
             }
             if value.is_integer() {
-                context.insert(k, &input.parse::<i32>().unwrap());
+                context.insert(k, &input.trim().parse::<i32>().unwrap());
             }
             if value.is_bool() {
-                context.insert(k, &input.as_str());
+                context.insert(k, &input.trim());
             }
             if value.is_float() {
-                context.insert(k, &input.parse::<f64>().unwrap());
+                context.insert(k, &input.trim().parse::<f64>().unwrap());
             }
         }
     }
