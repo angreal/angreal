@@ -59,8 +59,24 @@ jobs:
 
 
   angreal-tests:
-    name: "angreal run-tests"
+    name: "angreal run-tests linux"
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 1.65.0
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install maturin angreal==2.0.0rc-1 pytest
+      - run: angreal run-tests
+
+    name: "angreal run-tests windows"
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
