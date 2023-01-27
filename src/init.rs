@@ -107,6 +107,8 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             function.call0(py).unwrap();
         });
     }
+
+    println!("Angreal template ({}) successfully rendered !",template.to_string_lossy() );
 }
 
 fn get_scheme(u: &str) -> Result<String, ()> {
