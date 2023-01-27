@@ -4,7 +4,7 @@ use git_url_parse::{GitUrl, Scheme};
 use home::home_dir;
 
 use glob::glob;
-use log::error;
+use log::{error,debug};
 use pyo3::prelude::*;
 use pyo3::types::{PyList, PyModule};
 
@@ -25,12 +25,14 @@ use walkdir::WalkDir;
 pub fn init(template: &str, force: bool, take_inputs: bool) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
-
+    debug!("Got template type {:?} for {:?}.", template_type, template);
+    
     // todo - implement a local file system template branch
     // "file" should cover the following scenarios
     // - a template that already exists at ~/.angreal, "ff_pull" and go
     // - a filesystem git repo, clone and go
     // - a file not in ~/.angreal, "copy?" and go
+    debug!("Template is of type {:?}", template_type.as_str());
     let template = match template_type.as_str() {
         "https" | "gitssh" | "ssh" | "git" => {
             // If we get a git url , go get it either by a clone if it doesn't
@@ -40,8 +42,10 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             dst.push(remote.name.as_str());
 
             if dst.is_dir() {
+                debug!("Template exists at {:?}, attempting ff-pull.", dst);
                 git_pull_ff(dst.to_str().unwrap())
             } else {
+                debug!("Template does not exist at {:?}, attempting clone",dst);
                 git_clone(template, dst.to_str().unwrap())
             }
         }
@@ -53,11 +57,15 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
 
             //  First we try ~/.angreal for a template with that name
             if try_template.is_dir() {
+                debug!("Template exists at {:?}, attempting ff-pull.", try_template);
                 git_pull_ff(try_template.to_str().unwrap())
             } else if Path::new(template).is_dir() {
                 // then we see if it's just a local angreal template
+                
                 let mut angreal_toml = Path::new(template).to_path_buf();
                 angreal_toml.push("angreal.toml");
+                
+                debug!("Directory exists at {:?}, checking for angreal.toml at {:?}", try_template, angreal_toml);
 
                 if angreal_toml.is_file() {
                     Path::new(template).to_path_buf()
@@ -79,6 +87,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             exit(1);
         }
     };
+
     let rendered_dot_angreal_path = render_template(Path::new(&template), take_inputs, force);
 
     let mut rendered_angreal_init = Path::new(&rendered_dot_angreal_path).to_path_buf();
@@ -131,6 +140,8 @@ fn create_home_dot_angreal() -> PathBuf {
     let mut home_dir = home_dir().unwrap();
     home_dir.push(".angrealrc");
 
+    debug!("Angreal home directory location is {:?}", home_dir);
+
     if home_dir.exists().not() {
         fs::create_dir(&home_dir).unwrap();
     }
@@ -143,7 +154,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
     // Verify the provided template path is minimially compliant.
     let mut toml = path.to_path_buf();
     toml.push(Path::new("angreal.toml"));
-
+    debug!("angreal.toml should be at {:?}", toml);
     if toml.is_file().not() {
         error!(
             "`angreal.toml` not found where expected {:}",
@@ -176,7 +187,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
         };
 
         let input = if take_input {
-            println!("{}? [{}]", k, value);
+            print!("{}? [{}]: ", k, value);
             read!("{}\n")
         } else {
             String::new()
@@ -271,7 +282,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
             if real_path.ends_with(".angreal") {
                 angreal_path = real_path.clone();
             }
-
+            
             fs::create_dir(real_path.as_str()).unwrap();
         }
     }
