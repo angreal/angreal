@@ -88,7 +88,6 @@ impl AngrealArg {
         number_of_values = "None",
         max_values = "None",
         min_values = "None",
-        python_type = "None",
         short = "None",
         long = "None",
         long_help = "None",

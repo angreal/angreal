@@ -14,6 +14,4 @@ before, you should be pretty comfortable already.
 [Cargo Docs](https://docs.rs/angreal)
 
 ## Python API Reference
-
-Coming soon.
-<!-- TODO ! -->
+[Python Docs](py_angreal)
