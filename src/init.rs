@@ -4,7 +4,7 @@ use git_url_parse::{GitUrl, Scheme};
 use home::home_dir;
 
 use glob::glob;
-use log::{error,debug};
+use log::{debug, error};
 use pyo3::prelude::*;
 use pyo3::types::{PyList, PyModule};
 
@@ -26,7 +26,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
     debug!("Got template type {:?} for {:?}.", template_type, template);
-    
+
     // todo - implement a local file system template branch
     // "file" should cover the following scenarios
     // - a template that already exists at ~/.angreal, "ff_pull" and go
@@ -45,7 +45,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
                 debug!("Template exists at {:?}, attempting ff-pull.", dst);
                 git_pull_ff(dst.to_str().unwrap())
             } else {
-                debug!("Template does not exist at {:?}, attempting clone",dst);
+                debug!("Template does not exist at {:?}, attempting clone", dst);
                 git_clone(template, dst.to_str().unwrap())
             }
         }
@@ -61,12 +61,15 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
                 git_pull_ff(try_template.to_str().unwrap())
             } else if Path::new(template).is_dir() {
                 // then we see if it's just a local angreal template
-                
+
                 let mut angreal_toml = Path::new(template).to_path_buf();
                 angreal_toml.push("angreal.toml");
-                
+
                 if angreal_toml.is_file() {
-                    debug!("Directory exists at {:?}, checking for angreal.toml at {:?}", try_template, angreal_toml);
+                    debug!(
+                        "Directory exists at {:?}, checking for angreal.toml at {:?}",
+                        try_template, angreal_toml
+                    );
                     Path::new(template).to_path_buf()
                 } else {
                     error!("The template {}, doesn't appear to exist locally", template);
@@ -138,8 +141,6 @@ fn get_scheme(u: &str) -> Result<String, ()> {
 fn create_home_dot_angreal() -> PathBuf {
     let mut home_dir = home_dir().unwrap();
     home_dir.push(".angrealrc");
-
-
 
     if home_dir.exists().not() {
         fs::create_dir(&home_dir).unwrap();
@@ -249,10 +250,13 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
     for file in glob(template.to_str().unwrap()).expect("Failed to read glob pattern") {
         let file_path = file.as_ref().unwrap();
         let rel_path = file_path.strip_prefix(path).unwrap().to_str().unwrap();
-        
+
         if file.as_ref().unwrap().is_file() && rel_path.starts_with("{{") && rel_path.contains("}}")
         {
-            debug!("Adding template with relative path {:?} to tera instance.",rel_path);
+            debug!(
+                "Adding template with relative path {:?} to tera instance.",
+                rel_path
+            );
             tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path))
                 .unwrap();
         }
@@ -284,8 +288,8 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
             if real_path.ends_with(".angreal") {
                 angreal_path = real_path.clone();
             }
-            
-            debug!("Creating directory {:?}",real_path);
+
+            debug!("Creating directory {:?}", real_path);
             fs::create_dir(real_path.as_str()).unwrap();
         }
     }
@@ -306,7 +310,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
 
         let rendered = tera.render(template, &context).unwrap();
         let path = Tera::one_off(template, &context, false).unwrap();
-        debug!("Rendering file at {:?}",path);
+        debug!("Rendering file at {:?}", path);
         let mut output = File::create(path).unwrap();
         write!(output, "{}", rendered.as_str()).unwrap();
     }
