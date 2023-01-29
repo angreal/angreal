@@ -74,7 +74,7 @@ def argument(name,
         number_of_values (int, optional): The argument takes a specific number of values. Defaults to None.
         max_values (int, optional): The argument takes at most X values. Defaults to None.
         min_values (int, optional): The argument takes at least X values. Defaults to None.
-        short (str, optional): The short (single characeter) flag for the argument (i.e. `-i in the cli` would be `i`). Defaults to None.
+        short (str, optional): The short (single character) flag for the argument (i.e. `-i in the cli` would be `i`). Defaults to None.
         long (str, optional): The short (single word) flag for the argument (i.e. `--information` in the clie would be `information`). Defaults to None.
         long_help (str, optional): The help message to display with "long help" is requested with `--help`. Defaults to None.
         help (str, optional): The help message to display when help is requested via `-h`. Defaults to None.
