@@ -54,7 +54,7 @@ fn host_log(record: &PyAny) -> PyResult<()> {
             .metadata(error_metadata)
             .args(format_args!("{}", &message))
             .line(Some(lineno))
-            .file(Some("app.rs"))
+            .file(Some("angreal task"))
             .module_path(Some(&pathname))
             .build(),
     );
