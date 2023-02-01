@@ -3,7 +3,7 @@ title: Contributing
 weight: 50
 ---
 
-Angreal is hosted on [gitlhub](https://github.com/angreal/angreal).
+Angreal is hosted on [github](https://github.com/angreal/angreal).
 
 If you have questions, concerns, bug reports, or suggestions please feel
 free to open an [issue](https://github.com/angreal/angreal/issues),
