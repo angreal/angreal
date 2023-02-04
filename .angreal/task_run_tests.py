@@ -21,7 +21,7 @@ def run_tests():
     print(green + "=====================" + end )
     print(green + "Starting python tests" + end)
     print(green + "=====================" + end )
-    pytest_rv = subprocess.run(["python","-m","pytest", "-vv"])
+    pytest_rv = subprocess.run(["python","-m","pytest", "-svv"])
 
     if cargo_rv.returncode or pytest_rv.returncode:
         raise RuntimeError(f"Tests failed with status codes : {cargo_rv} (cargo) and {pytest_rv}(pytest)")
