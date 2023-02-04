@@ -5,7 +5,7 @@
     Integration to virtualenv
 
 """
-
+import logging
 import functools
 import os
 import subprocess
@@ -73,21 +73,15 @@ class VirtualEnv(object):
             and os.path.isfile(self.ensure_directories.env_exe)
         )
 
-    @property
-    def active(self):
-        return sys.prefix == sys.base_prefix
 
-    def __init__(self, path, python=None, requirements=None, now=True):
+
+    def __init__(self, path, requirements=None, now=True):
         """
         Initializes the object either creating or activating the named environment.
 
         """
 
-        if not python:
-            python = "python3"
-
         self.path = path
-        self.python = python
         self.devnull = open(os.devnull, "w")
 
         self.requirements = requirements
@@ -95,8 +89,10 @@ class VirtualEnv(object):
         self.now = now
         self.ensure_directories = venv.EnvBuilder().ensure_directories(self.path)
 
-        if now:
-            self.activate_or_create()
+        if self.now:
+            if not self.exists:
+                self._create()
+            self._activate()
 
         if self.requirements:
             self.install_requirements(self.requirements)
@@ -126,11 +122,7 @@ class VirtualEnv(object):
     def __str__(self):
         return self.path
 
-    def activate_or_create(self):
-        if not self.exists:
-            self._create()
-        if not self.active:
-            self._activate()
+        
 
     def _create(self):
         """
@@ -149,8 +141,9 @@ class VirtualEnv(object):
 
         base = self.ensure_directories.env_dir
         site_packages = os.path.join(
-            base, "lib", "python%s" % sys.version[:3], "site-packages"
+            base, "lib", f"python{sys.version_info[0]}.{sys.version_info[1]}", "site-packages"
         )
+
         prev_sys_path = list(sys.path)
         import site
 
