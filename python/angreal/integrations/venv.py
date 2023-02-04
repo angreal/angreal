@@ -27,7 +27,6 @@ def venv_required(path):
     """
     initial_sys_prefix = sys.prefix
     venv = VirtualEnv(path=path, now=False)
-    print(f"THE VALUE OF NOW IS {venv.now}")
 
     if venv.exists:
         venv._activate()
@@ -97,7 +96,6 @@ class VirtualEnv(object):
         self.ensure_directories = venv.EnvBuilder().ensure_directories(self.path)
 
         if now:
-            print(f"THE VALUE OF now is {now}")
             self.activate_or_create()
 
         if self.requirements:
