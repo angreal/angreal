@@ -44,6 +44,7 @@ def test_init():
     test_requirements = os.path.join(os.path.dirname(__file__),'test_r.txt')
     print(test_requirements)
     
+    assert os.path.exists(test_requirements)
     #activation edits sys.prefix, save and reset it when this test passes
     initial_sys_prefix = sys.prefix
 
