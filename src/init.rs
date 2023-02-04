@@ -57,15 +57,15 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
 
             //  First we try ~/.angreal for a template with that name
             if try_template.is_dir() {
-                
                 let mut git_location = try_template.clone();
                 git_location.push(Path::new(".git"));
 
-                if git_location.exists() { // Only attempt a ff-pull if it is a git repo
+                if git_location.exists() {
+                    // Only attempt a ff-pull if it is a git repo
                     debug!("Template exists at {:?}, attempting ff-pull.", try_template);
                     git_pull_ff(try_template.to_str().unwrap())
                 } else {
-                    debug!("Bare template found at {:?}, using.",try_template)
+                    debug!("Bare template found at {:?}, using.", try_template);
                     try_template
                 }
             } else if Path::new(template).is_dir() {
