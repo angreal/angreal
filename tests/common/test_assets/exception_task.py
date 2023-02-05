@@ -1,4 +1,2 @@
-
-
 def task():
     raise Exception

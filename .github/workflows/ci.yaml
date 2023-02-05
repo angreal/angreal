@@ -92,23 +92,6 @@ jobs:
       - run: pip install .
       - run: angreal run-tests
 
-  maturin-build:
-    name: "maturin build"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: 1.65.0
-          override: true
-      - uses: Swatinem/rust-cache@v1
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - run: pip install maturin
-      - run: maturin build
-
   typos:
     name: Spell Check with Typos
     runs-on: ubuntu-latest

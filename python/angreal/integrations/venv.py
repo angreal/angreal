@@ -73,8 +73,6 @@ class VirtualEnv(object):
             and os.path.isfile(self.ensure_directories.env_exe)
         )
 
-
-
     def __init__(self, path, requirements=None, now=True):
         """
         Initializes the object either creating or activating the named environment.
@@ -121,8 +119,6 @@ class VirtualEnv(object):
     def __str__(self):
         return self.path
 
-        
-
     def _create(self):
         """
         create a virtual environment from the current settings
@@ -139,16 +135,17 @@ class VirtualEnv(object):
         """
 
         base = self.ensure_directories.env_dir
-        
-        if sys.platform == 'win32': # I'm not sure how stable this is.
-            site_packages = os.path.join(
-                base, "lib", "site-packages"
-            )
+
+        if sys.platform == "win32":  # I'm not sure how stable this is.
+            site_packages = os.path.join(base, "lib", "site-packages")
         else:
             site_packages = os.path.join(
-                base, "lib", f"python{sys.version_info[0]}.{sys.version_info[1]}", "site-packages"
+                base,
+                "lib",
+                f"python{sys.version_info[0]}.{sys.version_info[1]}",
+                "site-packages",
             )
-            
+
         prev_sys_path = list(sys.path)
         import site
 
