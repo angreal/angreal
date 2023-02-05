@@ -113,7 +113,6 @@ class VirtualEnv(object):
         ]
 
         rc = subprocess.call(args, stdout=self.devnull, stderr=self.devnull)
-
         if rc != 0:
             raise EnvironmentError(
                 "{} failed to install requirements file.".format(self.name)
@@ -140,10 +139,16 @@ class VirtualEnv(object):
         """
 
         base = self.ensure_directories.env_dir
-        site_packages = os.path.join(
-            base, "lib", f"python{sys.version_info[0]}.{sys.version_info[1]}", "site-packages"
-        )
-
+        
+        if sys.platform == 'win32': # I'm not sure how stable this is.
+            site_packages = os.path.join(
+                base, "lib", "site-packages"
+            )
+        else:
+            site_packages = os.path.join(
+                base, "lib", f"python{sys.version_info[0]}.{sys.version_info[1]}", "site-packages"
+            )
+            
         prev_sys_path = list(sys.path)
         import site
 
