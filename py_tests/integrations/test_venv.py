@@ -7,7 +7,9 @@ import pytest
 
 
 
-
+# @pytest.mark.skipif(
+#     sys.platform == 'win32'
+# )
 def test_venv_required():
     """
     test venv required good
@@ -23,6 +25,7 @@ def test_venv_required():
         raise
     finally:
         shutil.rmtree("__angreal")
+
 
 
 def test_venv_required_bad():
@@ -57,6 +60,9 @@ def test_init():
     except (ImportError,AssertionError):
         raise
     finally:
-        shutil.rmtree(this_venv)
-        sys.prefix = initial_sys_prefix
+        try:
+            shutil.rmtree(this_venv)
+            sys.prefix = initial_sys_prefix
+        except:
+            pass
 

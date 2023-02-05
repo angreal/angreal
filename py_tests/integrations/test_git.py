@@ -5,9 +5,6 @@ import  shutil
 from angreal.integrations.git import Git, GitException
 
 
-
-
-
 def test_git_no_path():
     """
     test git object fails with no path
@@ -41,8 +38,12 @@ def test_git_initialization():
     os.chdir('git_test')
     git = Git()
     git.init()
-    assert os.path.isdir('.git')
-    os.chdir('..')
-    shutil.rmtree('git_test')
+    try:
+        assert os.path.isdir('.git')
+    except:
+        raise
+    finally:
+        os.chdir('..')
+        shutil.rmtree('git_test')
 
 
