@@ -1,6 +1,6 @@
 [package]
 name = "angreal"
-version = "2.0.1"
+version = "2.0.2"
 edition = "2021"
 description = "Angreal is a tool for templating projects and associated processes to provide a consistent developer experience across multiple projects."
 license = "GPL-3.0-only"
@@ -15,7 +15,7 @@ name = "angreal"
 crate-type = ["cdylib","rlib"]
 
 [dependencies]
-pyo3 = { version = "0.17.3", extension-module = ["pyo3/extension-module"], default = ["extension-module"], features = ["auto-initialize"] }
+pyo3 = { version = "^0.18", extension-module = ["pyo3/extension-module"], default = ["extension-module"], features = ["auto-initialize"] }
 clap = { version = "3" }
 version = {version = "3.0.0"}
 log = { version = "0.4" }
