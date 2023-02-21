@@ -95,18 +95,23 @@ class VirtualEnv(object):
 
     def install_requirements(self, requirements):
         """
-        install requirements from a file
+        install requirements from a file, string,  or list of requirements
 
-        :param requirements: path to a requirements file
+        :param requirements: path to a requirements file, single requirement, or list of requirements
         """
-        args = [
-            self.ensure_directories.env_exe,
-            "-m",
-            "pip",
-            "install",
-            "-r",
-            requirements,
-        ]
+        args = [self.ensure_directories.env_exe, "-m", "pip", "install"]
+
+        
+        if isinstance(requirements, list):
+            args = args + requirements
+        elif os.path.exists(requirements):
+            args = args + ["-r", requirements]
+        elif isinstance(requirements, str):
+            args = args + [requirements]
+        else:
+            raise TypeError(
+                f"requirements should be one of : file, list, or string got {type(requirements)}"
+            )
 
         rc = subprocess.call(args, stdout=self.devnull, stderr=self.devnull)
         if rc != 0:

@@ -5,9 +5,6 @@ import sys
 import pytest
 
 
-# @pytest.mark.skipif(
-#     sys.platform == 'win32'
-# )
 def test_venv_required():
     """
     test venv required good
@@ -27,7 +24,6 @@ def test_venv_required():
         shutil.rmtree("__angreal")
 
 
-
 def test_init():
     """
     testing creation of an environment
@@ -42,6 +38,55 @@ def test_init():
     assert not os.path.isdir(this_venv)
 
     venv = VirtualEnv(path=this_venv, requirements=test_requirements)
+
+    try:
+        import flask
+    except (ImportError, AssertionError):
+        raise
+    finally:
+        try:
+            shutil.rmtree(this_venv)
+            sys.prefix = initial_sys_prefix
+        except:
+            pass
+            
+
+
+def test_requirements_load():
+    """
+    testing load from "string"
+    """
+
+    # activation edits sys.prefix, save and reset it when this test passes
+    initial_sys_prefix = sys.prefix
+
+    this_venv = "__test_venv"
+    assert not os.path.isdir(this_venv)
+
+    venv = VirtualEnv(path=this_venv, requirements="flask")
+
+    try:
+        import flask
+    except (ImportError, AssertionError):
+        raise
+    finally:
+        try:
+            shutil.rmtree(this_venv)
+            sys.prefix = initial_sys_prefix
+        except:
+            pass
+
+
+def test_requirements_load():
+    """
+    test load requirements from list
+    """
+    # activation edits sys.prefix, save and reset it when this test passes
+    initial_sys_prefix = sys.prefix
+    this_venv = "__test_venv"
+    assert not os.path.isdir(this_venv)
+
+    venv = VirtualEnv(path=this_venv, requirements=["flask"])
 
     try:
         import flask
