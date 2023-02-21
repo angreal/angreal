@@ -5,7 +5,7 @@ import sys
 import pytest
 
 @pytest.mark.skipif(
-    sys.platform == 'win32'
+    sys.platform == 'win32', reason="windows tests are flaky"
 )
 def test_venv_required():
     """
