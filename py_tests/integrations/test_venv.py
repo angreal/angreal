@@ -37,7 +37,7 @@ def test_init():
     # activation edits sys.prefix, save and reset it when this test passes
     initial_sys_prefix = sys.prefix
 
-    this_venv = "__test_venv"
+    this_venv = "__test_venv_1"
     assert not os.path.isdir(this_venv)
 
     venv = VirtualEnv(path=this_venv, requirements=test_requirements)
@@ -63,7 +63,7 @@ def test_requirements_load():
     # activation edits sys.prefix, save and reset it when this test passes
     initial_sys_prefix = sys.prefix
 
-    this_venv = "__test_venv"
+    this_venv = "__test_venv_2"
     assert not os.path.isdir(this_venv)
 
     venv = VirtualEnv(path=this_venv, requirements="flask")
@@ -86,7 +86,7 @@ def test_requirements_load():
     """
     # activation edits sys.prefix, save and reset it when this test passes
     initial_sys_prefix = sys.prefix
-    this_venv = "__test_venv"
+    this_venv = "__test_venv_3"
     assert not os.path.isdir(this_venv)
 
     venv = VirtualEnv(path=this_venv, requirements=["flask"])
