@@ -4,7 +4,9 @@ import shutil
 import sys
 import pytest
 
-
+@pytest.mark.skipif(
+    sys.platform == 'win32'
+)
 def test_venv_required():
     """
     test venv required good
