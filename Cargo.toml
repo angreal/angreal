@@ -1,6 +1,6 @@
 [package]
 name = "angreal"
-version = "2.0.2"
+version = "2.0.3"
 edition = "2021"
 description = "Angreal is a tool for templating projects and associated processes to provide a consistent developer experience across multiple projects."
 license = "GPL-3.0-only"
