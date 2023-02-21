@@ -31,9 +31,7 @@ def venv_required(path):
     if venv.exists:
         venv._activate()
     else:
-        raise EnvironmentError(
-            "virtual environment does not exist at {}".format(venv.path)
-        )
+        venv._create()
 
     def decorator(f):
         @functools.wraps(f)

@@ -27,18 +27,6 @@ def test_venv_required():
         shutil.rmtree("__angreal")
 
 
-def test_venv_required_bad():
-    """
-    test venv_required missing venv created if not present
-    """
-    with pytest.raises(EnvironmentError):
-
-        @venv_required("__not_angreal")
-        def test(a, b):
-            return a + b
-
-    shutil.rmtree("__not_angreal")
-
 
 def test_init():
     """
