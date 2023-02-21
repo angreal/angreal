@@ -16,13 +16,13 @@ import site
 from shutil import which
 
 
-def venv_required(path):
+def venv_required(path,requirements=None):
     """
     Ensure that you're operating in the "correct" environment via sys.prefix. Will create and activate the environment
     if it doesn't exist.
 
     :param name: The name of the environment
-    :param requirements_file: full path the requirements file for activation
+    :param requirements: requirements for installation on creations
     :return:
     """
     initial_sys_prefix = sys.prefix
@@ -32,6 +32,9 @@ def venv_required(path):
         venv._activate()
     else:
         venv._create()
+
+    if requirements:
+        venv.install_requirements(requirements=requirements)
 
     def decorator(f):
         @functools.wraps(f)

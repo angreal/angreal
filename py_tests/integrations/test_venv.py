@@ -12,8 +12,9 @@ def test_venv_required():
 
     venv = VirtualEnv(path="__angreal", now=True)
 
-    @venv_required("__angreal")
+    @venv_required("__angreal", requirements='flask')
     def test(a, b):
+        import flask
         return a + b
 
     try:
