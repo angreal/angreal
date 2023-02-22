@@ -26,7 +26,7 @@ def command(name=None, about="", long_help="", **attrs):
         angreal.Command(name=name, about=about, long_about=f.__doc__, func=f)
 
         for arg in f.__arguments :
-            Arg(**{**arg, **dict(command_name=name)})
+            angreal.Arg(**{**arg, **dict(command_name=name)})
         
         return f
 
