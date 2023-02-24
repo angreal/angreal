@@ -12,8 +12,6 @@ def test_venv_required():
     test venv required good
     """
 
-    venv = VirtualEnv(path="__angreal", now=True)
-
     @venv_required("__angreal", requirements='flask')
     def test(a, b):
         import flask
