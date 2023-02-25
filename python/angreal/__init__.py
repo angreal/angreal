@@ -1,42 +1,41 @@
 from .angreal import *
-
+import functools
 
 __doc__ = angreal.__doc__
 if hasattr(angreal, "__all__"):
     __all__ = angreal.__all__
 
 
-def command(name=None, about="", long_help="", **attrs):
+
+
+
+
+
+
+def command(**kwargs):
     """
     The command decorator, used to register a user defined function as a subcommand for angreal to execute.
     """
-    _wrapped = None
-
-    if callable(name):
-        _wrapped = name
-        name = _wrapped.__name__.lower().replace("_", "-")
-
 
     def decorator(f):
-
         if not hasattr(f, "__arguments"):
             f.__arguments = []
-                        
-                        
-        angreal.Command(name=name, about=about, long_about=f.__doc__, func=f)
+                
+        angreal.Command(**kwargs, func=f)
 
         for arg in f.__arguments :
-            angreal.Arg(**{**arg, **dict(command_name=name)})
+            angreal.Arg(**{**arg, **dict(command_name=kwargs.get('name',f.__name__.lower().replace("_", "-")))})
+
+        @functools.wraps(f)
+        def wrapper(*f_args,**f_kwargs):
+            return f(*f_args,**f_kwargs)
         
-        return f
-
-    if _wrapped is not None:
-        return decorator(_wrapped)
-
+        return wrapper
     return decorator
 
 
-def argument(name, **kwargs):
+
+def argument(**kwargs):
     """Register an argument as part of a command
 
     Args:
@@ -44,16 +43,17 @@ def argument(name, **kwargs):
     """
 
     def decorator(f):
-        keyword_args = kwargs.copy()
-
         if not hasattr(f, "__arguments"):
             f.__arguments = []
 
-        f.__arguments.append({**dict(name=name), **keyword_args})
+        f.__arguments.append({**kwargs})
 
-        return f
-
+        @functools.wraps(f)
+        def wrapper(*f_args, **f_kwargs):
+            return f(*f_args,**f_kwargs)
+        return wrapper
     return decorator
+
 
 
 def main():

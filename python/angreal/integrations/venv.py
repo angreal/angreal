@@ -22,22 +22,16 @@ def venv_required(path,requirements=None):
     if it doesn't exist.
 
     :param name: The name of the environment
-    :param requirements: requirements for installation on creations
+    :param requirements: requirements for the environment
     :return:
     """
-    
-
-
     def decorator(f):
 
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             initial_sys_prefix = sys.prefix
-            
             venv = VirtualEnv(path=path, now=True,requirements=requirements)
-            
             venv.install_requirements()
-
             rv = f(*args, **kwargs)
             sys.prefix = initial_sys_prefix
             return rv
@@ -100,6 +94,8 @@ class VirtualEnv(object):
         :param requirements: path to a requirements file, single requirement, or list of requirements
         """
 
+        if not self.requirements:
+            return
 
         args = [self.ensure_directories.env_exe, "-m", "pip", "install"]
 
