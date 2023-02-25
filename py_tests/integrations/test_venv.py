@@ -38,7 +38,9 @@ def test_init():
     this_venv = "__test_venv_1"
     assert not os.path.isdir(this_venv)
 
-    venv = VirtualEnv(path=this_venv, requirements=test_requirements)
+    venv = VirtualEnv(path=this_venv, requirements=test_requirements, now=True).install_requirements()
+
+    
 
     try:
         import flask
@@ -64,7 +66,7 @@ def test_requirements_load():
     this_venv = "__test_venv_2"
     assert not os.path.isdir(this_venv)
 
-    venv = VirtualEnv(path=this_venv, requirements="flask")
+    venv = VirtualEnv(path=this_venv, requirements=flask, now=True).install_requirements()
 
     try:
         import flask
@@ -87,7 +89,7 @@ def test_requirements_load():
     this_venv = "__test_venv_3"
     assert not os.path.isdir(this_venv)
 
-    venv = VirtualEnv(path=this_venv, requirements=["flask"])
+    venv = VirtualEnv(path=this_venv, requirements=["flask"], now=True).install_requirements()
 
     try:
         import flask
