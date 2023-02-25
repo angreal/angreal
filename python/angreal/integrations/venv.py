@@ -22,23 +22,16 @@ def venv_required(path,requirements=None):
     if it doesn't exist.
 
     :param name: The name of the environment
-    :param requirements: requirements for installation on creations
+    :param requirements: requirements for the environment
     :return:
     """
-    initial_sys_prefix = sys.prefix
-    venv = VirtualEnv(path=path, now=False)
-
-    if venv.exists:
-        venv._activate()
-    else:
-        venv._create()
-
-    if requirements:
-        venv.install_requirements(requirements=requirements)
-
     def decorator(f):
+
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
+            initial_sys_prefix = sys.prefix
+            venv = VirtualEnv(path=path, now=True,requirements=requirements)
+            venv.install_requirements()
             rv = f(*args, **kwargs)
             sys.prefix = initial_sys_prefix
             return rv
@@ -93,34 +86,37 @@ class VirtualEnv(object):
                 self._create()
             self._activate()
 
-        if self.requirements:
-            self.install_requirements(self.requirements)
 
-    def install_requirements(self, requirements):
+    def install_requirements(self):
         """
         install requirements from a file, string,  or list of requirements
 
         :param requirements: path to a requirements file, single requirement, or list of requirements
         """
+
+        if not self.requirements:
+            return
+
         args = [self.ensure_directories.env_exe, "-m", "pip", "install"]
 
         
-        if isinstance(requirements, list):
-            args = args + requirements
-        elif os.path.exists(requirements):
-            args = args + ["-r", requirements]
-        elif isinstance(requirements, str):
-            args = args + [requirements]
+        if isinstance(self.requirements, list):
+            args = args + self.requirements
+        elif os.path.exists(self.requirements):
+            args = args + ["-r", self.requirements]
+        elif isinstance(self.requirements, str):
+            args = args + [self.requirements]
         else:
             raise TypeError(
-                f"requirements should be one of : file, list, or string got {type(requirements)}"
+                f"requirements should be one of : file, list, or string got {type(self.requirements)}"
             )
 
         rc = subprocess.call(args, stdout=self.devnull, stderr=self.devnull)
         if rc != 0:
             raise EnvironmentError(
-                "{} failed to install requirements file.".format(self.name)
+                "{} failed to install requirements file.".format(self.path)
             )
+    
 
     def __str__(self):
         return self.path
