@@ -66,7 +66,6 @@ impl AngrealCommand {
     /// long_about='a much longer message`, func=test-message)
     /// ```
     #[new]
-    #[args(about = "None", long_about = "None")]
     fn __new__(name: &str, func: Py<PyAny>, about: Option<&str>, long_about: Option<&str>) -> Self {
         let cmd = AngrealCommand {
             name: name.to_string(),
@@ -158,50 +157,35 @@ impl AngrealArg {
     /// angreal.Arg(name="phrase", help="the phrase to echo", required=True, command_name='echo')
     /// ```
     #[new]
-    #[args(
-        python_type = "\"str\"",
-        takes_value = "true",
-        default_value = "None",
-        require_equals = "None",
-        multiple_values = "None",
-        number_of_values = "None",
-        max_values = "None",
-        min_values = "None",
-        short = "None",
-        long = "None",
-        long_help = "None",
-        help = "None",
-        required = "None"
-    )]
     #[allow(clippy::too_many_arguments)]
     fn __new__(
         name: &str,
         command_name: &str,
-        takes_value: Option<bool>,
         default_value: Option<&str>,
         require_equals: Option<bool>,
         multiple_values: Option<bool>,
         number_of_values: Option<u32>,
         max_values: Option<u32>,
         min_values: Option<u32>,
-        python_type: Option<&str>,
         short: Option<char>,
         long: Option<&str>,
         long_help: Option<&str>,
         help: Option<&str>,
         required: Option<bool>,
+        takes_value: Option<bool>,
+        python_type: Option<&str>,
     ) -> Self {
         let arg = AngrealArg {
             name: name.to_string(),
             command_name: command_name.to_string(),
-            takes_value,
+            takes_value: Some(takes_value.unwrap_or(true)),
             default_value: default_value.map(|i| i.to_string()),
             require_equals,
             multiple_values,
             number_of_values,
             max_values,
             min_values,
-            python_type: python_type.map(|i| i.to_string()),
+            python_type: Some(python_type.unwrap_or("str").to_string()),
             short,
             long: long.map(|i| i.to_string()),
             long_help: long_help.map(|i| i.to_string()),
