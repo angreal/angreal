@@ -17,14 +17,13 @@ from shutil import which
 
 
 def venv_required(path,requirements=None):
-    """
-    Ensure that you're operating in the "correct" environment via sys.prefix. Will create and activate the environment
-    if it doesn't exist.
+    """wrap a function in a virtual environment before execution
 
-    :param name: The name of the environment
-    :param requirements: requirements for the environment
-    :return:
+    Args:
+        path (str): The path to the virtual environment (or where the environment should be created if it doesn't exist)
+        requirements (_type_, optional): A string containing a single module, a list of module names, or a string containing a file path. Defaults to None.
     """
+    
     def decorator(f):
 
         @functools.wraps(f)
@@ -42,14 +41,14 @@ def venv_required(path,requirements=None):
 
 
 class VirtualEnv(object):
+    
     """
     Interacting with virtual environments from within a currently running script.
 
-    :param name: the name of the virtual environment
-    :param python: the path (or basename) of the python executable to use for an interpreter
-    :param requirements: a requirements file to use for creation
-    :param now: should the environment be created/activated on initialization
-    :param location: where the venv should be located. defaults to `.venv`.
+    Args:
+        path (str): the path to the virtual environment
+        requirements ([str,List[str]]), optional): A string containing a single module, a list of module names, or a string containing a file path. Defaults to None.
+        now (bool, optional): should the environment be created/activated on initialization. Defaults to True
     """
 
     base_path = os.path.expanduser(os.path.join("~", ".venv"))
@@ -89,7 +88,7 @@ class VirtualEnv(object):
 
     def install_requirements(self):
         """
-        install requirements from a file, string,  or list of requirements
+        install requirements the requirements set during initialization.
 
         :param requirements: path to a requirements file, single requirement, or list of requirements
         """
@@ -123,8 +122,7 @@ class VirtualEnv(object):
 
     def _create(self):
         """
-        create a virtual environment from the current settings
-        :return:
+        Create the described environment.
         """
 
         builder = venv.EnvBuilder(with_pip=True)
@@ -132,10 +130,8 @@ class VirtualEnv(object):
 
     def _activate(self):
         """
-        activate the current virtual environment (shamelessly lifted from activate_this.py)
-        :return:
+        Activate the described environment.
         """
-
         base = self.ensure_directories.env_dir
 
         if sys.platform == "win32":  # I'm not sure how stable this is.
