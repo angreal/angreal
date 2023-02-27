@@ -1,7 +1,5 @@
-//! Just  random utilities we need
-//!
-//!
-//!
+//! Filesystem utilities
+
 
 use glob::glob;
 use log::{debug, error, info};
@@ -14,6 +12,17 @@ use pyo3::types::{PyList, PyModule};
 use pyo3::PyResult;
 use std::fs;
 
+
+/// Get a list of task files in given a path
+/// 
+/// # Examples
+/// 
+/// ```
+/// use angreal::utils::get_task_files;
+/// use std::path::PathBuf;
+/// 
+/// let task_files = get_task_files(PathBuf::new("."))
+/// ```
 pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>, &'static str> {
     let mut tasks = Vec::new();
 
@@ -40,17 +49,36 @@ pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>, &'static str> {
     }
 }
 
+/// Registers the Command and Arg structs to the python api in the `angreal` module
 pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_root, m)?)?;
     Ok(())
 }
 
+/// Get the root path of a current angreal project.
+/// 
+/// The root is the actual location of the .angreal file that houses task files
+/// # Examples
+/// ```python
+/// import angreal
+/// angreal_root = angreal.get_root()
+/// ```
 #[pyfunction]
 fn get_root() -> PyResult<String> {
     let angreal_root = is_angreal_project().unwrap();
     Ok(String::from(angreal_root.to_string_lossy()))
 }
 
+/// Tests whether or not a current path is an angreal project
+/// 
+/// An angreal project is detected by attempting to find a `.angreal` file 
+/// anywhere in the current and parent directories.
+/// # Examples
+/// ```
+/// use angreal::utils::is_angreal_project
+/// 
+/// let project_path = is_angreal_project()
+/// ```
 pub fn is_angreal_project() -> Result<PathBuf, &'static str> {
     let angreal_path = Path::new(".angreal");
 
@@ -81,6 +109,15 @@ pub fn is_angreal_project() -> Result<PathBuf, &'static str> {
     }
 }
 
+/// Loads a python file as a pyo3 PyModule
+/// 
+/// # Example
+/// ```
+/// use angreal::utils::load_python
+/// use std::path::PathBuf;
+/// 
+/// load_python(PathBuf::new("python_file.py"))?;
+/// ```
 pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
     let mut dir = file.clone();
     dir.pop();

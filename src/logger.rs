@@ -1,8 +1,11 @@
+//! Logging for the core application
+//! 
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::console::Target;
 use log4rs::config::{Appender, Config, Root};
 use log4rs::Handle;
 
+/// initializes the angreal logger instance
 pub fn init_logger() -> Handle {
     let stderr = ConsoleAppender::builder().target(Target::Stderr).build();
     let config = Config::builder()
@@ -17,6 +20,7 @@ pub fn init_logger() -> Handle {
     log4rs::init_config(config).unwrap()
 }
 
+/// updates the verbosity of the logger after initialization
 pub fn update_verbosity(log_hndl: &Handle, verbosity: u8) {
     let level_trace = match verbosity {
         0 => log::LevelFilter::Warn,

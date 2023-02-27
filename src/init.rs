@@ -1,3 +1,5 @@
+//! The angreal `init` command.
+//! 
 use crate::git::{git_clone, git_pull_ff};
 
 use git_url_parse::{GitUrl, Scheme};
@@ -19,19 +21,14 @@ use tera::{Context, Tera};
 use text_io::read;
 use toml::{Table, Value};
 use walkdir::WalkDir;
+
 /// Initialize a new project by rendering a template.
-/// If we wish a full over write use force == True
-/// If we wish to use the angreal.toml defaults take_inputs == False
 pub fn init(template: &str, force: bool, take_inputs: bool) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
     debug!("Got template type {:?} for {:?}.", template_type, template);
 
-    // todo - implement a local file system template branch
-    // "file" should cover the following scenarios
-    // - a template that already exists at ~/.angreal, "ff_pull" and go
-    // - a filesystem git repo, clone and go
-    // - a file not in ~/.angreal, "copy?" and go
+
     debug!("Template is of type {:?}", template_type.as_str());
     let template = match template_type.as_str() {
         "https" | "gitssh" | "ssh" | "git" => {
@@ -134,6 +131,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
     );
 }
 
+/// get the schema for the provided template
 fn get_scheme(u: &str) -> Result<String, ()> {
     let s = GitUrl::parse(u).unwrap();
 
@@ -147,6 +145,7 @@ fn get_scheme(u: &str) -> Result<String, ()> {
     }
 }
 
+/// create the angreal caching directory for storing cloned templates
 fn create_home_dot_angreal() -> PathBuf {
     let mut home_dir = home_dir().unwrap();
     home_dir.push(".angrealrc");
@@ -158,6 +157,8 @@ fn create_home_dot_angreal() -> PathBuf {
     home_dir
 }
 
+
+/// render the provided angreal template path
 fn render_template(path: &Path, take_input: bool, force: bool) -> String {
     let mut angreal_path = String::new();
     // Verify the provided template path is minimially compliant.

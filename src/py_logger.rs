@@ -1,6 +1,8 @@
+//! A unified logger to bridge python and rust
 use log::{logger, Level, MetadataBuilder, Record};
 use pyo3::prelude::*;
 
+/// registers the rust logging interface with the python logging interface.
 pub fn register() {
     Python::with_gil(|py| {
         // Extend the `logging` module to interact with log

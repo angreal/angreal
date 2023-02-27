@@ -1,3 +1,6 @@
+//! 
+
+/// set a string value on an objects attribute
 macro_rules! attr_copy_str {
     ($o:ident, $v:ident, $a:ident) => {
         if $a.$v.is_some() {
@@ -7,6 +10,7 @@ macro_rules! attr_copy_str {
     };
 }
 
+/// set a bool value on an objects attribute
 macro_rules! attr_copy_bool {
     ($o:ident, $v:ident, $a:ident) => {
         if $a.$v.is_some() {
@@ -16,6 +20,7 @@ macro_rules! attr_copy_bool {
     };
 }
 
+/// set a char value on an objects attribute
 macro_rules! attr_copy_char {
     ($o:ident, $v:ident, $a:ident) => {
         if $a.$v.is_some() {
@@ -25,6 +30,7 @@ macro_rules! attr_copy_char {
     };
 }
 
+/// set a uint64 value on an objects attribute
 macro_rules! attr_copy_u64 {
     ($o:ident, $v:ident, $a:ident) => {
         if $a.$v.is_some() {

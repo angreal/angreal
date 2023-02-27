@@ -143,7 +143,7 @@ fn main() -> PyResult<()> {
     Ok(())
 }
 
-/// registering the angreal namespace for import from python
+
 #[pymodule]
 fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(main, m)?)?;

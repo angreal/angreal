@@ -13,6 +13,7 @@ documentation = "https://angreal.github.io/angreal"
 [lib]
 name = "angreal"
 crate-type = ["cdylib","rlib"]
+doctest = false
 
 [dependencies]
 pyo3 = { version = "^0.18", extension-module = ["pyo3/extension-module"], default = ["extension-module"], features = ["auto-initialize"] }

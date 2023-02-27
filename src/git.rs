@@ -1,3 +1,4 @@
+//! Basic functions to git repos
 use git2::Repository;
 use git_url_parse::GitUrl;
 use log::error;
