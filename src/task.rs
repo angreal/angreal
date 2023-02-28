@@ -1,4 +1,4 @@
-//! Core structures for desribing tasks and arguments
+//! Core structures for describing tasks and arguments
 //!
 
 use once_cell::sync::Lazy;
@@ -31,7 +31,7 @@ pub struct AngrealCommand {
     /// A longer description of what the command does
     #[pyo3(get)]
     pub long_about: Option<String>,
-    /// The actual function that is exectuted when the command is run
+    /// The actual function that is executed when the command is run
     #[pyo3(get)]
     pub func: Py<PyAny>,
 }
