@@ -28,7 +28,6 @@ use std::vec::Vec;
 
 use std::process::exit;
 
-
 use pyo3::{prelude::*, wrap_pymodule};
 
 /// The main function is just an entry point to be called from the core angreal library.
