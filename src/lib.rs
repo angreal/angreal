@@ -22,14 +22,14 @@ use builder::build_app;
 use task::ANGREAL_TASKS;
 
 use log::{debug, error};
-use pyo3::types::{IntoPyDict,PyDict};
+use pyo3::types::{IntoPyDict, PyDict};
 use std::ops::Not;
 use std::vec::Vec;
 
 use std::process::exit;
 
+
 use pyo3::{prelude::*, wrap_pymodule};
-use docker_pyo3;
 
 /// The main function is just an entry point to be called from the core angreal library.
 #[pyfunction]
@@ -144,7 +144,6 @@ fn main() -> PyResult<()> {
     Ok(())
 }
 
-
 #[pymodule]
 fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     py_logger::register();
@@ -152,32 +151,51 @@ fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     task::register(_py, m)?;
     utils::register(_py, m)?;
 
-    
     m.add_wrapped(wrap_pymodule!(_integrations))?;
 
     let sys = PyModule::import(_py, "sys")?;
     let sys_modules: &PyDict = sys.getattr("modules")?.downcast()?;
     sys_modules.set_item("angreal._integrations", m.getattr("_integrations")?)?;
-    sys_modules.set_item("angreal._integrations.docker", m.getattr("_integrations")?.getattr("docker")?)?;
+    sys_modules.set_item(
+        "angreal._integrations.docker",
+        m.getattr("_integrations")?.getattr("docker")?,
+    )?;
 
-    sys_modules.set_item("angreal._integrations.docker.image", m.getattr("_integrations")?.getattr("docker")?.getattr("image")?)?;
-    sys_modules.set_item("angreal._integrations.docker.container", m.getattr("_integrations")?.getattr("docker")?.getattr("container")?)?;
-    sys_modules.set_item("angreal._integrations.docker.network", m.getattr("_integrations")?.getattr("docker")?.getattr("network")?)?;
-    sys_modules.set_item("angreal._integrations.docker.volume", m.getattr("_integrations")?.getattr("docker")?.getattr("volume")?)?;
-
-
-    println!("{:?}",m);
+    sys_modules.set_item(
+        "angreal._integrations.docker.image",
+        m.getattr("_integrations")?
+            .getattr("docker")?
+            .getattr("image")?,
+    )?;
+    sys_modules.set_item(
+        "angreal._integrations.docker.container",
+        m.getattr("_integrations")?
+            .getattr("docker")?
+            .getattr("container")?,
+    )?;
+    sys_modules.set_item(
+        "angreal._integrations.docker.network",
+        m.getattr("_integrations")?
+            .getattr("docker")?
+            .getattr("network")?,
+    )?;
+    sys_modules.set_item(
+        "angreal._integrations.docker.volume",
+        m.getattr("_integrations")?
+            .getattr("docker")?
+            .getattr("volume")?,
+    )?;
     Ok(())
 }
 
 #[pymodule]
-fn _integrations(_py: Python, m:&PyModule) -> PyResult<()>{
+fn _integrations(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(docker))?;
     Ok(())
 }
 
 #[pymodule]
-fn docker(_py: Python, m:&PyModule) -> PyResult<()>{
+fn docker(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<docker_pyo3::Pyo3Docker>()?;
     m.add_wrapped(wrap_pymodule!(docker_pyo3::image::image))?;
     m.add_wrapped(wrap_pymodule!(docker_pyo3::container::container))?;
