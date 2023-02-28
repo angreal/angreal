@@ -1,5 +1,5 @@
-//! Core structures for desribing tasks and arguments
-//! 
+//! Core structures for describing tasks and arguments
+//!
 
 use once_cell::sync::Lazy;
 use pyo3::prelude::*;
@@ -18,51 +18,48 @@ pub static ANGREAL_TASKS: Lazy<Mutex<Vec<AngrealCommand>>> = Lazy::new(|| Mutex:
 /// A long lived structure that stores AngrealArgs for commands upon registration
 pub static ANGREAL_ARGS: Lazy<Mutex<Vec<AngrealArg>>> = Lazy::new(|| Mutex::new(vec![]));
 
-
 /// A command describes a subcommand to be registered with the CLI
 #[derive(Clone, Debug)]
 #[pyclass(name = "Command")]
 pub struct AngrealCommand {
-    /// The name of the sub command 
+    /// The name of the sub command
     #[pyo3(get)]
     pub name: String,
-    /// A short description of what the command does 
+    /// A short description of what the command does
     #[pyo3(get)]
     pub about: Option<String>,
     /// A longer description of what the command does
     #[pyo3(get)]
     pub long_about: Option<String>,
-    /// The actual function that is exectuted when the command is run
+    /// The actual function that is executed when the command is run
     #[pyo3(get)]
     pub func: Py<PyAny>,
 }
 
-
 /// Methods exposed to the python API
 #[pymethods]
 impl AngrealCommand {
-
     /// Initialization method for the object. The command is registered to `ANGREAL_TASKS` upon instantiation from the python api
-    /// 
-    /// 
+    ///
+    ///
     /// The decorated version is the most ergonmoic way to use this object.
     /// # Example
     /// ```python
     /// import angreal
-    /// 
-    /// @angreal.command(name='test',about='a short message', 
+    ///
+    /// @angreal.command(name='test',about='a short message',
     /// long_about='a much longer message`)
     /// def test-message():
     ///     pass
     /// ```
-    /// 
+    ///
     /// ```python
     /// import angreal
-    /// 
+    ///
     /// def test-message():
     ///     pass
-    /// 
-    /// angreal.Command(name='test',about='a short message', 
+    ///
+    /// angreal.Command(name='test',about='a short message',
     /// long_about='a much longer message`, func=test-message)
     /// ```
     #[new]
@@ -78,7 +75,6 @@ impl AngrealCommand {
     }
 }
 
-
 /// An argument to augment the behavior of an angreal command
 #[derive(Clone, Debug)]
 #[pyclass(name = "Arg")]
@@ -89,7 +85,7 @@ pub struct AngrealArg {
     /// The command name associated with this argument
     #[pyo3(get)]
     pub command_name: String,
-    /// Whether or not the argument consumes a value from the command line 
+    /// Whether or not the argument consumes a value from the command line
     #[pyo3(get)]
     pub takes_value: Option<bool>,
     /// The default value to be applied to the arg.
@@ -125,12 +121,10 @@ pub struct AngrealArg {
     /// a shorter help message to be displayed
     #[pyo3(get)]
     pub help: Option<String>,
-    /// whether or not the argument is required 
+    /// whether or not the argument is required
     #[pyo3(get)]
     pub required: Option<bool>,
 }
-
-
 
 #[pymethods]
 impl AngrealArg {
@@ -140,19 +134,19 @@ impl AngrealArg {
     /// # Example
     /// ```python
     /// import angreal
-    /// 
+    ///
     /// @angreal.command(name='echo',about='a needless echo replacement',
     /// @angreal.argument(name="phrase", help="the phrase to echo", required=True)
     ///    def task_echo(phrase):
     ///        print(phrase)
     /// ```
-    /// 
+    ///
     /// ```python
     /// import angreal
-    /// 
+    ///
     /// def echo(phrase):
     ///     print(phrase)
-    /// 
+    ///
     /// angreal.Command(name='echo',about='a needless echo replacement', func=test-message)
     /// angreal.Arg(name="phrase", help="the phrase to echo", required=True, command_name='echo')
     /// ```
