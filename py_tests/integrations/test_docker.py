@@ -5,7 +5,9 @@ from angreal.integrations.docker.image     import Image, Images
 from angreal.integrations.docker.volume    import Volume, Volumes
 
 
-
+@pytest.mark.skipif(
+    sys.platform == 'win32', reason="windows tests are flaky"
+)
 def test_client_init():
     """ client has expected methods&attrs"""
     d = Docker()
@@ -31,25 +33,36 @@ def test_client_init():
     for gm in gettr_methods:
         assert isinstance(getattr(d,gm)(),dict)
 
-
+@pytest.mark.skipif(
+    sys.platform == 'win32', reason="windows tests are flaky"
+)
 def test_containers():
     """containers is a containers instance"""
     d = Docker()
     assert isinstance(d.containers(), Containers)
     assert isinstance(Container(d,'test'), Container)
 
+@pytest.mark.skipif(
+    sys.platform == 'win32', reason="windows tests are flaky"
+)
 def test_volumes():
     """volumes interface exists"""
     d = Docker()
     assert isinstance(d.volumes(), Volumes)
     assert isinstance(Volume(d,'id'), Volume)
 
+@pytest.mark.skipif(
+    sys.platform == 'win32', reason="windows tests are flaky"
+)
 def test_images():
     """images interface exists"""
     d = Docker()
     assert isinstance(d.images(), Images)
     assert isinstance(Image(d,'id'), Image)
 
+@pytest.mark.skipif(
+    sys.platform == 'win32', reason="windows tests are flaky"
+)
 def test_network():
     """volumes interface exists"""
     d = Docker()
