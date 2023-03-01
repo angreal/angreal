@@ -1,4 +1,4 @@
-//! Core structures for desribing tasks and arguments
+//! Core structures for describing tasks and arguments
 //!
 
 use once_cell::sync::Lazy;
