@@ -1,5 +1,5 @@
 //! The angreal app builder
-//! 
+//!
 use crate::task::{AngrealArg, ANGREAL_ARGS, ANGREAL_TASKS};
 use clap::{App, AppSettings, Arg, ArgAction, Command};
 
@@ -13,7 +13,7 @@ pub fn select_args(name: String) -> Vec<AngrealArg> {
         .collect()
 }
 
-/// Build the final CLI from the registered tasks 
+/// Build the final CLI from the registered tasks
 pub fn build_app() -> App<'static> {
     // Build the initial App with angreal sub commands
     let mut app = App::new("angreal")

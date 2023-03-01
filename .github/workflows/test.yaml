@@ -90,7 +90,9 @@ jobs:
       - run: pip install maturin pytest 
       - run: maturin build 
       - run: pip install .
-      - run: angreal run-tests
+      - run: cargo test -v -- --nocapture --test-threads=1
+      - run: python -m pytest -svv
+
 
   typos:
     name: Spell Check with Typos
