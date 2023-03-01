@@ -488,13 +488,12 @@ dependencies = [
 [[package]]
 name = "docker-pyo3"
 version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd5efd9f13c844b757932f8ae3a2984d42b4b4ac907ffdb9b3a964936f9cc60f"
 dependencies = [
  "chrono",
  "docker-api",
  "futures-util",
  "pyo3",
+ "pyo3-build-config",
  "pythonize",
  "serde",
  "tar",
