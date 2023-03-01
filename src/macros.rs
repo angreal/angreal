@@ -1,4 +1,4 @@
-//!
+//! 
 
 /// set a string value on an objects attribute
 macro_rules! attr_copy_str {

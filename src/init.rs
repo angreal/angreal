@@ -1,5 +1,5 @@
 //! The angreal `init` command.
-//!
+//! 
 use crate::git::{git_clone, git_pull_ff};
 
 use git_url_parse::{GitUrl, Scheme};
@@ -27,6 +27,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
     debug!("Got template type {:?} for {:?}.", template_type, template);
+
 
     debug!("Template is of type {:?}", template_type.as_str());
     let template = match template_type.as_str() {
@@ -155,6 +156,7 @@ fn create_home_dot_angreal() -> PathBuf {
     debug!("Angreal home directory location is {:?}", home_dir);
     home_dir
 }
+
 
 /// render the provided angreal template path
 fn render_template(path: &Path, take_input: bool, force: bool) -> String {

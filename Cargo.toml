@@ -17,7 +17,6 @@ doctest = false
 
 [dependencies]
 pyo3 = { version = "^0.18", extension-module = ["pyo3/extension-module"], default = ["extension-module"], features = ["auto-initialize"] }
-docker-pyo3 = { version = "0.1.2"}
 clap = { version = "3" }
 version = {version = "3.0.0"}
 log = { version = "0.4" }
@@ -38,16 +37,3 @@ rand = { version="0.8.5" }
 
 [package.metadata.maturin]
 python-source = "python"
-
-[target.aarch64-apple-darwin]
-rustflags = [
-  "-C", "link-arg=-undefined",
-  "-C", "link-arg=dynamic_lookup",
-]
-
-
-[target.x86_64-apple-darwin]
-rustflags = [
-  "-C", "link-arg=-undefined",
-  "-C", "link-arg=dynamic_lookup",
-]
