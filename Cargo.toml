@@ -1,6 +1,6 @@
 [package]
 name = "angreal"
-version = "2.0.6"
+version = "2.0.5"
 edition = "2021"
 description = "Angreal is a tool for templating projects and associated processes to provide a consistent developer experience across multiple projects."
 license = "GPL-3.0-only"
@@ -38,3 +38,16 @@ rand = { version="0.8.5" }
 
 [package.metadata.maturin]
 python-source = "python"
+
+[target.aarch64-apple-darwin]
+rustflags = [
+  "-C", "link-arg=-undefined",
+  "-C", "link-arg=dynamic_lookup",
+]
+
+
+[target.x86_64-apple-darwin]
+rustflags = [
+  "-C", "link-arg=-undefined",
+  "-C", "link-arg=dynamic_lookup",
+]
