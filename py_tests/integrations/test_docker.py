@@ -11,6 +11,9 @@ from angreal.integrations.docker.volume    import Volume, Volumes
 @pytest.mark.skipif(
     sys.platform == 'win32', reason="windows tests are flaky"
 )
+@pytest.mark.skipif(
+    sys.platform == 'darwin', reason="default osx file doesn't exist tests are flaky"
+)
 def test_client_init():
     """ client has expected methods&attrs"""
     d = Docker()
