@@ -17,7 +17,7 @@ doctest = false
 
 [dependencies]
 pyo3 = { version = "^0.18", features = ["auto-initialize"], extension-module = ["pyo3/extension-module"]}
-docker-pyo3 = { git = "https://github.com/dylanbstorey/docker-pyo3", branch="main"} 
+docker-pyo3 = { version = "0.1.4" } 
 clap = { version = "3" }
 version = {version = "3.0.0"}
 log = { version = "0.4" }
