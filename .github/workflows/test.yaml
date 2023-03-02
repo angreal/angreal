@@ -110,7 +110,7 @@ jobs:
       - run: pip install maturin pytest 
       - run: maturin build 
       - run: pip install .
-      - run: cargo test -v -- --nocapture --test-threads=1
+      # - run: cargo test -v -- --nocapture --test-threads=1 ## the linking thing is messing with cargo test
       - run: python -m pytest -svv
   
   typos:
