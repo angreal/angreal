@@ -488,7 +488,7 @@ dependencies = [
 [[package]]
 name = "docker-pyo3"
 version = "0.1.3"
-source = "git+https://github.com/dylanbstorey/docker-pyo3?branch=main#c851a48fe7bedccce51c296ec1f6f2503778138b"
+source = "git+https://github.com/dylanbstorey/docker-pyo3?branch=main#5ba3d4a60a823185aea44b63a8690162ead28081"
 dependencies = [
  "chrono",
  "docker-api",

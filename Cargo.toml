@@ -16,7 +16,7 @@ crate-type = ["cdylib","rlib"]
 doctest = false
 
 [dependencies]
-pyo3 = { version = "^0.18", extension-module = ["pyo3/extension-module"], default = ["extension-module"], features = ["auto-initialize"] }
+pyo3 = { version = "^0.18", extension-module = ["pyo3/extension-module"], features = ["auto-initialize"] }
 docker-pyo3 = { git = "https://github.com/dylanbstorey/docker-pyo3", branch="main"} 
 clap = { version = "3" }
 version = {version = "3.0.0"}
@@ -38,3 +38,4 @@ rand = { version="0.8.5" }
 
 [package.metadata.maturin]
 python-source = "python"
+

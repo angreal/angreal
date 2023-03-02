@@ -29,5 +29,4 @@ classifiers = [
 angreal = "angreal:main"
 
 [tool.maturin]
-python-source = "python"
-features = ["pyo3/extension-module"]
+cargo-extra-args = ["--features", "extension-module"]
