@@ -22,13 +22,13 @@ use builder::build_app;
 use task::ANGREAL_TASKS;
 
 use log::{debug, error};
-use pyo3::types::IntoPyDict;
+use pyo3::types::{IntoPyDict, PyDict};
 use std::ops::Not;
 use std::vec::Vec;
 
 use std::process::exit;
 
-use pyo3::prelude::*;
+use pyo3::{prelude::*, wrap_pymodule};
 
 /// The main function is just an entry point to be called from the core angreal library.
 #[pyfunction]
@@ -145,9 +145,60 @@ fn main() -> PyResult<()> {
 
 #[pymodule]
 fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
+    py_logger::register();
     m.add_function(wrap_pyfunction!(main, m)?)?;
     task::register(_py, m)?;
     utils::register(_py, m)?;
-    py_logger::register();
+
+    m.add_wrapped(wrap_pymodule!(_integrations))?;
+
+    let sys = PyModule::import(_py, "sys")?;
+    let sys_modules: &PyDict = sys.getattr("modules")?.downcast()?;
+    sys_modules.set_item("angreal._integrations", m.getattr("_integrations")?)?;
+    sys_modules.set_item(
+        "angreal._integrations.docker",
+        m.getattr("_integrations")?.getattr("docker")?,
+    )?;
+
+    sys_modules.set_item(
+        "angreal._integrations.docker.image",
+        m.getattr("_integrations")?
+            .getattr("docker")?
+            .getattr("image")?,
+    )?;
+    sys_modules.set_item(
+        "angreal._integrations.docker.container",
+        m.getattr("_integrations")?
+            .getattr("docker")?
+            .getattr("container")?,
+    )?;
+    sys_modules.set_item(
+        "angreal._integrations.docker.network",
+        m.getattr("_integrations")?
+            .getattr("docker")?
+            .getattr("network")?,
+    )?;
+    sys_modules.set_item(
+        "angreal._integrations.docker.volume",
+        m.getattr("_integrations")?
+            .getattr("docker")?
+            .getattr("volume")?,
+    )?;
+    Ok(())
+}
+
+#[pymodule]
+fn _integrations(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_wrapped(wrap_pymodule!(docker))?;
+    Ok(())
+}
+
+#[pymodule]
+fn docker(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_class::<docker_pyo3::Pyo3Docker>()?;
+    m.add_wrapped(wrap_pymodule!(docker_pyo3::image::image))?;
+    m.add_wrapped(wrap_pymodule!(docker_pyo3::container::container))?;
+    m.add_wrapped(wrap_pymodule!(docker_pyo3::network::network))?;
+    m.add_wrapped(wrap_pymodule!(docker_pyo3::volume::volume))?;
     Ok(())
 }

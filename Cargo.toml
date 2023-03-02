@@ -16,7 +16,8 @@ crate-type = ["cdylib","rlib"]
 doctest = false
 
 [dependencies]
-pyo3 = { version = "^0.18", extension-module = ["pyo3/extension-module"], default = ["extension-module"], features = ["auto-initialize"] }
+pyo3 = { version = "^0.18", features = ["auto-initialize"], extension-module = ["pyo3/extension-module"]}
+docker-pyo3 = { version = "0.1.4" } 
 clap = { version = "3" }
 version = {version = "3.0.0"}
 log = { version = "0.4" }
@@ -32,8 +33,10 @@ text_io = {version = "0.1.12" }
 log4rs = {version ="1.2.0"}
 openssl = { version = "0.10", features = ["vendored"] }
 
+
 [dev-dependencies]
 rand = { version="0.8.5" }
 
 [package.metadata.maturin]
 python-source = "python"
+
