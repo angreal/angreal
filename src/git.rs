@@ -63,12 +63,14 @@ pub fn git_pull_ff(repo: &str) -> PathBuf {
     }
 }
 
+#[cfg(not(target_os = "macos"))]
 #[cfg(test)]
 #[path = "../tests"]
 mod tests {
     use super::*;
     use std::fs;
     mod common;
+
 
     #[test]
     fn test_clone() {

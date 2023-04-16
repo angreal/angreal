@@ -37,7 +37,7 @@ dependencies = [
 
 [[package]]
 name = "angreal"
-version = "2.0.5"
+version = "2.0.6"
 dependencies = [
  "clap",
  "docker-pyo3",
@@ -487,8 +487,9 @@ dependencies = [
 
 [[package]]
 name = "docker-pyo3"
-version = "0.1.3"
-source = "git+https://github.com/dylanbstorey/docker-pyo3?branch=main#5ba3d4a60a823185aea44b63a8690162ead28081"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2e1ea826da529acfa22fd3d3e40ba39b54423126e7a60fcf06344ded27a8a57"
 dependencies = [
  "chrono",
  "docker-api",
