@@ -73,4 +73,3 @@ weight = 10
 name = "<i class='fa fa-download'></i> Download"
 url = "https://github.com/angreal/angreal/archive/refs/heads/main.zip"
 weight = 20
-

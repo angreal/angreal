@@ -23,7 +23,7 @@ def venv_required(path,requirements=None):
         path (str): The path to the virtual environment (or where the environment should be created if it doesn't exist)
         requirements (_type_, optional): A string containing a single module, a list of module names, or a string containing a file path. Defaults to None.
     """
-    
+
     def decorator(f):
 
         @functools.wraps(f)
@@ -41,7 +41,7 @@ def venv_required(path,requirements=None):
 
 
 class VirtualEnv(object):
-    
+
     """
     Interacting with virtual environments from within a currently running script.
 
@@ -98,7 +98,7 @@ class VirtualEnv(object):
 
         args = [self.ensure_directories.env_exe, "-m", "pip", "install"]
 
-        
+
         if isinstance(self.requirements, list):
             args = args + self.requirements
         elif os.path.exists(self.requirements):
@@ -115,7 +115,7 @@ class VirtualEnv(object):
             raise EnvironmentError(
                 "{} failed to install requirements file.".format(self.path)
             )
-    
+
 
     def __str__(self):
         return self.path

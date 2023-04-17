@@ -33,9 +33,9 @@ You interact with an angreal in two steps :
 
 ```bash
 # initialize and render the template angreal at the remote URI
-$: angreal init https://github.com/angreal/python.git   
+$: angreal init https://github.com/angreal/python.git
 # If you've used this template before you simply need to ...
-$: angreal init python 
+$: angreal init python
 ```
 
 2.  **Execution** : Executing an angreal task through the `angreal`
@@ -60,7 +60,7 @@ use it.
 1.  You initialize the project with :
 
 ```bash
-$: angreal init https://github.com/angreal/python.git   
+$: angreal init https://github.com/angreal/python.git
 ```
 
 2.  You provide values for template variables with the interactive CLI :
@@ -79,7 +79,7 @@ project_slug? ["angreal-python-demo"] #enter accepts the provided devault value
 package_name? ["angreal_python_demo"]
 
 project_short_description? ["A short description of the project"]
-A demo project 
+A demo project
 ```
 
 3.  Angreal creates a project for you, using your provided variables to
@@ -111,7 +111,7 @@ cd angreal-python-demo && tree
 4.  Next lets find out what tasks come with the template
 
 ```bash
-$: angreal                                                                                                                                       ─╯ 
+$: angreal                                                                                                                                       ─╯
 angreal 2.0.0-rc.1
 
 USAGE:
@@ -142,8 +142,8 @@ $: angreal run-tests --open
 cachedir: .pytest_cache
 rootdir: /home/dstorey/angreal-python-demo, configfile: setup.cfg
 plugins: cov-4.0.0
-collected 0 items                                                                                                                                    
-/home/dstorey/.venvs/angreal-2/lib/python3.8/site-packages/coverage/control.py:836: CoverageWarning: No data was collected. (no-data-collected)      
+collected 0 items
+/home/dstorey/.venvs/angreal-2/lib/python3.8/site-packages/coverage/control.py:836: CoverageWarning: No data was collected. (no-data-collected)
   self._warn("No data was collected.", slug="no-data-collected")
 
 

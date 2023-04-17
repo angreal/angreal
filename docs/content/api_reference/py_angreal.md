@@ -17,11 +17,11 @@ def noop_func():
 ```
 
 ### Args:
-- name (str, optional): the name to be used to invoke a task. Defaults to the function name.  
+- name (str, optional): the name to be used to invoke a task. Defaults to the function name.
 - about (str, optional): A short description of what the task does. Defaults to "".
 - long_about (str, optional): A longer description of what the task does. Defaults to the docstring on the decorated function.
 
-    
+
 
 
 ##### argument(**name**, **python_type**: str=*"str"*, **takes_value**: bool=*True*, **default_value**: str=*None*, **require_equals**: bool=*None*, **multiple_values**: bool=*None*, **number_of_values**: int=*None*, **max_values**: int=*None*, **min_values**: int=*None*, **short**: str=*None*, **long**: str=*None*, **long_help**: str=*None*, **help**: str=*None*, **required**: bool=*None*, ****kwargs**) -> None:
@@ -51,7 +51,7 @@ def noop_func(noop_arg):
 - long_help (str, optional): The help message to display with "long help" is requested with `--help`. Defaults to None.
 - help (str, optional): The help message to display when help is requested via `-h`. Defaults to None.
 - required (bool, optional): Whether the argument is required or not. Defaults to None.
-    
+
 
 
 ##### get_root() -> str:
@@ -66,4 +66,3 @@ def noop_func(noop_arg):
     print(angreal.get_root())
     pass
 ```
-

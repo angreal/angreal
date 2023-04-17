@@ -16,7 +16,7 @@ We have some basic requirements for this template :
 
 ## Template Layout
 
-Based on the above planned requirements we'll need files and folders created as follows : 
+Based on the above planned requirements we'll need files and folders created as follows :
 
 ```bash
 meeting_notes
@@ -29,8 +29,8 @@ meeting_notes
 ```
 ## `angreal.toml`
 
-The `angreal.toml` file tells angreal what variables it needs to template and provides default values for them. 
-Our template will have the following variables: 
+The `angreal.toml` file tells angreal what variables it needs to template and provides default values for them.
+Our template will have the following variables:
 - name
 - cadence
 - standing_agenda
@@ -62,7 +62,7 @@ The `README.md` is just meant to be a highlevel description of the meeting so yo
 
 ## `init.py`
 {{% notice info %}}
-**Optional:** In this very trivial example, not much happens after the folder structure is created so the init isn't required. 
+**Optional:** In this very trivial example, not much happens after the folder structure is created so the init isn't required.
 {{% /notice %}}
 
 ```python
@@ -95,10 +95,10 @@ def angreal_cmd(now=False):
     """
     file_name = datetime.datetime.today().strftime('%Y-%m-%d-%H-%M')
 
-    # We're going to assume that you're running on ubuntu 
-    # which has a binary called "editor" that will launch your 
+    # We're going to assume that you're running on ubuntu
+    # which has a binary called "editor" that will launch your
     # default terminal editor. If you need something else - set the environment
-    # variable "EDITOR" to the appropriate command 
+    # variable "EDITOR" to the appropriate command
     editor = os.environ.get('EDITOR','editor')
 
     # Create our default file template using the current time as a header
@@ -119,12 +119,12 @@ def angreal_cmd(now=False):
     # Clean up behind our selves
     os.unlink(path)
 ```
-A brief explanation of this code: 
-    - import angreal and other libraries 
+A brief explanation of this code:
+    - import angreal and other libraries
     - decorate a function with the `command`
     - we decorate the same function with an `argument`
 
-The function itself: 
+The function itself:
 - determines the current date/time
 - tries to get an EDITOR variable from the environment, falling back to the `editor` command from Ubuntu
 - if you pass the `--now` argument, opens a temporary file using your editor
@@ -132,7 +132,7 @@ The function itself:
 
 ## Using our Angreal
 
-1. Initialize our template. 
+1. Initialize our template.
 ```bash
 $ angreal init docs/content/tutorials/meeting_notes
 
@@ -152,7 +152,7 @@ Hall of the Tower
 ```
 
 ```bash
-$ cat Hall\ of\ the\ Tower/README.md                                                                                                            ─╯ 
+$ cat Hall\ of\ the\ Tower/README.md                                                                                                            ─╯
 # Hall of the Tower
 
 
@@ -171,7 +171,7 @@ Discussing embroidery and fine turned calves.
 
 ```bash
 $ cd 'Hall of the Tower'
-$ angreal 
+$ angreal
 
 angreal 2.0.0-rc.1
 
@@ -192,7 +192,7 @@ SUBCOMMANDS:
 3. How do i use `take-notes` ?
 
 ```bash
-$ angreal take-notes --help                                                                                                                  
+$ angreal take-notes --help
 
 take-notes
 
@@ -220,7 +220,6 @@ $ angreal take-minutes --now
 This will open an editor (vim if you set the `EDITOR` variable) write a note.
 
 ```
-$ ls                                                                                                                                            ─╯ 
+$ ls                                                                                                                                            ─╯
 2023-01-19-09-19.md  README.md
 ```
-

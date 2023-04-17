@@ -40,7 +40,7 @@ def test_init():
 
     venv = VirtualEnv(path=this_venv, requirements=test_requirements, now=True).install_requirements()
 
-    
+
 
     try:
         import flask
@@ -52,7 +52,7 @@ def test_init():
             sys.prefix = initial_sys_prefix
         except:
             pass
-            
+
 
 
 def test_requirements_load():

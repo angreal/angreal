@@ -53,7 +53,7 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@v1
       - run: cargo clippy --workspace --all-targets --all-features
-  
+
   angreal-tests-linux:
     name: "angreal run-tests linux"
     runs-on: ubuntu-latest
@@ -68,8 +68,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      - run: pip install maturin pytest 
-      - run: maturin build 
+      - run: pip install maturin pytest
+      - run: maturin build
       - run: pip install .
       - run: angreal run-tests
 
@@ -87,12 +87,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      - run: pip install maturin pytest 
-      - run: maturin build 
+      - run: pip install maturin pytest
+      - run: maturin build
       - run: pip install .
       - run: cargo test -v -- --nocapture --test-threads=1
       - run: python -m pytest -svv
-  
+
   angreal-tests-macosx:
     name: "angreal run-tests macos"
     runs-on: macos-11
@@ -107,12 +107,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      - run: pip install maturin pytest 
-      - run: maturin build 
+      - run: pip install maturin pytest
+      - run: maturin build
       - run: pip install .
       - run: cargo test -v -- --nocapture --test-threads=1
       - run: python -m pytest -svv
-  
+
   typos:
     name: Spell Check with Typos
     runs-on: ubuntu-latest

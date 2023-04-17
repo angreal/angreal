@@ -23,7 +23,7 @@ def command(**kwargs):
     def decorator(f):
         if not hasattr(f, "__arguments"):
             f.__arguments = []
-                
+
         angreal.Command(**kwargs, func=f)
 
         for arg in f.__arguments :
@@ -32,7 +32,7 @@ def command(**kwargs):
         @functools.wraps(f)
         def wrapper(*f_args,**f_kwargs):
             return f(*f_args,**f_kwargs)
-        
+
         return wrapper
     return decorator
 
