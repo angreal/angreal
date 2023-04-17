@@ -5,23 +5,22 @@
     Integration to virtualenv
 
 """
-import logging
 import functools
 import os
 import subprocess
 import sys
 import venv
-import site
 
-from shutil import which
 
 
 def venv_required(path,requirements=None):
     """wrap a function in a virtual environment before execution
 
     Args:
-        path (str): The path to the virtual environment (or where the environment should be created if it doesn't exist)
-        requirements (_type_, optional): A string containing a single module, a list of module names, or a string containing a file path. Defaults to None.
+        path (str): The path to the virtual environment (or where the environment
+          should be created if it doesn't exist)
+        requirements (_type_, optional): A string containing a single module, a
+          list of module names, or a string containing a file path. Defaults to None.
     """
 
     def decorator(f):
@@ -47,8 +46,10 @@ class VirtualEnv(object):
 
     Args:
         path (str): the path to the virtual environment
-        requirements ([str,List[str]]), optional): A string containing a single module, a list of module names, or a string containing a file path. Defaults to None.
-        now (bool, optional): should the environment be created/activated on initialization. Defaults to True
+        requirements ([str,List[str]]), optional): A string containing a single module,
+          a list of module names, or a string containing a file path. Defaults to None.
+        now (bool, optional): should the environment be created/activated
+          on initialization. Defaults to True
     """
 
     base_path = os.path.expanduser(os.path.join("~", ".venv"))
@@ -90,7 +91,8 @@ class VirtualEnv(object):
         """
         install requirements the requirements set during initialization.
 
-        :param requirements: path to a requirements file, single requirement, or list of requirements
+        :param requirements: path to a requirements file, single requirement,
+          or list of requirements
         """
 
         if not self.requirements:
@@ -107,7 +109,8 @@ class VirtualEnv(object):
             args = args + [self.requirements]
         else:
             raise TypeError(
-                f"requirements should be one of : file, list, or string got {type(self.requirements)}"
+                "requirements should be one of : file, list, or string got "
+                "{type(self.requirements)}"
             )
 
         rc = subprocess.call(args, stdout=self.devnull, stderr=self.devnull)

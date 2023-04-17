@@ -9,7 +9,7 @@ def test_git_no_path():
     """
     test git object fails with no path
     """
-    git = Git(git_path=None)
+    Git(git_path=None)
 
 
 def test_git_bad_path():
@@ -17,7 +17,7 @@ def test_git_bad_path():
     test git object fails with bad path
     """
     with pytest.raises(OSError):
-        git = Git(git_path="not git")
+        Git(git_path="not git")
 
 
 def test_git_bad_subcommand():
