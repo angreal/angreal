@@ -4,7 +4,7 @@ type: page
 ---
 
 # Angreal
---- 
+---
 
 ## Angreal is meant to:
 - allow the consistent creation of projects
@@ -20,7 +20,7 @@ type: page
 $: pip install 'angreal>=2' #pip install angreal will also work
 $: angreal init https://github.com/angreal/python.git
 ```
---- 
+---
 
 ## What is it?
 
@@ -42,17 +42,17 @@ level of flexibility in how a task functions between projects.
 
 ### Why 2.0 ?
 
-The original angreal was built ontop of a number of python modules that
+The original angreal was built on top of a number of python modules that
 were under active development and used by a number of other projects.
 The nature of the application itself meant that core application found
 itself in dependency hell regularly - and became rather annoying to use.
 The 2.0.0 release is a complete rewrite that uses
-[Rust](https://www.rust-lang.org/) to provide a compiled binary with the goal that it will 
+[Rust](https://www.rust-lang.org/) to provide a compiled binary with the goal that it will
 require no external python dependencies.
 
 
 <!-- [![image](https://img.shields.io/pypi/v/angreal.svg)](https://pypi.python.org/pypi/angreal)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/angreal) 
+![PyPI - Downloads](https://img.shields.io/pypi/dm/angreal)
 [![image](https://img.shields.io/pypi/l/angreal.svg)](https://pypi.python.org/pypi/angreal)
 [![Angreal Tests](https://github.com/angreal/angreal/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/angreal/angreal/actions/workflows/ci.yaml)
 [![Angreal Docs Deploy](https://github.com/angreal/angreal/actions/workflows/docs.yaml/badge.svg)](https://github.com/angreal/angreal/actions/workflows/docs.yaml)

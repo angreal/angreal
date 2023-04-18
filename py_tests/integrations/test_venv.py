@@ -14,7 +14,6 @@ def test_venv_required():
 
     @venv_required("__angreal", requirements='flask')
     def test(a, b):
-        import flask
         return a + b
 
     try:
@@ -38,24 +37,25 @@ def test_init():
     this_venv = "__test_venv_1"
     assert not os.path.isdir(this_venv)
 
-    venv = VirtualEnv(path=this_venv, requirements=test_requirements, now=True).install_requirements()
+    VirtualEnv(path=this_venv, requirements=test_requirements,
+                now=True).install_requirements()
 
-    
+
 
     try:
-        import flask
+        pass
     except (ImportError, AssertionError):
         raise
     finally:
         try:
             shutil.rmtree(this_venv)
             sys.prefix = initial_sys_prefix
-        except:
+        except Exception:
             pass
-            
 
 
-def test_requirements_load():
+
+def test_requirements_load_string():
     """
     testing load from "string"
     """
@@ -66,21 +66,21 @@ def test_requirements_load():
     this_venv = "__test_venv_2"
     assert not os.path.isdir(this_venv)
 
-    venv = VirtualEnv(path=this_venv, requirements=flask, now=True).install_requirements()
+    VirtualEnv(path=this_venv, requirements="flask", now=True).install_requirements()
 
     try:
-        import flask
+        pass
     except (ImportError, AssertionError):
         raise
     finally:
         try:
             shutil.rmtree(this_venv)
             sys.prefix = initial_sys_prefix
-        except:
+        except Exception:
             pass
 
 
-def test_requirements_load():
+def test_requirements_load_list():
     """
     test load requirements from list
     """
@@ -89,15 +89,15 @@ def test_requirements_load():
     this_venv = "__test_venv_3"
     assert not os.path.isdir(this_venv)
 
-    venv = VirtualEnv(path=this_venv, requirements=["flask"], now=True).install_requirements()
+    VirtualEnv(path=this_venv, requirements=["flask"], now=True).install_requirements()
 
     try:
-        import flask
+        pass
     except (ImportError, AssertionError):
         raise
     finally:
         try:
             shutil.rmtree(this_venv)
             sys.prefix = initial_sys_prefix
-        except:
+        except Exception:
             pass

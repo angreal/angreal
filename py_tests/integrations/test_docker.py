@@ -1,4 +1,4 @@
-import pytest 
+import pytest
 import sys
 
 from angreal.integrations.docker import Docker

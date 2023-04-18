@@ -32,11 +32,10 @@ Angreal uses angreal! Tasks can be confidently run on :
 
 ### Windows Development Support
 
-I did not have windows in mind when writing initial angreal tasks, they may (probably) won't work 
+I did not have windows in mind when writing initial angreal tasks, they may (probably) won't work
 well out of the box.
 
 1. When running `maturin develop` you may see failures in the build chain due to OpenSSL not being installed. Installing [StrawberryPerl](https://strawberryperl.com/)
-SHOULD take care of that for you. 
+SHOULD take care of that for you.
 
 2. Tests can be run via `cargo test` and `pytest`.
-
