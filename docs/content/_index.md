@@ -42,7 +42,7 @@ level of flexibility in how a task functions between projects.
 
 ### Why 2.0 ?
 
-The original angreal was built ontop of a number of python modules that
+The original angreal was built on top of a number of python modules that
 were under active development and used by a number of other projects.
 The nature of the application itself meant that core application found
 itself in dependency hell regularly - and became rather annoying to use.
