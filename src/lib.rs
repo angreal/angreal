@@ -63,7 +63,7 @@ fn main() -> PyResult<()> {
         }
     }
 
-    let app = build_app();
+    let app = build_app(in_angreal_project);
     let mut app_copy = app.clone();
     let sub_command = app.get_matches_from(&argvs);
 

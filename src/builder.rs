@@ -14,7 +14,7 @@ pub fn select_args(name: String) -> Vec<AngrealArg> {
 }
 
 /// Build the final CLI from the registered tasks
-pub fn build_app() -> App<'static> {
+pub fn build_app(in_angreal_project: bool) -> App<'static> {
     // Build the initial App with angreal sub commands
     let mut app = App::new("angreal")
         .setting(AppSettings::NoBinaryName)
@@ -26,30 +26,33 @@ pub fn build_app() -> App<'static> {
             .global(true)
             .help("verbose level, (may be used multiple times for more verbosity)")
         )
-        .subcommand(Command::new("init")
-                    .about("Initialize an Angreal template from source.")
-                    .arg(
-                        Arg::new("force")
-                        .short('f')
-                        .long("--force")
-                        .takes_value(false)
-                        .help("Force the rendering of a template, even if paths/files already exist.")
-                    )
-                    .arg(
-                        Arg::new("defaults")
-                        .short('d')
-                        .long("--defaults")
-                        .takes_value(false)
-                        .help("Use default values provided in the angreal.toml.")
-                    )
-                    .arg(
-                        Arg::new("template")
-                        .takes_value(true)
-                        .required(true)
-                        .help("The template to use. Either a pre-downloaded template name, or url to a git repo.")
-                    )
-                )
         .version(version!());
+    if  !in_angreal_project {
+        app = app.subcommand(Command::new("init")
+                        .about("Initialize an Angreal template from source.")
+                        .arg(
+                            Arg::new("force")
+                            .short('f')
+                            .long("--force")
+                            .takes_value(false)
+                            .help("Force the rendering of a template, even if paths/files already exist.")
+                        )
+                        .arg(
+                            Arg::new("defaults")
+                            .short('d')
+                            .long("--defaults")
+                            .takes_value(false)
+                            .help("Use default values provided in the angreal.toml.")
+                        )
+                        .arg(
+                            Arg::new("template")
+                            .takes_value(true)
+                            .required(true)
+                            .help("The template to use. Either a pre-downloaded template name, or url to a git repo.")
+                        )
+                    )
+        }
+        
 
     let commands = ANGREAL_TASKS.lock().unwrap().clone();
     for cmd in commands.into_iter() {
@@ -83,14 +86,19 @@ pub fn build_app() -> App<'static> {
     app
 }
 
-// #[cfg(test)]
-// #[path = "../tests"]
-// mod tests {
-//     mod common;
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-//     #[test]
-//     fn test_generate_command(){
-//         crate::builder::build_task();
-//     }
+    #[test]
+    fn test_generate_app_in_project(){
+        let app = build_app(true);
+        assert_eq!(None,app.find_subcommand("init"));
+    }
 
-// }
+    #[test]
+    fn test_generate_app_out_project(){
+        let app = build_app(false);
+        assert_ne!(None, app.find_subcommand("init"));
+    }
+}
