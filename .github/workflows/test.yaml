@@ -1,6 +1,7 @@
+---
 name: "Angreal Tests"
 
-on:
+on:  # yamllint disable-line rule:truthy
   push:
     branches:
 
@@ -14,6 +15,21 @@ env:
   RUSTUP_MAX_RETRIES: 10
 
 jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly-2022-11-01
+          override: true
+          components: rustfmt, clippy
+      - uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: --all-files
+
   cargo-build:
     name: "cargo build"
     runs-on: ubuntu-latest
@@ -27,33 +43,6 @@ jobs:
       - uses: Swatinem/rust-cache@v1
       - run: cargo build --all
 
-  cargo-fmt:
-    name: "cargo fmt"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly-2022-11-01
-          override: true
-          components: rustfmt
-      - run: cargo fmt --all --check
-
-  cargo_clippy:
-    name: "cargo clippy"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly-2022-11-01
-          override: true
-          components: clippy
-      - uses: Swatinem/rust-cache@v1
-      - run: cargo clippy --workspace --all-targets --all-features
-  
   angreal-tests-linux:
     name: "angreal run-tests linux"
     runs-on: ubuntu-latest
@@ -68,8 +57,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      - run: pip install maturin pytest 
-      - run: maturin build 
+      - run: pip install maturin pytest
+      - run: maturin build
       - run: pip install .
       - run: angreal run-tests
 
@@ -87,12 +76,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      - run: pip install maturin pytest 
-      - run: maturin build 
+      - run: pip install maturin pytest
+      - run: maturin build
       - run: pip install .
       - run: cargo test -v -- --nocapture --test-threads=1
       - run: python -m pytest -svv
-  
+
   angreal-tests-macosx:
     name: "angreal run-tests macos"
     runs-on: macos-11
@@ -107,35 +96,35 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      - run: pip install maturin pytest 
-      - run: maturin build 
+      - run: pip install maturin pytest
+      - run: maturin build
       - run: pip install .
       - run: cargo test -v -- --nocapture --test-threads=1
       - run: python -m pytest -svv
-  
+
   typos:
     name: Spell Check with Typos
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Actions Repository
-      uses: actions/checkout@v2
-    - name: Spell Check
-      uses: crate-ci/typos@master
-      with:
-        files: ./src
-    - name: Spell Check
-      uses: crate-ci/typos@master
-      with:
-        files: ./docs/content
-    - name: Spell Check
-      uses: crate-ci/typos@master
-      with:
-        files: ./python
-    - name: Spell Check
-      uses: crate-ci/typos@master
-      with:
-        files: ./py_tests
-    - name: Spell Check
-      uses: crate-ci/typos@master
-      with:
-        files: ./tests
+      - name: Checkout Actions Repository
+        uses: actions/checkout@v2
+      - name: Spell Check
+        uses: crate-ci/typos@master
+        with:
+          files: ./src
+      - name: Spell Check
+        uses: crate-ci/typos@master
+        with:
+          files: ./docs/content
+      - name: Spell Check
+        uses: crate-ci/typos@master
+        with:
+          files: ./python
+      - name: Spell Check
+        uses: crate-ci/typos@master
+        with:
+          files: ./py_tests
+      - name: Spell Check
+        uses: crate-ci/typos@master
+        with:
+          files: ./tests

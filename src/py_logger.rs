@@ -82,7 +82,7 @@ pub fn setup_logging(py: Python) -> PyResult<()> {
 class HostHandler(Handler):
 	def __init__(self, level=0):
 		super().__init__(level=level)
-	
+
 	def emit(self, record):
 		host_log(record)
 

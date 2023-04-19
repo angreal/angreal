@@ -12,8 +12,8 @@ def test_cmd_init():
     cmd = angreal.Command(name="sub_command", func=func)
     assert cmd.name == "sub_command"
     assert cmd.func == func
-    assert cmd.about == None
-    assert cmd.long_about == None
+    assert cmd.about is None
+    assert cmd.long_about is None
 
     cmd = angreal.Command(
         name="sub_command", func=func, about="about", long_about="long_about"
@@ -36,18 +36,18 @@ def test_arg_init():
     arg = angreal.Arg(name="test_arg", command_name="sub_command")
     assert arg.name == "test_arg"
     assert arg.command_name == "sub_command"
-    assert arg.takes_value == True
-    assert arg.default_value == None
-    assert arg.require_equals == None
-    assert arg.multiple_values == None
-    assert arg.max_values == None
-    assert arg.min_values == None
+    assert arg.takes_value is True
+    assert arg.default_value is None
+    assert arg.require_equals is None
+    assert arg.multiple_values is None
+    assert arg.max_values is None
+    assert arg.min_values is None
     assert arg.python_type == "str"
-    assert arg.short == None
-    assert arg.long == None
-    assert arg.long_help == None
-    assert arg.help == None
-    assert arg.required == None
+    assert arg.short is None
+    assert arg.long is None
+    assert arg.long_help is None
+    assert arg.help is None
+    assert arg.required is None
 
     arg = angreal.Arg(
         name="test_arg_2",
@@ -68,10 +68,10 @@ def test_arg_init():
 
     assert arg.name == "test_arg_2"
     assert arg.command_name == "sub_command"
-    assert arg.takes_value == True
+    assert arg.takes_value is True
     assert arg.default_value == "thang"
-    assert arg.require_equals == True
-    assert arg.multiple_values == True
+    assert arg.require_equals is True
+    assert arg.multiple_values is True
     assert arg.max_values == 3
     assert arg.min_values == 4
     assert arg.python_type == "str"
@@ -79,7 +79,7 @@ def test_arg_init():
     assert arg.long == "arg_2"
     assert arg.long_help == "This is a long help message"
     assert arg.help == "This is a help message"
-    assert arg.required == True
+    assert arg.required is True
 
     with pytest.raises(TypeError):
         angreal.Arg()

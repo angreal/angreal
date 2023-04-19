@@ -22,11 +22,11 @@ def run_tests():
     print(green + "building" + end)
     print(green + "====================" + end)
 
-    build = subprocess.run(
+    subprocess.run(
         ["maturin build"], cwd=cwd, shell=True
     )
 
-    build = subprocess.run(
+    subprocess.run(
         ["pip install ."], cwd=cwd, shell=True
     )
 
@@ -47,5 +47,6 @@ def run_tests():
 
     if cargo_rv.returncode or pytest_rv.returncode:
         raise RuntimeError(
-            f"Tests failed with status codes : {cargo_rv} (cargo) and {pytest_rv}(pytest)"
+            f"Tests failed with status codes : {cargo_rv}"
+            " (cargo) and {pytest_rv}(pytest)"
         )

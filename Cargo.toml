@@ -16,7 +16,7 @@ doctest = false
 
 [dependencies]
 pyo3 = { version = "^0.18", features = ["auto-initialize"], extension-module = ["pyo3/extension-module"]}
-docker-pyo3 = { version = "0.1.4" } 
+docker-pyo3 = { version = "0.1.4" }
 clap = { version = "3" }
 version = {version = "3.0.0"}
 log = { version = "0.4" }
@@ -38,4 +38,3 @@ rand = { version="0.8.5" }
 
 [package.metadata.maturin]
 python-source = "python"
-

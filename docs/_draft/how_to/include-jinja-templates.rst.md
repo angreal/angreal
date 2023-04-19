@@ -40,5 +40,5 @@ will render as
 ├── VERSION
 ├── angreal.json
 ├── setup.py
-└── {{ angreal.name }} 
+└── {{ angreal.name }}
 ```
