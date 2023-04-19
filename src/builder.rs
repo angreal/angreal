@@ -19,15 +19,16 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
     let mut app = App::new("angreal")
         .setting(AppSettings::NoBinaryName)
         .setting(AppSettings::SubcommandRequiredElseHelp)
-        .arg(Arg::new("verbose")
-            .short('v')
-            .long("verbose")
-            .action(ArgAction::Count)
-            .global(true)
-            .help("verbose level, (may be used multiple times for more verbosity)")
+        .arg(
+            Arg::new("verbose")
+                .short('v')
+                .long("verbose")
+                .action(ArgAction::Count)
+                .global(true)
+                .help("verbose level, (may be used multiple times for more verbosity)"),
         )
         .version(version!());
-    if  !in_angreal_project {
+    if !in_angreal_project {
         app = app.subcommand(Command::new("init")
                         .about("Initialize an Angreal template from source.")
                         .arg(
@@ -51,8 +52,7 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
                             .help("The template to use. Either a pre-downloaded template name, or url to a git repo.")
                         )
                     )
-        }
-        
+    }
 
     let commands = ANGREAL_TASKS.lock().unwrap().clone();
     for cmd in commands.into_iter() {
@@ -91,13 +91,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_generate_app_in_project(){
+    fn test_generate_app_in_project() {
         let app = build_app(true);
-        assert_eq!(None,app.find_subcommand("init"));
+        assert_eq!(None, app.find_subcommand("init"));
     }
 
     #[test]
-    fn test_generate_app_out_project(){
+    fn test_generate_app_out_project() {
         let app = build_app(false);
         assert_ne!(None, app.find_subcommand("init"));
     }
