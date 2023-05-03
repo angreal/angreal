@@ -6,14 +6,25 @@ def func():
     pass
 
 
+def test_group_init():
+    """Test group initialization"""
+
+    group = angreal.Group(name="group", about="about")
+    assert group.name == "group"
+    assert group.about == "about"
+
 def test_cmd_init():
     """Test command initialization"""
 
-    cmd = angreal.Command(name="sub_command", func=func)
+    group1 = angreal.Group(name="group1", about="about1")
+    group2 = angreal.Group(name="group2", about="about2")
+
+    cmd = angreal.Command(name="sub_command", func=func, group = [group1,group2])
     assert cmd.name == "sub_command"
     assert cmd.func == func
     assert cmd.about is None
     assert cmd.long_about is None
+    assert cmd.group[0].name, cmd.group[1].name is ["group1","group2"]
 
     cmd = angreal.Command(
         name="sub_command", func=func, about="about", long_about="long_about"
@@ -22,6 +33,7 @@ def test_cmd_init():
     assert cmd.func == func
     assert cmd.about == "about"
     assert cmd.long_about == "long_about"
+    assert cmd.group is None
 
     with pytest.raises(TypeError):
         angreal.Command(name="sub_command")
@@ -89,3 +101,26 @@ def test_arg_init():
 
     with pytest.raises(TypeError):
         angreal.Arg(command_name="test")
+
+
+def test_group():
+
+    group1 = angreal.command_group(name="group1")
+    group2 = angreal.command_group(name="group2")
+
+    @group1()
+    def test1():
+        pass
+
+    @group1()
+    @group2()
+    def test2():
+        pass
+
+    t = test1
+
+    assert t.__group == ["group1"]
+
+    t = test2
+
+    assert t.__group ==["group1","group2"]
