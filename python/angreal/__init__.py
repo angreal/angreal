@@ -27,8 +27,10 @@ def command(**kwargs):
     def decorator(f):
         if not hasattr(f, "__arguments"):
             f.__arguments = []
+        if not hasattr(f, "__group"):
+            f.__group = []
 
-        angreal.Command(**kwargs, func=f)
+        angreal.Command(**kwargs, group=f.__groups,  func=f)
 
         for arg in f.__arguments :
             angreal.Arg(**{**arg,
