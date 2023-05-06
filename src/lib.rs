@@ -83,12 +83,29 @@ fn main() -> PyResult<()> {
                 error!("This doesn't appear to be an angreal project.");
                 exit(1)
             }
+
+            let mut command_groups: Vec<String> = Vec::new();
+            command_groups.push(task.to_string());
+    
+            let mut next = sub_m.subcommand();
+
+            while next.is_some(){
+                let cmd = next.unwrap();
+                command_groups.push(cmd.0.to_string());
+                next = cmd.1.subcommand();
+            }
+
+            println!("{:?}", command_groups);
+
+            let task = command_groups.pop().unwrap();
+
+
             let some_command = ANGREAL_TASKS.lock().unwrap().clone();
-            let some_command = some_command.iter().find(|&x| x.name == task);
+            let some_command = some_command.iter().find(|&x| x.name == task.as_str() &&  x.group.clone().unwrap().iter().map(|x| x.name.to_string()).collect::<Vec<String>>() == command_groups);
 
             let command = match some_command {
                 None => {
-                    error!("Task {}, not found.", <&str>::clone(&task));
+                    error!("Task {}, not found.", task.as_str());
                     app_copy.print_help().unwrap_or(());
                     exit(1)
                 }
