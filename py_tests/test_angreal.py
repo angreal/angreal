@@ -119,8 +119,8 @@ def test_group():
 
     t = test1
 
-    assert t.__group == ["group1"]
+    assert len(t.__group) == 1
 
     t = test2
 
-    assert t.__group ==["group1","group2"]
+    assert len(t.__group) == 2

@@ -30,7 +30,7 @@ def command(**kwargs):
         if not hasattr(f, "__group"):
             f.__group = []
 
-        angreal.Command(**kwargs, group=f.__groups,  func=f)
+        angreal.Command(**kwargs, group=f.__group,  func=f)
 
         for arg in f.__arguments :
             angreal.Arg(**{**arg,
@@ -103,7 +103,7 @@ def group(**kwargs):
         if not hasattr(f, "__group"):
             f.__group = []
 
-        f.__group.insert(0,kwargs.pop("name"))
+        f.__group.insert(0,angreal.Group(**kwargs))
 
         @functools.wraps(f)
         def wrapper(*f_args, **f_kwargs):
@@ -114,8 +114,8 @@ def group(**kwargs):
 
 def command_group(name):
     """generate a re usable command group decorator.
-    
-    Example usage: 
+
+    Example usage:
 
         import angreal
 
@@ -125,12 +125,12 @@ def command_group(name):
         @group()
         def command_1():
             pass
-        
+
         @group()
         def command_2():
             pass
-        
-    Args: 
+
+    Args:
         name (str) : the group to be assigned to.
 
     """
