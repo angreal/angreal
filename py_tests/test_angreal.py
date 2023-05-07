@@ -118,8 +118,3 @@ def test_group():
     @angreal.command(name="test")
     def test2():
         pass
-
-    t = test1
-    t = test2
-
-    
