@@ -113,6 +113,25 @@ impl AngrealCommand {
         ANGREAL_TASKS.lock().unwrap().push(cmd.clone());
         cmd
     }
+
+    pub fn add_group(&mut self, group: AngrealGroup) -> PyResult<()> {
+        
+
+        let this_command_pos = ANGREAL_TASKS.lock().unwrap().iter().position(|x| x.name == self.name.as_str() && x.group.clone().unwrap().iter().map(|x| x.name.to_string()).collect::<Vec<String>>() == self.group.clone().unwrap().iter().map(|x| x.name.to_string()).collect::<Vec<String>>()); 
+
+
+        if self.group.is_none(){
+            self.group = Some(Vec::new());
+        }
+        
+        
+        let mut g = self.group.as_mut().unwrap().clone();
+        
+        g.insert(0, group);
+        self.group = Some(g.clone());
+        ANGREAL_TASKS.lock().unwrap()[this_command_pos.unwrap()] = self.clone();
+        Ok(())
+    }
 }
 
 /// An argument to augment the behavior of an angreal command

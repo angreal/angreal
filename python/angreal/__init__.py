@@ -9,6 +9,27 @@ if hasattr(angreal, "__all__"):
 
 
 
+def group(**kwargs):
+    """Assign a command to a group. May be called multiple times for nesting.
+
+    Args:
+        name (str) : the group to be assigned to.
+    """
+    def decorator(f):
+        if not hasattr(f, "__group"):
+            f.__group = []
+
+        if hasattr(f,"__command"):
+            f.__command.add_group(angreal.Group(**kwargs))
+        else:
+            raise SyntaxError("The group decorator must be applied before a command.")
+
+        @functools.wraps(f)
+        def wrapper(*f_args, **f_kwargs):
+            return f(*f_args,**f_kwargs)
+        return wrapper
+    return decorator
+
 
 
 
@@ -27,10 +48,8 @@ def command(**kwargs):
     def decorator(f):
         if not hasattr(f, "__arguments"):
             f.__arguments = []
-        if not hasattr(f, "__group"):
-            f.__group = []
 
-        angreal.Command(**kwargs, group=f.__group,  func=f)
+        f.__command = angreal.Command(**kwargs, group=[],  func=f)
 
         for arg in f.__arguments :
             angreal.Arg(**{**arg,
@@ -93,26 +112,8 @@ def argument(**kwargs):
         return wrapper
     return decorator
 
-def group(**kwargs):
-    """Assign a command to a group. May be called multiple times for nesting.
 
-    Args:
-        name (str) : the group to be assigned to.
-    """
-    def decorator(f):
-        if not hasattr(f, "__group"):
-            f.__group = []
-
-        f.__group.insert(0,angreal.Group(**kwargs))
-
-        @functools.wraps(f)
-        def wrapper(*f_args, **f_kwargs):
-            return f(*f_args,**f_kwargs)
-        return wrapper
-    return decorator
-
-
-def command_group(name):
+def command_group(name,about):
     """generate a re usable command group decorator.
 
     Example usage:
@@ -134,7 +135,7 @@ def command_group(name):
         name (str) : the group to be assigned to.
 
     """
-    return functools.partial(group,name=name)
+    return functools.partial(group,name=name, about=about)
 
 
 
