@@ -86,21 +86,28 @@ fn main() -> PyResult<()> {
 
             let mut command_groups: Vec<String> = Vec::new();
             command_groups.push(task.to_string());
-    
+
             let mut next = sub_m.subcommand();
 
-            while next.is_some(){
+            while next.is_some() {
                 let cmd = next.unwrap();
                 command_groups.push(cmd.0.to_string());
                 next = cmd.1.subcommand();
             }
 
-
             let task = command_groups.pop().unwrap();
 
-
             let some_command = ANGREAL_TASKS.lock().unwrap().clone();
-            let some_command = some_command.iter().find(|&x| x.name == task.as_str() &&  x.group.clone().unwrap().iter().map(|x| x.name.to_string()).collect::<Vec<String>>() == command_groups);
+            let some_command = some_command.iter().find(|&x| {
+                x.name == task.as_str()
+                    && x.group
+                        .clone()
+                        .unwrap()
+                        .iter()
+                        .map(|x| x.name.to_string())
+                        .collect::<Vec<String>>()
+                        == command_groups
+            });
 
             let command = match some_command {
                 None => {

@@ -115,18 +115,29 @@ impl AngrealCommand {
     }
 
     pub fn add_group(&mut self, group: AngrealGroup) -> PyResult<()> {
-        
+        let this_command_pos = ANGREAL_TASKS.lock().unwrap().iter().position(|x| {
+            x.name == self.name.as_str()
+                && x.group
+                    .clone()
+                    .unwrap()
+                    .iter()
+                    .map(|x| x.name.to_string())
+                    .collect::<Vec<String>>()
+                    == self
+                        .group
+                        .clone()
+                        .unwrap()
+                        .iter()
+                        .map(|x| x.name.to_string())
+                        .collect::<Vec<String>>()
+        });
 
-        let this_command_pos = ANGREAL_TASKS.lock().unwrap().iter().position(|x| x.name == self.name.as_str() && x.group.clone().unwrap().iter().map(|x| x.name.to_string()).collect::<Vec<String>>() == self.group.clone().unwrap().iter().map(|x| x.name.to_string()).collect::<Vec<String>>()); 
-
-
-        if self.group.is_none(){
+        if self.group.is_none() {
             self.group = Some(Vec::new());
         }
-        
-        
+
         let mut g = self.group.as_mut().unwrap().clone();
-        
+
         g.insert(0, group);
         self.group = Some(g.clone());
         ANGREAL_TASKS.lock().unwrap()[this_command_pos.unwrap()] = self.clone();
