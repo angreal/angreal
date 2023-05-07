@@ -34,7 +34,7 @@ pub struct AngrealGroup {
     #[pyo3(get)]
     pub about: Option<String>,
 }
-/// Mathods exposed in the python API
+/// Methods exposed in the python API
 #[pymethods]
 impl AngrealGroup {
     #[new]
