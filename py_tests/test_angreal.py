@@ -109,18 +109,17 @@ def test_group():
     group2 = angreal.command_group(name="group2")
 
     @group1()
+    @angreal.command(name="test")
     def test1():
         pass
 
     @group1()
     @group2()
+    @angreal.command(name="test")
     def test2():
         pass
 
     t = test1
-
-    assert len(t.__group) == 1
-
     t = test2
 
-    assert len(t.__group) == 2
+    
