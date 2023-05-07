@@ -95,7 +95,6 @@ fn main() -> PyResult<()> {
                 next = cmd.1.subcommand();
             }
 
-            println!("{:?}", command_groups);
 
             let task = command_groups.pop().unwrap();
 
