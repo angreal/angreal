@@ -113,7 +113,7 @@ def argument(**kwargs):
     return decorator
 
 
-def command_group(name,about):
+def command_group(name,about=''):
     """generate a re usable command group decorator.
 
     Example usage:
