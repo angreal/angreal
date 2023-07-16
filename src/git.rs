@@ -1,6 +1,7 @@
 //! Basic functions to git repos
 use git2::Repository;
 use git_url_parse::GitUrl;
+use git2_credentials::CredentialHandler;
 use log::error;
 use std::path::{Path, PathBuf};
 use std::process::exit;
@@ -23,13 +24,29 @@ pub fn git_clone_here(remote: &str) -> PathBuf {
 /// let clone_path = git_clone("http://github.com/remote/test.git","path/to/target/test")
 /// ```
 pub fn git_clone(remote: &str, local: &str) -> PathBuf {
-    let into = Path::new(local).to_path_buf();
+    let into = Path::new(local);
 
-    Repository::clone(remote, into)
+    let mut cb = git2::RemoteCallbacks::new();
+    let git_config = git2::Config::open_default().unwrap();
+    let mut ch = CredentialHandler::new(git_config);
+    cb.credentials(move |url, username, allowed| ch.try_next_credential(url, username, allowed));
+
+    let mut fo = git2::FetchOptions::new();
+    fo.remote_callbacks(cb)
+        .download_tags(git2::AutotagOption::All)
+        .update_fetchhead(true);
+
+    git2::build::RepoBuilder::new()
+        .branch("main")
+        .fetch_options(fo)
+        .clone(remote, into)
         .unwrap()
         .workdir()
         .unwrap()
         .to_path_buf()
+
+
+
 }
 
 /// Attempts a fast forward pull on a pre existing repo

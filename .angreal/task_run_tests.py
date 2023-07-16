@@ -13,13 +13,6 @@ end = "\33[0m"
 venv_path = os.path.join(angreal.get_root(),'..','.venv')
 
 
-group = angreal.command_group(name="group", about="a group of commands")
-@group()
-@angreal.group(name="group2")
-@angreal.command(name="echo", about="run our test suite")
-def echo():
-    print('yay')
-
 
 @angreal.command(name="run-tests", about="run our test suite")
 @venv_required(path=venv_path, requirements=['maturin','pre-commit','pytest'])
