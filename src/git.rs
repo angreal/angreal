@@ -82,22 +82,24 @@ pub fn git_pull_ff(repo: &str) -> PathBuf {
 
 // TODO: something caused these tests to start failing on the Mac runners (and locally) with the last mac update. AFAICT - this all still works correctly but the
 // local repo is returning a full path (/private/var) while tmp_dir is returning the symlink (/var/).
-#[cfg(not(target_os = "macos"))]
 #[cfg(test)]
 #[path = "../tests"]
 mod tests {
     use super::*;
     use std::fs;
     mod common;
-
+    use same_file::is_same_file;
     #[test]
     fn test_clone() {
         let mut tmp_dir = common::make_tmp_dir();
         let remote = "https://github.com/angreal/angreal_test_template.git";
         tmp_dir.push("angreal_test_template");
         let local_repo = git_clone(remote, tmp_dir.to_str().unwrap());
+        
+        let equality_test = is_same_file(local_repo, &tmp_dir).unwrap();
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
-        assert_eq!(local_repo, tmp_dir);
+
+        assert!(equality_test);
     }
 
     #[test]

@@ -52,6 +52,7 @@ dependencies = [
  "openssl",
  "pyo3",
  "rand",
+ "same-file",
  "tera",
  "text_io",
  "toml",

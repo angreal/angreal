@@ -36,6 +36,6 @@ walkdir = {version = "2.3.2" }
 
 [dev-dependencies]
 rand = { version="0.8.5" }
-
+same-file = { version = "1.0.6" }
 [package.metadata.maturin]
 python-source = "python"
