@@ -45,7 +45,7 @@ def run_tests():
     print(green + "=====================" + end)
     print(green + "Starting python tests" + end)
     print(green + "=====================" + end)
-    pytest_rv = subprocess.run(["python -m pytest -svv"], cwd=cwd, shell=True)
+    pytest_rv = subprocess.run(["python3 -m pytest -svv"], cwd=cwd, shell=True)
 
     if cargo_rv.returncode or pytest_rv.returncode:
         raise RuntimeError(
