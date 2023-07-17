@@ -1,11 +1,33 @@
 # ruff: noqa: F403, F405
+import angreal
 from .angreal import *
 import functools
+from packaging.specifiers import Specifier
 
 __doc__ = angreal.__doc__
 if hasattr(angreal, "__all__"):
     __all__ = angreal.__all__
 
+
+
+def required_version(specifier: str):
+    """checks the required version of angreal against the current.
+
+    Args:
+        specifier (str): A requirements boundary for the angreal version required
+
+    Raises:
+        EnvironmentError: In the event that the version boundary is broken the
+        boundary is not met
+    """
+
+    is_in_spec = Specifier(specifier).contains(angreal.__version__)
+
+    if not is_in_spec:
+        raise EnvironmentError(f"You require angreal {specifier} but have"
+                               " {angreal.__version__} installed.")
+
+    return
 
 
 

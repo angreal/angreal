@@ -168,6 +168,8 @@ fn main() -> PyResult<()> {
 
 #[pymodule]
 fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add("__version__", env!("CARGO_PKG_VERSION"))?;
+
     py_logger::register();
     m.add_function(wrap_pyfunction!(main, m)?)?;
     task::register(_py, m)?;
