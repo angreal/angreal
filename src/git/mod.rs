@@ -113,7 +113,9 @@ mod tests {
         assert!(equality_test);
     }
 
+    /// we skip this test on windows because the gitlab runner is broken
     #[test]
+    #[cfg_attr(target_os = "windows", ignore)]
     fn test_clone_private() {
         let mut tmp_dir = common::make_tmp_dir();
         let remote = "git@github.com:angreal/private_test_template.git";
@@ -157,7 +159,9 @@ mod tests {
         assert!(equality_test);
     }
 
+    /// We skip this test on windows because github action is broken
     #[test]
+    #[cfg_attr(target_os = "windows", ignore)]
     fn test_git_pull_ff_private() {
         let mut tmp_dir = common::make_tmp_dir();
         tmp_dir.push("angreal_test_template");
