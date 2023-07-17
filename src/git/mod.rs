@@ -1,5 +1,6 @@
 //! Basic functions to git repos
 use git2::Repository;
+use git2_credentials::CredentialHandler;
 use git_url_parse::GitUrl;
 use log::error;
 use std::path::{Path, PathBuf};
@@ -23,9 +24,23 @@ pub fn git_clone_here(remote: &str) -> PathBuf {
 /// let clone_path = git_clone("http://github.com/remote/test.git","path/to/target/test")
 /// ```
 pub fn git_clone(remote: &str, local: &str) -> PathBuf {
-    let into = Path::new(local).to_path_buf();
+    let into = Path::new(local);
 
-    Repository::clone(remote, into)
+    let mut cb = git2::RemoteCallbacks::new();
+    let git_config = git2::Config::open_default().unwrap();
+    let mut ch = CredentialHandler::new(git_config);
+    cb.credentials(move |url, username, allowed| ch.try_next_credential(url, username, allowed));
+
+    let mut fetch_options = git2::FetchOptions::new();
+    fetch_options
+        .remote_callbacks(cb)
+        .download_tags(git2::AutotagOption::All)
+        .update_fetchhead(true);
+
+    git2::build::RepoBuilder::new()
+        .branch("main")
+        .fetch_options(fetch_options)
+        .clone(remote, into)
         .unwrap()
         .workdir()
         .unwrap()
@@ -37,10 +52,21 @@ pub fn git_clone(remote: &str, local: &str) -> PathBuf {
 /// let pull_path = git_pull_ff("path/to/target/test")
 /// ```
 pub fn git_pull_ff(repo: &str) -> PathBuf {
+    let mut cb = git2::RemoteCallbacks::new();
+    let git_config = git2::Config::open_default().unwrap();
+    let mut ch = CredentialHandler::new(git_config);
+    cb.credentials(move |url, username, allowed| ch.try_next_credential(url, username, allowed));
+
+    let mut fetch_options = git2::FetchOptions::new();
+    fetch_options
+        .remote_callbacks(cb)
+        .download_tags(git2::AutotagOption::All)
+        .update_fetchhead(true);
+
     let repo = Repository::open(repo).unwrap();
     repo.find_remote("origin")
         .unwrap()
-        .fetch(&["main"], None, None)
+        .fetch(&["main"], Some(&mut fetch_options), None)
         .unwrap();
     let fetch_head = repo.find_reference("FETCH_HEAD").unwrap();
     let fetch_commit = repo.reference_to_annotated_commit(&fetch_head).unwrap();
@@ -65,22 +91,39 @@ pub fn git_pull_ff(repo: &str) -> PathBuf {
 
 // TODO: something caused these tests to start failing on the Mac runners (and locally) with the last mac update. AFAICT - this all still works correctly but the
 // local repo is returning a full path (/private/var) while tmp_dir is returning the symlink (/var/).
-#[cfg(not(target_os = "macos"))]
 #[cfg(test)]
-#[path = "../tests"]
+#[path = "../../tests"]
 mod tests {
     use super::*;
     use std::fs;
     mod common;
-
+    use same_file::is_same_file;
     #[test]
-    fn test_clone() {
+    fn test_clone_public() {
         let mut tmp_dir = common::make_tmp_dir();
         let remote = "https://github.com/angreal/angreal_test_template.git";
         tmp_dir.push("angreal_test_template");
         let local_repo = git_clone(remote, tmp_dir.to_str().unwrap());
+
+        let equality_test = is_same_file(local_repo, &tmp_dir).unwrap();
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
-        assert_eq!(local_repo, tmp_dir);
+
+        assert!(equality_test);
+    }
+
+    /// we skip this test on windows because the gitlab runner is broken
+    #[test]
+    #[cfg_attr(target_os = "windows", ignore)]
+    fn test_clone_private() {
+        let mut tmp_dir = common::make_tmp_dir();
+        let remote = "git@github.com:angreal/private_test_template.git";
+        tmp_dir.push("angreal_test_template");
+        let local_repo = git_clone(remote, tmp_dir.to_str().unwrap());
+
+        let equality_test = is_same_file(local_repo, &tmp_dir).unwrap();
+        fs::remove_dir_all(&tmp_dir).unwrap_or(());
+
+        assert!(equality_test);
     }
 
     #[test]
@@ -91,11 +134,12 @@ mod tests {
 
         let remote = "https://github.com/angreal/angreal_test_template.git";
         let path = git_clone_here(remote);
-
         tmp_dir.push("angreal_test_template");
+
+        let equality_test = is_same_file(path, &tmp_dir).unwrap();
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
         std::env::set_current_dir(starting_dir).unwrap_or(());
-        assert_eq!(path, tmp_dir);
+        assert!(equality_test);
     }
 
     #[test]
@@ -107,7 +151,26 @@ mod tests {
         let local_repo = git_clone(remote, tmp_dir.to_str().unwrap());
 
         let local = git_pull_ff(local_repo.to_str().unwrap());
+
+        let equality_test = is_same_file(&tmp_dir, &local).unwrap();
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
-        assert_eq!(tmp_dir, local);
+        assert!(equality_test);
+    }
+
+    /// We skip this test on windows because github action is broken
+    #[test]
+    #[cfg_attr(target_os = "windows", ignore)]
+    fn test_git_pull_ff_private() {
+        let mut tmp_dir = common::make_tmp_dir();
+        tmp_dir.push("angreal_test_template");
+        let remote = "git@github.com:angreal/private_test_template.git";
+
+        let local_repo = git_clone(remote, tmp_dir.to_str().unwrap());
+
+        let local = git_pull_ff(local_repo.to_str().unwrap());
+
+        let equality_test = is_same_file(&tmp_dir, &local).unwrap();
+        fs::remove_dir_all(&tmp_dir).unwrap_or(());
+        assert!(equality_test);
     }
 }
