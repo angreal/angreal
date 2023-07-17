@@ -60,15 +60,15 @@ pub fn git_pull_ff(repo: &str) -> PathBuf {
     let mut ch = CredentialHandler::new(git_config);
     cb.credentials(move |url, username, allowed| ch.try_next_credential(url, username, allowed));
 
-    let mut fo = git2::FetchOptions::new();
-    fo.remote_callbacks(cb)
+    let mut fetch_options = git2::FetchOptions::new();
+    fetch_options.remote_callbacks(cb)
         .download_tags(git2::AutotagOption::All)
         .update_fetchhead(true);
 
     let repo = Repository::open(repo).unwrap();
     repo.find_remote("origin")
         .unwrap()
-        .fetch(&["main"], Some(&mut fo), None)
+        .fetch(&["main"], Some(&mut fetch_options), None)
         .unwrap();
     let fetch_head = repo.find_reference("FETCH_HEAD").unwrap();
     let fetch_commit = repo.reference_to_annotated_commit(&fetch_head).unwrap();
