@@ -1,7 +1,7 @@
 //! Basic functions to git repos
 use git2::Repository;
-use git_url_parse::GitUrl;
 use git2_credentials::CredentialHandler;
+use git_url_parse::GitUrl;
 use log::error;
 use std::path::{Path, PathBuf};
 use std::process::exit;
@@ -32,7 +32,8 @@ pub fn git_clone(remote: &str, local: &str) -> PathBuf {
     cb.credentials(move |url, username, allowed| ch.try_next_credential(url, username, allowed));
 
     let mut fetch_options = git2::FetchOptions::new();
-    fetch_options.remote_callbacks(cb)
+    fetch_options
+        .remote_callbacks(cb)
         .download_tags(git2::AutotagOption::All)
         .update_fetchhead(true);
 
@@ -44,9 +45,6 @@ pub fn git_clone(remote: &str, local: &str) -> PathBuf {
         .workdir()
         .unwrap()
         .to_path_buf()
-
-
-
 }
 
 /// Attempts a fast forward pull on a pre existing repo
@@ -54,14 +52,14 @@ pub fn git_clone(remote: &str, local: &str) -> PathBuf {
 /// let pull_path = git_pull_ff("path/to/target/test")
 /// ```
 pub fn git_pull_ff(repo: &str) -> PathBuf {
-
     let mut cb = git2::RemoteCallbacks::new();
     let git_config = git2::Config::open_default().unwrap();
     let mut ch = CredentialHandler::new(git_config);
     cb.credentials(move |url, username, allowed| ch.try_next_credential(url, username, allowed));
 
     let mut fetch_options = git2::FetchOptions::new();
-    fetch_options.remote_callbacks(cb)
+    fetch_options
+        .remote_callbacks(cb)
         .download_tags(git2::AutotagOption::All)
         .update_fetchhead(true);
 
@@ -106,7 +104,7 @@ mod tests {
         let remote = "https://github.com/angreal/angreal_test_template.git";
         tmp_dir.push("angreal_test_template");
         let local_repo = git_clone(remote, tmp_dir.to_str().unwrap());
-        
+
         let equality_test = is_same_file(local_repo, &tmp_dir).unwrap();
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
 
@@ -121,7 +119,7 @@ mod tests {
         let remote = "git@github.com:angreal/private_test_template.git";
         tmp_dir.push("angreal_test_template");
         let local_repo = git_clone(remote, tmp_dir.to_str().unwrap());
-        
+
         let equality_test = is_same_file(local_repo, &tmp_dir).unwrap();
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
 
