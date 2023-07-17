@@ -31,14 +31,14 @@ pub fn git_clone(remote: &str, local: &str) -> PathBuf {
     let mut ch = CredentialHandler::new(git_config);
     cb.credentials(move |url, username, allowed| ch.try_next_credential(url, username, allowed));
 
-    let mut fo = git2::FetchOptions::new();
-    fo.remote_callbacks(cb)
+    let mut fetch_options = git2::FetchOptions::new();
+    fetch_options.remote_callbacks(cb)
         .download_tags(git2::AutotagOption::All)
         .update_fetchhead(true);
 
     git2::build::RepoBuilder::new()
         .branch("main")
-        .fetch_options(fo)
+        .fetch_options(fetch_options)
         .clone(remote, into)
         .unwrap()
         .workdir()
