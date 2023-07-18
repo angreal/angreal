@@ -6,6 +6,15 @@ def func():
     pass
 
 
+def test_angreal_required_good():
+    """test required version equal to current version"""
+    angreal.required_version(f"=={angreal.__version__}")
+
+def test_angreal_required_bad():
+    """test required version can't be greater than current version"""
+    with pytest.raises(EnvironmentError):
+        angreal.required_version(f">{angreal.__version__}")
+
 def test_group_init():
     """Test group initialization"""
 
