@@ -39,6 +39,8 @@ fn main() -> PyResult<()> {
     argvs.remove(0);
     argvs.remove(0);
 
+    utils::check_up_to_date();
+
     // env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("warning"))
     // .init();
 

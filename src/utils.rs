@@ -11,6 +11,26 @@ use pyo3::types::{PyList, PyModule};
 use pyo3::PyResult;
 use std::fs;
 
+use reqwest;
+use version_compare::Version;
+
+pub fn check_up_to_date() {
+    let body = reqwest::blocking::get("https://pypi.org/pypi/angreal/json")
+        .unwrap()
+        .json::<serde_json::Value>()
+        .unwrap();
+
+    let upstream = body["info"]["version"].as_str().unwrap();
+
+    let current = env!("CARGO_PKG_VERSION");
+    let current = Version::from(current).unwrap();
+    let upstream = Version::from(upstream).unwrap();
+
+    if upstream > current {
+        println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.")
+    };
+}
+
 /// Get a list of task files in given a path
 ///
 /// # Examples
