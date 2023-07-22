@@ -91,6 +91,7 @@ def basicConfig(*pargs, **kwargs):
 	if "handlers" not in kwargs:
 		kwargs["handlers"] = [HostHandler()]
 	return oldBasicConfig(*pargs, **kwargs)
+
 "#,
         Some(logging.dict()),
         None,

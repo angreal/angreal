@@ -148,6 +148,10 @@ fn main() -> PyResult<()> {
                     }
                 }
 
+                // hack - attempt to force root logger to emit all logs by default
+                py.run("import logging", None, None).unwrap();
+                py.run("logging.getLogger().setLevel(0)", None, None)
+                    .unwrap();
                 let r_value = command.func.call(py, (), Some(kwargs.into_py_dict(py)));
 
                 match r_value {
