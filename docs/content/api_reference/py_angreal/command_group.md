@@ -44,4 +44,3 @@ def noop_function():
 ### Args:
 - name (str): the name to be used for the group.
 - about (str, optional): A short description of what the command group is for. Defaults to "".
-

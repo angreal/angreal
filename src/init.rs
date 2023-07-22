@@ -115,10 +115,6 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
                 .insert(0, rendered_dot_angreal_path.clone())
                 .unwrap();
 
-            py.run("import logging", None, None).unwrap();
-            py.run("logging.getLogger().setLevel(0)", None, None)
-                .unwrap();
-
             let function: Py<PyAny> = PyModule::from_code(py, &init_contents, "", "")
                 .unwrap()
                 .getattr("init")

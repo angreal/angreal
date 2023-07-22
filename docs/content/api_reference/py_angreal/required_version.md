@@ -4,7 +4,7 @@ title : Required Version
 
 
 ##### required_version(**specifier**: str) -> None:
-> set a required version of angreal for a template to use, can use boundary conditions like "`>`,`<`,`>=`,`<=`, `!=`" 
+> set a required version of angreal for a template to use, can use boundary conditions like "`>`,`<`,`>=`,`<=`, `!=`"
 
 {{% notice warning %}}
 raises `EnvironmentError` if angreal binary doesn't fit within boundary condition requested

@@ -32,4 +32,3 @@ import angreal
 def noop_function():
     pass
 ```
-
