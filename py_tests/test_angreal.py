@@ -22,6 +22,7 @@ def test_group_init():
     assert group.name == "group"
     assert group.about == "about"
 
+
 def test_cmd_init():
     """Test command initialization"""
 

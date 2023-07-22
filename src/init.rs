@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 use std::process::exit;
 use tera::{Context, Tera};
 use text_io::read;
-use toml::{Table, Value};
+use toml::{map::Map, Table, Value};
 use walkdir::WalkDir;
 
 /// Initialize a new project by rendering a template.
@@ -120,6 +120,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
                 .getattr("init")
                 .unwrap()
                 .into();
+
             function.call0(py).unwrap();
         });
     }
@@ -181,6 +182,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
     // build our tera context from toml file.
     let extract = file_contents.parse::<Table>().unwrap();
     let mut context = Context::new();
+    let mut toml_values = Map::new();
     for (k, v) in extract.iter() {
         let value = if v.is_str()
             && v.as_str().unwrap().starts_with("{{")
@@ -204,28 +206,42 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
         if input.trim().is_empty() | take_input.not() {
             if value.is_str() {
                 context.insert(k, &value.as_str().unwrap());
+                toml_values.insert(k.into(), value.clone());
             }
             if value.is_integer() {
                 context.insert(k, &value.as_integer().unwrap());
+                toml_values.insert(k.into(), value.clone());
             }
             if value.is_bool() {
                 context.insert(k, &value.as_bool().unwrap());
+                toml_values.insert(k.into(), value.clone());
             }
             if value.is_float() {
                 context.insert(k, &value.as_float().unwrap());
+                toml_values.insert(k.into(), value.clone());
             }
         } else {
             if value.is_str() {
                 context.insert(k, &input.trim());
+                toml_values.insert(k.into(), Value::String(input.trim().to_string()));
             }
             if value.is_integer() {
                 context.insert(k, &input.trim().parse::<i32>().unwrap());
+                toml_values.insert(
+                    k.into(),
+                    Value::Integer(input.trim().parse::<i64>().unwrap()),
+                );
             }
             if value.is_bool() {
                 context.insert(k, &input.trim());
+                toml_values.insert(
+                    k.into(),
+                    Value::Boolean(input.trim().parse::<bool>().unwrap()),
+                );
             }
             if value.is_float() {
                 context.insert(k, &input.trim().parse::<f64>().unwrap());
+                toml_values.insert(k.into(), Value::Float(input.trim().parse::<f64>().unwrap()));
             }
         }
     }
@@ -311,7 +327,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
         }
 
         if template.starts_with('.') {
-            // we don't render dot files eiterh
+            // we don't render dot files either
             // todo: exclusion glob
             continue;
         }
@@ -323,6 +339,14 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
         write!(output, "{}", rendered.as_str()).unwrap();
     }
 
+    let toml_string = toml::to_string(&Value::Table(toml_values.clone())).unwrap();
+    let mut value_path = PathBuf::new();
+    value_path.push(angreal_path.as_str());
+    value_path.push("angreal.toml");
+
+    let mut output = File::create(&value_path).unwrap();
+    write!(output, "{}", toml_string.as_str()).unwrap();
+    debug!("Storing initialization values to {}", &value_path.display());
     angreal_path
 
     // return path to .angreal
