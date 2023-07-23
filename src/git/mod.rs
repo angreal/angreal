@@ -3,6 +3,7 @@ use git2::Repository;
 use git2_credentials::CredentialHandler;
 use git_url_parse::GitUrl;
 use log::error;
+use reqwest::StatusCode;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 
@@ -89,6 +90,13 @@ pub fn git_pull_ff(repo: &str) -> PathBuf {
     }
 }
 
+pub fn remote_exists(remote_url: &str) -> bool {
+    match reqwest::blocking::get(remote_url) {
+        Ok(response) => response.status() == StatusCode::OK,
+        Err(_) => false,
+    }
+}
+
 // TODO: something caused these tests to start failing on the Mac runners (and locally) with the last mac update. AFAICT - this all still works correctly but the
 // local repo is returning a full path (/private/var) while tmp_dir is returning the symlink (/var/).
 #[cfg(test)]
@@ -98,6 +106,21 @@ mod tests {
     use std::fs;
     mod common;
     use same_file::is_same_file;
+
+    #[test]
+    fn test_repo_exists() {
+        let remote = "https://github.com/angreal/angreal_test_template.git";
+        let response = remote_exists(remote);
+        assert_eq!(response, true);
+    }
+
+    #[test]
+    fn test_repo_no_exists() {
+        let remote = "https://github.com/angreal/no_angreal_test_template.git";
+        let response = remote_exists(remote);
+        assert_eq!(response, false);
+    }
+
     #[test]
     fn test_clone_public() {
         let mut tmp_dir = common::make_tmp_dir();
