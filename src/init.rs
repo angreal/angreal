@@ -1,6 +1,6 @@
 //! The angreal `init` command.
 //!
-use crate::git::{git_clone, git_pull_ff};
+use crate::git::{git_clone, git_pull_ff, remote_exists};
 
 use git_url_parse::{GitUrl, Scheme};
 use home::home_dir;
@@ -35,7 +35,16 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             // already exist, or as a ff pull if it does
             let remote = GitUrl::parse(template).unwrap();
             let mut dst = angreal_home;
-            dst.push(remote.name.as_str());
+
+            let mut path = Path::new(&GitUrl::parse(&remote.to_string()).unwrap().path)
+                .to_path_buf()
+                .with_extension("");
+
+            // strip leading slash if needed
+            if path.starts_with("/") {
+                path = path.strip_prefix("/").unwrap().to_path_buf();
+            }
+            dst.push(path.to_str().unwrap());
 
             if dst.is_dir() {
                 debug!("Template exists at {:?}, attempting ff-pull.", dst);
@@ -46,12 +55,12 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             }
         }
         "file" => {
-            // if someone runs `angreal init template`, we check ~/.angreal/template
+            // if someone runs `angreal init org/template`, we check ~/.angrealrc/org/template
             // for the template to use and attempt a ff-pull on that repo
-            let mut try_template = angreal_home;
+            let mut try_template = angreal_home.clone();
             try_template.push(Path::new(template));
 
-            //  First we try ~/.angreal for a template with that name
+            //  First we try ~/.angrealrc for a template with that name
             if try_template.is_dir() {
                 let mut git_location = try_template.clone();
                 git_location.push(Path::new(".git"));
@@ -81,8 +90,52 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
                     exit(1);
                 }
             } else {
-                error!("The template {}, doesn't appear to exist locally", template);
-                exit(1);
+                // if someone enters angreal init python , it should try check ~/.angrealrc/angreal/python
+                let mut try_supported = angreal_home.clone();
+                try_supported.push("angreal");
+                try_supported.push(Path::new(template));
+
+                if try_supported.is_dir() {
+                    let mut git_location = try_template.clone();
+                    git_location.push(Path::new(".git"));
+
+                    if git_location.exists() {
+                        // Only attempt a ff-pull if it is a git repo
+                        debug!("Template exists at {:?}, attempting ff-pull.", try_template);
+                        git_pull_ff(try_template.to_str().unwrap())
+                    } else {
+                        error!("The template {}, doesn't appear to exist locally", template);
+                        exit(1);
+                    }
+                } else {
+                    // if that doesn't work we should attempt to clone from github.com/angreal/python
+                    let maybe_repo = format!("https://github.com/angreal/{}.git", template);
+                    debug!(
+                        "Template does not exist at {:?}, attempting clone",
+                        &maybe_repo
+                    );
+                    if remote_exists(&maybe_repo) {
+                        let mut dst = angreal_home;
+
+                        let mut path = Path::new(&GitUrl::parse(maybe_repo.as_str()).unwrap().path)
+                            .to_path_buf()
+                            .with_extension("");
+
+                        if path.starts_with("/") {
+                            path = path.strip_prefix("/").unwrap().to_path_buf();
+                        }
+                        dst.push(path.to_str().unwrap());
+
+                        git_clone(&maybe_repo, dst.to_str().unwrap())
+                    } else {
+                        // if that doesn't work we should fail
+                        error!(
+                            "The template {}, doesn't appear to exist locally or remotely.",
+                            template
+                        );
+                        exit(1);
+                    }
+                }
             }
         }
         &_ => {
@@ -370,7 +423,40 @@ mod tests {
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
         let _ = fs::remove_dir_all(&rendered_root);
+
+        let _ = fs::remove_dir_all(crate::init::create_home_dot_angreal());
     }
+
+    #[test]
+    fn test_init_long() {
+        // clone
+        crate::init::init(
+            "https://github.com/angreal/angreal_test_template.git",
+            true,
+            false,
+        );
+        // clean up rendered
+        let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        rendered_root.push(Path::new("angreal_test_project"));
+        let _ = fs::remove_dir_all(&rendered_root);
+        // use the long version
+        crate::init::init("angreal/angreal_test_template", true, false);
+        let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        rendered_root.push(Path::new("angreal_test_project"));
+        let _ = fs::remove_dir_all(&rendered_root);
+        let _ = fs::remove_dir_all(crate::init::create_home_dot_angreal());
+    }
+
+    #[test]
+    fn test_init_short() {
+        // clone
+        crate::init::init("angreal_test_template", true, false);
+        let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        rendered_root.push(Path::new("angreal_test_project"));
+        let _ = fs::remove_dir_all(&rendered_root);
+        let _ = fs::remove_dir_all(crate::init::create_home_dot_angreal());
+    }
+
     #[test]
     fn test_render_template() {
         let mut template_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
