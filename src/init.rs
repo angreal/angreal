@@ -91,7 +91,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
                 }
             } else {
                 // if someone enters angreal init python , it should try check ~/.angrealrc/angreal/python
-                let mut try_supported = angreal_home;
+                let mut try_supported = angreal_home.clone();
                 try_supported.push("angreal");
                 try_supported.push(Path::new(template));
 
@@ -115,7 +115,18 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
                         &maybe_repo
                     );
                     if remote_exists(&maybe_repo) {
-                        git_clone(&maybe_repo, try_supported.to_str().unwrap())
+                        let mut dst = angreal_home;
+
+                        let mut path = Path::new(&GitUrl::parse(maybe_repo.as_str()).unwrap().path)
+                            .to_path_buf()
+                            .with_extension("");
+
+                        if path.starts_with("/") {
+                            path = path.strip_prefix("/").unwrap().to_path_buf();
+                        }
+                        dst.push(path.to_str().unwrap());
+
+                        git_clone(&maybe_repo, dst.to_str().unwrap())
                     } else {
                         // if that doesn't work we should fail
                         error!(
