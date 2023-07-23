@@ -107,6 +107,7 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
 
                 for (pos, e) in c_groups.iter().enumerate().rev() {
                     if pos == 0 {
+                        // register the top level task when we're done building the chain.
                         top_level_groups.push(e.name.clone());
                         break;
                     }
@@ -132,8 +133,9 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
             }
         }
 
-        // Register all "top level commands"
-
+        // sort, de duplicate, and register top level commands
+        top_level_groups.sort();
+        top_level_groups.dedup();
         for top in top_level_groups {
             let top_level = groups
                 .iter()
