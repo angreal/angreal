@@ -60,7 +60,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             let mut try_template = angreal_home.clone();
             try_template.push(Path::new(template));
 
-            //  First we try ~/.angreal for a template with that name
+            //  First we try ~/.angrealrc for a template with that name
             if try_template.is_dir() {
                 let mut git_location = try_template.clone();
                 git_location.push(Path::new(".git"));
