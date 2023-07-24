@@ -4,6 +4,11 @@ title : Command Group
 
 ### Command Group Generator
 ---
+{{% notice warning %}}
+The command group decorator currently is causing issues passing arguments to the wrapped function.
+
+Do not use when the task requires arguments to function.
+{{% /notice %}}
 
 ##### command_group(**name**: str, **about**:str=*""*)
 > decorator that creates a group decorator that can be re-used
