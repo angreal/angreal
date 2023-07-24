@@ -37,7 +37,7 @@ dependencies = [
 
 [[package]]
 name = "angreal"
-version = "2.0.8"
+version = "2.0.9"
 dependencies = [
  "clap",
  "docker-pyo3",
