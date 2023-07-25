@@ -1,15 +1,18 @@
 import angreal
 import os
 import subprocess
+from angreal.integrations.venv import venv_required
 
 venv_path = os.path.join(angreal.get_root(),'..','.venv')
 
 cwd = os.path.join(angreal.get_root(),'..')
 
-test = angreal.command_group(name="test", about="commands for testing the application and library")
+test = angreal.command_group(name="test", about="commands for"
+                             "testing the application and library")
 
 @test()
 @angreal.command(name="rust", about="run cargo tests (rust)")
+@venv_required(venv_path)
 def rust_tests():
     """
     """
@@ -21,6 +24,7 @@ def rust_tests():
 
 @test()
 @angreal.command(name="python", about="run pytest tests (python)")
+@venv_required(venv_path)
 def python_tests():
     """
     """

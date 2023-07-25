@@ -1,8 +1,14 @@
 ---
-title: Create a Task
+title: Create a Task Group
 weight: 10
 
 ---
+
+{{% notice warning %}}
+The command group decorator currently is causing issues passing arguments to the wrapped function.
+**Do not use when the task requires arguments to function.**
+{{% /notice %}}
+
 
 ### Preferred Method
 1. Create a command group.
