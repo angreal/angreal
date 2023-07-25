@@ -16,6 +16,7 @@ doctest = false
 name = "angreal"
 
 [dependencies]
+anyhow = {version = "1.0.72"}
 clap = { version = "3" }
 docker-pyo3 = { version = "0.1.4" }
 git-url-parse = { version = "0.4.4" }

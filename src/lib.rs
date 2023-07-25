@@ -21,7 +21,7 @@ pub mod utils;
 use builder::build_app;
 use task::ANGREAL_TASKS;
 
-use log::{debug, error};
+use log::{debug, error, warn};
 use pyo3::types::{IntoPyDict, PyDict};
 use std::ops::Not;
 use std::vec::Vec;
@@ -39,7 +39,13 @@ fn main() -> PyResult<()> {
     argvs.remove(0);
     argvs.remove(0);
 
-    utils::check_up_to_date();
+    match utils::check_up_to_date() {
+        Ok(()) => (),
+        Err(e) => warn!(
+            "An error occurred while checking if our binary is up to date. {}",
+            e.to_string()
+        ),
+    };
 
     // env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("warning"))
     // .init();

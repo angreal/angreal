@@ -1,4 +1,5 @@
 //! Filesystem utilities
+use anyhow::Result;
 
 use glob::glob;
 use log::{debug, error, info};
@@ -11,16 +12,24 @@ use pyo3::types::{PyList, PyModule};
 use pyo3::PyResult;
 use std::fs;
 
-use reqwest;
+use reqwest::{self};
 use version_compare::Version;
 
-pub fn check_up_to_date() {
-    let body = reqwest::blocking::get("https://pypi.org/pypi/angreal/json")
-        .unwrap()
-        .json::<serde_json::Value>()
-        .unwrap();
+pub fn check_up_to_date() -> Result<()> {
+    let response_result = reqwest::blocking::get("https://pypi.org/pypi/angreal/json");
 
-    let upstream = body["info"]["version"].as_str().unwrap();
+    let json = match response_result {
+        Ok(response) => {
+            let json_result = response.json::<serde_json::Value>();
+            match json_result {
+                Ok(json) => json,
+                Err(e) => return Err(e).map_err(Into::into),
+            }
+        }
+        Err(e) => return Err(e).map_err(Into::into),
+    };
+
+    let upstream = json["info"]["version"].as_str().unwrap();
 
     let current = env!("CARGO_PKG_VERSION");
     let current = Version::from(current).unwrap();
@@ -29,6 +38,7 @@ pub fn check_up_to_date() {
     if upstream > current {
         println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.")
     };
+    Ok(())
 }
 
 /// Get a list of task files in given a path
