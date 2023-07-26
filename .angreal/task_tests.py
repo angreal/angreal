@@ -6,18 +6,8 @@ venv_path = os.path.join(angreal.get_root(),'..','.venv')
 
 cwd = os.path.join(angreal.get_root(),'..')
 
-test = angreal.command_group(name="test", about="commands for testing the application and library")
-
-@test()
-@angreal.command(name="echo", about="this thing")
-@angreal.argument(name="phrase", help="the phrase to echo", required=True)
-def echo(phrase):
-    print(f"{phrase}")
-
-@angreal.command(name="echo", about="this thing")
-@angreal.argument(name="phrase", help="the phrase to echo", required=True)
-def echo(phrase):
-    print(f"{phrase}")
+test = angreal.command_group(name="test", about="commands for testing the"
+                             " application and library")
 
 
 

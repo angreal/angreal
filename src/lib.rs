@@ -137,23 +137,26 @@ fn main() -> PyResult<()> {
                     let n = Box::leak(Box::new(arg.name));
                     // unable to find the value of the passed arg with sub_m when its been wrapped
                     // in a command group
-                    let v = arg_matches.value_of(n.clone());
-                    match v {
-                        None => {
-                            // We need to handle "boolean flags" that are present w/o a value
-                            // should probably test that the name is a "boolean type also"
-                            let v = sub_m.is_present(n.clone());
-                            kwargs.push((n.as_str(), v.to_object(py)));
-                        }
-                        Some(v) => {
-                            match arg.python_type.unwrap().as_str() {
+
+                    if arg.is_flag.unwrap() {
+                        let v = arg_matches.get_flag(&n.clone());
+                        kwargs.push((n.as_str(), v.to_object(py)));
+                    } else {
+                        let v = arg_matches.value_of(n.clone());
+                        match v {
+                            None => {
+                                // We need to handle "boolean flags" that are present w/o a value
+                                // should probably test that the name is a "boolean type also"
+                                kwargs.push((n.as_str(), v.to_object(py)));
+                            }
+                            Some(v) => match arg.python_type.unwrap().as_str() {
                                 "str" => kwargs.push((n.as_str(), v.to_object(py))),
                                 "int" => kwargs
                                     .push((n.as_str(), v.parse::<i32>().unwrap().to_object(py))),
                                 "float" => kwargs
                                     .push((n.as_str(), v.parse::<f32>().unwrap().to_object(py))),
                                 _ => kwargs.push((n.as_str(), v.to_object(py))),
-                            }
+                            },
                         }
                     }
                 }
