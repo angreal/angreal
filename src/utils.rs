@@ -1,4 +1,5 @@
 //! Filesystem utilities
+use anyhow::anyhow;
 use anyhow::Result;
 
 use glob::glob;
@@ -15,25 +16,39 @@ use std::fs;
 use reqwest::{self};
 use version_compare::Version;
 
+macro_rules! result_or_return_err {
+    ( $e:expr ) => {
+        match $e {
+            Ok(x) => x,
+            Err(err) => return Err(err).map_err(Into::into),
+        }
+    };
+}
+
+macro_rules! value_or_return_err {
+    ( $e:expr ) => {
+        match $e {
+            Some(x) => x,
+            None => return Err(anyhow!("No value returned when one was expected.")),
+        }
+    };
+}
+
 pub fn check_up_to_date() -> Result<()> {
     let response_result = reqwest::blocking::get("https://pypi.org/pypi/angreal/json");
 
     let json = match response_result {
         Ok(response) => {
             let json_result = response.json::<serde_json::Value>();
-            match json_result {
-                Ok(json) => json,
-                Err(e) => return Err(e).map_err(Into::into),
-            }
+            result_or_return_err!(json_result)
         }
         Err(e) => return Err(e).map_err(Into::into),
     };
 
-    let upstream = json["info"]["version"].as_str().unwrap();
-
+    let upstream = value_or_return_err!(json["info"]["version"].as_str());
     let current = env!("CARGO_PKG_VERSION");
-    let current = Version::from(current).unwrap();
-    let upstream = Version::from(upstream).unwrap();
+    let current = value_or_return_err!(Version::from(current));
+    let upstream = value_or_return_err!(Version::from(upstream));
 
     if upstream > current {
         println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.")
@@ -51,7 +66,7 @@ pub fn check_up_to_date() -> Result<()> {
 ///
 /// let task_files = get_task_files(PathBuf::new("."))
 /// ```
-pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>, &'static str> {
+pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>> {
     let mut tasks = Vec::new();
 
     let mut pattern = path;
@@ -73,7 +88,7 @@ pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>, &'static str> {
         Ok(tasks)
     } else {
         error!("No tasks found for execution.");
-        Err("No tasks found for execution.")
+        Err(anyhow!("No tasks found for execution."))
     }
 }
 
@@ -93,7 +108,8 @@ pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 /// ```
 #[pyfunction]
 fn get_root() -> PyResult<String> {
-    let angreal_root = is_angreal_project().unwrap();
+    let angreal_root =
+        is_angreal_project().expect("Can't find the angreal_root from where you're executing.");
     Ok(String::from(angreal_root.to_string_lossy()))
 }
 
@@ -107,7 +123,7 @@ fn get_root() -> PyResult<String> {
 ///
 /// let project_path = is_angreal_project()
 /// ```
-pub fn is_angreal_project() -> Result<PathBuf, &'static str> {
+pub fn is_angreal_project() -> Result<PathBuf> {
     let angreal_path = Path::new(".angreal");
 
     let mut check_dir = env::current_dir().unwrap();
@@ -133,7 +149,7 @@ pub fn is_angreal_project() -> Result<PathBuf, &'static str> {
     if found {
         Ok(check_dir)
     } else {
-        Err("This doesn't appear to be an angreal project.")
+        Err(anyhow!("This doesn't appear to be an angreal project."))
     }
 }
 
