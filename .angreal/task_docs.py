@@ -22,20 +22,22 @@ docs = angreal.command_group(name="docs", about="commands for generating documen
 def build_hugo():
     subprocess.run(["pkill -f hugo"], shell=True)
 
+
+# Different bug here now - either the flag isn't being set or the kwarg isn't being passed along.
 @docs()
 @angreal.command(name="serve", about="starts the docs site in the background.")
-def build_hugo():
-    pid = subprocess.Popen(
-        [
-            "hugo serve -p 12345&",
-        ], cwd=docs_dir, shell=True,
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE
-    ).pid
+@angreal.argument(name="echo", long="echo", short="e", takes_value=False, help="open results in web browser")
+def build_hugo(echo=True):
+    print(echo)
+    if echo:
+        webbrowser.open_new("http://localhost:12345/angreal/")
 
-    print(pid)
-    print(test)
-    webbrowser.open_new("http://localhost:12345/angreal/")
+    # subprocess.Popen(
+    #     [
+    #         "hugo serve -p 12345&",
+    #     ], cwd=docs_dir, shell=True,
+    #     # stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE
+    # )
 
-    print(f"hugo server running on pid {pid}, to stop run kill -9 {pid}")
-    print("or you can run `angreal docs stop`")
+
     return

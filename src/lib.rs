@@ -98,12 +98,12 @@ fn main() -> PyResult<()> {
             // iterate matches to get our final command and get our final arg matches
             // object for applying down stream
             let mut next = sub_m.subcommand();
-            let mut arg_matches = sub_m;
+            let mut arg_matches = sub_m.clone();
             while next.is_some() {
-                arg_matches = next.unwrap().1;
                 let cmd = next.unwrap();
                 command_groups.push(cmd.0.to_string());
                 next = cmd.1.subcommand();
+                arg_matches = cmd.1.clone();
             }
 
             let task = command_groups.pop().unwrap();
