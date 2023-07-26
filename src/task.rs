@@ -113,7 +113,7 @@ impl AngrealCommand {
         ANGREAL_TASKS.lock().unwrap().push(cmd.clone());
         cmd
     }
-
+    /// Add a (task::AngrealGroup) to the task::AngrealCommand called on
     pub fn add_group(&mut self, group: AngrealGroup) -> PyResult<()> {
         let this_command_pos = ANGREAL_TASKS.lock().unwrap().iter().position(|x| {
             x.name == self.name.as_str()

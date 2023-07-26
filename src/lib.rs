@@ -95,9 +95,12 @@ fn main() -> PyResult<()> {
             let mut command_groups: Vec<String> = Vec::new();
             command_groups.push(task.to_string());
 
+            // iterate matches to get our final command and get our final arg matches
+            // object for applying down stream
             let mut next = sub_m.subcommand();
-
+            let mut arg_matches = sub_m;
             while next.is_some() {
+                arg_matches = next.unwrap().1;
                 let cmd = next.unwrap();
                 command_groups.push(cmd.0.to_string());
                 next = cmd.1.subcommand();
@@ -127,13 +130,14 @@ fn main() -> PyResult<()> {
             };
 
             let args = builder::select_args(task.to_string());
-
             Python::with_gil(|py| {
                 let mut kwargs: Vec<(&str, PyObject)> = Vec::new();
 
                 for arg in args.into_iter() {
                     let n = Box::leak(Box::new(arg.name));
-                    let v = sub_m.value_of(n.clone());
+                    // unable to find the value of the passed arg with sub_m when its been wrapped
+                    // in a command group
+                    let v = arg_matches.value_of(n.clone());
                     match v {
                         None => {
                             // We need to handle "boolean flags" that are present w/o a value
