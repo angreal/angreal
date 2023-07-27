@@ -13,29 +13,32 @@ docs = angreal.command_group(name="docs", about="commands for generating documen
 # @docs()
 # @angreal.command(name="python")
 # def build_python_api():
-#     need to build a better way of reflecting the python api into documentation as markdown
+#     need to build a better way of reflecting the python api into
+#     documentation as markdown
 #     that is automatable and aesthetically pleasing
 #     pass
 
 @docs()
 @angreal.command(name="stop", about="stop the currently running hugo server")
-def build_hugo():
+def stop_hugo():
     subprocess.run(["pkill -f hugo"], shell=True)
+
+
 
 @docs()
 @angreal.command(name="serve", about="starts the docs site in the background.")
-def build_hugo():
-    pid = subprocess.Popen(
+@angreal.argument(name="open", long="open", short="o", takes_value=False,
+                   help="open results in web browser", is_flag=True)
+def build_hugo(open=True):
+    if open:
+        webbrowser.open_new("http://localhost:12345/angreal/")
+
+    subprocess.Popen(
         [
             "hugo serve -p 12345&",
         ], cwd=docs_dir, shell=True,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE
-    ).pid
+    )
 
-    print(pid)
-    print(test)
-    webbrowser.open_new("http://localhost:12345/angreal/")
 
-    print(f"hugo server running on pid {pid}, to stop run kill -9 {pid}")
-    print("or you can run `angreal docs stop`")
     return

@@ -113,7 +113,7 @@ impl AngrealCommand {
         ANGREAL_TASKS.lock().unwrap().push(cmd.clone());
         cmd
     }
-
+    /// Add a (task::AngrealGroup) to the task::AngrealCommand called on
     pub fn add_group(&mut self, group: AngrealGroup) -> PyResult<()> {
         let this_command_pos = ANGREAL_TASKS.lock().unwrap().iter().position(|x| {
             x.name == self.name.as_str()
@@ -161,6 +161,9 @@ pub struct AngrealArg {
     /// The default value to be applied to the arg.
     #[pyo3(get)]
     pub default_value: Option<String>,
+    /// whether or not the argument is a flag (bool)
+    #[pyo3(get)]
+    pub is_flag: Option<bool>,
     /// Whether or not the argument requires an `=` behind it to set a value
     #[pyo3(get)]
     pub require_equals: Option<bool>,
@@ -226,6 +229,7 @@ impl AngrealArg {
         name: &str,
         command_name: &str,
         default_value: Option<&str>,
+        is_flag: Option<bool>,
         require_equals: Option<bool>,
         multiple_values: Option<bool>,
         number_of_values: Option<u32>,
@@ -244,6 +248,7 @@ impl AngrealArg {
             command_name: command_name.to_string(),
             takes_value: Some(takes_value.unwrap_or(true)),
             default_value: default_value.map(|i| i.to_string()),
+            is_flag: Some(is_flag.unwrap_or(false)),
             require_equals,
             multiple_values,
             number_of_values,
