@@ -7,14 +7,16 @@ from angreal.integrations.venv import VirtualEnv
 
 project_root = os.path.join(angreal.get_root(),'..')
 
-dev = angreal.command_group(name="dev", about="tasks for the management of the dev experience")
+dev = angreal.command_group(name="dev", about="tasks for"
+                            "the management of the dev experience")
 
 def is_program_available(program_name):
     return shutil.which(program_name) is not None
 
 
 @dev()
-@angreal.command(name="install", about="install and verify the development environment")
+@angreal.command(name="install", about="install and "
+                 "verify the development environment")
 def setup():
 
     # Setup the virtual environment as .venv in the root folder
@@ -26,11 +28,14 @@ def setup():
     subprocess.run("pre-commit install", shell=True, cwd=project_root)
 
 
-    # Check for system level dependencies and flash a message if they're not installed
-    # We're not going to automate setup cause thats more work than i'm interested in doing
+    # Check for system level dependencies and flash
+    # a message if they're not installed
+    # We're not going to automate setup cause that's
+    # more work than i'm interested in doing
     dependencies_required = (
         ("hugo" , "please visit : https://gohugo.io/installation/"),
-        ("cargo", "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh && rustup update")
+        ("cargo", "curl --proto '=https' --tlsv1.2"
+         " -sSf https://sh.rustup.rs | sh && rustup update")
     )
 
     missing_deps = True
@@ -40,7 +45,8 @@ def setup():
             missing_deps = True
 
     if missing_deps:
-        print("You're missing some system level dependencies, please use the above instructions to install them.")
+        print("You're missing some system level dependencies,"
+              " please use the above instructions to install them.")
     return
 
 

@@ -95,12 +95,15 @@ fn main() -> PyResult<()> {
             let mut command_groups: Vec<String> = Vec::new();
             command_groups.push(task.to_string());
 
+            // iterate matches to get our final command and get our final arg matches
+            // object for applying down stream
             let mut next = sub_m.subcommand();
-
+            let mut arg_matches = sub_m.clone();
             while next.is_some() {
                 let cmd = next.unwrap();
                 command_groups.push(cmd.0.to_string());
                 next = cmd.1.subcommand();
+                arg_matches = cmd.1.clone();
             }
 
             let task = command_groups.pop().unwrap();
@@ -127,29 +130,33 @@ fn main() -> PyResult<()> {
             };
 
             let args = builder::select_args(task.to_string());
-
             Python::with_gil(|py| {
                 let mut kwargs: Vec<(&str, PyObject)> = Vec::new();
 
                 for arg in args.into_iter() {
                     let n = Box::leak(Box::new(arg.name));
-                    let v = sub_m.value_of(n.clone());
-                    match v {
-                        None => {
-                            // We need to handle "boolean flags" that are present w/o a value
-                            // should probably test that the name is a "boolean type also"
-                            let v = sub_m.is_present(n.clone());
-                            kwargs.push((n.as_str(), v.to_object(py)));
-                        }
-                        Some(v) => {
-                            match arg.python_type.unwrap().as_str() {
+                    // unable to find the value of the passed arg with sub_m when its been wrapped
+                    // in a command group
+
+                    if arg.is_flag.unwrap() {
+                        let v = arg_matches.get_flag(&n.clone());
+                        kwargs.push((n.as_str(), v.to_object(py)));
+                    } else {
+                        let v = arg_matches.value_of(n.clone());
+                        match v {
+                            None => {
+                                // We need to handle "boolean flags" that are present w/o a value
+                                // should probably test that the name is a "boolean type also"
+                                kwargs.push((n.as_str(), v.to_object(py)));
+                            }
+                            Some(v) => match arg.python_type.unwrap().as_str() {
                                 "str" => kwargs.push((n.as_str(), v.to_object(py))),
                                 "int" => kwargs
                                     .push((n.as_str(), v.parse::<i32>().unwrap().to_object(py))),
                                 "float" => kwargs
                                     .push((n.as_str(), v.parse::<f32>().unwrap().to_object(py))),
                                 _ => kwargs.push((n.as_str(), v.to_object(py))),
-                            }
+                            },
                         }
                     }
                 }

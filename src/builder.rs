@@ -88,6 +88,9 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
                 attr_copy_str!(a, long_help, arg);
                 attr_copy_str!(a, help, arg);
                 attr_copy_bool!(a, required, arg);
+                if arg.is_flag.unwrap() {
+                    a = a.action(ArgAction::SetTrue);
+                }
                 task = task.arg(a);
             }
 
