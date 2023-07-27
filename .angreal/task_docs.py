@@ -28,7 +28,7 @@ def stop_hugo():
 @docs()
 @angreal.command(name="serve", about="starts the docs site in the background.")
 @angreal.argument(name="open", long="open", short="o", takes_value=False,
-                   help="open results in web browser")
+                   help="open results in web browser", is_flag=True)
 def build_hugo(open=True):
     if open:
         webbrowser.open_new("http://localhost:12345/angreal/")

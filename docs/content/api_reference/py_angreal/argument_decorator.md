@@ -19,6 +19,7 @@ def noop_func(noop_arg):
 - python_type (str, optional): the python type to pass the value as. Must be one of ("str","int","float") . Defaults to "str".
 - takes_value (bool, optional): doest the argument consume a trailing value. Defaults to True.
 - default_value (str, optional): The default value to apply if none is provided. Defaults to None.
+- is_flag (bool, optional): is the argument a flag. Defaults to False.
 - require_equals (bool, optional): The consumed value requires an equal sign (i.e.`--arg=value`). Defaults to None.
 - multiple_values (bool, optional): The argument takes multiple values. Defaults to None.
 - number_of_values (int, optional): The argument takes a specific number of values. Defaults to None.

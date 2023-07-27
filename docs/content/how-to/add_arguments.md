@@ -9,6 +9,7 @@ First, all control mechanisms for commands are managed by a single decorator cal
 - __python_type__: the python type to apply when passing to the wrapped function. Must be one of ("str", "int", "float"), __default__ "str"
 - __takes_value__: does the argument consumer a trailing value, __default__ True
 - __default_value__: the default value to apply if none is provided, __default__ None
+- __is_flag__: whether this argument is a flag, __default__ False
 - __require_equals__: the applied value requires an equal sign (i.e. `--arg=value` ), __default__ None
 - __multiple_values__: the argument takes multiple values, __default__ None
 - __number_of_values__: the argument takes a specific number of values, __default__ None
@@ -105,7 +106,7 @@ end = "\33[0m"
 @angreal.command(name="echo", about="an echo replacement")
 @angreal.argument(name="phrase", help="the phrase to echo", required=True)
 @angreal.argument(name="color", long="color", short='c', help="apply a color to the echo phrase")
-@angreal.argument(name="yell", long="yell", short='y', takes_value=False, help="yell it from the tree tops")
+@angreal.argument(name="yell", long="yell", short='y', takes_value=False, help="yell it from the tree tops", is_flag=True)
 def task_echo(phrase,color=None,yell=False):
 
     if yell:
