@@ -2,12 +2,13 @@
 title: Docker
 ---
 
+
 Angreal's docker integration is provided [docker-pyo3](https://github.com/dylanbstorey/docker-pyo3).
 
 The best way to understand the bindings and interface is to look at the [tests](https://github.com/dylanbstorey/docker-pyo3/tree/main/py_test) in the associated project.
 
-
 The following objects and namespaces are available.
+
 
 ```python
 from angreal.integrations.docker import Docker
@@ -30,7 +31,5 @@ image = docker.images().get('test-image')
 
 #create a container from the image
 
-docker.containers().creat(image="test-image",name="container-test-image")
-
-
+docker.containers().create(image="test-image",name="container-test-image")
 ```
