@@ -90,9 +90,6 @@ class VirtualEnv(object):
     def install_requirements(self):
         """
         install requirements the requirements set during initialization.
-
-        :param requirements: path to a requirements file, single requirement,
-          or list of requirements
         """
 
         if not self.requirements:
