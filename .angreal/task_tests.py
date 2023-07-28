@@ -10,7 +10,6 @@ test = angreal.command_group(name="test", about="commands for testing the"
                              " application and library")
 
 
-
 @test()
 @angreal.command(name="rust", about="run cargo tests (rust)")
 def rust_tests():
