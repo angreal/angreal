@@ -18,7 +18,7 @@ from angreal.integrations.docker.image     import Image, Images
 from angreal.integrations.docker.volume    import Volume, Volumes
 ```
 
-Basic usage : 
+Basic usage :
 ```python
 #Connect to the client
 d = Docker()
