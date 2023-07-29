@@ -21,7 +21,7 @@ def test_group_1():
     finally:
         try:
             os.unlink(os.path.join(functional_test_folder,"group.txt"))
-        except:
+        except Exception:
             pass
     pass
 
@@ -42,7 +42,7 @@ def test_group_2():
         raise e
     finally:
         try:
-            os.unlink(os.path.join(functional_test_folder,group.txt))
-        except:
+            os.unlink(os.path.join(functional_test_folder,"nested_group.txt"))
+        except Exception:
             pass
     pass
