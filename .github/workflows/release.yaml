@@ -25,9 +25,7 @@ jobs:
           args: --release --out dist --sdist -i 3.7 3.8 3.9 3.10 3.11
       - name: Install built wheel - x86_64
         run: |
-          pip install packaging
-          pip install angreal --no-index --find-links dist --force-reinstall
-          pip install pytest
+          pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v3
@@ -50,9 +48,7 @@ jobs:
           args: --release --universal2 --out dist -i 3.8 3.9 3.10 3.11
       - name: Install built wheel - universal2
         run: |
-          pip install packaging
-          pip install angreal --no-index --find-links dist --force-reinstall
-          pip install pytest
+          pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v3
@@ -82,9 +78,7 @@ jobs:
           args: --release --out dist -i ${{ matrix.platform.interpreter }}
       - name: Install built wheel
         run: |
-          pip install packaging
-          pip install angreal --no-index --find-links dist --force-reinstall
-          pip install pytest
+          pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v3
@@ -113,9 +107,7 @@ jobs:
       - name: Install built wheel
         if: matrix.target == 'x86_64'
         run: |
-          pip install packaging
-          pip install angreal --no-index --find-links dist --force-reinstall
-          pip install pytest
+          pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v3
@@ -152,7 +144,7 @@ jobs:
             apt-get install -y --no-install-recommends python3 python3-pip python3-venv git
             pip3 install -U pip pytest packaging
           run: |
-            pip3 install angreal --no-index --find-links dist/ --force-reinstall
+            pip3 install packaging pytest angreal --find-links dist --force-reinstall
             pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v3
@@ -189,7 +181,7 @@ jobs:
           run: |
             apk add py3-pip
             pip3 install -U pip pytest packaging
-            pip3 install angreal --no-index --find-links /io/dist/ --force-reinstall
+            pip3 install packaging pytest angreal --find-links /io/dist --force-reinstall
 
       - name: Upload wheels
         uses: actions/upload-artifact@v3
@@ -228,8 +220,7 @@ jobs:
             apk add py3-pip
             pip3 install -U pip pytest
           run: |
-            pip3 install packaging
-            pip3 install angreal --no-index --find-links dist/ --force-reinstall
+            pip install packaging pytest angreal --find-links dist --force-reinstall
 
       - name: Upload wheels
         uses: actions/upload-artifact@v3
