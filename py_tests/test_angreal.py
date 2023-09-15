@@ -6,6 +6,16 @@ def func():
     pass
 
 
+
+def test_render_template():
+    x = angreal.render_template("Hello {{ name }}!", dict(name='world'))
+
+    assert x == "Hello world!"
+
+def test_angreal_get_root():
+    """ test that get root returns something useful"""
+    angreal.get_root()
+
 def test_angreal_required_good():
     """test required version equal to current version"""
     angreal.required_version(f"=={angreal.__version__}")

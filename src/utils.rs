@@ -4,6 +4,7 @@ use anyhow::Result;
 
 use glob::glob;
 use log::{debug, error, info};
+use pyo3::types::PyDict;
 use std::env;
 use std::path::{Path, PathBuf};
 use std::vec::Vec;
@@ -12,6 +13,8 @@ use pyo3::prelude::*;
 use pyo3::types::{PyList, PyModule};
 use pyo3::PyResult;
 use std::fs;
+
+use tera::Tera;
 
 use reqwest::{self};
 use version_compare::Version;
@@ -95,6 +98,7 @@ pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>> {
 /// Registers the Command and Arg structs to the python api in the `angreal` module
 pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_root, m)?)?;
+    m.add_function(wrap_pyfunction!(render_template, m)?)?;
     Ok(())
 }
 
@@ -113,6 +117,18 @@ fn get_root() -> PyResult<String> {
     Ok(String::from(angreal_root.to_string_lossy()))
 }
 
+#[pyfunction]
+fn render_template(template: &str, context: &PyDict) -> PyResult<String> {
+    let mut tera = Tera::default();
+    let mut ctx = tera::Context::new();
+    tera.add_raw_template("template", template).unwrap();
+
+    for (key, val) in context.iter() {
+        ctx.insert(&key.to_string(), &val.to_string());
+    }
+
+    Ok(tera.render("template", &ctx).unwrap())
+}
 /// Tests whether or not a current path is an angreal project
 ///
 /// An angreal project is detected by attempting to find a `.angreal` file
