@@ -1,9 +1,9 @@
 ---
-title : Render Temlpate
+title : Render Template
 ---
 
 
-##### get_template(template: str, context: dict[str,str]) -> str:
+##### get_template( **template**: str, **context**: dict[str,str]) -> str:
 > render a template string given a context
 
 ```python
