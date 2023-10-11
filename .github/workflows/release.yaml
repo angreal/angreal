@@ -97,8 +97,6 @@ jobs:
         with:
           python-version: '3.12'
           architecture: x64
-      - name: Install Perl Deps
-        run: sudo apt-get install -y libipc-run-perl pkg-config libssl-dev
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -106,6 +104,20 @@ jobs:
           target: ${{ matrix.target }}
           manylinux: auto
           args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 3.12
+          before-script-linux: |
+            # If we're running on rhel centos, install needed packages.
+            if command -v yum &> /dev/null; then
+                yum update -y && yum install -y perl-core openssl openssl-devel pkgconfig libatomic
+
+                # If we're running on i686 we need to symlink libatomic
+                # in order to build openssl with -latomic flag.
+                if [[ ! -d "/usr/lib64" ]]; then
+                    ln -s /usr/lib/libatomic.so.1 /usr/lib/libatomic.so
+                fi
+            else
+                # If we're running on debian-based system.
+                apt update -y && apt-get install -y libssl-dev openssl pkg-config
+            fi
       - name: Install built wheel
         if: matrix.target == 'x86_64'
         run: |
@@ -127,8 +139,6 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-      - name: Install Perl Deps
-        run: sudo apt-get install -y libipc-run-perl pkg-config libssl-dev
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -136,6 +146,20 @@ jobs:
           target: ${{ matrix.target }}
           manylinux: auto
           args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 3.12
+          before-script-linux: |
+            # If we're running on rhel centos, install needed packages.
+            if command -v yum &> /dev/null; then
+                yum update -y && yum install -y perl-core openssl openssl-devel pkgconfig libatomic
+
+                # If we're running on i686 we need to symlink libatomic
+                # in order to build openssl with -latomic flag.
+                if [[ ! -d "/usr/lib64" ]]; then
+                    ln -s /usr/lib/libatomic.so.1 /usr/lib/libatomic.so
+                fi
+            else
+                # If we're running on debian-based system.
+                apt update -y && apt-get install -y libssl-dev openssl pkg-config
+            fi
       - uses: uraimo/run-on-arch-action@v2.3.0
         if: matrix.target != 'ppc64'
         name: Install built wheel
@@ -169,8 +193,6 @@ jobs:
         with:
           python-version: '3.12'
           architecture: x64
-      - name: Install Perl Deps
-        run: sudo apt-get install -y libipc-run-perl pkg-config libssl-dev
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -178,6 +200,20 @@ jobs:
           target: ${{ matrix.target }}
           manylinux: musllinux_1_2
           args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 3.12
+          before-script-linux: |
+            # If we're running on rhel centos, install needed packages.
+            if command -v yum &> /dev/null; then
+                yum update -y && yum install -y perl-core openssl openssl-devel pkgconfig libatomic
+
+                # If we're running on i686 we need to symlink libatomic
+                # in order to build openssl with -latomic flag.
+                if [[ ! -d "/usr/lib64" ]]; then
+                    ln -s /usr/lib/libatomic.so.1 /usr/lib/libatomic.so
+                fi
+            else
+                # If we're running on debian-based system.
+                apt update -y && apt-get install -y libssl-dev openssl pkg-config
+            fi
       - name: Install built wheel
         if: matrix.target == 'x86_64-unknown-linux-musl'
         uses: addnab/docker-run-action@v3
@@ -209,8 +245,6 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-      - name: Install Perl Deps
-        run: sudo apt-get install -y libipc-run-perl pkg-config libssl-dev
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -218,6 +252,20 @@ jobs:
           target: ${{ matrix.platform.target }}
           manylinux: musllinux_1_2
           args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 3.12
+          before-script-linux: |
+            # If we're running on rhel centos, install needed packages.
+            if command -v yum &> /dev/null; then
+                yum update -y && yum install -y perl-core openssl openssl-devel pkgconfig libatomic
+
+                # If we're running on i686 we need to symlink libatomic
+                # in order to build openssl with -latomic flag.
+                if [[ ! -d "/usr/lib64" ]]; then
+                    ln -s /usr/lib/libatomic.so.1 /usr/lib/libatomic.so
+                fi
+            else
+                # If we're running on debian-based system.
+                apt update -y && apt-get install -y libssl-dev openssl pkg-config
+            fi
       - uses: uraimo/run-on-arch-action@v2.3.0
         name: Install built wheel
         with:
