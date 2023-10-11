@@ -47,6 +47,8 @@ def setup():
     if missing_deps:
         print("You're missing some system level dependencies,"
               " please use the above instructions to install them.")
+
+
     return
 
 
@@ -57,4 +59,6 @@ def release():
     # check the tag in cargo.toml matches provided tag
     # run test
     # print manual instructions
+
+    raise Exception('whoops')
     pass
