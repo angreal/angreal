@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           architecture: x64
       - uses: dtolnay/rust-toolchain@stable
       - name: Build wheels - x86_64
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           architecture: x64
       - uses: dtolnay/rust-toolchain@stable
       - name: Build wheels - universal2
@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           architecture: ${{ matrix.platform.target }}
       - uses: dtolnay/rust-toolchain@stable
       - name: Build wheels
@@ -95,7 +95,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           architecture: x64
       - name: Build wheels
         uses: PyO3/maturin-action@v1
@@ -124,7 +124,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -163,7 +163,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           architecture: x64
       - name: Build wheels
         uses: PyO3/maturin-action@v1
@@ -202,7 +202,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
