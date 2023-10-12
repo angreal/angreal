@@ -4,6 +4,8 @@ name: "Angreal Release"
 on:  # yamllint disable-line rule:truthy
   release:
     types: [published]
+    pull_request: {}
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
