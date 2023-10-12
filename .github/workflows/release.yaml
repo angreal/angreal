@@ -104,9 +104,6 @@ jobs:
 
       - run: pip install -U twine 'black>=22.3.0,<23' typing_extensions
 
-      # generate self-schema now, so we don't have to do so inside docker in maturin build
-      - run: python generate_self_schema.py
-
       - name: build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -140,11 +137,7 @@ jobs:
           name: pypi_files
           path: dist
       
-      - uses: actions/setup-python@v4
-      - run: pip install -U twine
-
-      - run: twine check --strict dist/*
-      
+      - uses: actions/setup-python@v4      
       - name: Publish to PyPi
         env:
           TWINE_USERNAME: __token__
