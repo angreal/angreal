@@ -23,8 +23,10 @@ jobs:
       - name: Build wheels - x86_64
         uses: PyO3/maturin-action@v1
         with:
+          rust-toolchain: stable
+          docker-options: -e CI
           target: x86_64
-          args: --release --out dist --sdist -i 3.7 3.8 3.9 3.10 3.11 3.12
+          args: --release --out dist --sdist --interpreter 3.7 3.8 3.9 3.10 3.11 3.12
       - name: Install built wheel - x86_64
         run: |
           pip install packaging pytest angreal --find-links dist --force-reinstall
@@ -47,6 +49,8 @@ jobs:
       - name: Build wheels - universal2
         uses: PyO3/maturin-action@v1
         with:
+          rust-toolchain: stable
+          docker-options: -e CI
           args: --release --universal2 --out dist -i 3.8 3.9 3.10 3.11 3.12
       - name: Install built wheel - universal2
         run: |
@@ -77,6 +81,8 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
+          rust-toolchain: stable
+          docker-options: -e CI
           args: --release --out dist -i ${{ matrix.platform.interpreter }}
       - name: Install built wheel
         run: |
@@ -105,6 +111,7 @@ jobs:
           rust-toolchain: stable
           target: ${{ matrix.target }}
           manylinux: auto
+          docker-options: -e CI
           args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 3.12
           before-script-linux: |
             # If we're running on rhel centos, install needed packages.
@@ -147,6 +154,7 @@ jobs:
           rust-toolchain: stable
           target: ${{ matrix.target }}
           manylinux: auto
+          docker-options: -e CI
           args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 3.12
           before-script-linux: |
             # If we're running on rhel centos, install needed packages.
@@ -201,6 +209,7 @@ jobs:
           rust-toolchain: stable
           target: ${{ matrix.target }}
           manylinux: musllinux_1_2
+          docker-options: -e CI
           args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 3.12
           before-script-linux: |
             # If we're running on rhel centos, install needed packages.
@@ -250,6 +259,7 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
+          docker-options: -e CI
           rust-toolchain: stable
           target: ${{ matrix.platform.target }}
           manylinux: musllinux_1_2
