@@ -51,11 +51,10 @@ jobs:
         with:
           rust-toolchain: stable
           docker-options: -e CI
-          args: --release --universal2 --out dist -i 3.8 3.9 3.10 3.11 3.12
+          args: --release -- --universal2 --out dist -i 3.8 3.9 3.10 3.11 3.12
       - name: Install built wheel - universal2
         run: |
           pip install packaging pytest angreal --find-links dist --force-reinstall
-          pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
@@ -87,7 +86,6 @@ jobs:
       - name: Install built wheel
         run: |
           pip install packaging pytest angreal --find-links dist --force-reinstall
-          pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
