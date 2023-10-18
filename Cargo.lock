@@ -37,7 +37,7 @@ dependencies = [
 
 [[package]]
 name = "angreal"
-version = "2.0.11"
+version = "2.1.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -1826,9 +1826,9 @@ checksum = "7ef03e0a2b150c7a90d01faf6254c9c48a41e95fb2a8c2ac1c6f0d2b9aefc342"
 
 [[package]]
 name = "rustix"
-version = "0.37.23"
+version = "0.37.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d69718bf81c6127a49dc64e44a742e8bb9213c0ff8869a22c308f84c1d4ab06"
+checksum = "d4eb579851244c2c03e7c24f501c3432bed80b8f720af1d6e5b0e0f01555a035"
 dependencies = [
  "bitflags",
  "errno",
