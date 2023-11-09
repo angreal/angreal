@@ -48,7 +48,7 @@ jobs:
       - name: Build wheels - universal2
         uses: PyO3/maturin-action@v1
         with:
-          args: --release --universal2 --out dist -i 3.8 3.9 3.10 3.11
+          args: --release -- --universal2 --out dist -i 3.8 3.9 3.10 3.11
       - name: Install built wheel - universal2
         run: |
           pip install packaging pytest angreal --find-links dist --force-reinstall
