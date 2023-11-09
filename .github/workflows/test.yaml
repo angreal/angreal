@@ -63,7 +63,7 @@ jobs:
           python-version: "3.11"
       - run: pip install maturin pytest
       - run: maturin build
-      - run: pip install .
+      - run: pip install angreal --find-links dist --force-reinstall
       - run: cargo test -v -- --nocapture --test-threads=1
       - run: python -m pytest -svv
 
@@ -86,7 +86,7 @@ jobs:
           python-version: "3.11"
       - run: pip install maturin pytest
       - run: maturin build
-      - run: pip install .
+      - run: pip install angreal --find-links dist --force-reinstall
       - run: cargo test -v -- --nocapture --test-threads=1
       - run: python -m pytest -svv
 
@@ -109,7 +109,7 @@ jobs:
           python-version: "3.11"
       - run: pip install maturin pytest
       - run: maturin build
-      - run: pip install .
+      - run: pip install angreal --find-links dist --force-reinstall
       - run: cargo test -v -- --nocapture --test-threads=1
       - run: python -m pytest -svv
 
