@@ -5,7 +5,7 @@ on:  # yamllint disable-line rule:truthy
   release:
     types: [published]
   push:
-    branches:    
+    branches:
       - build**
 
 concurrency:
