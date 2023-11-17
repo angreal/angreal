@@ -109,7 +109,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
                     }
                 } else {
                     // if that doesn't work we should attempt to clone from github.com/angreal/python
-                    let maybe_repo = format!("https://github.com/angreal/{}.git", template);
+                    let maybe_repo = format!("https://github.com/angreal/{template}.git");
                     debug!(
                         "Template does not exist at {:?}, attempting clone",
                         &maybe_repo
@@ -250,7 +250,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
         };
 
         let input = if take_input {
-            print!("{}? [{}]: ", k, value);
+            print!("{k}? [{value}]: ");
             read!("{}\n")
         } else {
             String::new()
