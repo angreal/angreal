@@ -60,7 +60,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
             let mut try_template = angreal_home.clone();
             try_template.push(Path::new(template));
 
-            //  First we try ~/.angrealrc for a template with that name
+            //  First we try ~/.angrealrc/template for a template with that name
             if try_template.is_dir() {
                 let mut git_location = try_template.clone();
                 git_location.push(Path::new(".git"));
@@ -86,7 +86,10 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
                     );
                     Path::new(template).to_path_buf()
                 } else {
-                    error!("The template {}, doesn't appear to exist locally", template);
+                    error!(
+                        "The template {}, doesn't appear to exist locally at {}",
+                        template, template
+                    );
                     exit(1);
                 }
             } else {
@@ -96,15 +99,19 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
                 try_supported.push(Path::new(template));
 
                 if try_supported.is_dir() {
-                    let mut git_location = try_template.clone();
+                    let mut git_location = try_supported.clone();
                     git_location.push(Path::new(".git"));
 
                     if git_location.exists() {
                         // Only attempt a ff-pull if it is a git repo
                         debug!("Template exists at {:?}, attempting ff-pull.", try_template);
-                        git_pull_ff(try_template.to_str().unwrap())
+                        git_pull_ff(try_supported.to_str().unwrap())
                     } else {
-                        error!("The template {}, doesn't appear to exist locally", template);
+                        error!(
+                            "The template {}, doesn't appear to exist locally at {}",
+                            template,
+                            try_supported.display()
+                        );
                         exit(1);
                     }
                 } else {
