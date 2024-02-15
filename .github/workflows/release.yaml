@@ -183,8 +183,10 @@ jobs:
           options: -v ${{ github.workspace }}:/io -w /io
           run: |
             apk add py3-pip
-            pip3 install -U pip pytest packaging
-            pip3 install packaging pytest angreal --find-links /io/dist --force-reinstall
+            python3 -m venv .venv
+            source .venv/bin/activate
+            pipx install pip pytest packaging
+            pipx install packaging pytest angreal --find-links /io/dist --force-reinstall
 
       - name: Upload wheels
         uses: actions/upload-artifact@v3
@@ -223,8 +225,9 @@ jobs:
             apk add py3-pip
             pip3 install -U pip pytest
           run: |
-            pip install packaging pytest angreal --find-links dist --force-reinstall
-
+            python3 -m venv .venv
+            source .venv/bin/activate
+            pipx install packaging pytest angreal --find-links dist --force-reinstall
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
