@@ -21,7 +21,6 @@ pub mod utils;
 use builder::build_app;
 use task::ANGREAL_TASKS;
 
-use log::{debug, error, warn};
 use pyo3::types::{IntoPyDict, PyDict};
 use std::ops::Not;
 use std::vec::Vec;
@@ -29,6 +28,8 @@ use std::vec::Vec;
 use std::process::exit;
 
 use pyo3::{prelude::*, wrap_pymodule};
+
+use log::{debug, error, warn};
 
 /// The main function is just an entry point to be called from the core angreal library.
 #[pyfunction]
