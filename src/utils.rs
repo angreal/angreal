@@ -11,7 +11,7 @@ use tera::Context;
 use toml::{map::Map, Table, Value};
 
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList, PyModule, PyString};
+use pyo3::types::{PyDict, PyList, PyModule};
 use pyo3::PyResult;
 use std::fs;
 use std::fs::File;
@@ -46,10 +46,13 @@ macro_rules! value_or_return_err {
     };
 }
 
+// turn a tera context into a map
 pub fn context_to_map(ctx: Context) -> Map<String, Value> {
     Map::try_from(ctx.into_json().as_object().unwrap().clone()).unwrap()
 }
 
+// takes a toml file and creates a Tera context for consumption
+// if you wish to take input from stdin set take_input to True, otherwise it will read provided values directly.
 pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
     let file_contents = fs::read_to_string(&toml_path)
         .unwrap_or_else(|_| panic!("Unable to open {:?}", &toml_path));
@@ -109,7 +112,8 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
     context
 }
 
-pub fn render_directory(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<String> {
+// Render a templated directory to a destination given a tera context
+pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<String> {
     let mut rendered_paths: Vec<String> = Vec::new();
     // we create a Tera instance for an empty directory so we can extend it with our template later
     let mut tmp_dir = env::temp_dir();
@@ -274,12 +278,12 @@ pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_root, m)?)?;
     m.add_function(wrap_pyfunction!(render_template, m)?)?;
     m.add_function(wrap_pyfunction!(generate_context, m)?)?;
-    m.add_function(wrap_pyfunction!(render_dir, m)?)?;
+    m.add_function(wrap_pyfunction!(render_directory, m)?)?;
     Ok(())
 }
 
 #[pyfunction]
-pub fn render_dir(
+pub fn render_directory(
     src: &str,
     dst: &str,
     force: bool,
@@ -299,7 +303,7 @@ pub fn render_dir(
         }
     }
 
-    let x = render_directory(src, ctx, dst, force);
+    let x = render_dir(src, ctx, dst, force);
     Ok(pythonize_this!(x))
     // src: &Path, context: Context, dst: &Path, force: bool
 }
@@ -316,25 +320,7 @@ fn generate_context(path: &str, take_input: bool) -> PyResult<PyObject> {
     let toml_path = Path::new(path).to_path_buf();
     let ctx = repl_context_from_toml(toml_path, take_input);
     let map = context_to_map(ctx);
-
-    Python::with_gil(|py| {
-        let pydict = PyDict::new(py);
-
-        for (key, value) in map {
-            let py_key = PyString::new(py, &key);
-            let py_value = match value {
-                val if val.is_integer() => val.as_integer().unwrap().into_py(py),
-                val if val.is_float() => val.as_float().unwrap().into_py(py),
-                val if val.is_str() => val.as_str().unwrap().to_string().into_py(py),
-                val if val.is_bool() => val.as_bool().unwrap().into_py(py),
-                _ => panic!("Unsupported type"),
-            };
-
-            pydict.set_item(py_key, py_value).unwrap();
-        }
-
-        Ok(pydict.into())
-    })
+    Ok(pythonize_this!(map))
 }
 
 /// Get the root path of a current angreal project.

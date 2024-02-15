@@ -15,11 +15,11 @@ def test_generate_context():
     assert x.get("key_1") == "value_1"
     assert x.get("key_2") == 1
 
-def test_render_dir():
+def test_render_directory():
     toml = os.path.join(here,'..',"tests/common/test_assets/test_template/angreal.toml")
     ctx = angreal.generate_context(toml,False)
     src = os.path.join(here,'..',"tests/common/test_assets/test_template")
-    x = angreal.render_dir(src=src, dst="",force=False, context=ctx )
+    x = angreal.render_directory(src=src, dst="",force=False, context=ctx )
     for f in x:
         assert os.path.exists(f)
 

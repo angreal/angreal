@@ -1,7 +1,7 @@
 //! The angreal `init` command.
 //!
 use crate::git::{git_clone, git_pull_ff, remote_exists};
-use crate::utils::{context_to_map, render_directory, repl_context_from_toml};
+use crate::utils::{context_to_map, render_dir, repl_context_from_toml};
 
 use git_url_parse::{GitUrl, Scheme};
 use home::home_dir;
@@ -233,7 +233,7 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
     let ctx = context.clone();
 
     // render the provided template directory
-    let rendered_files = render_directory(path, context, &env::current_dir().unwrap(), force);
+    let rendered_files = render_dir(path, context, &env::current_dir().unwrap(), force);
 
     let toml_values = context_to_map(ctx);
     let toml_string = toml::to_string(&Value::Table(toml_values)).unwrap();

@@ -1,4 +1,3 @@
-//!
 /// Pythonize a rust object with pythonize
 macro_rules! pythonize_this {
     ($o:ident) => {{
