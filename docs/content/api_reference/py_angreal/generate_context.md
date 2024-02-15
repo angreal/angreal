@@ -18,3 +18,12 @@ assert ctx.get("key_2") == 1
 ### Args:
 - path (str): the path to the toml to use for generating a context
 - take_input (bool): whether values should be requested from stdin
+
+
+The TOML file format is the same as the `angreal.toml` used in the project template, no headers and just key value pairs. It also supports compounded templating where a previously captured key's value can render into subsequent default values.
+
+
+```bash
+key="value"
+key2=1
+```
