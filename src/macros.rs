@@ -1,5 +1,10 @@
 //!
-
+/// Pythonize a rust object with pythonize
+macro_rules! pythonize_this {
+    ($o:ident) => {{
+        Python::with_gil(|py| -> Py<PyAny> { pythonize(py, &$o).unwrap() })
+    }};
+}
 /// set a string value on an objects attribute
 macro_rules! attr_copy_str {
     ($o:ident, $v:ident, $a:ident) => {

@@ -3,21 +3,30 @@ use anyhow::anyhow;
 use anyhow::Result;
 
 use glob::glob;
-use log::{debug, error, info};
-use pyo3::types::PyDict;
 use std::env;
+use std::ops::Not;
 use std::path::{Path, PathBuf};
 use std::vec::Vec;
+use tera::Context;
+use toml::{map::Map, Table, Value};
 
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PyModule};
+use pyo3::types::{PyDict, PyList, PyModule, PyString};
 use pyo3::PyResult;
 use std::fs;
+use std::fs::File;
+use std::io::Write;
 
 use tera::Tera;
+use text_io::read;
 
 use reqwest::{self};
 use version_compare::Version;
+
+use walkdir::WalkDir;
+
+use log::{debug, error, info};
+use pythonize::pythonize;
 
 macro_rules! result_or_return_err {
     ( $e:expr ) => {
@@ -35,6 +44,171 @@ macro_rules! value_or_return_err {
             None => return Err(anyhow!("No value returned when one was expected.")),
         }
     };
+}
+
+pub fn context_to_map(ctx: Context) -> Map<String, Value> {
+    Map::try_from(ctx.into_json().as_object().unwrap().clone()).unwrap()
+}
+
+pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
+    let file_contents = fs::read_to_string(&toml_path)
+        .unwrap_or_else(|_| panic!("Unable to open {:?}", &toml_path));
+    let extract = file_contents.parse::<Table>().unwrap();
+
+    let mut context = Context::new();
+
+    for (k, v) in extract.iter() {
+        let value = if v.is_str()
+            && v.as_str().unwrap().starts_with("{{")
+            && v.as_str().unwrap().contains("}}")
+        {
+            let temp_value = v.clone();
+            let rendered_value =
+                Tera::one_off(temp_value.as_str().unwrap(), &context, false).unwrap();
+            Value::from(rendered_value)
+        } else {
+            v.clone()
+        };
+
+        let input = if take_input {
+            print!("{k}? [{value}]: ");
+            read!("{}\n")
+        } else {
+            String::new()
+        };
+
+        if input.trim().is_empty() | take_input.not() {
+            if value.is_str() {
+                context.insert(k, &value.as_str().unwrap());
+            }
+            if value.is_integer() {
+                context.insert(k, &value.as_integer().unwrap());
+            }
+            if value.is_bool() {
+                context.insert(k, &value.as_bool().unwrap());
+            }
+            if value.is_float() {
+                context.insert(k, &value.as_float().unwrap());
+            }
+        } else {
+            if value.is_str() {
+                context.insert(k, &input.trim());
+            }
+            if value.is_integer() {
+                context.insert(k, &input.trim().parse::<i32>().unwrap());
+            }
+            if value.is_bool() {
+                context.insert(k, &input.trim());
+            }
+            if value.is_float() {
+                context.insert(k, &input.trim().parse::<f64>().unwrap());
+            }
+        }
+    }
+
+    context
+}
+
+pub fn render_directory(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<String> {
+    let mut rendered_paths: Vec<String> = Vec::new();
+    // we create a Tera instance for an empty directory so we can extend it with our template later
+    let mut tmp_dir = env::temp_dir();
+    tmp_dir.push(Path::new("angreal_tmp"));
+
+    if tmp_dir.is_dir().not() {
+        debug!("Creating tmpdir at {:?}", tmp_dir);
+        fs::create_dir(&tmp_dir).unwrap();
+    }
+
+    tmp_dir.push(Path::new("*"));
+    let mut tera = Tera::new(tmp_dir.to_str().unwrap()).unwrap();
+
+    tmp_dir.pop();
+    if tmp_dir.is_dir() {
+        debug!("Destroying tmpdir at {:?}", tmp_dir);
+        fs::remove_dir_all(&tmp_dir).unwrap();
+    }
+
+    // We glob our template directory
+    let mut template_src = <&std::path::Path>::clone(&src).to_path_buf();
+    template_src.push(Path::new("**/*"));
+
+    // And build our full prefix
+    let _template_name = <&std::path::Path>::clone(&src).file_name().unwrap();
+
+    for file in glob(template_src.to_str().unwrap()).expect("Failed to read glob pattern") {
+        let file_path = file.as_ref().unwrap();
+        let rel_path = file_path.strip_prefix(src).unwrap().to_str().unwrap();
+
+        if file.as_ref().unwrap().is_file() && rel_path.starts_with("{{") && rel_path.contains("}}")
+        {
+            debug!(
+                "Adding template with relative path {:?} to tera instance.",
+                rel_path
+            );
+
+            tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path))
+                .unwrap();
+        }
+    }
+
+    // build our directory structure first
+    let walker = WalkDir::new(src).into_iter();
+    for entry in walker.filter_entry(|e| e.file_type().is_dir()) {
+        let path_template = entry.unwrap().clone();
+        let path_postfix = path_template.path();
+        let path_template = path_postfix.strip_prefix(src).unwrap().to_str().unwrap();
+
+        // we only render directories that start with a templated path, this is usually a single "root" directory that forms the top level directory of a project.
+        if path_template.starts_with("{{") && path_template.contains("}}") {
+            let real_path = Tera::one_off(path_template, &context, false).unwrap();
+
+            if Path::new(real_path.as_str()).is_dir() & force.not() {
+                error!(
+                    "{} already exists. Will not proceed unless `--force`/force=True is used.",
+                    real_path.as_str()
+                )
+            }
+            if real_path.starts_with('.') {
+                //skip any sort of top level dot files - extend with an exclusion glob in the future
+                // todo: exclusion glob
+                continue;
+            }
+
+            let destination = dst.join(Path::new(real_path.as_str()));
+            let destination = destination.to_str().unwrap();
+            debug!("Creating directory {:?}", destination);
+            fs::create_dir(destination).unwrap();
+            rendered_paths.push(destination.to_string());
+        }
+    }
+
+    // render templates
+    for template in tera.get_template_names() {
+        if template == "angreal.toml" {
+            // never render the angreal.toml
+            // todo: exclusion glob
+            continue;
+        }
+
+        if template.starts_with('.') {
+            // we don't render dot files either
+            // todo: exclusion glob
+            continue;
+        }
+
+        let rendered = tera.render(template, &context).unwrap();
+        let path = Tera::one_off(template, &context, false).unwrap();
+
+        let destination = dst.join(Path::new(path.as_str()));
+        let destination = destination.to_str().unwrap();
+        debug!("Rendering file at {:?}", destination);
+        let mut output = File::create(destination).unwrap();
+        write!(output, "{}", rendered.as_str()).unwrap();
+        rendered_paths.push(destination.to_string());
+    }
+
+    rendered_paths
 }
 
 pub fn check_up_to_date() -> Result<()> {
@@ -99,7 +273,68 @@ pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>> {
 pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_root, m)?)?;
     m.add_function(wrap_pyfunction!(render_template, m)?)?;
+    m.add_function(wrap_pyfunction!(generate_context, m)?)?;
+    m.add_function(wrap_pyfunction!(render_dir, m)?)?;
     Ok(())
+}
+
+#[pyfunction]
+pub fn render_dir(
+    src: &str,
+    dst: &str,
+    force: bool,
+    context: Option<&PyDict>,
+) -> PyResult<Py<PyAny>> {
+    let mut ctx = Context::new();
+    let src = Path::new(src);
+    let dst = Path::new(dst);
+
+    if let Some(context) = context {
+        for key in context.keys() {
+            if let Some(value) = context.get_item(key) {
+                let v = value.to_string();
+                let k = key.to_string();
+                ctx.insert(&k, &v);
+            }
+        }
+    }
+
+    let x = render_directory(src, ctx, dst, force);
+    Ok(pythonize_this!(x))
+    // src: &Path, context: Context, dst: &Path, force: bool
+}
+
+#[pyfunction]
+/// Generate a templating context from a toml file.
+///
+/// # Examples
+/// ```python
+/// import angreal
+/// angreal_root = angreal.generate_context('path/to/angreal.toml',take_input=False)
+/// ```
+fn generate_context(path: &str, take_input: bool) -> PyResult<PyObject> {
+    let toml_path = Path::new(path).to_path_buf();
+    let ctx = repl_context_from_toml(toml_path, take_input);
+    let map = context_to_map(ctx);
+
+    Python::with_gil(|py| {
+        let pydict = PyDict::new(py);
+
+        for (key, value) in map {
+            let py_key = PyString::new(py, &key);
+            let py_value = match value {
+                val if val.is_integer() => val.as_integer().unwrap().into_py(py),
+                val if val.is_float() => val.as_float().unwrap().into_py(py),
+                val if val.is_str() => val.as_str().unwrap().to_string().into_py(py),
+                val if val.is_bool() => val.as_bool().unwrap().into_py(py),
+                _ => panic!("Unsupported type"),
+            };
+
+            pydict.set_item(py_key, py_value).unwrap();
+        }
+
+        Ok(pydict.into())
+    })
 }
 
 /// Get the root path of a current angreal project.
@@ -224,6 +459,20 @@ mod tests {
 
     mod common;
 
+    #[test]
+    fn test_repl_context_from_toml() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let test_toml = root.join("tests/common/test_assets/test_template/angreal.toml");
+        let ctx = crate::utils::repl_context_from_toml(test_toml, false);
+
+        assert_eq!(ctx.get("key_1").unwrap(), "value_1");
+        assert_eq!(ctx.get("key_2").unwrap(), 1);
+        assert_eq!(ctx.get("folder_variable").unwrap(), "folder_name");
+        assert_eq!(
+            ctx.get("variable_text").unwrap(),
+            "Just some text that we want to render"
+        );
+    }
     #[test]
     fn test_load_python() {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));

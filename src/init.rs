@@ -1,12 +1,11 @@
 //! The angreal `init` command.
 //!
 use crate::git::{git_clone, git_pull_ff, remote_exists};
+use crate::utils::{context_to_map, render_directory, repl_context_from_toml};
 
 use git_url_parse::{GitUrl, Scheme};
 use home::home_dir;
 
-use glob::glob;
-use log::{debug, error};
 use pyo3::prelude::*;
 use pyo3::types::{PyList, PyModule};
 
@@ -17,10 +16,9 @@ use std::io::Write;
 use std::ops::Not;
 use std::path::{Path, PathBuf};
 use std::process::exit;
-use tera::{Context, Tera};
-use text_io::read;
-use toml::{map::Map, Table, Value};
-use walkdir::WalkDir;
+use toml::Value;
+
+use log::{debug, error};
 
 /// Initialize a new project by rendering a template.
 pub fn init(template: &str, force: bool, take_inputs: bool) {
@@ -219,7 +217,6 @@ fn create_home_dot_angreal() -> PathBuf {
 
 /// render the provided angreal template path
 fn render_template(path: &Path, take_input: bool, force: bool) -> String {
-    let mut angreal_path = String::new();
     // Verify the provided template path is minimially compliant.
     let mut toml = path.to_path_buf();
     toml.push(Path::new("angreal.toml"));
@@ -231,184 +228,33 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
         );
     }
 
-    let file_contents = match fs::read_to_string(toml) {
-        Ok(c) => c,
-        Err(e) => {
-            error!("{:?}", e);
-            exit(1);
-        }
-    };
+    // create a tera context from the toml file interactively.
+    let context = repl_context_from_toml(toml, take_input);
+    let ctx = context.clone();
 
-    // build our tera context from toml file.
-    let extract = file_contents.parse::<Table>().unwrap();
-    let mut context = Context::new();
-    let mut toml_values = Map::new();
-    for (k, v) in extract.iter() {
-        let value = if v.is_str()
-            && v.as_str().unwrap().starts_with("{{")
-            && v.as_str().unwrap().contains("}}")
-        {
-            let temp_value = v.clone();
-            let rendered_value =
-                Tera::one_off(temp_value.as_str().unwrap(), &context, false).unwrap();
-            Value::from(rendered_value)
-        } else {
-            v.clone()
-        };
+    // render the provided template directory
+    let rendered_files = render_directory(path, context, &env::current_dir().unwrap(), force);
 
-        let input = if take_input {
-            print!("{k}? [{value}]: ");
-            read!("{}\n")
-        } else {
-            String::new()
-        };
+    let toml_values = context_to_map(ctx);
+    let toml_string = toml::to_string(&Value::Table(toml_values)).unwrap();
 
-        if input.trim().is_empty() | take_input.not() {
-            if value.is_str() {
-                context.insert(k, &value.as_str().unwrap());
-                toml_values.insert(k.into(), value.clone());
-            }
-            if value.is_integer() {
-                context.insert(k, &value.as_integer().unwrap());
-                toml_values.insert(k.into(), value.clone());
-            }
-            if value.is_bool() {
-                context.insert(k, &value.as_bool().unwrap());
-                toml_values.insert(k.into(), value.clone());
-            }
-            if value.is_float() {
-                context.insert(k, &value.as_float().unwrap());
-                toml_values.insert(k.into(), value.clone());
-            }
-        } else {
-            if value.is_str() {
-                context.insert(k, &input.trim());
-                toml_values.insert(k.into(), Value::String(input.trim().to_string()));
-            }
-            if value.is_integer() {
-                context.insert(k, &input.trim().parse::<i32>().unwrap());
-                toml_values.insert(
-                    k.into(),
-                    Value::Integer(input.trim().parse::<i64>().unwrap()),
-                );
-            }
-            if value.is_bool() {
-                context.insert(k, &input.trim());
-                toml_values.insert(
-                    k.into(),
-                    Value::Boolean(input.trim().parse::<bool>().unwrap()),
-                );
-            }
-            if value.is_float() {
-                context.insert(k, &input.trim().parse::<f64>().unwrap());
-                toml_values.insert(k.into(), Value::Float(input.trim().parse::<f64>().unwrap()));
-            }
+    for f in rendered_files {
+        if f.ends_with(".angreal") {
+            let mut value_path = PathBuf::new();
+            value_path.push(f.as_str());
+            value_path.push("angreal.toml");
+            let mut output = File::create(&value_path).unwrap();
+            write!(output, "{}", toml_string.as_str()).unwrap();
+            debug!("Storing initialization values to {}", &value_path.display());
+            return f;
         }
     }
 
-    // first we create a Tera instance from an empty directory so we can extend it
-    let mut tmp_dir = env::temp_dir();
-    tmp_dir.push(Path::new("angreal_tmp"));
-
-    if tmp_dir.is_dir().not() {
-        debug!("Creating tmpdir at {:?}", tmp_dir);
-        fs::create_dir(&tmp_dir).unwrap();
-    }
-
-    tmp_dir.push(Path::new("*"));
-    let mut tera = Tera::new(tmp_dir.to_str().unwrap()).unwrap();
-
-    tmp_dir.pop();
-    if tmp_dir.is_dir() {
-        debug!("Destroying tmpdir at {:?}", tmp_dir);
-        fs::remove_dir_all(&tmp_dir).unwrap();
-    }
-
-    // We get our templates glob
-    let mut template = <&std::path::Path>::clone(&path).to_path_buf();
-    template.push(Path::new("**/*"));
-
-    // And build our full prefix
-    let _template_name = <&std::path::Path>::clone(&path).file_name().unwrap();
-
-    for file in glob(template.to_str().unwrap()).expect("Failed to read glob pattern") {
-        let file_path = file.as_ref().unwrap();
-        let rel_path = file_path.strip_prefix(path).unwrap().to_str().unwrap();
-
-        if file.as_ref().unwrap().is_file() && rel_path.starts_with("{{") && rel_path.contains("}}")
-        {
-            debug!(
-                "Adding template with relative path {:?} to tera instance.",
-                rel_path
-            );
-            tera.add_template_file(file.as_ref().unwrap().to_str().unwrap(), Some(rel_path))
-                .unwrap();
-        }
-    }
-
-    // build our directory structure first
-    let walker = WalkDir::new(path).into_iter();
-    for entry in walker.filter_entry(|e| e.file_type().is_dir()) {
-        let path_template = entry.unwrap().clone();
-        let path_postfix = path_template.path();
-        let path_template = path_postfix.strip_prefix(path).unwrap().to_str().unwrap();
-
-        if path_template.starts_with("{{") && path_template.contains("}}") {
-            let real_path = Tera::one_off(path_template, &context, false).unwrap();
-
-            if Path::new(real_path.as_str()).is_dir() & force.not() {
-                error!(
-                    "{} already exists. Will not proceed unless `--force`/force=True is used.",
-                    real_path.as_str()
-                );
-                exit(1)
-            }
-            if real_path.starts_with('.') {
-                //skip any sort of top level dot files - extend with an exclusion glob in the future
-                // todo: exclusion glob
-                continue;
-            }
-
-            if real_path.ends_with(".angreal") {
-                angreal_path = real_path.clone();
-            }
-
-            debug!("Creating directory {:?}", real_path);
-            fs::create_dir(real_path.as_str()).unwrap();
-        }
-    }
-
-    // render templates
-    for template in tera.get_template_names() {
-        if template == "angreal.toml" {
-            // never render the angreal.toml
-            // todo: exclusion glob
-            continue;
-        }
-
-        if template.starts_with('.') {
-            // we don't render dot files either
-            // todo: exclusion glob
-            continue;
-        }
-
-        let rendered = tera.render(template, &context).unwrap();
-        let path = Tera::one_off(template, &context, false).unwrap();
-        debug!("Rendering file at {:?}", path);
-        let mut output = File::create(path).unwrap();
-        write!(output, "{}", rendered.as_str()).unwrap();
-    }
-
-    let toml_string = toml::to_string(&Value::Table(toml_values.clone())).unwrap();
-    let mut value_path = PathBuf::new();
-    value_path.push(angreal_path.as_str());
-    value_path.push("angreal.toml");
-
-    let mut output = File::create(&value_path).unwrap();
-    write!(output, "{}", toml_string.as_str()).unwrap();
-    debug!("Storing initialization values to {}", &value_path.display());
-    angreal_path
-
+    // let mut output = File::create(&value_path).unwrap();
+    // write!(output, "{}", toml_string.as_str()).unwrap();
+    // debug!("Storing initialization values to {}", &value_path.display());
+    // angreal_path
+    String::new()
     // return path to .angreal
 }
 
