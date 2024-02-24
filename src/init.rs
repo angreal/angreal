@@ -97,8 +97,8 @@ fn get_scheme(u: &str) -> Result<String, String> {
     }
 }
 
-fn handle_file_template(template: &str, angreal_home: &PathBuf) -> String {
-    let mut try_template = angreal_home.clone();
+fn handle_file_template(template: &str, angreal_home: &Path) -> String {
+    let mut try_template = angreal_home.to_path_buf();
     try_template.push(Path::new(template));
 
     if try_template.is_dir() {
@@ -135,7 +135,7 @@ fn handle_file_template(template: &str, angreal_home: &PathBuf) -> String {
             exit(1);
         }
     } else {
-        let mut try_supported = angreal_home.clone();
+        let mut try_supported = angreal_home.to_path_buf();
         try_supported.push("angreal");
         try_supported.push(Path::new(template));
 
@@ -163,7 +163,7 @@ fn handle_file_template(template: &str, angreal_home: &PathBuf) -> String {
                 &maybe_repo
             );
             if remote_exists(&maybe_repo) {
-                let mut dst = angreal_home.clone();
+                let mut dst = angreal_home.to_path_buf();
                 let mut path = Path::new(
                     &GitUrl::parse(maybe_repo.as_str())
                         .expect("Failed to parse Git URL")
