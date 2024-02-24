@@ -7,9 +7,8 @@ macro_rules! pythonize_this {
 /// set a string value on an objects attribute
 macro_rules! attr_copy_str {
     ($o:ident, $v:ident, $a:ident) => {
-        if $a.$v.is_some() {
-            let w = Box::leak(Box::new($a.$v.unwrap()));
-            $o = $o.$v(w.as_str());
+        if let Some(value) = $a.$v {
+            $o = $o.$v(Box::leak(Box::new(value)).as_str());
         }
     };
 }
@@ -17,9 +16,8 @@ macro_rules! attr_copy_str {
 /// set a bool value on an objects attribute
 macro_rules! attr_copy_bool {
     ($o:ident, $v:ident, $a:ident) => {
-        if $a.$v.is_some() {
-            let w = Box::leak(Box::new($a.$v.unwrap()));
-            $o = $o.$v(*w);
+        if let Some(value) = $a.$v {
+            $o = $o.$v(*Box::leak(Box::new(value)));
         }
     };
 }
@@ -27,9 +25,8 @@ macro_rules! attr_copy_bool {
 /// set a char value on an objects attribute
 macro_rules! attr_copy_char {
     ($o:ident, $v:ident, $a:ident) => {
-        if $a.$v.is_some() {
-            let w = Box::leak(Box::new($a.$v.unwrap()));
-            $o = $o.$v(*w);
+        if let Some(value) = $a.$v {
+            $o = $o.$v(*Box::leak(Box::new(value)));
         }
     };
 }
@@ -37,9 +34,8 @@ macro_rules! attr_copy_char {
 /// set a uint64 value on an objects attribute
 macro_rules! attr_copy_u64 {
     ($o:ident, $v:ident, $a:ident) => {
-        if $a.$v.is_some() {
-            let w = Box::leak(Box::new($a.$v.unwrap()));
-            $o = $o.$v((*w as u64).try_into().unwrap());
+        if let Some(value) = $a.$v {
+            $o = $o.$v((*Box::leak(Box::new(value)) as u64).try_into().unwrap());
         }
     };
 }

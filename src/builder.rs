@@ -6,18 +6,17 @@ use clap::{App, AppSettings, Arg, ArgAction, Command};
 
 /// Get the args for a given command.
 pub fn select_args(name: String) -> Vec<AngrealArg> {
-    let this = ANGREAL_ARGS.lock().unwrap().clone();
-
-    this.iter()
+    ANGREAL_ARGS
+        .lock()
+        .unwrap()
+        .iter()
+        .filter(|a| a.command_name == name)
         .cloned()
-        .filter(|a| a.command_name == name.clone())
         .collect()
 }
 
-/// Build the final CLI from the registered tasks
-pub fn build_app(in_angreal_project: bool) -> App<'static> {
-    // Build the initial App with angreal sub commands
-    let mut app = Command::new("angreal")
+fn base_app_setup() -> App<'static> {
+    Command::new("angreal")
         .setting(AppSettings::NoBinaryName)
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .arg(
@@ -28,33 +27,41 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
                 .global(true)
                 .help("verbose level, (may be used multiple times for more verbosity)"),
         )
-        .version(version!());
+        .version(version!())
+}
+
+fn add_init_subcommand(app: App<'static>) -> App<'static> {
+    app.subcommand(
+        Command::new("init")
+            .about("Initialize an Angreal template from source.")
+            .arg(
+                Arg::new("force")
+                    .short('f')
+                    .long("--force")
+                    .takes_value(false)
+                    .help("Force the rendering of a template, even if paths/files already exist."),
+            )
+            .arg(
+                Arg::new("defaults")
+                    .short('d')
+                    .long("--defaults")
+                    .takes_value(false)
+                    .help("Use default values provided in the angreal.toml."),
+            )
+            .arg(Arg::new("template").takes_value(true).required(true).help(
+                "The template to use. Either a pre-downloaded template name, or url to a git repo.",
+            )),
+    )
+}
+
+/// Build the final CLI from the registered tasks
+pub fn build_app(in_angreal_project: bool) -> App<'static> {
+    // Build the initial App with angreal sub commands
+    let mut app = base_app_setup();
+
     if !in_angreal_project {
-        app = app.subcommand(Command::new("init")
-                        .about("Initialize an Angreal template from source.")
-                        .arg(
-                            Arg::new("force")
-                            .short('f')
-                            .long("--force")
-                            .takes_value(false)
-                            .help("Force the rendering of a template, even if paths/files already exist.")
-                        )
-                        .arg(
-                            Arg::new("defaults")
-                            .short('d')
-                            .long("--defaults")
-                            .takes_value(false)
-                            .help("Use default values provided in the angreal.toml.")
-                        )
-                        .arg(
-                            Arg::new("template")
-                            .takes_value(true)
-                            .required(true)
-                            .help("The template to use. Either a pre-downloaded template name, or url to a git repo.")
-                        )
-                    )
+        app = add_init_subcommand(app);
     } else {
-        // Generate groups into commands
         let mut top_level_groups = Vec::new();
         let mut groups = Vec::new();
         let registered_groups = ANGREAL_GROUPS.lock().unwrap().clone();
@@ -64,6 +71,7 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
             let cmd = cmd.setting(AppSettings::SubcommandRequiredElseHelp);
             groups.push(cmd.clone());
         }
+
         // Generate all tasks into commands
         let registered_tasks = ANGREAL_TASKS.lock().unwrap().clone();
         for cmd in registered_tasks.into_iter() {
