@@ -28,24 +28,6 @@ use walkdir::WalkDir;
 use log::{debug, error, info};
 use pythonize::pythonize;
 
-macro_rules! result_or_return_err {
-    ( $e:expr ) => {
-        match $e {
-            Ok(x) => x,
-            Err(err) => return Err(err).map_err(Into::into),
-        }
-    };
-}
-
-macro_rules! value_or_return_err {
-    ( $e:expr ) => {
-        match $e {
-            Some(x) => x,
-            None => return Err(anyhow!("No value returned when one was expected.")),
-        }
-    };
-}
-
 // turn a tera context into a map
 pub fn context_to_map(ctx: Context) -> Map<String, Value> {
     Map::try_from(ctx.into_json().as_object().unwrap().clone()).unwrap()

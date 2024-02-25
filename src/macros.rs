@@ -33,3 +33,21 @@ macro_rules! attr_copy {
         }
     };
 }
+
+macro_rules! result_or_return_err {
+    ( $e:expr ) => {
+        match $e {
+            Ok(x) => x,
+            Err(err) => return Err(err).map_err(Into::into),
+        }
+    };
+}
+
+macro_rules! value_or_return_err {
+    ( $e:expr ) => {
+        match $e {
+            Some(x) => x,
+            None => return Err(anyhow!("No value returned when one was expected.")),
+        }
+    };
+}
