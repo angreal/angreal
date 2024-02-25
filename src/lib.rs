@@ -138,7 +138,7 @@ fn main() -> PyResult<()> {
                 Some(some_command) => some_command,
             };
 
-            let args = builder::select_args(task.to_string());
+            let args = builder::select_args(task.as_str());
             Python::with_gil(|py| {
                 debug!("Starting Python execution for command: {}", task);
                 let mut kwargs: Vec<(&str, PyObject)> = Vec::new();
