@@ -4,38 +4,32 @@ macro_rules! pythonize_this {
         Python::with_gil(|py| -> Py<PyAny> { pythonize(py, &$o).unwrap() })
     }};
 }
-/// set a string value on an objects attribute
-macro_rules! attr_copy_str {
-    ($o:ident, $v:ident, $a:ident) => {
+
+macro_rules! attr_copy {
+    // Handle string attributes
+    (str, $o:ident, $v:ident, $a:ident) => {
         if let Some(value) = $a.$v {
-            $o = $o.$v(Box::leak(Box::new(value)).as_str());
+            $o = $o.$v(Box::leak(Box::new(value.to_string())).as_str());
         }
     };
-}
-
-/// set a bool value on an objects attribute
-macro_rules! attr_copy_bool {
-    ($o:ident, $v:ident, $a:ident) => {
+    // Handle bool attributes
+    (bool, $o:ident, $v:ident, $a:ident) => {
         if let Some(value) = $a.$v {
             $o = $o.$v(*Box::leak(Box::new(value)));
         }
     };
-}
-
-/// set a char value on an objects attribute
-macro_rules! attr_copy_char {
-    ($o:ident, $v:ident, $a:ident) => {
+    // Handle char attributes
+    (char, $o:ident, $v:ident, $a:ident) => {
         if let Some(value) = $a.$v {
             $o = $o.$v(*Box::leak(Box::new(value)));
         }
     };
-}
-
-/// set a uint64 value on an objects attribute
-macro_rules! attr_copy_u64 {
-    ($o:ident, $v:ident, $a:ident) => {
+    // Handle u64 attributes
+    (u64, $o:ident, $v:ident, $a:ident) => {
         if let Some(value) = $a.$v {
-            $o = $o.$v((*Box::leak(Box::new(value)) as u64).try_into().unwrap());
+            // Assuming the original intent was to ensure the value is u64 before leaking
+            let leaked_value: &'static u64 = Box::leak(Box::new(value as u64));
+            $o = $o.$v((*leaked_value).try_into().unwrap());
         }
     };
 }

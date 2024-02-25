@@ -60,7 +60,7 @@ fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
     let mut groups = Vec::new();
     for group in ANGREAL_GROUPS.lock().unwrap().clone().into_iter() {
         let mut cmd = Command::new(group.name.as_str());
-        attr_copy_str!(cmd, about, group);
+        attr_copy!(str, cmd, about, group);
         let cmd = cmd.setting(AppSettings::SubcommandRequiredElseHelp);
         groups.push(cmd.clone());
     }
@@ -68,25 +68,25 @@ fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
     // now we generate our commands
     for cmd in ANGREAL_TASKS.lock().unwrap().clone().into_iter() {
         let mut task = Command::new(cmd.name.as_str());
-        attr_copy_str!(task, about, cmd);
-        attr_copy_str!(task, long_about, cmd);
+        attr_copy!(str, task, about, cmd);
+        attr_copy!(str, task, long_about, cmd);
 
         // we generate each arg for the command and register it
         for arg in select_args(cmd.name.as_str()).into_iter() {
             let name_static: &'static str = Box::leak(Box::new(arg.name.clone()).into_boxed_str());
             let mut a = Arg::new(name_static);
-            attr_copy_bool!(a, takes_value, arg);
-            attr_copy_str!(a, default_value, arg);
-            attr_copy_bool!(a, require_equals, arg);
-            attr_copy_bool!(a, multiple_values, arg);
-            attr_copy_u64!(a, number_of_values, arg);
-            attr_copy_u64!(a, max_values, arg);
-            attr_copy_u64!(a, min_values, arg);
-            attr_copy_char!(a, short, arg);
-            attr_copy_str!(a, long, arg);
-            attr_copy_str!(a, long_help, arg);
-            attr_copy_str!(a, help, arg);
-            attr_copy_bool!(a, required, arg);
+            attr_copy!(bool, a, takes_value, arg);
+            attr_copy!(str, a, default_value, arg);
+            attr_copy!(bool, a, require_equals, arg);
+            attr_copy!(bool, a, multiple_values, arg);
+            attr_copy!(u64, a, number_of_values, arg);
+            attr_copy!(u64, a, max_values, arg);
+            attr_copy!(u64, a, min_values, arg);
+            attr_copy!(char, a, short, arg);
+            attr_copy!(str, a, long, arg);
+            attr_copy!(str, a, long_help, arg);
+            attr_copy!(str, a, help, arg);
+            attr_copy!(bool, a, required, arg);
             if arg.is_flag.unwrap() {
                 a = a.action(ArgAction::SetTrue);
             }
