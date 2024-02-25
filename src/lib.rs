@@ -35,11 +35,14 @@ use log::{debug, error, warn};
 #[pyfunction]
 fn main() -> PyResult<()> {
     let handle = logger::init_logger();
-    // we have to do this because we're calling the main function through python - when lib+bin build support is available, we can factor away
-    let mut argvs: Vec<String> = std::env::args().collect();
-    argvs.remove(0);
-    argvs.remove(0);
+    debug!("Angreal application starting...");
 
+    // because we execute this from python main, we remove the first elements that
+    // IIRC its python and angreal
+    let mut argvs: Vec<String> = std::env::args().collect();
+    argvs = argvs.split_off(2);
+
+    debug!("Checking if binary is up to date...");
     match utils::check_up_to_date() {
         Ok(()) => (),
         Err(e) => warn!(
@@ -48,14 +51,12 @@ fn main() -> PyResult<()> {
         ),
     };
 
-    // env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("warning"))
-    // .init();
-
     // Load any angreal task assets that are available to us
-    let in_angreal_project = utils::is_angreal_project().is_ok();
+    let angreal_project_result = utils::is_angreal_project();
+    let in_angreal_project = angreal_project_result.is_ok();
+    let angreal_path = angreal_project_result.expect("Expected angreal project path");
 
     if in_angreal_project {
-        let angreal_path = utils::is_angreal_project().unwrap();
         debug!("Angreal project detected, loading found tasks.");
         // get a list of files
         let angreal_tasks_to_load = utils::get_task_files(angreal_path);
@@ -63,12 +64,17 @@ fn main() -> PyResult<()> {
         // Explicitly capture error with exit
         let _angreal_tasks_to_load = match angreal_tasks_to_load {
             Ok(tasks) => tasks,
-            Err(_) => exit(1),
+            Err(_) => {
+                error!("Exiting due to unrecoverable error.");
+                exit(1);
+            }
         };
 
         // load the files , IF a file has command or task decorators - they'll register themselves now
         for task in _angreal_tasks_to_load.iter() {
-            utils::load_python(task.clone()).unwrap_or(());
+            if let Err(e) = utils::load_python(task.clone()) {
+                error!("Failed to load Python task: {}", e);
+            }
         }
     }
 
@@ -80,6 +86,7 @@ fn main() -> PyResult<()> {
     let verbosity = sub_command.get_count("verbose");
 
     logger::update_verbosity(&handle, verbosity);
+    debug!("Log verbosity set to level: {}", verbosity);
 
     match sub_command.subcommand() {
         Some(("init", _sub_matches)) => init::init(
@@ -121,17 +128,19 @@ fn main() -> PyResult<()> {
                         == command_groups
             });
 
+            debug!("Executing command: {}", task);
             let command = match some_command {
                 None => {
-                    error!("Task {}, not found.", task.as_str());
+                    error!("Command '{}' not found.", task);
                     app_copy.print_help().unwrap_or(());
                     exit(1)
                 }
                 Some(some_command) => some_command,
             };
 
-            let args = builder::select_args(task.to_string());
+            let args = builder::select_args(task.as_str());
             Python::with_gil(|py| {
+                debug!("Starting Python execution for command: {}", task);
                 let mut kwargs: Vec<(&str, PyObject)> = Vec::new();
 
                 for arg in args.into_iter() {
@@ -165,10 +174,12 @@ fn main() -> PyResult<()> {
                 let r_value = command.func.call(py, (), Some(kwargs.into_py_dict(py)));
 
                 match r_value {
-                    Ok(_r_value) => {}
+                    Ok(_r_value) => debug!("Successfully executed Python command: {}", task),
                     Err(r_value) => {
-                        error!("An error occurred :");
-                        error!("{:?}", r_value.traceback(py).unwrap().format());
+                        error!(
+                            "Failed to execute Python command: {}. Error: {:?}",
+                            task, r_value
+                        );
                         exit(1);
                     }
                 }
@@ -179,6 +190,7 @@ fn main() -> PyResult<()> {
         }
     }
 
+    debug!("Angreal application completed successfully.");
     Ok(())
 }
 
