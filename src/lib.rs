@@ -54,10 +54,10 @@ fn main() -> PyResult<()> {
     // Load any angreal task assets that are available to us
     let angreal_project_result = utils::is_angreal_project();
     let in_angreal_project = angreal_project_result.is_ok();
-    let angreal_path = angreal_project_result.expect("Expected angreal project path");
 
     if in_angreal_project {
         debug!("Angreal project detected, loading found tasks.");
+        let angreal_path = angreal_project_result.expect("Expected angreal project path");
         // get a list of files
         let angreal_tasks_to_load = utils::get_task_files(angreal_path);
 

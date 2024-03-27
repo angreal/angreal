@@ -196,7 +196,7 @@ fn handle_git_template(template: &str, angreal_home: PathBuf) -> PathBuf {
     // Compute destination path with the necessary adjustments
     let path = Path::new(&remote.path)
         .strip_prefix("/")
-        .unwrap_or(Path::new(&remote.path))
+        .unwrap_or_else(|_| Path::new(&remote.path))
         .with_extension("");
     let dst = angreal_home.join(path);
 
