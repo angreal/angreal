@@ -66,6 +66,7 @@ jobs:
       - run: pip install .
       - run: cargo test -v -- --nocapture --test-threads=1
       - run: python -m pytest -svv
+      - run: angreal --version
       - run: angreal init --force --defaults angreal_test_template
       - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
 
@@ -91,6 +92,7 @@ jobs:
       - run: pip install .
       - run: cargo test -v -- --nocapture --test-threads=1
       - run: python -m pytest -svv
+      - run: angreal --version
       - run: angreal init --force --defaults angreal_test_template
       - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
 
@@ -116,6 +118,7 @@ jobs:
       - run: pip install .
       - run: cargo test -v -- --nocapture --test-threads=1
       - run: python -m pytest -svv
+      - run: angreal --version
       - run: angreal init --force --defaults angreal_test_template
       - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
 
