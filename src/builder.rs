@@ -154,10 +154,10 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
     // Build the initial App with angreal sub commands
     let mut app = base_app_setup();
 
-    if !in_angreal_project {
-        app = add_init_subcommand(app);
+    if in_angreal_project {
+        app = add_project_subcommands(app);
     } else {
-        app = add_project_subcommands(app)
+        app = add_init_subcommand(app);
     }
     app
 }
