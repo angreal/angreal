@@ -54,7 +54,6 @@ fn main() -> PyResult<()> {
     // Load any angreal task assets that are available to us
     let angreal_project_result = utils::is_angreal_project();
     let in_angreal_project = angreal_project_result.is_ok();
-    
 
     if in_angreal_project {
         debug!("Angreal project detected, loading found tasks.");
