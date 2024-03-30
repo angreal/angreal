@@ -48,6 +48,13 @@ fn add_init_subcommand(app: App<'static>) -> App<'static> {
                     .takes_value(false)
                     .help("Use default values provided in the angreal.toml."),
             )
+            .arg(
+                Arg::new("tomloverride")
+                    .short('t')
+                    .long("--toml")
+                    .takes_value(true)
+                    .help("Override the toml file in the template repository."),
+            )
             .arg(Arg::new("template").takes_value(true).required(true).help(
                 "The template to use. Either a pre-downloaded template name, or url to a git repo.",
             )),

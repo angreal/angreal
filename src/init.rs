@@ -24,7 +24,7 @@ use toml::Value;
 use log::{debug, error};
 
 /// Initialize a new project by rendering a template.
-pub fn init(template: &str, force: bool, take_inputs: bool) {
+pub fn init(template: &str, force: bool, take_inputs: bool, tomloverride: &str) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
     debug!("Got template type {:?} for {:?}.", template_type, template);
@@ -47,7 +47,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
         }
     };
 
-    let rendered_dot_angreal_path = render_template(Path::new(&template), take_inputs, force);
+    let rendered_dot_angreal_path = render_template(Path::new(&template), take_inputs, force, Path::new(&tomloverride));
 
     let mut rendered_angreal_init = Path::new(&rendered_dot_angreal_path).to_path_buf();
     rendered_angreal_init.push("init.py");
@@ -224,20 +224,15 @@ fn create_home_dot_angreal() -> PathBuf {
 }
 
 /// render the provided angreal template path
-fn render_template(path: &Path, take_input: bool, force: bool) -> String {
-    // Verify the provided template path is minimially compliant.
-    let mut toml = path.to_path_buf();
-    toml.push(Path::new("angreal.toml"));
-    debug!("angreal.toml should be at {:?}", toml);
-    if toml.is_file().not() {
-        error!(
-            "`angreal.toml` not found where expected {:}",
-            toml.display()
-        );
-    }
-
+fn render_template(path: &Path, take_input: bool, force: bool, toml_override: &Path) -> String {
     // create a tera context from the toml file interactively.
-    let context = repl_context_from_toml(toml, take_input);
+    let context = if !toml_override.exists() {
+        //let toml_buf =  PathBuf::from(toml_override);
+        repl_context_from_toml(toml_override.to_path_buf(), false)
+    }
+    else {
+        repl_context_from_toml(path.to_path_buf(), take_input)
+    };
     let ctx = context.clone();
 
     // render the provided template directory
@@ -271,16 +266,18 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
 mod tests {
 
     use std::ops::Not;
-    use std::path::{Path, PathBuf};
-    use std::{env, fs};
+    use std::{
+        fs::{self, File},
+        path::{Path, PathBuf},
+    };
     use tempfile::tempdir;
-
     #[test]
     fn test_init_from_git() {
         crate::init::init(
             "https://github.com/angreal/angreal_test_template.git",
             true,
             false,
+            "",
         );
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
@@ -345,13 +342,14 @@ mod tests {
             "https://github.com/angreal/angreal_test_template.git",
             true,
             false,
+            "",
         );
         // clean up rendered
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
         let _ = fs::remove_dir_all(&rendered_root);
         // use the long version
-        crate::init::init("angreal/angreal_test_template", true, false);
+        crate::init::init("angreal/angreal_test_template", true, false, "template/test/angreal.toml");
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
         let _ = fs::remove_dir_all(&rendered_root);
@@ -361,7 +359,7 @@ mod tests {
     #[test]
     fn test_init_short() {
         // clone
-        crate::init::init("angreal_test_template", true, false);
+        crate::init::init("angreal_test_template", true, false, "");
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
         let _ = fs::remove_dir_all(&rendered_root);
@@ -372,7 +370,7 @@ mod tests {
     fn test_render_template() {
         let mut template_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         template_root.push(Path::new("tests/common/test_assets/test_template"));
-        crate::init::render_template(&template_root, false, true);
+        crate::init::render_template(&template_root, false, true, Path::new(""));
 
         let mut angreal_toml = template_root.clone();
         angreal_toml.push("angreal.toml");
@@ -434,4 +432,5 @@ mod tests {
         let str_schema = crate::init::get_scheme(str_str);
         assert_eq!(str_schema.unwrap(), "file");
     }
+
 }
