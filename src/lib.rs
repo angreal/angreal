@@ -94,7 +94,7 @@ fn main() -> PyResult<()> {
             _sub_matches.value_of("template").unwrap(),
             _sub_matches.is_present("force"),
             _sub_matches.is_present("defaults").not(),
-            _sub_matches.value_of("tomloverride").unwrap(),
+            Some(_sub_matches.value_of("values_file").unwrap()),
         
         ),
         Some((task, sub_m)) => {

@@ -54,6 +54,7 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
         } else {
             v.clone()
         };
+        
         let input = if take_input {
             print!("{k}? [{value}]: ");
             read!("{}\n")
