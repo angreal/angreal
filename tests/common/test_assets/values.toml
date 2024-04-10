@@ -1,0 +1,4 @@
+key_1 = "values_key"
+key_2 = 2
+folder_variable = "folder_name"
+variable_text = '{{ folder_variable | replace(from="_",to="-") }}'
