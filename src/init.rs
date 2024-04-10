@@ -12,8 +12,7 @@ use pyo3::prelude::*;
 use pyo3::types::{PyList, PyModule};
 
 use std::{
-    env, fs,
-    fs::File,
+    env, fs::{self, File},
     io::Write,
     ops::Not,
     path::{Path, PathBuf},
@@ -24,7 +23,7 @@ use toml::Value;
 use log::{debug, error};
 
 /// Initialize a new project by rendering a template.
-pub fn init(template: &str, force: bool, take_inputs: bool) {
+pub fn init(template: &str, force: bool, take_inputs: bool, values_file: Option<&str>) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
     debug!("Got template type {:?} for {:?}.", template_type, template);
@@ -47,7 +46,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool) {
         }
     };
 
-    let rendered_dot_angreal_path = render_template(Path::new(&template), take_inputs, force);
+    let rendered_dot_angreal_path = render_template(Path::new(&template), take_inputs, force, values_file);
 
     let mut rendered_angreal_init = Path::new(&rendered_dot_angreal_path).to_path_buf();
     rendered_angreal_init.push("init.py");
@@ -224,7 +223,7 @@ fn create_home_dot_angreal() -> PathBuf {
 }
 
 /// render the provided angreal template path
-fn render_template(path: &Path, take_input: bool, force: bool) -> String {
+fn render_template(path: &Path, take_input: bool, force: bool, values_file: Option<&str>) -> String {
     // Verify the provided template path is minimially compliant.
     let mut toml = path.to_path_buf();
     toml.push(Path::new("angreal.toml"));
@@ -236,8 +235,15 @@ fn render_template(path: &Path, take_input: bool, force: bool) -> String {
         );
     }
 
+    let context = if values_file.is_some(){
+        let values_file = Path::new(values_file.unwrap());
+        repl_context_from_toml(values_file.to_path_buf(), false)
+    } else {
+        repl_context_from_toml(toml.to_path_buf(), take_input)
+    };
+
     // create a tera context from the toml file interactively.
-    let context = repl_context_from_toml(toml, take_input);
+
     let ctx = context.clone();
 
     // render the provided template directory
@@ -281,6 +287,7 @@ mod tests {
             "https://github.com/angreal/angreal_test_template.git",
             true,
             false,
+            None
         );
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
@@ -345,13 +352,38 @@ mod tests {
             "https://github.com/angreal/angreal_test_template.git",
             true,
             false,
+            None
         );
         // clean up rendered
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
         let _ = fs::remove_dir_all(&rendered_root);
         // use the long version
-        crate::init::init("angreal/angreal_test_template", true, false);
+        crate::init::init("angreal/angreal_test_template", true, false,None);
+        let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        rendered_root.push(Path::new("angreal_test_project"));
+        let _ = fs::remove_dir_all(&rendered_root);
+        let _ = fs::remove_dir_all(crate::init::create_home_dot_angreal());
+    }
+
+    #[test]
+    fn test_init_values() {
+        let mut  values_toml = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        values_toml.push("tests/common/test_assets/values.toml");
+
+        // clone
+        crate::init::init(
+            "https://github.com/angreal/angreal_test_template.git",
+            true,
+            false,
+            values_toml.to_str()
+        );
+        // clean up rendered
+        let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        rendered_root.push(Path::new("folder_name"));
+        let _ = fs::remove_dir_all(&rendered_root);
+        // use the long version
+        crate::init::init("angreal/angreal_test_template", true, false,None);
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
         let _ = fs::remove_dir_all(&rendered_root);
@@ -361,7 +393,7 @@ mod tests {
     #[test]
     fn test_init_short() {
         // clone
-        crate::init::init("angreal_test_template", true, false);
+        crate::init::init("angreal_test_template", true, false,None);
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
         let _ = fs::remove_dir_all(&rendered_root);
@@ -372,7 +404,45 @@ mod tests {
     fn test_render_template() {
         let mut template_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         template_root.push(Path::new("tests/common/test_assets/test_template"));
-        crate::init::render_template(&template_root, false, true);
+        crate::init::render_template(&template_root, false, true, None);
+
+        let mut angreal_toml = template_root.clone();
+        angreal_toml.push("angreal.toml");
+
+        let mut assets = template_root.clone();
+        assets.push("assets");
+
+        let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        rendered_root.push(Path::new("folder_name"));
+
+        let mut dot_angreal = rendered_root.clone();
+        dot_angreal.push(Path::new(".angreal"));
+
+        let mut readme_rst = rendered_root.clone();
+        readme_rst.push("README.rst");
+
+        let assets_no_exists = assets.is_dir().not();
+        let dot_angreal_exists = dot_angreal.is_dir();
+        let readme_rst_exists = readme_rst.is_file();
+        let rendered_root_exists = rendered_root.is_dir();
+
+        fs::remove_dir_all(&rendered_root).unwrap_or(());
+
+        assert!(assets_no_exists);
+        assert!(rendered_root_exists);
+        assert!(dot_angreal_exists);
+        assert!(readme_rst_exists);
+    }
+
+
+    #[test]
+    fn test_render_template_values() {
+        let mut  values_toml = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        values_toml.push("tests/common/test_assets/values.toml");
+
+        let mut template_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        template_root.push(Path::new("tests/common/test_assets/test_template"));
+        crate::init::render_template(&template_root, false, true, values_toml.to_str());
 
         let mut angreal_toml = template_root.clone();
         angreal_toml.push("angreal.toml");
