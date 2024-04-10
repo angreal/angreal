@@ -26,6 +26,7 @@ use log::{debug, error};
 pub fn init(template: &str, force: bool, take_inputs: bool, values_file: Option<&str>) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
+
     debug!("Got template type {:?} for {:?}.", template_type, template);
 
     debug!("Template is of type {:?}", template_type.as_str());
@@ -277,10 +278,11 @@ fn render_template(path: &Path, take_input: bool, force: bool, values_file: Opti
 mod tests {
 
     use std::ops::Not;
-    use std::path::{Path, PathBuf};
-    use std::{env, fs};
+    use std::{
+        fs::{self, File},
+        path::{Path, PathBuf},
+    };
     use tempfile::tempdir;
-
     #[test]
     fn test_init_from_git() {
         crate::init::init(
@@ -288,6 +290,7 @@ mod tests {
             true,
             false,
             None
+
         );
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
@@ -353,12 +356,14 @@ mod tests {
             true,
             false,
             None
+
         );
         // clean up rendered
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
         let _ = fs::remove_dir_all(&rendered_root);
         // use the long version
+
         crate::init::init("angreal/angreal_test_template", true, false,None);
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
@@ -384,6 +389,7 @@ mod tests {
         let _ = fs::remove_dir_all(&rendered_root);
         // use the long version
         crate::init::init("angreal/angreal_test_template", true, false,None);
+
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
         let _ = fs::remove_dir_all(&rendered_root);
@@ -394,6 +400,7 @@ mod tests {
     fn test_init_short() {
         // clone
         crate::init::init("angreal_test_template", true, false,None);
+
         let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         rendered_root.push(Path::new("angreal_test_project"));
         let _ = fs::remove_dir_all(&rendered_root);
@@ -443,6 +450,7 @@ mod tests {
         let mut template_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         template_root.push(Path::new("tests/common/test_assets/test_template"));
         crate::init::render_template(&template_root, false, true, values_toml.to_str());
+
 
         let mut angreal_toml = template_root.clone();
         angreal_toml.push("angreal.toml");
@@ -504,4 +512,5 @@ mod tests {
         let str_schema = crate::init::get_scheme(str_str);
         assert_eq!(str_schema.unwrap(), "file");
     }
+
 }
