@@ -94,8 +94,7 @@ fn main() -> PyResult<()> {
             _sub_matches.value_of("template").unwrap(),
             _sub_matches.is_present("force"),
             _sub_matches.is_present("defaults").not(),
-            Some(_sub_matches.value_of("values_file").unwrap()),
-        
+            if _sub_matches.is_present("values_file") {Some(_sub_matches.value_of("values_file").unwrap())} else {None}
         ),
         Some((task, sub_m)) => {
             if !in_angreal_project {
