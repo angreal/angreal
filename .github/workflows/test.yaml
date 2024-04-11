@@ -17,6 +17,7 @@ env:
 
 jobs:
   pre-commit:
+    name: "Linters"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,8 +32,8 @@ jobs:
         with:
           extra_args: --all-files
 
-  cargo-build:
-    name: "cargo build"
+  build-verification:
+    name: "Build Verify"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -44,8 +45,34 @@ jobs:
       - uses: Swatinem/rust-cache@v1
       - run: cargo build --all
 
+  smoke-test:
+    name: "Functional Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 1.67.0
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - run: pip install maturin pytest
+      - run: maturin build
+      - run: pip install .
+      - run: angreal --version
+      - run: rm -rf .angreal
+      - run: angreal init --force --defaults angreal_test_template
+      - run: angreal init --force --values tests/common/test_assets/values.toml angreal_test_template
+
+
   angreal-tests-linux:
-    name: "angreal run-tests linux"
+    name: "Linux Tests"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -70,7 +97,7 @@ jobs:
       - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
 
   angreal-tests-windows:
-    name: "angreal run-tests windows"
+    name: "Windows Tests"
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -94,7 +121,7 @@ jobs:
       - run: angreal --version
 
   angreal-tests-macosx:
-    name: "angreal run-tests macos"
+    name: "OSX Tests"
     runs-on: macos-11
     steps:
       - uses: actions/checkout@v3
@@ -119,7 +146,7 @@ jobs:
       - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
 
   typos:
-    name: Spell Check with Typos
+    name: "Spell Checks"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Actions Repository
