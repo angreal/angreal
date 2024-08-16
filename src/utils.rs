@@ -198,24 +198,34 @@ pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<
 }
 
 pub fn check_up_to_date() -> Result<()> {
-    let response_result = reqwest::blocking::get("https://pypi.org/pypi/angreal/json");
-
-    let json = match response_result {
-        Ok(response) => {
-            let json_result = response.json::<serde_json::Value>();
-            result_or_return_err!(json_result)
+    let result = (|| -> Result<()> {
+        let response = reqwest::blocking::get("https://pypi.org/pypi/angreal/json")
+            .map_err(|e| format!("Failed to fetch data: {}", e))?;
+        
+        let json: serde_json::Value = response.json()
+            .map_err(|e| format!("Failed to parse JSON: {}", e))?;
+        
+        let upstream = json["info"]["version"].as_str()
+            .ok_or("Failed to extract upstream version")?;
+        
+        let current = env!("CARGO_PKG_VERSION");
+        let current_version = Version::from(current)
+            .map_err(|e| format!("Failed to parse current version: {}", e))?;
+        
+        let upstream_version = Version::from(upstream)
+            .map_err(|e| format!("Failed to parse upstream version: {}", e))?;
+        
+        if upstream_version > current_version {
+            println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.");
         }
-        Err(e) => return Err(e).map_err(Into::into),
-    };
+        
+        Ok(())
+    })();
 
-    let upstream = value_or_return_err!(json["info"]["version"].as_str());
-    let current = env!("CARGO_PKG_VERSION");
-    let current = value_or_return_err!(Version::from(current));
-    let upstream = value_or_return_err!(Version::from(upstream));
+    if let Err(e) = result {
+        println!("Error: {}", e);
+    }
 
-    if upstream > current {
-        println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.")
-    };
     Ok(())
 }
 
