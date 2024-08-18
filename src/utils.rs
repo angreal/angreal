@@ -1,6 +1,5 @@
 //! Filesystem utilities
-use anyhow::anyhow;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 use glob::glob;
 use std::env;
@@ -197,25 +196,34 @@ pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<
     rendered_paths
 }
 
-pub fn check_up_to_date() -> Result<()> {
-    let response_result = reqwest::blocking::get("https://pypi.org/pypi/angreal/json");
+pub fn check_up_to_date() -> Result<(), Box<dyn std::error::Error>> {
+    let result = (|| -> Result<(), Box<dyn std::error::Error>> {
+        let response = reqwest::blocking::get("https://pypi.org/pypi/angreal/json")?;
 
-    let json = match response_result {
-        Ok(response) => {
-            let json_result = response.json::<serde_json::Value>();
-            result_or_return_err!(json_result)
+        let json: serde_json::Value = response.json()?;
+
+        let upstream = json["info"]["version"]
+            .as_str()
+            .ok_or("Failed to extract upstream version")?;
+
+        let current = env!("CARGO_PKG_VERSION");
+        let current_version = Version::from(current)
+            .ok_or_else(|| format!("Failed to parse current version: {current}"))?;
+
+        let upstream_version = Version::from(upstream)
+            .ok_or_else(|| format!("Failed to parse upstream version: {upstream}"))?;
+
+        if upstream_version > current_version {
+            println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.");
         }
-        Err(e) => return Err(e).map_err(Into::into),
-    };
 
-    let upstream = value_or_return_err!(json["info"]["version"].as_str());
-    let current = env!("CARGO_PKG_VERSION");
-    let current = value_or_return_err!(Version::from(current));
-    let upstream = value_or_return_err!(Version::from(upstream));
+        Ok(())
+    })();
 
-    if upstream > current {
-        println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.")
-    };
+    if let Err(e) = result {
+        println!("Error: {e}");
+    }
+
     Ok(())
 }
 
