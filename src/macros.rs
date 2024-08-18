@@ -34,6 +34,7 @@ macro_rules! attr_copy {
     };
 }
 
+#[allow(unused_macros)]
 macro_rules! result_or_return_err {
     ( $e:expr ) => {
         match $e {
@@ -43,6 +44,7 @@ macro_rules! result_or_return_err {
     };
 }
 
+#[allow(unused_macros)]
 macro_rules! value_or_return_err {
     ( $e:expr ) => {
         match $e {

@@ -318,20 +318,14 @@ mod tests {
         let angreal_toml = template_dir.join("angreal.toml");
         std::fs::File::create(&angreal_toml).expect("Failed to create angreal.toml");
         assert_eq!(
-            crate::init::handle_file_template(
-                template_dir.to_str().unwrap(),
-                temp_dir.path()
-            ),
+            crate::init::handle_file_template(template_dir.to_str().unwrap(), temp_dir.path()),
             template_dir.to_str().unwrap().to_string()
         );
 
         // Test case 2: Template directory exists without angreal.toml
         std::fs::remove_file(&angreal_toml).expect("Failed to remove angreal.toml");
         assert_eq!(
-            crate::init::handle_file_template(
-                template_dir.to_str().unwrap(),
-                temp_dir.path()
-            ),
+            crate::init::handle_file_template(template_dir.to_str().unwrap(), temp_dir.path()),
             template_dir.to_str().unwrap().to_string()
         );
 
