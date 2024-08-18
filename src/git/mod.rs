@@ -175,7 +175,7 @@ mod tests {
 
         let local = git_pull_ff(local_repo.to_str().unwrap());
 
-        let equality_test = is_same_file(&tmp_dir, &local).unwrap();
+        let equality_test = is_same_file(&tmp_dir, local).unwrap();
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
         assert!(equality_test);
     }
@@ -192,7 +192,7 @@ mod tests {
 
         let local = git_pull_ff(local_repo.to_str().unwrap());
 
-        let equality_test = is_same_file(&tmp_dir, &local).unwrap();
+        let equality_test = is_same_file(&tmp_dir, local).unwrap();
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
         assert!(equality_test);
     }

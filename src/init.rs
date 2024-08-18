@@ -320,7 +320,7 @@ mod tests {
         assert_eq!(
             crate::init::handle_file_template(
                 template_dir.to_str().unwrap(),
-                &temp_dir.path().to_path_buf()
+                temp_dir.path()
             ),
             template_dir.to_str().unwrap().to_string()
         );
@@ -330,7 +330,7 @@ mod tests {
         assert_eq!(
             crate::init::handle_file_template(
                 template_dir.to_str().unwrap(),
-                &temp_dir.path().to_path_buf()
+                temp_dir.path()
             ),
             template_dir.to_str().unwrap().to_string()
         );

@@ -208,10 +208,10 @@ pub fn check_up_to_date() -> Result<(), Box<dyn std::error::Error>> {
 
         let current = env!("CARGO_PKG_VERSION");
         let current_version = Version::from(current)
-            .ok_or_else(|| format!("Failed to parse current version: {}", current))?;
+            .ok_or_else(|| format!("Failed to parse current version: {current}"))?;
 
         let upstream_version = Version::from(upstream)
-            .ok_or_else(|| format!("Failed to parse upstream version: {}", upstream))?;
+            .ok_or_else(|| format!("Failed to parse upstream version: {upstream}"))?;
 
         if upstream_version > current_version {
             println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.");
@@ -221,7 +221,7 @@ pub fn check_up_to_date() -> Result<(), Box<dyn std::error::Error>> {
     })();
 
     if let Err(e) = result {
-        println!("Error: {}", e);
+        println!("Error: {e}");
     }
 
     Ok(())
