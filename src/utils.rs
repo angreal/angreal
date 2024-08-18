@@ -1,6 +1,6 @@
 //! Filesystem utilities
-use anyhow::anyhow;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
+
 
 use glob::glob;
 use std::env;
@@ -197,28 +197,30 @@ pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<
     rendered_paths
 }
 
-pub fn check_up_to_date() -> Result<()> {
-    let result = (|| -> Result<()> {
-        let response = reqwest::blocking::get("https://pypi.org/pypi/angreal/json")
-            .map_err(|e| format!("Failed to fetch data: {}", e))?;
-        
-        let json: serde_json::Value = response.json()
-            .map_err(|e| format!("Failed to parse JSON: {}", e))?;
-        
-        let upstream = json["info"]["version"].as_str()
+
+
+
+pub fn check_up_to_date() -> Result<(), Box<dyn std::error::Error>> {
+    let result = (|| -> Result<(), Box<dyn std::error::Error>> {
+        let response = reqwest::blocking::get("https://pypi.org/pypi/angreal/json")?;
+
+        let json: serde_json::Value = response.json()?;
+
+        let upstream = json["info"]["version"]
+            .as_str()
             .ok_or("Failed to extract upstream version")?;
-        
+
         let current = env!("CARGO_PKG_VERSION");
         let current_version = Version::from(current)
-            .map_err(|e| format!("Failed to parse current version: {}", e))?;
-        
+            .ok_or_else(|| format!("Failed to parse current version: {}", current))?;
+
         let upstream_version = Version::from(upstream)
-            .map_err(|e| format!("Failed to parse upstream version: {}", e))?;
-        
+            .ok_or_else(|| format!("Failed to parse upstream version: {}", upstream))?;
+
         if upstream_version > current_version {
             println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.");
         }
-        
+
         Ok(())
     })();
 
