@@ -1,7 +1,6 @@
 //! Filesystem utilities
 use anyhow::{anyhow, Result};
 
-
 use glob::glob;
 use std::env;
 use std::ops::Not;
@@ -196,9 +195,6 @@ pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<
 
     rendered_paths
 }
-
-
-
 
 pub fn check_up_to_date() -> Result<(), Box<dyn std::error::Error>> {
     let result = (|| -> Result<(), Box<dyn std::error::Error>> {
