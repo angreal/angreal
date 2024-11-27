@@ -198,7 +198,6 @@ pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<
     rendered_paths
 }
 
-
 pub fn check_up_to_date() -> Result<()> {
     let client = reqwest::blocking::Client::new();
     let response_result = client
