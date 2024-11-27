@@ -29,4 +29,4 @@ def python_tests():
     subprocess.run(
         ["pip install ."], cwd=cwd, shell=True
     )
-    subprocess.run(["python3 -m pytest -svv"], cwd=cwd, shell=True)
+    subprocess.run(["pytest -svv"], cwd=cwd, shell=True)
