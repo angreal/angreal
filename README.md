@@ -19,11 +19,10 @@
 3.  Use the template
 
 ```bash
-$: pip install 'angreal>=2' #pip install angreal will also work
+$: pip install 'angreal' #pip install angreal will also work
 $: angreal init https://github.com/angreal/python
 ```
 ---
-
 
 ## What is it?
 
