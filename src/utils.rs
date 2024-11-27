@@ -399,7 +399,7 @@ pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
     dir.pop();
 
     let dir = dir.to_str();
-    let file = fs::read_to_string(file).unwrap();
+    let contents = fs::read_to_string(file.clone()).unwrap();
 
     let r_value = Python::with_gil(|py| -> PyResult<()> {
         // Allow the file to search for modules it might be importing
@@ -407,17 +407,17 @@ pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
         syspath.insert(0, dir)?;
 
         // Import the file.
-        let result = PyModule::from_code(py, &file, "", "");
+        let result = PyModule::from_code(py, &contents, "", "");
 
         match result {
             Ok(_result) => {
-                debug!("Successfully loaded {:?}", &file);
+                debug!("Successfully loaded {:?}", file);
                 Ok(())
             }
             Err(err) => {
                 error!(
                     "{:?} failed to load with the following error\n{}",
-                    &file, err
+                    file, err
                 );
                 Err(err)
             }

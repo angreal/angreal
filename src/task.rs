@@ -1,6 +1,7 @@
 //! Core structures for describing tasks and arguments
 //!
 
+use log::debug;
 use once_cell::sync::Lazy;
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
@@ -8,9 +9,11 @@ use std::sync::Mutex;
 
 /// Registers the Command and Arg structs to the python api in the `angreal` module
 pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+    debug!("Registering Angreal types to Python module");
     m.add_class::<AngrealCommand>()?;
     m.add_class::<AngrealArg>()?;
     m.add_class::<AngrealGroup>()?;
+    debug!("Successfully registered all Angreal types");
     Ok(())
 }
 
@@ -43,7 +46,19 @@ impl AngrealGroup {
             name: name.to_string(),
             about: about.map(|i| i.to_string()),
         };
-        ANGREAL_GROUPS.lock().unwrap().push(group.clone());
+
+        let mut groups = ANGREAL_GROUPS.lock().unwrap();
+        if !groups.iter().any(|g| g.name == group.name) {
+            debug!("Adding new group: {}", group.name);
+            groups.push(group.clone());
+        } else {
+            debug!("Group {} already exists, skipping add", group.name);
+        }
+        drop(groups);
+        debug!(
+            "Current ANGREAL_GROUPS state: {:#?}",
+            ANGREAL_GROUPS.lock().unwrap()
+        );
         group
     }
 }
@@ -103,6 +118,7 @@ impl AngrealCommand {
         long_about: Option<&str>,
         group: Option<Vec<AngrealGroup>>,
     ) -> Self {
+        debug!("Creating new AngrealCommand with name: {}", name);
         let cmd = AngrealCommand {
             name: name.to_string(),
             about: about.map(|i| i.to_string()),
@@ -111,10 +127,16 @@ impl AngrealCommand {
             func,
         };
         ANGREAL_TASKS.lock().unwrap().push(cmd.clone());
+        debug!("Registered new command: {}", name);
+        debug!(
+            "Updated ANGREAL_TASKS state: {:?}",
+            ANGREAL_TASKS.lock().unwrap()
+        );
         cmd
     }
     /// Add a (task::AngrealGroup) to the task::AngrealCommand called on
     pub fn add_group(&mut self, group: AngrealGroup) -> PyResult<()> {
+        debug!("Adding group '{}' to command '{}'", group.name, self.name);
         let this_command_pos = ANGREAL_TASKS.lock().unwrap().iter().position(|x| {
             x.name == self.name.as_str()
                 && x.group
@@ -133,14 +155,24 @@ impl AngrealCommand {
         });
 
         if self.group.is_none() {
+            debug!(
+                "Initializing empty group vector for command '{}'",
+                self.name
+            );
             self.group = Some(Vec::new());
         }
 
         let mut g = self.group.as_mut().unwrap().clone();
 
+        debug!("Adding group '{}' to command '{}'", group.name, self.name);
         g.insert(0, group);
         self.group = Some(g.clone());
         ANGREAL_TASKS.lock().unwrap()[this_command_pos.unwrap()] = self.clone();
+        debug!(
+            "Current ANGREAL_TASKS state: {:#?}",
+            ANGREAL_TASKS.lock().unwrap()
+        );
+
         Ok(())
     }
 }
@@ -243,6 +275,10 @@ impl AngrealArg {
         takes_value: Option<bool>,
         python_type: Option<&str>,
     ) -> Self {
+        debug!(
+            "Creating new AngrealArg '{}' for command '{}'",
+            name, command_name
+        );
         let arg = AngrealArg {
             name: name.to_string(),
             command_name: command_name.to_string(),
@@ -262,6 +298,14 @@ impl AngrealArg {
             required,
         };
         ANGREAL_ARGS.lock().unwrap().push(arg.clone());
+        debug!(
+            "Registered new argument '{}' for command '{}'",
+            name, command_name
+        );
+        debug!(
+            "Current ANGREAL_ARGS state: {:#?}",
+            ANGREAL_ARGS.lock().unwrap()
+        );
         arg
     }
 }

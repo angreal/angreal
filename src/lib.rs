@@ -35,6 +35,10 @@ use log::{debug, error, warn};
 #[pyfunction]
 fn main() -> PyResult<()> {
     let handle = logger::init_logger();
+    if std::env::var("ANGREAL_DEBUG").unwrap_or_default() == "true" {
+        logger::update_verbosity(&handle, 2);
+        warn!("Angreal application starting with debug level logging from environment");
+    }
     debug!("Angreal application starting...");
 
     // because we execute this from python main, we remove the first elements that
@@ -85,8 +89,11 @@ fn main() -> PyResult<()> {
     // Get our asked for verbosity and set the logger up. TODO: find a way to initialize earlier and reset after.
     let verbosity = sub_command.get_count("verbose");
 
-    logger::update_verbosity(&handle, verbosity);
-    debug!("Log verbosity set to level: {}", verbosity);
+    // If the user hasn't set the ANGREAL_DEBUG environment variable, set the verbosity from CLI settings
+    if std::env::var("ANGREAL_DEBUG").is_err() {
+        logger::update_verbosity(&handle, verbosity);
+        debug!("Log verbosity set to level: {}", verbosity);
+    }
 
     match sub_command.subcommand() {
         Some(("init", _sub_matches)) => init::init(
