@@ -30,7 +30,7 @@ impl CommandNode {
         CommandNode {
             name,
             command: Some(command.clone()),
-            about: command.about.clone(),
+            about: command.about,
             children: HashMap::new(),
         }
     }
