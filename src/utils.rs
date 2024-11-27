@@ -340,7 +340,7 @@ fn render_template(template: &str, context: &PyDict) -> PyResult<String> {
     tera.add_raw_template("template", template).unwrap();
 
     for (key, val) in context.iter() {
-        ctx.insert(&key.to_string(), &val.to_string());
+        ctx.insert(key.to_string(), &val.to_string());
     }
 
     Ok(tera.render("template", &ctx).unwrap())
