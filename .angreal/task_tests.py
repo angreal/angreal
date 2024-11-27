@@ -26,7 +26,10 @@ def rust_tests():
 def python_tests():
     """
     """
-    subprocess.run(
+    result = subprocess.run(
         ["pip install ."], cwd=cwd, shell=True
     )
-    subprocess.run(["python3 -m pytest -svv"], cwd=cwd, shell=True)
+    if result.returncode != 0:
+        exit(result.returncode)
+
+    subprocess.run(["pytest -svv"], cwd=cwd, shell=True)

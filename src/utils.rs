@@ -24,8 +24,10 @@ use version_compare::Version;
 
 use walkdir::WalkDir;
 
-use log::{debug, error, info};
+use log::{debug, error, info, warn};
 use pythonize::pythonize;
+
+use std::time::Duration;
 
 // turn a tera context into a map
 pub fn context_to_map(ctx: Context) -> Map<String, Value> {
@@ -196,34 +198,36 @@ pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<
     rendered_paths
 }
 
-pub fn check_up_to_date() -> Result<(), Box<dyn std::error::Error>> {
-    let result = (|| -> Result<(), Box<dyn std::error::Error>> {
-        let response = reqwest::blocking::get("https://pypi.org/pypi/angreal/json")?;
+pub fn check_up_to_date() -> Result<()> {
+    let client = reqwest::blocking::Client::new();
+    let response_result = client
+        .get("https://pypi.org/pypi/angreal/json")
+        .timeout(Duration::from_millis(400)) // Set a 400ms timeout
+        .send();
 
-        let json: serde_json::Value = response.json()?;
-
-        let upstream = json["info"]["version"]
-            .as_str()
-            .ok_or("Failed to extract upstream version")?;
-
-        let current = env!("CARGO_PKG_VERSION");
-        let current_version = Version::from(current)
-            .ok_or_else(|| format!("Failed to parse current version: {current}"))?;
-
-        let upstream_version = Version::from(upstream)
-            .ok_or_else(|| format!("Failed to parse upstream version: {upstream}"))?;
-
-        if upstream_version > current_version {
-            println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.");
+    let json = match response_result {
+        Ok(response) => {
+            let json_result = response.json::<serde_json::Value>();
+            result_or_return_err!(json_result)
         }
+        Err(e) => {
+            if e.is_timeout() {
+                warn!("Request timed out. Please check your network connection.");
+                return Ok(());
+            }
+            warn!("Error checking for updates: {}", e);
+            return Ok(());
+        }
+    };
 
-        Ok(())
-    })();
+    let upstream = value_or_return_err!(json["info"]["version"].as_str());
+    let current = env!("CARGO_PKG_VERSION");
+    let current = value_or_return_err!(Version::from(current));
+    let upstream = value_or_return_err!(Version::from(upstream));
 
-    if let Err(e) = result {
-        println!("Error: {e}");
-    }
-
+    if upstream > current {
+        println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.")
+    };
     Ok(())
 }
 
@@ -335,7 +339,7 @@ fn render_template(template: &str, context: &PyDict) -> PyResult<String> {
     tera.add_raw_template("template", template).unwrap();
 
     for (key, val) in context.iter() {
-        ctx.insert(&key.to_string(), &val.to_string());
+        ctx.insert(key.to_string(), &val.to_string());
     }
 
     Ok(tera.render("template", &ctx).unwrap())
@@ -394,7 +398,7 @@ pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
     dir.pop();
 
     let dir = dir.to_str();
-    let file = fs::read_to_string(file).unwrap();
+    let contents = fs::read_to_string(file.clone()).unwrap();
 
     let r_value = Python::with_gil(|py| -> PyResult<()> {
         // Allow the file to search for modules it might be importing
@@ -402,17 +406,17 @@ pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
         syspath.insert(0, dir)?;
 
         // Import the file.
-        let result = PyModule::from_code(py, &file, "", "");
+        let result = PyModule::from_code(py, &contents, "", "");
 
         match result {
             Ok(_result) => {
-                debug!("Successfully loaded {:?}", &file);
+                debug!("Successfully loaded {:?}", file);
                 Ok(())
             }
             Err(err) => {
                 error!(
                     "{:?} failed to load with the following error\n{}",
-                    &file, err
+                    file, err
                 );
                 Err(err)
             }

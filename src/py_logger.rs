@@ -70,6 +70,7 @@ fn host_log(record: &PyAny) -> PyResult<()> {
 ///   is not exported in `logging.__all__`, as it is not intended to be called directly.
 /// - A new class `logging.HostHandler` provides a `logging.Handler` that delivers all records to `host_log`.
 /// - `logging.basicConfig` is changed to use `logging.HostHandler` by default.
+///
 /// Since any call like `logging.warn(...)` sets up logging via `logging.basicConfig`, all log messages are now
 /// delivered to `crate::host_log`, which will send them to `tracing::event!`.
 pub fn setup_logging(py: Python) -> PyResult<()> {
