@@ -25,8 +25,10 @@ use version_compare::Version;
 
 use walkdir::WalkDir;
 
-use log::{debug, error, info};
+use log::{debug, error, info, warn};
 use pythonize::pythonize;
+
+use std::time::Duration;
 
 // turn a tera context into a map
 pub fn context_to_map(ctx: Context) -> Map<String, Value> {
@@ -198,14 +200,25 @@ pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<
 }
 
 pub fn check_up_to_date() -> Result<()> {
-    let response_result = reqwest::blocking::get("https://pypi.org/pypi/angreal/json");
+    let client = reqwest::blocking::Client::new();
+    let response_result = client
+        .get("https://pypi.org/pypi/angreal/json")
+        .timeout(Duration::from_millis(400)) // Set a 400ms timeout
+        .send();
 
     let json = match response_result {
         Ok(response) => {
             let json_result = response.json::<serde_json::Value>();
             result_or_return_err!(json_result)
         }
-        Err(e) => return Err(e).map_err(Into::into),
+        Err(e) => {
+            if e.is_timeout() {
+                warn!("Request timed out. Please check your network connection.");
+                return Ok(());
+            }
+            warn!("Error checking for updates: {}", e);
+            return Ok(());
+        }
     };
 
     let upstream = value_or_return_err!(json["info"]["version"].as_str());
