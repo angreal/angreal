@@ -31,7 +31,7 @@ jobs:
           pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -54,7 +54,7 @@ jobs:
           pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -84,7 +84,7 @@ jobs:
           pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -113,7 +113,7 @@ jobs:
           pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -150,7 +150,7 @@ jobs:
             pip3 install packaging pytest angreal --find-links dist --force-reinstall
             pytest
       - name: Upload wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -189,7 +189,7 @@ jobs:
             pip3 install packaging pytest angreal --find-links /io/dist --force-reinstall
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
@@ -229,7 +229,7 @@ jobs:
             pip3 install -U pip pytest
             pip3 install packaging pytest angreal --find-links dist --force-reinstall
       - name: Upload wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wheels
           path: dist
