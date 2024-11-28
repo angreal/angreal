@@ -35,6 +35,7 @@ jobs:
         with:
           name: wheels
           path: dist
+          overwrite: true
 
   macos-universal:
     runs-on: macos-latest
@@ -58,6 +59,7 @@ jobs:
         with:
           name: wheels
           path: dist
+          overwrite: true
 
   windows:
     runs-on: windows-latest
@@ -88,7 +90,7 @@ jobs:
         with:
           name: wheels
           path: dist
-
+          overwrite: true
   linux:
     runs-on: ubuntu-latest
     strategy:
@@ -117,7 +119,7 @@ jobs:
         with:
           name: wheels
           path: dist
-
+          overwrite: true
   linux-cross:
     runs-on: ubuntu-latest
     strategy:
@@ -154,7 +156,7 @@ jobs:
         with:
           name: wheels
           path: dist
-
+          overwrite: true
   musllinux:
     runs-on: ubuntu-latest
     strategy:
@@ -193,7 +195,7 @@ jobs:
         with:
           name: wheels
           path: dist
-
+          overwrite: true
   musllinux-cross:
     runs-on: ubuntu-latest
     strategy:
@@ -233,7 +235,7 @@ jobs:
         with:
           name: wheels
           path: dist
-
+          overwrite: true
   release-pypi:
     name: Release
     runs-on: ubuntu-latest
