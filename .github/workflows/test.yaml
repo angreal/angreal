@@ -3,7 +3,7 @@ name: "Angreal Tests"
 
 on:  # yamllint disable-line rule:truthy
   push:
-    branches:
+    branches: [main, master]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
@@ -91,8 +91,9 @@ jobs:
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
-      - run: cargo test -v -- --nocapture --test-threads=1
-      - run: python -m pytest -svv
+      - run: angreal test unit rust
+      - run: angreal test integration rust
+      - run: angreal test unit python
       - run: angreal --version
       - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
 
@@ -116,8 +117,9 @@ jobs:
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
-      - run: cargo test -v -- --nocapture --test-threads=1
-      - run: python -m pytest -svv
+      - run: angreal test unit rust
+      - run: angreal test integration rust
+      - run: angreal test unit python
       - run: angreal --version
 
   angreal-tests-macosx:
@@ -140,8 +142,9 @@ jobs:
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
-      - run: cargo test -v -- --nocapture --test-threads=1
-      - run: python -m pytest -svv
+      - run: angreal test unit rust
+      - run: angreal test integration rust
+      - run: angreal test unit python
       - run: angreal --version
       - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
 

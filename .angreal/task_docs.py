@@ -3,7 +3,6 @@ import os
 import subprocess
 import webbrowser
 import time
-import shutil
 
 # Import functions from task_api_docs.py for API documentation generation
 # Add these imports so they're available for our new subcommands
@@ -53,9 +52,7 @@ def stop_hugo():
 @angreal.command(name="serve", about="starts the docs site in the background.")
 @angreal.argument(name="open", long="open", short="o", takes_value=False,
                   help="open results in web browser", is_flag=True)
-@angreal.argument(name="skip_api", long="skip-api", takes_value=False,
-                  help="skip generating API docs before serving", is_flag=True)
-def build_hugo(open=True, skip_api=False):
+def build_hugo(open=True):
     """
     Serve the documentation locally using Hugo.
 
@@ -63,16 +60,6 @@ def build_hugo(open=True, skip_api=False):
         open: If True, open the documentation in a web browser
         skip_api: If True, skip generating API documentation before serving
     """
-    if not skip_api:
-        print("Generating API documentation...")
-        try:
-            # Import and run API docs generator directly
-            from task_api_docs import generate_all_docs
-            generate_all_docs()
-        except Exception as e:
-            print(f"Error generating API docs: {e}")
-            print("Continuing with serve...")
-
     # Check if Docker is available
     if is_docker_available():
         # Start the Hugo server using Docker
@@ -83,20 +70,7 @@ def build_hugo(open=True, skip_api=False):
                 "klakegg/hugo:0.111.3 serve -D -p 12345 --bind 0.0.0.0",
             ], cwd=cwd, shell=True
         )
-    else:
-        # Fallback to local Hugo if available
-        if shutil.which("hugo"):
-            print("Docker not available, falling back to local Hugo installation.")
-            print("Starting Hugo server on http://localhost:12345/angreal/")
-            server_process = subprocess.Popen(
-                ["hugo serve -D -p 12345"], cwd=docs_dir, shell=True
-            )
-        else:
-            print("ERROR: Neither Docker nor local Hugo installation found.")
-            print("Please install Docker or Hugo to serve the documentation.")
-            print("Docker installation: https://docs.docker.com/get-docker/")
-            print("Hugo installation: https://gohugo.io/installation/")
-            return
+
 
     # Wait a moment for the server to start
     time.sleep(1)
@@ -114,24 +88,14 @@ def build_hugo(open=True, skip_api=False):
 
 @docs()
 @angreal.command(name="build", about="build the documentation site")
-@angreal.argument(name="skip_api", long="skip-api", takes_value=False,
-                  help="skip generating API docs before building", is_flag=True)
-def build_docs(skip_api=False):
+def build_docs():
     """
     Build the documentation site.
 
     Args:
         skip_api: If True, skip generating API documentation before building
     """
-    if not skip_api:
-        print("Generating API documentation...")
-        try:
-            # Import and run API docs generator directly
-            from task_api_docs import generate_all_docs
-            generate_all_docs()
-        except Exception as e:
-            print(f"Error generating API docs: {e}")
-            print("Continuing with build...")
+
 
     # Check if Docker is available
     print("Building documentation site...")
@@ -142,17 +106,4 @@ def build_docs(skip_api=False):
             cwd=cwd, shell=True, check=True
         )
         print(f"Documentation built successfully in {os.path.join(docs_dir, 'public')}")
-    else:
-        # Fallback to local Hugo if available
-        if shutil.which("hugo"):
-            print("Docker not available, falling back to local Hugo installation.")
-            subprocess.run(["hugo", "--minify"], cwd=docs_dir, check=True)
-            public_path = os.path.join(docs_dir, 'public')
-            print(f"Documentation built successfully in {public_path}")
-        else:
-            print("ERROR: Neither Docker nor local Hugo installation found.")
-            print("Please install Docker or Hugo to build the documentation.")
-            print("Docker installation: https://docs.docker.com/get-docker/")
-            print("Hugo installation: https://gohugo.io/installation/")
-            return
     return

@@ -62,11 +62,3 @@ The Rust-Python interface is implemented in several key files:
 - `src/lib.rs` - PyO3 module registration
 
 Each Python function decorated with `@command` is stored in a global registry in Rust, which is used to build the command-line interface and execute commands.
-
-## Future Improvements
-
-To better integrate Rust and Python documentation:
-
-1. **Unified Type System** - Create a shared type system that maps cleanly between Rust and Python
-2. **Automated Interface Documentation** - Generate documentation that shows both sides of the interface
-3. **Integration Testing** - Develop tests that verify the interface works correctly
