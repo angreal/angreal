@@ -47,6 +47,26 @@ jobs:
         uses: actions/configure-pages@v2
       - name: Install Node.js dependencies
         run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Generate Rust documentation
+        run: cargo doc --no-deps
+      - name: Copy Rust docs to Hugo static directory
+        run: mkdir -p docs/static/rust-docs && cp -r target/doc/* docs/static/rust-docs/
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install Python documentation tools
+        run: pip install pdoc3
+      - name: Generate Python API documentation
+        run: |
+          mkdir -p docs/static/py-docs
+          pdoc --html --output-dir docs/static/py-docs python/angreal
       - name: Build with Hugo
         run: cd docs/ && hugo --minify
       - name: Upload artifact

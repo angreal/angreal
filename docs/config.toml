@@ -1,4 +1,6 @@
 baseURL = "https://angreal.github.io/angreal/"
+# Ensures static resources are properly served
+staticDir = ["static"]
 
 languageCode = "en-us"
 DefaultContentLanguage = "en"
@@ -63,7 +65,7 @@ home = [ "HTML", "RSS", "JSON"]
 
 
 [[menu.shortcuts]]
-name = "<i class='fab fa-gitlab'></i> Git Repo"
+name = "<i class='fab fa-github'></i> Git Repo"
 identifier = "ds"
 url = "https://github.com/angreal/angreal"
 weight = 10

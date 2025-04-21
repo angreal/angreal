@@ -1,0 +1,11 @@
+{{ $_hugo_config := `{ "version": 1 }` }}
+<div class="mermaid" align="{{ if .Get "align" }}{{ .Get "align" }}{{ else }}center{{ end }}">
+  {{- .Inner -}}
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    if (typeof mermaid !== 'undefined') {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    }
+  });
+</script>
