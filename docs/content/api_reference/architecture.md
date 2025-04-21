@@ -35,10 +35,10 @@ graph TD;
     C --> D[Task Discovery]
     C --> E[Argument Parser]
     C --> F[Command Router]
-    
+
     F --> G[Built-in Commands]
     F --> H[Python Commands]
-    
+
     G --> I[Template Engine]
     H --> J[Python Functions]
 {{< /mermaid >}}
@@ -86,21 +86,21 @@ sequenceDiagram;
     participant TaskRegistry as Task Registry
     participant ArgParser as Argument Parser
     participant PythonTask as Python Task
-    
+
     User->>Python: Execute CLI command
     Python->>RustCore: Call main() function
     RustCore->>TaskRegistry: Load available tasks
     TaskRegistry->>RustCore: Return registered tasks
     RustCore->>ArgParser: Parse command line args
     ArgParser->>RustCore: Return matched command
-    
+
     alt Is Built-in Command
         RustCore->>RustCore: Execute directly
     else Is Python Command
         RustCore->>PythonTask: Call with parsed args
         PythonTask->>RustCore: Return result
     end
-    
+
     RustCore->>Python: Return control
     Python->>User: Display results
 {{< /mermaid >}}
@@ -118,11 +118,11 @@ sequenceDiagram;
     participant TemplateEngine as Template Engine
     participant FileSystem as File System
     participant PythonInit as Python init.py
-    
+
     User->>Init: angreal init <template>
-    
+
     Init->>GitModule: Check template source
-    
+
     alt Local Template
         GitModule->>Init: Use local path
     else Remote Template
@@ -130,24 +130,24 @@ sequenceDiagram;
         TemplateRepo->>GitModule: Return template path
         GitModule->>Init: Return template path
     end
-    
+
     Init->>TemplateEngine: Read template config
-    
+
     alt Interactive Mode
         TemplateEngine->>User: Prompt for variables
         User->>TemplateEngine: Provide input values
     else Use Defaults
         TemplateEngine->>TemplateEngine: Load default values
     end
-    
+
     TemplateEngine->>FileSystem: Render templates to project
     FileSystem->>Init: Return generated paths
-    
+
     alt Has init.py
         Init->>PythonInit: Execute initialization script
         PythonInit->>Init: Complete initialization
     end
-    
+
     Init->>User: Display success message
 {{< /mermaid >}}
 
@@ -219,7 +219,7 @@ The Rust code executes Python task functions like this:
 Python::with_gil(|py| {
     // Create keyword arguments from CLI parameters
     let mut kwargs: Vec<(&str, PyObject)> = Vec::new();
-    
+
     for arg in args.into_iter() {
         // Convert CLI arguments to Python types
         match arg.python_type.unwrap().as_str() {
@@ -229,7 +229,7 @@ Python::with_gil(|py| {
             _ => kwargs.push((arg_name, value.to_object(py))),
         }
     }
-    
+
     // Call the Python function with converted arguments
     let result = command.func.call(py, (), Some(kwargs.into_py_dict(py)));
     // Handle result...
@@ -245,7 +245,7 @@ graph LR;
     A[Python Task] --> B[Docker Integration]
     A --> C[Git Integration]
     A --> D[Virtual Environment]
-    
+
     B --> E[Docker API]
     C --> F[Git CLI]
     D --> G[Python venv]
@@ -271,12 +271,12 @@ sequenceDiagram;
     participant A as Python File
     participant B as Decorator
     participant C as Rust Core
-    
+
     A->>B: Define function
     B->>C: Register command
-    
+
     Note over A,C: Later when executed...
-    
+
     C->>A: Call with arguments
 {{< /mermaid >}}
 

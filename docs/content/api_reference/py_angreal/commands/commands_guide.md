@@ -27,7 +27,7 @@ import angreal
 def hello_command(name="World"):
     """
     Greet someone by name.
-    
+
     This command simply prints a greeting message to the console.
     """
     print(f"Hello, {name}!")
@@ -57,7 +57,7 @@ def build_command():
     Build the project for development.
     """
     print("Building the project...")
-    
+
 # Add another command to the same group
 @dev()
 @angreal.command(name="test", about="Run tests")
@@ -95,11 +95,11 @@ Arguments can be added to commands with various options:
 import angreal
 
 @angreal.command(name="generate", about="Generate a file")
-@angreal.argument(name="output", long="output", short="o", 
+@angreal.argument(name="output", long="output", short="o",
                  takes_value=True, help="Output file path")
-@angreal.argument(name="force", long="force", short="f", 
+@angreal.argument(name="force", long="force", short="f",
                  is_flag=True, help="Overwrite existing file")
-@angreal.argument(name="type", long="type", 
+@angreal.argument(name="type", long="type",
                  takes_value=True, help="File type")
 def generate_command(output="output.txt", force=False, type="txt"):
     """
@@ -108,7 +108,7 @@ def generate_command(output="output.txt", force=False, type="txt"):
     if os.path.exists(output) and not force:
         print(f"File {output} already exists. Use --force to overwrite.")
         return
-        
+
     print(f"Generating {type} file at {output}...")
     # File generation code goes here
 ```

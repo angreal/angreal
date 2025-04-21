@@ -70,4 +70,3 @@ Make calls to git sub commands via method calls.
     **args**: mandatory parameters
     **kwargs**: optional arguments (flags)
     **Returns**:
-

@@ -38,7 +38,7 @@ dev = angreal.command_group(name="dev", about="Development commands")
 # Create a command in the group
 @dev()
 @angreal.command(name="build", about="Build the project")
-@angreal.argument(name="target", long="target", takes_value=True, 
+@angreal.argument(name="target", long="target", takes_value=True,
                  help="Build target", default_value="debug")
 def build_command(target):
     """Build the project for the specified target."""

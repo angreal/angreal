@@ -59,14 +59,11 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-      - name: Install Python documentation tools
-        run: pip install pdoc3
-      - name: Generate Python API documentation
-        run: |
-          mkdir -p docs/static/py-docs
-          pdoc --html --output-dir docs/static/py-docs python/angreal
-      - name: Build with Hugo
-        run: cd docs/ && hugo --minify
+      - name: Install Angreal and dependencies
+        run: pip install -e ".[dev]"
+      - name: Generate documentation with Angreal
+        run: angreal docs build
+        # This uses Angreal's built-in docs build command which handles API docs generation and Hugo build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

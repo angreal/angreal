@@ -46,7 +46,7 @@ def create_readme():
         "author": "Jane Smith",
         "year": 2025
     }
-    
+
     # Render a template
     angreal.render_template(
         source_template="templates/README.md.tera",
@@ -70,7 +70,7 @@ def create_project():
         "year": 2025,
         "use_pytest": True
     }
-    
+
     # Render a directory
     angreal.render_directory(
         source_directory="templates/project",
@@ -118,7 +118,7 @@ def initialize_project():
         template_path="templates/project",
         interactive=True
     )
-    
+
     # Render the project
     angreal.render_directory(
         source_directory="templates/project",

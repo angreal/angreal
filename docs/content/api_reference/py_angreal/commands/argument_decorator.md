@@ -10,8 +10,8 @@ A decorator that adds an argument to an Angreal command.
 ## Signature
 
 ```python
-argument(name, python_type="str", takes_value=True, default_value=None, require_equals=None, 
-         multiple_values=None, number_of_values=None, max_values=None, min_values=None, 
+argument(name, python_type="str", takes_value=True, default_value=None, require_equals=None,
+         multiple_values=None, number_of_values=None, max_values=None, min_values=None,
          short=None, long=None, long_help=None, help=None, required=None, **kwargs) -> None
 ```
 

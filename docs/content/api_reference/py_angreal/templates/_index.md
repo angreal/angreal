@@ -40,7 +40,7 @@ def create_project():
         template_path="templates/project",
         interactive=True
     )
-    
+
     # Render a directory of templates
     angreal.render_directory(
         source_directory="templates/project",
