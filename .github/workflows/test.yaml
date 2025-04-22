@@ -27,7 +27,6 @@ jobs:
       - name: Verify SSH Key
         run: |
           ssh-add -l
-          ssh -T git@github.com
       - name: Test Git Clone
         run: |
           git clone git@github.com:test-angreal/angreal_test_template.git
