@@ -16,6 +16,23 @@ env:
   RUST_BACKTRACE: full
 
 jobs:
+  ssh-verification:
+    name: "SSH Verification"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Verify SSH Key
+        run: |
+          ssh-add -l
+          ssh -T git@github.com
+      - name: Check SSH Config
+        run: |
+          cat ~/.ssh/config || true
+          ls -la ~/.ssh/
+
   pre-commit:
     name: "Linters"
     runs-on: ubuntu-latest
