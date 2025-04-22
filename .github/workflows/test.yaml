@@ -70,7 +70,6 @@ jobs:
       - run: angreal init --force --defaults angreal_test_template
       - run: angreal init --force --values tests/common/test_assets/values.toml angreal_test_template
 
-
   angreal-tests-linux:
     name: "Linux Tests"
     runs-on: ubuntu-latest
@@ -96,6 +95,14 @@ jobs:
       - run: angreal test unit python
       - run: angreal --version
       - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
+      - name: Verify SSH Key
+        run: |
+          ssh-add -l
+          ssh -T git@github.com
+      - name: Check SSH Config
+        run: |
+          cat ~/.ssh/config || true
+          ls -la ~/.ssh/
 
   angreal-tests-windows:
     name: "Windows Tests"
