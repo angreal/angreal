@@ -7,6 +7,8 @@ on:  # yamllint disable-line rule:truthy
   push:
     branches:
       - build**
+      - cicd-*
+      - cicd/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,7 +27,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: x86_64
-          args: --release --out dist --sdist -i 3.7 3.8 3.9 3.10 3.11 3.12
+          args: --release --out dist --sdist -i 3.9 3.10 3.11 3.12 3.13
       - name: Install built wheel - x86_64
         run: |
           pip install packaging pytest angreal --find-links dist --force-reinstall
@@ -33,7 +35,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-macos-x86_64
           path: dist
           overwrite: true
 
@@ -49,7 +51,7 @@ jobs:
       - name: Build wheels - universal2
         uses: PyO3/maturin-action@v1
         with:
-          args: --release --target universal2-apple-darwin --out dist -i 3.8 3.9 3.10 3.11 3.12
+          args: --release --target universal2-apple-darwin --out dist -i 3.9 3.10 3.11 3.12 3.13
       - name: Install built wheel - universal2
         run: |
           pip install packaging pytest angreal --find-links dist --force-reinstall
@@ -57,7 +59,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-macos-universal
           path: dist
           overwrite: true
 
@@ -68,7 +70,7 @@ jobs:
       matrix:
         platform:
           - target: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12
+            interpreter: 3.9 3.10 3.11 3.12 3.13
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
@@ -88,7 +90,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-windows-${{ matrix.platform.target }}
           path: dist
           overwrite: true
   linux:
@@ -108,7 +110,7 @@ jobs:
           rust-toolchain: stable
           target: ${{ matrix.target }}
           manylinux: auto
-          args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 3.12
+          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13
       - name: Install built wheel
         if: matrix.target == 'x86_64'
         run: |
@@ -117,7 +119,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-linux-${{ matrix.target }}
           path: dist
           overwrite: true
   linux-cross:
@@ -136,7 +138,7 @@ jobs:
           rust-toolchain: stable
           target: ${{ matrix.target }}
           manylinux: auto
-          args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 3.12
+          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13
       - uses: uraimo/run-on-arch-action@v2
         if: matrix.target != 'ppc64'
         name: Install built wheel
@@ -154,7 +156,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-linux-cross-${{ matrix.target }}
           path: dist
           overwrite: true
   musllinux:
@@ -176,7 +178,7 @@ jobs:
           rust-toolchain: stable
           target: ${{ matrix.target }}
           manylinux: musllinux_1_2
-          args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 3.12
+          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13
       - name: Install built wheel
         if: matrix.target == 'x86_64-unknown-linux-musl'
         uses: addnab/docker-run-action@v3
@@ -193,7 +195,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-musllinux-${{ matrix.target }}
           path: dist
           overwrite: true
   musllinux-cross:
@@ -216,7 +218,7 @@ jobs:
           rust-toolchain: stable
           target: ${{ matrix.platform.target }}
           manylinux: musllinux_1_2
-          args: --release --out dist -i 3.7 3.8 3.9 3.10 3.11 3.12
+          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13
       - uses: uraimo/run-on-arch-action@v2
         name: Install built wheel
         with:
@@ -233,11 +235,11 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: wheels-musllinux-cross-${{ matrix.platform.arch }}
           path: dist
           overwrite: true
   release-pypi:
-    name: Release
+    name: Release to PyPI
     runs-on: ubuntu-latest
     needs:
       - macos-universal
@@ -247,22 +249,49 @@ jobs:
       - linux-cross
       - musllinux
       - musllinux-cross
-    if: "startsWith(github.ref, 'refs/tags/')"
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: wheels
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
-      - name: Publish to PyPi
+        with:
+          python-version: '3.12'
+      - name: Download and combine artifacts
+        run: |
+          mkdir -p dist
+
+          # Define all artifact names
+          ARTIFACTS=(
+            wheels-macos-x86_64
+            wheels-macos-universal
+            wheels-windows-x64
+            wheels-linux-x86_64
+            wheels-linux-i686
+            wheels-linux-cross-aarch64
+            wheels-linux-cross-armv7
+            wheels-linux-cross-s390x
+            wheels-linux-cross-ppc64le
+            wheels-musllinux-x86_64-unknown-linux-musl
+            wheels-musllinux-i686-unknown-linux-musl
+            wheels-musllinux-cross-aarch64
+            wheels-musllinux-cross-armv7
+          )
+
+          # Download and combine each artifact
+          for artifact in "${ARTIFACTS[@]}"; do
+            if [ -d "$artifact" ]; then
+              cp -r "$artifact"/* dist/
+            fi
+          done
+      - name: Publish to PyPI
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
           pip install --upgrade twine
-          twine upload --skip-existing *
+          twine upload --skip-existing dist/*
 
-  release-cargo:
-    name: Release
+  test-pypi:
+    name: Upload to Test PyPI
     runs-on: ubuntu-latest
     needs:
       - macos-universal
@@ -272,7 +301,41 @@ jobs:
       - linux-cross
       - musllinux
       - musllinux-cross
-    if: "startsWith(github.ref, 'refs/tags/')"
+    if: |
+      startsWith(github.ref, 'refs/heads/cicd/') ||
+      startsWith(github.ref, 'refs/heads/build') ||
+      startsWith(github.ref, 'refs/heads/cicd-')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: wheels-*
+          merge-multiple: true
+      - name: Publish to Test PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
+        run: |
+          pip install --upgrade twine
+          twine upload --skip-existing --repository testpypi dist/*
+
+  release-cargo:
+    name: Release to Cargo
+    runs-on: ubuntu-latest
+    needs:
+      - macos-universal
+      - macos-x86_64
+      - windows
+      - linux
+      - linux-cross
+      - musllinux
+      - musllinux-cross
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
