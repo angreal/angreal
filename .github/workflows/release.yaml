@@ -282,12 +282,18 @@ jobs:
               cp -r "$artifact"/* dist/
             fi
           done
+      - name: Publish to Test PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
+        run: |
+          pip install --upgrade twine
+          twine upload --skip-existing --repository testpypi dist/*
       - name: Publish to PyPI
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
-          pip install --upgrade twine
           twine upload --skip-existing dist/*
 
   release-cargo:
