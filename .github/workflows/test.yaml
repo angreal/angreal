@@ -6,7 +6,8 @@ on:  # yamllint disable-line rule:truthy
     branches:
       - main
       - master
-      - 'cicd-*/**'  # Special trigger for CI/CD testing branches
+      - 'cicd-*'  # Special trigger for CI/CD testing branches
+      - 'cicd/**'  # Alternative pattern for nested cicd branches
 
 
 concurrency:
@@ -20,10 +21,10 @@ env:
   RUST_BACKTRACE: full
   RUST_VERSION: "1.75.0"  # Latest stable Rust version
   # Control production uploads based on branch
-  IS_CICD_BRANCH: ${{ startsWith(github.ref, 'refs/heads/cicd/') }}
+  IS_CICD_BRANCH: ${{ startsWith(github.ref, 'refs/heads/cicd') }}
   # Use test repositories for cicd branches
-  CARGO_REGISTRY: ${{ startsWith(github.ref, 'refs/heads/cicd/') && 'test-crates-io' || 'crates-io' }}
-  PYPI_REPOSITORY: ${{ startsWith(github.ref, 'refs/heads/cicd/') && 'testpypi' || 'pypi' }}
+  CARGO_REGISTRY: ${{ startsWith(github.ref, 'refs/heads/cicd') && 'test-crates-io' || 'crates-io' }}
+  PYPI_REPOSITORY: ${{ startsWith(github.ref, 'refs/heads/cicd') && 'testpypi' || 'pypi' }}
 
 jobs:
 
