@@ -101,11 +101,9 @@ jobs:
       - name: Functional Tests
         continue-on-error: true
         run: |
-          rm -rf .angreal
-          echo "Checking if .angreal was removed:"
-          ls -la
           git clean -fdx
           git reset --hard
+          rm -rf .angreal
           angreal init --force --defaults https://github.com/angreal/angreal_test_template
 
 
@@ -138,9 +136,9 @@ jobs:
       - name: Functional Tests
         continue-on-error: true
         run: |
-          Remove-Item -Recurse -Force .angreal -ErrorAction SilentlyContinue
           git clean -fdx
           git reset --hard
+          Remove-Item -Recurse -Force .angreal -ErrorAction SilentlyContinue
           angreal init --force --defaults https://github.com/angreal/angreal_test_template
 
 
@@ -173,9 +171,7 @@ jobs:
       - name: Functional Tests
         continue-on-error: true
         run: |
-          rm -rf .angreal
-          echo "Checking if .angreal was removed:"
-          ls -la
           git clean -fdx
           git reset --hard
+          rm -rf .angreal
           angreal init --force --defaults https://github.com/angreal/angreal_test_template
