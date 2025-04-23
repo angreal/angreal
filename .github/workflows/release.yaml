@@ -60,7 +60,7 @@ jobs:
           - name: musllinux-cross
             target: armv7-unknown-linux-musleabihf
             args: --release --out dist
-        python_version: [3.9, 3.10, 3.11, 3.12, 3.13]
+        python_version: ['3.9', '3.10', '3.11', '3.12', '3.13']
         include:
           - platform: macos
             arch: x86_64
