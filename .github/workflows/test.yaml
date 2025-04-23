@@ -69,28 +69,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --all
 
-  smoke-test:
-    name: "Functional Tests"
-    runs-on: ubuntu-latest
-    needs: [pre-commit, build-verification]
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install maturin pytest
-      - run: maturin build
-      - run: pip install .
-      - run: angreal --version
-
-  unit-tests-linux:
-    name: "Linux Unit Tests"
+  linux-tests:
+    name: "Linux Tests"
     runs-on: ubuntu-latest
     needs: [pre-commit, build-verification]
     steps:
@@ -106,32 +86,23 @@ jobs:
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
-      - run: angreal test unit rust
-      - run: angreal test unit python
-      - run: angreal --version
+      - name: Unit Tests
+        run: |
+          angreal test unit rust
+          angreal test unit python
+          angreal --version
+      - name: Integration Tests
+        continue-on-error: true
+        run: angreal test integration rust
+      - name: Functional Tests
+        continue-on-error: true
+        run: |
+          rm -rf .angreal
+          angreal init --force --defaults https://github.com/angreal/angreal_test_template
 
-  integration-tests-linux:
-    name: "Linux Integration Tests"
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    needs: [pre-commit, build-verification, unit-tests-linux]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install maturin pytest
-      - run: maturin build
-      - run: pip install .
-      - run: angreal test integration rust
 
-  unit-tests-windows:
-    name: "Windows Unit Tests"
+  windows-tests:
+    name: "Windows Tests"
     runs-on: windows-latest
     needs: [pre-commit, build-verification]
     steps:
@@ -147,32 +118,23 @@ jobs:
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
-      - run: angreal test unit rust
-      - run: angreal test unit python
-      - run: angreal --version
+      - name: Unit Tests
+        run: |
+          angreal test unit rust
+          angreal test unit python
+          angreal --version
+      - name: Integration Tests
+        continue-on-error: true
+        run: angreal test integration rust
+      - name: Functional Tests
+        continue-on-error: true
+        run: |
+          Remove-Item -Recurse -Force .angreal -ErrorAction SilentlyContinue
+          angreal init --force --defaults https://github.com/angreal/angreal_test_template
 
-  integration-tests-windows:
-    name: "Windows Integration Tests"
-    runs-on: windows-latest
-    continue-on-error: true
-    needs: [pre-commit, build-verification, unit-tests-windows]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install maturin pytest
-      - run: maturin build
-      - run: pip install .
-      - run: angreal test integration rust
 
-  unit-tests-macosx:
-    name: "OSX Unit Tests"
+  macos-tests:
+    name: "OSX Tests"
     runs-on: macos-13
     needs: [pre-commit, build-verification]
     steps:
@@ -188,26 +150,16 @@ jobs:
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
-      - run: angreal test unit rust
-      - run: angreal test unit python
-      - run: angreal --version
-
-  integration-tests-macosx:
-    name: "OSX Integration Tests"
-    runs-on: macos-13
-    continue-on-error: true
-    needs: [pre-commit, build-verification, unit-tests-macosx]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install maturin pytest
-      - run: maturin build
-      - run: pip install .
-      - run: angreal test integration rust
+      - name: Unit Tests
+        run: |
+          angreal test unit rust
+          angreal test unit python
+          angreal --version
+      - name: Integration Tests
+        continue-on-error: true
+        run: angreal test integration rust
+      - name: Functional Tests
+        continue-on-error: true
+        run: |
+          rm -rf .angreal
+          angreal init --force --defaults https://github.com/angreal/angreal_test_template
