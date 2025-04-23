@@ -83,6 +83,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.GH_KNOWN_HOSTS }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -119,6 +120,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.GH_KNOWN_HOSTS }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -153,6 +155,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.GH_KNOWN_HOSTS }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
