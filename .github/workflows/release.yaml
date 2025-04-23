@@ -310,33 +310,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-      - name: Download and combine artifacts
-        run: |
-          mkdir -p dist
-
-          # Define all artifact names
-          ARTIFACTS=(
-            wheels-macos-x86_64
-            wheels-macos-universal
-            wheels-windows-x64
-            wheels-linux-x86_64
-            wheels-linux-i686
-            wheels-linux-cross-aarch64
-            wheels-linux-cross-armv7
-            wheels-linux-cross-s390x
-            wheels-linux-cross-ppc64le
-            wheels-musllinux-x86_64-unknown-linux-musl
-            wheels-musllinux-i686-unknown-linux-musl
-            wheels-musllinux-cross-aarch64
-            wheels-musllinux-cross-armv7
-          )
-
-          # Download and combine each artifact
-          for artifact in "${ARTIFACTS[@]}"; do
-            if [ -d "$artifact" ]; then
-              cp -r "$artifact"/* dist/
-            fi
-          done
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: wheels-*
+          merge-multiple: true
       - name: Publish to Test PyPI
         env:
           TWINE_USERNAME: __token__
