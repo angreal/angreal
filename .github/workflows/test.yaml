@@ -9,7 +9,6 @@ on:  # yamllint disable-line rule:truthy
       - 'cicd-*'  # Special trigger for CI/CD testing branches
       - 'cicd/**'  # Alternative pattern for nested cicd branches
 
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
@@ -53,9 +52,6 @@ jobs:
   smoke-test:
     name: "Functional Tests"
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -65,7 +61,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
@@ -77,9 +73,6 @@ jobs:
   unit-tests-linux:
     name: "Linux Unit Tests"
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -89,7 +82,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
@@ -105,7 +98,7 @@ jobs:
     needs: [unit-tests-linux]
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -125,9 +118,6 @@ jobs:
   unit-tests-windows:
     name: "Windows Unit Tests"
     runs-on: windows-latest
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -137,7 +127,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
@@ -152,7 +142,7 @@ jobs:
     needs: [unit-tests-windows]
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -171,9 +161,6 @@ jobs:
   unit-tests-macosx:
     name: "OSX Unit Tests"
     runs-on: macos-13
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -183,7 +170,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
@@ -199,7 +186,7 @@ jobs:
     needs: [unit-tests-macosx]
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11, 3.12, 3.13]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -215,68 +202,6 @@ jobs:
       - run: pip install .
       - run: angreal test integration rust
       - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
-
-  test-upload:
-    name: "Test Upload"
-    needs: [build-verification, smoke-test, unit-tests-linux, unit-tests-windows, unit-tests-macosx]
-    runs-on: ubuntu-latest
-    if: ${{ !failure() }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Configure Cargo for Test Upload
-        run: |
-          cargo login ${{ secrets.CARGO_TEST_TOKEN }}
-          echo "CARGO_REGISTRY=test-crates-io" >> $GITHUB_ENV
-      - name: Configure PyPI for Test Upload
-        run: |
-          echo "[testpypi]" > ~/.pypirc
-          echo "username = __token__" >> ~/.pypirc
-          echo "password = ${{ secrets.PYPI_TEST_TOKEN }}" >> ~/.pypirc
-      - name: Build and Upload to Test Repositories
-        run: |
-          # Build and upload to test-crates-io
-          cargo publish --registry test-crates-io
-
-          # Build and upload to testpypi
-          maturin build
-          pip install twine
-          twine upload --repository testpypi target/wheels/*
-
-  production-upload:
-    name: "Production Upload"
-    needs: [test-upload]
-    runs-on: ubuntu-latest
-    if: ${{ !failure() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Configure Cargo for Production Upload
-        run: |
-          cargo login ${{ secrets.CARGO_TOKEN }}
-          echo "CARGO_REGISTRY=crates-io" >> $GITHUB_ENV
-      - name: Configure PyPI for Production Upload
-        run: |
-          echo "[pypi]" > ~/.pypirc
-          echo "username = __token__" >> ~/.pypirc
-          echo "password = ${{ secrets.PYPI_TOKEN }}" >> ~/.pypirc
-      - name: Build and Upload to Production Repositories
-        run: |
-          # Build and upload to crates-io
-          cargo publish
-
-          # Build and upload to pypi
-          maturin build
-          pip install twine
-          twine upload target/wheels/*
 
   typos:
     name: "Spell Checks"
