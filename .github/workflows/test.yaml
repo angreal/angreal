@@ -24,6 +24,9 @@ env:
   # Use test repositories for cicd branches
   CARGO_REGISTRY: ${{ startsWith(github.ref, 'refs/heads/cicd') && 'test-crates-io' || 'crates-io' }}
   PYPI_REPOSITORY: ${{ startsWith(github.ref, 'refs/heads/cicd') && 'testpypi' || 'pypi' }}
+  GIT_TRACE: 1
+  GIT_TRACE_PACKET: 1
+  GIT_TRACE_PERFORMANCE: 1
 
 jobs:
 
@@ -98,6 +101,8 @@ jobs:
         continue-on-error: true
         run: |
           rm -rf .angreal
+          git clean -fdx
+          git reset --hard
           angreal init --force --defaults https://github.com/angreal/angreal_test_template
 
 
@@ -130,6 +135,8 @@ jobs:
         continue-on-error: true
         run: |
           Remove-Item -Recurse -Force .angreal -ErrorAction SilentlyContinue
+          git clean -fdx
+          git reset --hard
           angreal init --force --defaults https://github.com/angreal/angreal_test_template
 
 
@@ -162,4 +169,6 @@ jobs:
         continue-on-error: true
         run: |
           rm -rf .angreal
+          git clean -fdx
+          git reset --hard
           angreal init --force --defaults https://github.com/angreal/angreal_test_template
