@@ -13,25 +13,21 @@ on:  # yamllint disable-line rule:truthy
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   macos-x86_64:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        python_version: ['3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python_version }}
+          python-version: '3.12'
           architecture: x64
       - uses: dtolnay/rust-toolchain@stable
       - name: Build wheels - x86_64
         uses: PyO3/maturin-action@v1
         with:
           target: x86_64
-          args: --release --out dist --sdist -i ${{ matrix.python_version }}
+          args: --release --out dist --sdist -i 3.9 3.10 3.11 3.12 3.13
       - name: Install built wheel - x86_64
         run: |
           pip install packaging pytest angreal --find-links dist --force-reinstall
@@ -39,26 +35,23 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-macos-x86_64-py${{ matrix.python_version }}
+          name: wheels-macos-x86_64
           path: dist
           overwrite: true
 
   macos-universal:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        python_version: ['3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python_version }}
+          python-version: '3.12'
           architecture: x64
       - uses: dtolnay/rust-toolchain@stable
       - name: Build wheels - universal2
         uses: PyO3/maturin-action@v1
         with:
-          args: --release --target universal2-apple-darwin --out dist -i ${{ matrix.python_version }}
+          args: --release --target universal2-apple-darwin --out dist -i 3.9 3.10 3.11 3.12 3.13
       - name: Install built wheel - universal2
         run: |
           pip install packaging pytest angreal --find-links dist --force-reinstall
@@ -66,27 +59,30 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-macos-universal2-py${{ matrix.python_version }}
+          name: wheels-macos-universal
           path: dist
           overwrite: true
 
   windows:
     runs-on: windows-latest
+    name: windows (${{ matrix.platform.target }})
     strategy:
       matrix:
-        python_version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        platform:
+          - target: x64
+            interpreter: 3.9 3.10 3.11 3.12 3.13
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python_version }}
-          architecture: x64
+          python-version: '3.12'
+          architecture: ${{ matrix.platform.target }}
       - uses: dtolnay/rust-toolchain@stable
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
-          target: x64
-          args: --release --out dist -i ${{ matrix.python_version }}
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist -i ${{ matrix.platform.interpreter }}
       - name: Install built wheel
         run: |
           pip install packaging pytest angreal --find-links dist --force-reinstall
@@ -94,29 +90,27 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-windows-x64-py${{ matrix.python_version }}
+          name: wheels-windows-${{ matrix.platform.target }}
           path: dist
           overwrite: true
-
   linux:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         target: [x86_64, i686]
-        python_version: ['3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python_version }}
-          architecture: ${{ matrix.target == 'x86_64' && 'x64' || 'x86' }}
+          python-version: '3.12'
+          architecture: x64
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           rust-toolchain: stable
           target: ${{ matrix.target }}
           manylinux: auto
-          args: --release --out dist -i ${{ matrix.python_version }}
+          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13
       - name: Install built wheel
         if: matrix.target == 'x86_64'
         run: |
@@ -125,28 +119,26 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-${{ matrix.target }}-py${{ matrix.python_version }}
+          name: wheels-linux-${{ matrix.target }}
           path: dist
           overwrite: true
-
   linux-cross:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         target: [aarch64, armv7, s390x, ppc64le]
-        python_version: ['3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python_version }}
+          python-version: '3.12'
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           rust-toolchain: stable
           target: ${{ matrix.target }}
           manylinux: auto
-          args: --release --out dist -i ${{ matrix.python_version }}
+          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13
       - uses: uraimo/run-on-arch-action@v2
         if: matrix.target != 'ppc64'
         name: Install built wheel
@@ -164,29 +156,29 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-cross-${{ matrix.target }}-py${{ matrix.python_version }}
+          name: wheels-linux-cross-${{ matrix.target }}
           path: dist
           overwrite: true
-
   musllinux:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [x86_64-unknown-linux-musl, i686-unknown-linux-musl]
-        python_version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        target:
+          - x86_64-unknown-linux-musl
+          - i686-unknown-linux-musl
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python_version }}
-          architecture: ${{ matrix.target == 'x86_64-unknown-linux-musl' && 'x64' || 'x86' }}
+          python-version: '3.12'
+          architecture: x64
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           rust-toolchain: stable
           target: ${{ matrix.target }}
           manylinux: musllinux_1_2
-          args: --release --out dist -i ${{ matrix.python_version }}
+          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13
       - name: Install built wheel
         if: matrix.target == 'x86_64-unknown-linux-musl'
         uses: addnab/docker-run-action@v3
@@ -199,13 +191,13 @@ jobs:
             . .venv/bin/activate
             pip3 install pip pytest packaging
             pip3 install packaging pytest angreal --find-links /io/dist --force-reinstall
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-musllinux-${{ matrix.target }}-py${{ matrix.python_version }}
+          name: wheels-musllinux-${{ matrix.target }}
           path: dist
           overwrite: true
-
   musllinux-cross:
     runs-on: ubuntu-latest
     strategy:
@@ -215,19 +207,18 @@ jobs:
             arch: aarch64
           - target: armv7-unknown-linux-musleabihf
             arch: armv7
-        python_version: ['3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python_version }}
+          python-version: '3.12'
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           rust-toolchain: stable
           target: ${{ matrix.platform.target }}
           manylinux: musllinux_1_2
-          args: --release --out dist -i ${{ matrix.python_version }}
+          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13
       - uses: uraimo/run-on-arch-action@v2
         name: Install built wheel
         with:
@@ -244,10 +235,9 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-musllinux-cross-${{ matrix.platform.arch }}-py${{ matrix.python_version }}
+          name: wheels-musllinux-cross-${{ matrix.platform.arch }}
           path: dist
           overwrite: true
-
   release-pypi:
     name: Release to PyPI
     runs-on: ubuntu-latest
@@ -270,14 +260,21 @@ jobs:
           mkdir -p dist
 
           # Define all artifact names
-          ARTIFACTS=()
-          for platform in macos windows linux musllinux; do
-            for arch in x86_64 universal2 x64 i686 aarch64 armv7 s390x ppc64le; do
-              for pyver in 3.9 3.10 3.11 3.12 3.13; do
-                ARTIFACTS+=("wheels-$platform-$arch-py$pyver")
-              done
-            done
-          done
+          ARTIFACTS=(
+            wheels-macos-x86_64
+            wheels-macos-universal
+            wheels-windows-x64
+            wheels-linux-x86_64
+            wheels-linux-i686
+            wheels-linux-cross-aarch64
+            wheels-linux-cross-armv7
+            wheels-linux-cross-s390x
+            wheels-linux-cross-ppc64le
+            wheels-musllinux-x86_64-unknown-linux-musl
+            wheels-musllinux-i686-unknown-linux-musl
+            wheels-musllinux-cross-aarch64
+            wheels-musllinux-cross-armv7
+          )
 
           # Download and combine each artifact
           for artifact in "${ARTIFACTS[@]}"; do
@@ -285,26 +282,7 @@ jobs:
               cp -r "$artifact"/* dist/
             fi
           done
-
-          # Verify we have the expected number of wheels
-          WHEEL_COUNT=$(find dist -name "*.whl" | wc -l)
-          echo "Found $WHEEL_COUNT wheels"
-          if [ "$WHEEL_COUNT" -eq 0 ]; then
-            echo "No wheels found!"
-            exit 1
-          fi
-
-      - name: Test upload to TestPyPI
-        if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master'
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
-        run: |
-          pip install --upgrade twine
-          twine upload --repository-url https://test.pypi.org/legacy/ --skip-existing dist/*
-
       - name: Publish to PyPI
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
