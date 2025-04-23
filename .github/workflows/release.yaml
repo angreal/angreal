@@ -282,6 +282,58 @@ jobs:
               cp -r "$artifact"/* dist/
             fi
           done
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          pip install --upgrade twine
+          twine upload --skip-existing dist/*
+
+  test-pypi:
+    name: Upload to Test PyPI
+    runs-on: ubuntu-latest
+    needs:
+      - macos-universal
+      - macos-x86_64
+      - windows
+      - linux
+      - linux-cross
+      - musllinux
+      - musllinux-cross
+    if: startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/cicd/') || startsWith(github.ref, 'refs/heads/build')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Download and combine artifacts
+        run: |
+          mkdir -p dist
+
+          # Define all artifact names
+          ARTIFACTS=(
+            wheels-macos-x86_64
+            wheels-macos-universal
+            wheels-windows-x64
+            wheels-linux-x86_64
+            wheels-linux-i686
+            wheels-linux-cross-aarch64
+            wheels-linux-cross-armv7
+            wheels-linux-cross-s390x
+            wheels-linux-cross-ppc64le
+            wheels-musllinux-x86_64-unknown-linux-musl
+            wheels-musllinux-i686-unknown-linux-musl
+            wheels-musllinux-cross-aarch64
+            wheels-musllinux-cross-armv7
+          )
+
+          # Download and combine each artifact
+          for artifact in "${ARTIFACTS[@]}"; do
+            if [ -d "$artifact" ]; then
+              cp -r "$artifact"/* dist/
+            fi
+          done
       - name: Publish to Test PyPI
         env:
           TWINE_USERNAME: __token__
@@ -289,12 +341,6 @@ jobs:
         run: |
           pip install --upgrade twine
           twine upload --skip-existing --repository testpypi dist/*
-      - name: Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          twine upload --skip-existing dist/*
 
   release-cargo:
     name: Release to Cargo

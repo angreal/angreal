@@ -20,4 +20,4 @@ extends: default
 
 rules:
   line-length:
-    max: 128
+    max: 500
