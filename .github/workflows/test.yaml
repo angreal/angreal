@@ -67,8 +67,8 @@ jobs:
       - run: pip install .
       - run: angreal --version
       - run: rm -rf .angreal
-      - run: angreal init --force --defaults angreal_test_template
-      - run: angreal init --force --values tests/common/test_assets/values.toml angreal_test_template
+      - run: angreal init --force --defaults https://github.com/angreal/angreal_test_template
+      - run: angreal init --force --values tests/common/test_assets/values.toml https://github.com/angreal/angreal_test_template
 
   unit-tests-linux:
     name: "Linux Unit Tests"
@@ -89,7 +89,7 @@ jobs:
       - run: angreal test unit rust
       - run: angreal test unit python
       - run: angreal --version
-      - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
+      - run: rm -rf .angreal && angreal init --force --defaults https://github.com/angreal/angreal_test_template
 
   integration-tests-linux:
     name: "Linux Integration Tests"
@@ -113,7 +113,7 @@ jobs:
       - run: maturin build
       - run: pip install .
       - run: angreal test integration rust
-      - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
+      - run: rm -rf .angreal && angreal init --force --defaults https://github.com/angreal/angreal_test_template
 
   unit-tests-windows:
     name: "Windows Unit Tests"
@@ -177,7 +177,7 @@ jobs:
       - run: angreal test unit rust
       - run: angreal test unit python
       - run: angreal --version
-      - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
+      - run: rm -rf .angreal && angreal init --force --defaults https://github.com/angreal/angreal_test_template
 
   integration-tests-macosx:
     name: "OSX Integration Tests"
@@ -201,7 +201,7 @@ jobs:
       - run: maturin build
       - run: pip install .
       - run: angreal test integration rust
-      - run: rm -rf .angreal && angreal init --force --defaults angreal_test_template
+      - run: rm -rf .angreal && angreal init --force --defaults https://github.com/angreal/angreal_test_template
 
   typos:
     name: "Spell Checks"
