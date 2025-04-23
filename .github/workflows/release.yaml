@@ -17,60 +17,47 @@ concurrency:
 jobs:
   build:
     name: Build (${{ matrix.platform.name }} - ${{ matrix.arch }} - Python ${{ matrix.python_version }})
-    runs-on: ${{ matrix.platform.runner }}
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
         platform:
           - name: macos
-            runner: macos-latest
             target: x86_64
             args: --release --out dist --sdist
           - name: macos
-            runner: macos-latest
             target: universal2-apple-darwin
             args: --release --target universal2-apple-darwin --out dist
           - name: windows
-            runner: windows-latest
             target: x64
             args: --release --out dist
           - name: linux
-            runner: ubuntu-latest
             target: x86_64
             args: --release --out dist
           - name: linux
-            runner: ubuntu-latest
             target: i686
             args: --release --out dist
           - name: linux-cross
-            runner: ubuntu-latest
             target: aarch64
             args: --release --out dist
           - name: linux-cross
-            runner: ubuntu-latest
             target: armv7
             args: --release --out dist
           - name: linux-cross
-            runner: ubuntu-latest
             target: s390x
             args: --release --out dist
           - name: linux-cross
-            runner: ubuntu-latest
             target: ppc64le
             args: --release --out dist
           - name: musllinux
-            runner: ubuntu-latest
             target: x86_64-unknown-linux-musl
             args: --release --out dist
           - name: musllinux
-            runner: ubuntu-latest
             target: i686-unknown-linux-musl
             args: --release --out dist
           - name: musllinux-cross
-            runner: ubuntu-latest
             target: aarch64-unknown-linux-musl
             args: --release --out dist
           - name: musllinux-cross
-            runner: ubuntu-latest
             target: armv7-unknown-linux-musleabihf
             args: --release --out dist
         python_version: [3.9, 3.10, 3.11, 3.12, 3.13]
@@ -78,42 +65,55 @@ jobs:
           - platform: macos
             arch: x86_64
             python_arch: x64
+            runner: macos-latest
           - platform: macos
             arch: universal2
             python_arch: x64
+            runner: macos-latest
           - platform: windows
             arch: x64
             python_arch: x64
+            runner: windows-latest
           - platform: linux
             arch: x86_64
             python_arch: x64
+            runner: ubuntu-latest
           - platform: linux
             arch: i686
             python_arch: x86
+            runner: ubuntu-latest
           - platform: linux-cross
             arch: aarch64
             python_arch: aarch64
+            runner: ubuntu-latest
           - platform: linux-cross
             arch: armv7
             python_arch: armv7
+            runner: ubuntu-latest
           - platform: linux-cross
             arch: s390x
             python_arch: s390x
+            runner: ubuntu-latest
           - platform: linux-cross
             arch: ppc64le
             python_arch: ppc64le
+            runner: ubuntu-latest
           - platform: musllinux
             arch: x86_64
             python_arch: x64
+            runner: ubuntu-latest
           - platform: musllinux
             arch: i686
             python_arch: x86
+            runner: ubuntu-latest
           - platform: musllinux-cross
             arch: aarch64
             python_arch: aarch64
+            runner: ubuntu-latest
           - platform: musllinux-cross
             arch: armv7
             python_arch: armv7
+            runner: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
