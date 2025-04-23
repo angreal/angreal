@@ -101,6 +101,8 @@ jobs:
         continue-on-error: true
         run: |
           rm -rf .angreal
+          echo "Checking if .angreal was removed:"
+          ls -la
           git clean -fdx
           git reset --hard
           angreal init --force --defaults https://github.com/angreal/angreal_test_template
@@ -169,6 +171,8 @@ jobs:
         continue-on-error: true
         run: |
           rm -rf .angreal
+          echo "Checking if .angreal was removed:"
+          ls -la
           git clean -fdx
           git reset --hard
           angreal init --force --defaults https://github.com/angreal/angreal_test_template
