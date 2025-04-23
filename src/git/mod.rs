@@ -3,23 +3,74 @@ use git2::{FetchOptions, RemoteCallbacks, Repository};
 use git2_credentials::CredentialHandler;
 use log::info;
 use std::path::PathBuf;
+use tempfile::tempdir;
 
 /// Check if a remote repository exists
 pub fn remote_exists(remote: &str) -> bool {
-    let mut callbacks = RemoteCallbacks::new();
-    let git_config = git2::Config::open_default().unwrap();
-    let mut handler = CredentialHandler::new(git_config);
-    callbacks.credentials(move |url, username, allowed| {
-        handler.try_next_credential(url, username, allowed)
-    });
+    // Create a temporary directory for the test
+    let temp_dir = match tempdir() {
+        Ok(dir) => dir,
+        Err(e) => {
+            log::error!("Failed to create temporary directory: {}", e);
+            return false;
+        }
+    };
 
+    // Initialize a new repository in the temp directory
+    let repo = match Repository::init(temp_dir.path()) {
+        Ok(repo) => repo,
+        Err(e) => {
+            log::error!("Failed to initialize repository: {}", e);
+            return false;
+        }
+    };
+
+    // Configure fetch options without authentication for public repositories
     let mut fetch_options = FetchOptions::new();
-    fetch_options.remote_callbacks(callbacks);
 
-    let repo = Repository::init(".").unwrap();
-    let result = repo.find_remote(remote).is_ok();
-    drop(repo);
-    result
+    // Only set up authentication if it's an SSH URL
+    if remote.starts_with("git@") {
+        let mut callbacks = RemoteCallbacks::new();
+        let git_config = match git2::Config::open_default() {
+            Ok(config) => config,
+            Err(e) => {
+                log::error!("Failed to open git config: {}", e);
+                return false;
+            }
+        };
+        let mut handler = CredentialHandler::new(git_config);
+        callbacks.credentials(move |url, username, allowed| {
+            handler.try_next_credential(url, username, allowed)
+        });
+        fetch_options.remote_callbacks(callbacks);
+    }
+
+    // Try to fetch from the remote
+    let mut remote = match repo.remote_anonymous(remote) {
+        Ok(remote) => remote,
+        Err(e) => {
+            log::debug!("Failed to create remote: {}", e);
+            return false;
+        }
+    };
+
+    // Attempt to fetch from the remote
+    match remote.fetch(
+        &["refs/heads/*:refs/heads/*"],
+        Some(&mut fetch_options),
+        None,
+    ) {
+        Ok(_) => true, // Fetch succeeded, repository exists
+        Err(e) => {
+            // Check if the error is due to repository not existing
+            if e.code() == git2::ErrorCode::NotFound {
+                false
+            } else {
+                log::debug!("Unexpected error while checking remote: {}", e);
+                false
+            }
+        }
+    }
 }
 
 /// Clone a git repository to a specific location
@@ -44,6 +95,32 @@ pub fn git_clone(remote: &str, path: &str) -> PathBuf {
 
 /// Clone a git repository to the current directory
 pub fn git_clone_here(remote: &str) -> PathBuf {
+    // Extract repository name from remote URL
+    let repo_name = if remote.starts_with("git@") {
+        // SSH format: git@github.com:user/repo.git
+        remote
+            .split(':')
+            .last()
+            .and_then(|s| s.strip_suffix(".git"))
+            .unwrap_or_else(|| {
+                panic!("Invalid SSH remote URL format: {}", remote);
+            })
+    } else {
+        // HTTPS format: https://github.com/user/repo.git
+        remote
+            .split('/')
+            .last()
+            .and_then(|s| s.strip_suffix(".git"))
+            .unwrap_or_else(|| {
+                panic!("Invalid HTTPS remote URL format: {}", remote);
+            })
+    };
+
+    // Create the subdirectory
+    std::fs::create_dir(repo_name).unwrap_or_else(|e| {
+        panic!("Failed to create directory {}: {}", repo_name, e);
+    });
+
     let mut callbacks = RemoteCallbacks::new();
     let git_config = git2::Config::open_default().unwrap();
     let mut handler = CredentialHandler::new(git_config);
@@ -54,12 +131,12 @@ pub fn git_clone_here(remote: &str) -> PathBuf {
     let mut fetch_options = FetchOptions::new();
     fetch_options.remote_callbacks(callbacks);
 
-    let _repo = match Repository::clone(remote, ".") {
+    let _repo = match Repository::clone(remote, repo_name) {
         Ok(repo) => repo,
         Err(e) => panic!("Failed to clone: {}", e),
     };
 
-    PathBuf::from(".")
+    PathBuf::from(repo_name)
 }
 
 /// Pull changes from a remote repository
@@ -84,7 +161,7 @@ pub fn git_pull_ff(path: &str) -> PathBuf {
         Err(e) => panic!("Failed to find remote: {}", e),
     };
 
-    match remote.fetch(&["master"], Some(&mut fetch_options), None) {
+    match remote.fetch(&["main"], Some(&mut fetch_options), None) {
         Ok(_) => (),
         Err(e) => panic!("Failed to fetch: {}", e),
     }
@@ -108,7 +185,7 @@ pub fn git_pull_ff(path: &str) -> PathBuf {
         info!("Already up-to-date");
     } else if analysis.0.is_fast_forward() {
         info!("Performing fast-forward");
-        let refname = format!("refs/heads/{}", "master");
+        let refname = format!("refs/heads/{}", "main");
         match repo.find_reference(&refname) {
             Ok(mut r) => {
                 r.set_target(fetch_commit.id(), "Fast-Forward").unwrap();
