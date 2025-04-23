@@ -100,7 +100,7 @@ pub fn git_clone_here(remote: &str) -> PathBuf {
         // SSH format: git@github.com:user/repo.git
         remote
             .split(':')
-            .last()
+            .next_back()
             .and_then(|s| s.strip_suffix(".git"))
             .unwrap_or_else(|| {
                 panic!("Invalid SSH remote URL format: {}", remote);
@@ -109,7 +109,7 @@ pub fn git_clone_here(remote: &str) -> PathBuf {
         // HTTPS format: https://github.com/user/repo.git
         remote
             .split('/')
-            .last()
+            .next_back()
             .and_then(|s| s.strip_suffix(".git"))
             .unwrap_or_else(|| {
                 panic!("Invalid HTTPS remote URL format: {}", remote);
