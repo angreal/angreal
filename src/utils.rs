@@ -472,10 +472,11 @@ pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
                 Ok(())
             }
             Err(err) => {
-                error!(
-                    "{:?} failed to load with the following error\n{}",
-                    file, err
-                );
+                error!("{:?} failed to load", file);
+                // Use the new error formatter for better error presentation
+                let formatter =
+                    crate::error_formatter::PythonErrorFormatter::new(err.clone_ref(py));
+                println!("{}", formatter);
                 Err(err)
             }
         }
