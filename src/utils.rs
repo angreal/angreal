@@ -2,6 +2,7 @@
 use anyhow::{anyhow, Result};
 
 use glob::glob;
+use std::convert::TryInto;
 use std::env;
 use std::ops::Not;
 use std::path::{Path, PathBuf};
@@ -43,7 +44,15 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
 
     let mut context = Context::new();
 
-    for (k, v) in extract.iter() {
+    // Extract the optional prompt section
+    let binding = Table::new();
+    let prompts = extract
+        .get("prompt")
+        .and_then(|v| v.as_table())
+        .unwrap_or(&binding);
+
+    // Process each key-value pair in the root level (skipping prompt section)
+    for (k, v) in extract.iter().filter(|(key, _)| *key != "prompt") {
         let value = if v.is_str()
             && v.as_str().unwrap().starts_with("{{")
             && v.as_str().unwrap().contains("}}")
@@ -57,7 +66,13 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
         };
 
         let input = if take_input {
-            print!("{k}? [{value}]: ");
+            // Use the prompt if available, otherwise use the key and value
+            let default_prompt = format!("{k}? [{value}]");
+            let prompt_text = prompts
+                .get(k)
+                .and_then(|p| p.as_str())
+                .unwrap_or(&default_prompt);
+            print!("{}: ", prompt_text);
             read!("{}\n")
         } else {
             String::new()
@@ -81,13 +96,37 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
                 context.insert(k, &input.trim());
             }
             if value.is_integer() {
-                context.insert(k, &input.trim().parse::<i32>().unwrap());
+                context.insert(
+                    k,
+                    &input.trim().parse::<i32>().unwrap_or_else(|_| {
+                        debug!(
+                            "Could not parse '{}' as integer for key '{}', using default.",
+                            input.trim(),
+                            k
+                        );
+                        let i64_val = value.as_integer().unwrap();
+                        i64_val.try_into().unwrap_or_else(|_| {
+                            debug!("Integer value too large for i32, truncating: {}", i64_val);
+                            i64_val as i32
+                        })
+                    }),
+                );
             }
             if value.is_bool() {
                 context.insert(k, &input.trim());
             }
             if value.is_float() {
-                context.insert(k, &input.trim().parse::<f64>().unwrap());
+                context.insert(
+                    k,
+                    &input.trim().parse::<f64>().unwrap_or_else(|_| {
+                        debug!(
+                            "Could not parse '{}' as float for key '{}', using default.",
+                            input.trim(),
+                            k
+                        );
+                        value.as_float().unwrap()
+                    }),
+                );
             }
         }
     }
@@ -452,6 +491,9 @@ mod tests {
             ctx.get("variable_text").unwrap(),
             "Just some text that we want to render"
         );
+
+        // Ensure the prompt section doesn't appear in the context values
+        assert!(ctx.get("prompt").is_none());
     }
     #[test]
     fn test_load_python() {

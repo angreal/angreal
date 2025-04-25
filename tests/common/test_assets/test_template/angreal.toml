@@ -2,3 +2,9 @@ key_1 = "value_1"
 key_2 = 1
 folder_variable = "folder_name"
 variable_text = "Just some text that we want to render"
+
+[prompt]
+key_1 = "Enter the first key value"
+key_2 = "Enter the second key value (must be a number)"
+folder_variable = "What should we name the folder?"
+variable_text = "Enter the text you would like to include"
