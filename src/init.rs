@@ -75,7 +75,16 @@ pub fn init(template: &str, force: bool, take_inputs: bool, values_file: Option<
                 .unwrap()
                 .into();
 
-            function.call0(py).unwrap();
+            match function.call0(py) {
+                Ok(_) => debug!("Successfully executed init.py"),
+                Err(err) => {
+                    use crate::error_formatter::PythonErrorFormatter;
+                    error!("Failed to execute init.py");
+                    let formatter = PythonErrorFormatter::new(err);
+                    println!("{}", formatter);
+                    std::process::exit(1);
+                }
+            };
         });
     }
 

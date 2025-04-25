@@ -11,6 +11,7 @@ extern crate version;
 pub mod macros;
 
 pub mod builder;
+pub mod error_formatter;
 pub mod git;
 pub mod init;
 pub mod logger;
@@ -20,6 +21,7 @@ pub mod utils;
 pub mod validation;
 
 use builder::build_app;
+use error_formatter::PythonErrorFormatter;
 use task::ANGREAL_TASKS;
 
 use pyo3::types::{IntoPyDict, PyDict};
@@ -188,11 +190,10 @@ fn main() -> PyResult<()> {
 
                 match r_value {
                     Ok(_r_value) => debug!("Successfully executed Python command: {}", task),
-                    Err(r_value) => {
-                        error!(
-                            "Failed to execute Python command: {}. Error: {:?}",
-                            task, r_value
-                        );
+                    Err(err) => {
+                        error!("Failed to execute Python command: {}", task);
+                        let formatter = PythonErrorFormatter::new(err);
+                        println!("{}", formatter);
                         exit(1);
                     }
                 }
