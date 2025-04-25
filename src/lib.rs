@@ -17,6 +17,7 @@ pub mod logger;
 pub mod py_logger;
 pub mod task;
 pub mod utils;
+pub mod validation;
 
 use builder::build_app;
 use task::ANGREAL_TASKS;

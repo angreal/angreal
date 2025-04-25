@@ -2,6 +2,7 @@
 use anyhow::{anyhow, Result};
 
 use glob::glob;
+use std::convert::TryInto;
 use std::env;
 use std::ops::Not;
 use std::path::{Path, PathBuf};
@@ -37,13 +38,15 @@ pub fn context_to_map(ctx: Context) -> Map<String, Value> {
 // takes a toml file and creates a Tera context for consumption
 // if you wish to take input from stdin set take_input to True, otherwise it will read provided values directly.
 pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
-    let file_contents = fs::read_to_string(&toml_path)
-        .unwrap_or_else(|_| panic!("Unable to open {:?}", &toml_path));
-    let extract = file_contents.parse::<Table>().unwrap();
+    // Extract the sections using our new functions
+    let defaults = extract_key_defaults(toml_path.clone()).unwrap();
+    let prompts = extract_prompts(toml_path.clone()).unwrap();
+    let validations = extract_validation_rules(toml_path).unwrap();
 
     let mut context = Context::new();
 
-    for (k, v) in extract.iter() {
+    // Process each key-value pair from defaults
+    for (k, v) in defaults.iter() {
         let value = if v.is_str()
             && v.as_str().unwrap().starts_with("{{")
             && v.as_str().unwrap().contains("}}")
@@ -57,8 +60,39 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
         };
 
         let input = if take_input {
-            print!("{k}? [{value}]: ");
-            read!("{}\n")
+            // Use the prompt if available, otherwise use the key and value
+            let default_prompt = format!("{k}? [{value}]");
+            let prompt_text = prompts
+                .get(k)
+                .and_then(|p| p.as_str())
+                .unwrap_or(&default_prompt);
+
+            // Loop until we get valid input
+            let mut valid_input = String::new();
+            let mut is_valid = false;
+
+            while !is_valid {
+                print!("{}: ", prompt_text);
+                valid_input = read!("{}\n");
+
+                // Skip validation if input is empty (using default)
+                if valid_input.trim().is_empty() {
+                    break;
+                }
+
+                // Validate input if we have validation rules
+                match crate::validation::validate_input(valid_input.trim(), k, &validations) {
+                    Ok(_) => {
+                        is_valid = true;
+                    }
+                    Err(err_msg) => {
+                        println!("Invalid input: {}", err_msg);
+                        is_valid = false;
+                    }
+                }
+            }
+
+            valid_input
         } else {
             String::new()
         };
@@ -81,13 +115,37 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
                 context.insert(k, &input.trim());
             }
             if value.is_integer() {
-                context.insert(k, &input.trim().parse::<i32>().unwrap());
+                context.insert(
+                    k,
+                    &input.trim().parse::<i32>().unwrap_or_else(|_| {
+                        debug!(
+                            "Could not parse '{}' as integer for key '{}', using default.",
+                            input.trim(),
+                            k
+                        );
+                        let i64_val = value.as_integer().unwrap();
+                        i64_val.try_into().unwrap_or_else(|_| {
+                            debug!("Integer value too large for i32, truncating: {}", i64_val);
+                            i64_val as i32
+                        })
+                    }),
+                );
             }
             if value.is_bool() {
                 context.insert(k, &input.trim());
             }
             if value.is_float() {
-                context.insert(k, &input.trim().parse::<f64>().unwrap());
+                context.insert(
+                    k,
+                    &input.trim().parse::<f64>().unwrap_or_else(|_| {
+                        debug!(
+                            "Could not parse '{}' as float for key '{}', using default.",
+                            input.trim(),
+                            k
+                        );
+                        value.as_float().unwrap()
+                    }),
+                );
             }
         }
     }
@@ -429,13 +487,150 @@ pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
     }
 }
 
+/// Extract key/default value pairs from a TOML file
+///
+/// # Examples
+///
+/// ```
+/// use angreal::utils::extract_key_defaults;
+/// use std::path::PathBuf;
+///
+/// let defaults = extract_key_defaults(PathBuf::new("angreal.toml")).unwrap();
+/// ```
+///
+/// # Result Structure
+///
+/// For a TOML entry like:
+/// ```toml
+/// age = 25
+/// ```
+///
+/// The resulting Map will contain:
+/// ```rust
+/// {
+///     "age": 25
+/// }
+/// ```
+pub fn extract_key_defaults(toml_path: PathBuf) -> Result<Map<String, Value>> {
+    let file_contents = fs::read_to_string(&toml_path)
+        .unwrap_or_else(|_| panic!("Unable to open {:?}", &toml_path));
+    let extract = file_contents.parse::<Table>().unwrap();
+
+    let mut defaults = Map::new();
+
+    // Process each key-value pair in the root level (skipping prompt and validation sections)
+    for (k, v) in extract
+        .iter()
+        .filter(|(key, _)| *key != "prompt" && *key != "validation")
+    {
+        defaults.insert(k.clone(), v.clone());
+    }
+
+    Ok(defaults)
+}
+
+/// Extract validation rules from a TOML file
+///
+/// # Examples
+///
+/// ```
+/// use angreal::utils::extract_validation_rules;
+/// use std::path::PathBuf;
+///
+/// let validations = extract_validation_rules(PathBuf::new("angreal.toml")).unwrap();
+/// ```
+///
+/// # Result Structure
+///
+/// For a TOML entry like:
+/// ```toml
+/// [validation]
+/// age.min = 18
+/// age.max = 65
+/// age.type = "integer"
+/// ```
+///
+/// The resulting Map will contain:
+/// ```rust
+/// {
+///     "age.min": 18,
+///     "age.max": 65,
+///     "age.type": "integer"
+/// }
+/// ```
+pub fn extract_validation_rules(toml_path: PathBuf) -> Result<Map<String, Value>> {
+    let file_contents = fs::read_to_string(&toml_path)
+        .unwrap_or_else(|_| panic!("Unable to open {:?}", &toml_path));
+    let extract = file_contents.parse::<Table>().unwrap();
+
+    let binding_validation = Table::new();
+    let validations = extract
+        .get("validation")
+        .and_then(|v| v.as_table())
+        .unwrap_or(&binding_validation);
+
+    let mut flattened_validations = Map::new();
+
+    // Flatten the nested validation structure
+    for (field, rules) in validations.iter() {
+        if let Some(rules_table) = rules.as_table() {
+            for (rule, value) in rules_table.iter() {
+                let key = format!("{}.{}", field, rule);
+                flattened_validations.insert(key, value.clone());
+            }
+        }
+    }
+
+    Ok(flattened_validations)
+}
+
+/// Extract prompts from a TOML file
+///
+/// # Examples
+///
+/// ```
+/// use angreal::utils::extract_prompts;
+/// use std::path::PathBuf;
+///
+/// let prompts = extract_prompts(PathBuf::new("angreal.toml")).unwrap();
+/// ```
+///
+/// # Result Structure
+///
+/// For a TOML entry like:
+/// ```toml
+/// [prompt]
+/// age = "Enter your age (must be between 18 and 65)"
+/// ```
+///
+/// The resulting Map will contain:
+/// ```rust
+/// {
+///     "age": "Enter your age (must be between 18 and 65)"
+/// }
+/// ```
+pub fn extract_prompts(toml_path: PathBuf) -> Result<Map<String, Value>> {
+    let file_contents = fs::read_to_string(&toml_path)
+        .unwrap_or_else(|_| panic!("Unable to open {:?}", &toml_path));
+    let extract = file_contents.parse::<Table>().unwrap();
+
+    let binding_prompt = Table::new();
+    let prompts = extract
+        .get("prompt")
+        .and_then(|v| v.as_table())
+        .unwrap_or(&binding_prompt);
+
+    Ok(prompts.clone())
+}
+
 #[cfg(test)]
 #[path = "../tests"]
 mod tests {
+    use super::*;
     use std::env;
     use std::fs;
     use std::path::Path;
-    use std::path::PathBuf;
+    use std::path::PathBuf; // Add this to import the functions from the parent module
 
     mod common;
 
@@ -452,6 +647,17 @@ mod tests {
             ctx.get("variable_text").unwrap(),
             "Just some text that we want to render"
         );
+        assert_eq!(ctx.get("role").unwrap(), "user");
+        assert_eq!(ctx.get("age").unwrap(), 25);
+        assert_eq!(ctx.get("email").unwrap(), "test@example.com");
+        assert_eq!(ctx.get("score").unwrap(), 50);
+        assert_eq!(ctx.get("username").unwrap(), "user123");
+        assert_eq!(ctx.get("password").unwrap(), "securepass");
+        assert_eq!(ctx.get("required_field").unwrap(), "important");
+
+        // Ensure the prompt and validation sections don't appear in the context values
+        assert!(ctx.get("prompt").is_none());
+        assert!(ctx.get("validation").is_none());
     }
     #[test]
     fn test_load_python() {
@@ -533,5 +739,277 @@ mod tests {
 
         std::env::set_current_dir(starting_dir).unwrap_or(());
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
+    }
+
+    #[test]
+    fn test_extract_key_defaults() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let test_toml = root.join("tests/common/test_assets/test_template/angreal.toml");
+        let defaults = extract_key_defaults(test_toml).unwrap();
+
+        assert_eq!(defaults.get("key_1").unwrap().as_str().unwrap(), "value_1");
+        assert_eq!(defaults.get("key_2").unwrap().as_integer().unwrap(), 1);
+        assert_eq!(
+            defaults.get("folder_variable").unwrap().as_str().unwrap(),
+            "folder_name"
+        );
+        assert_eq!(defaults.get("role").unwrap().as_str().unwrap(), "user");
+        assert_eq!(defaults.get("age").unwrap().as_integer().unwrap(), 25);
+        assert_eq!(
+            defaults.get("email").unwrap().as_str().unwrap(),
+            "test@example.com"
+        );
+        assert_eq!(defaults.get("score").unwrap().as_integer().unwrap(), 50);
+        assert_eq!(
+            defaults.get("username").unwrap().as_str().unwrap(),
+            "user123"
+        );
+        assert_eq!(
+            defaults.get("password").unwrap().as_str().unwrap(),
+            "securepass"
+        );
+        assert_eq!(
+            defaults.get("required_field").unwrap().as_str().unwrap(),
+            "important"
+        );
+
+        // Ensure prompt and validation sections are not included
+        assert!(defaults.get("prompt").is_none());
+        assert!(defaults.get("validation").is_none());
+    }
+
+    #[test]
+    fn test_extract_validation_rules() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let test_toml = root.join("tests/common/test_assets/test_template/angreal.toml");
+        let validations = extract_validation_rules(test_toml).unwrap();
+
+        // Check role validation
+        assert_eq!(
+            validations
+                .get("role.allowed_values")
+                .unwrap()
+                .as_array()
+                .unwrap()[0]
+                .as_str()
+                .unwrap(),
+            "admin"
+        );
+        assert_eq!(
+            validations
+                .get("role.allowed_values")
+                .unwrap()
+                .as_array()
+                .unwrap()[1]
+                .as_str()
+                .unwrap(),
+            "user"
+        );
+        assert_eq!(
+            validations
+                .get("role.allowed_values")
+                .unwrap()
+                .as_array()
+                .unwrap()[2]
+                .as_str()
+                .unwrap(),
+            "guest"
+        );
+
+        // Check score validation
+        assert_eq!(
+            validations
+                .get("score.allowed_values")
+                .unwrap()
+                .as_array()
+                .unwrap()[0]
+                .as_integer()
+                .unwrap(),
+            0
+        );
+        assert_eq!(
+            validations
+                .get("score.allowed_values")
+                .unwrap()
+                .as_array()
+                .unwrap()[1]
+                .as_integer()
+                .unwrap(),
+            25
+        );
+        assert_eq!(
+            validations
+                .get("score.allowed_values")
+                .unwrap()
+                .as_array()
+                .unwrap()[2]
+                .as_integer()
+                .unwrap(),
+            50
+        );
+        assert_eq!(
+            validations
+                .get("score.allowed_values")
+                .unwrap()
+                .as_array()
+                .unwrap()[3]
+                .as_integer()
+                .unwrap(),
+            75
+        );
+        assert_eq!(
+            validations
+                .get("score.allowed_values")
+                .unwrap()
+                .as_array()
+                .unwrap()[4]
+                .as_integer()
+                .unwrap(),
+            100
+        );
+
+        // Check age validation
+        assert_eq!(
+            validations.get("age.min").unwrap().as_integer().unwrap(),
+            18
+        );
+        assert_eq!(
+            validations.get("age.max").unwrap().as_integer().unwrap(),
+            65
+        );
+        assert_eq!(
+            validations.get("age.type").unwrap().as_str().unwrap(),
+            "integer"
+        );
+
+        // Check key_2 validation
+        assert_eq!(
+            validations.get("key_2.type").unwrap().as_str().unwrap(),
+            "integer"
+        );
+
+        // Check email validation
+        assert_eq!(
+            validations
+                .get("email.regex_match")
+                .unwrap()
+                .as_str()
+                .unwrap(),
+            "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        );
+        assert_eq!(
+            validations
+                .get("email.not_empty")
+                .unwrap()
+                .as_bool()
+                .unwrap(),
+            true
+        );
+
+        // Check username validation
+        assert_eq!(
+            validations
+                .get("username.length_min")
+                .unwrap()
+                .as_integer()
+                .unwrap(),
+            3
+        );
+        assert_eq!(
+            validations
+                .get("username.length_max")
+                .unwrap()
+                .as_integer()
+                .unwrap(),
+            20
+        );
+        assert_eq!(
+            validations
+                .get("username.regex_match")
+                .unwrap()
+                .as_str()
+                .unwrap(),
+            "^[a-zA-Z0-9]+$"
+        );
+
+        // Check password validation
+        assert_eq!(
+            validations
+                .get("password.length_min")
+                .unwrap()
+                .as_integer()
+                .unwrap(),
+            8
+        );
+        assert_eq!(
+            validations
+                .get("password.not_empty")
+                .unwrap()
+                .as_bool()
+                .unwrap(),
+            true
+        );
+
+        // Check required_field validation
+        assert_eq!(
+            validations
+                .get("required_field.not_empty")
+                .unwrap()
+                .as_bool()
+                .unwrap(),
+            true
+        );
+    }
+
+    #[test]
+    fn test_extract_prompts() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let test_toml = root.join("tests/common/test_assets/test_template/angreal.toml");
+        let prompts = extract_prompts(test_toml).unwrap();
+
+        assert_eq!(
+            prompts.get("key_1").unwrap().as_str().unwrap(),
+            "Enter the first key value"
+        );
+        assert_eq!(
+            prompts.get("key_2").unwrap().as_str().unwrap(),
+            "Enter the second key value (must be a number)"
+        );
+        assert_eq!(
+            prompts.get("folder_variable").unwrap().as_str().unwrap(),
+            "What should we name the folder?"
+        );
+        assert_eq!(
+            prompts.get("variable_text").unwrap().as_str().unwrap(),
+            "Enter the text you would like to include"
+        );
+        assert_eq!(
+            prompts.get("role").unwrap().as_str().unwrap(),
+            "Select a role (admin, user, guest)"
+        );
+        assert_eq!(
+            prompts.get("age").unwrap().as_str().unwrap(),
+            "Enter your age (must be between 18 and 65)"
+        );
+        assert_eq!(
+            prompts.get("email").unwrap().as_str().unwrap(),
+            "Enter your email address"
+        );
+        assert_eq!(
+            prompts.get("score").unwrap().as_str().unwrap(),
+            "Enter your score (0, 25, 50, 75, or 100)"
+        );
+        assert_eq!(
+            prompts.get("username").unwrap().as_str().unwrap(),
+            "Choose a username (3-20 characters, alphanumeric)"
+        );
+        assert_eq!(
+            prompts.get("password").unwrap().as_str().unwrap(),
+            "Create a password (min 8 characters)"
+        );
+        assert_eq!(
+            prompts.get("required_field").unwrap().as_str().unwrap(),
+            "This field is required"
+        );
     }
 }

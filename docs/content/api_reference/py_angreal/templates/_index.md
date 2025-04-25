@@ -13,6 +13,7 @@ Angreal's template system consists of:
 - **Template Rendering** - Generate files from templates
 - **Directory Rendering** - Process entire directories of templates
 - **Context Generation** - Create variables for templates
+- **angreal.toml Format** - Configure template variables and prompts
 
 Templates use the [Tera](https://tera.netlify.app/) templating engine, which provides Jinja2-like syntax.
 
@@ -23,6 +24,7 @@ Templates use the [Tera](https://tera.netlify.app/) templating engine, which pro
 | `render_template` | Render a single template file | [API Reference](render_template) |
 | `render_directory` | Process a directory of templates | [API Reference](render_directory) |
 | `generate_context` | Create context variables for templates | [API Reference](generate_context) |
+| `angreal.toml` | Define template variables and prompts | [Format Reference](angreal_toml_format) |
 
 ## Comprehensive Guide
 
