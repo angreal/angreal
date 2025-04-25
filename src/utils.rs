@@ -45,14 +45,24 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
     let mut context = Context::new();
 
     // Extract the optional prompt section
-    let binding = Table::new();
+    let binding_prompt = Table::new();
     let prompts = extract
         .get("prompt")
         .and_then(|v| v.as_table())
-        .unwrap_or(&binding);
+        .unwrap_or(&binding_prompt);
 
-    // Process each key-value pair in the root level (skipping prompt section)
-    for (k, v) in extract.iter().filter(|(key, _)| *key != "prompt") {
+    // Extract the optional validation section
+    let binding_validation = Table::new();
+    let validations = extract
+        .get("validation")
+        .and_then(|v| v.as_table())
+        .unwrap_or(&binding_validation);
+
+    // Process each key-value pair in the root level (skipping prompt and validation sections)
+    for (k, v) in extract
+        .iter()
+        .filter(|(key, _)| *key != "prompt" && *key != "validation")
+    {
         let value = if v.is_str()
             && v.as_str().unwrap().starts_with("{{")
             && v.as_str().unwrap().contains("}}")
@@ -72,8 +82,33 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
                 .get(k)
                 .and_then(|p| p.as_str())
                 .unwrap_or(&default_prompt);
-            print!("{}: ", prompt_text);
-            read!("{}\n")
+
+            // Loop until we get valid input
+            let mut valid_input = String::new();
+            let mut is_valid = false;
+
+            while !is_valid {
+                print!("{}: ", prompt_text);
+                valid_input = read!("{}\n");
+
+                // Skip validation if input is empty (using default)
+                if valid_input.trim().is_empty() {
+                    break;
+                }
+
+                // Validate input if we have validation rules
+                match crate::validation::validate_input(valid_input.trim(), k, validations) {
+                    Ok(_) => {
+                        is_valid = true;
+                    }
+                    Err(err_msg) => {
+                        println!("Invalid input: {}", err_msg);
+                        is_valid = false;
+                    }
+                }
+            }
+
+            valid_input
         } else {
             String::new()
         };
@@ -491,9 +526,17 @@ mod tests {
             ctx.get("variable_text").unwrap(),
             "Just some text that we want to render"
         );
+        assert_eq!(ctx.get("role").unwrap(), "user");
+        assert_eq!(ctx.get("age").unwrap(), 25);
+        assert_eq!(ctx.get("email").unwrap(), "test@example.com");
+        assert_eq!(ctx.get("score").unwrap(), 50);
+        assert_eq!(ctx.get("username").unwrap(), "user123");
+        assert_eq!(ctx.get("password").unwrap(), "securepass");
+        assert_eq!(ctx.get("required_field").unwrap(), "important");
 
-        // Ensure the prompt section doesn't appear in the context values
+        // Ensure the prompt and validation sections don't appear in the context values
         assert!(ctx.get("prompt").is_none());
+        assert!(ctx.get("validation").is_none());
     }
     #[test]
     fn test_load_python() {

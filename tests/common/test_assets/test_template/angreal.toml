@@ -2,9 +2,48 @@ key_1 = "value_1"
 key_2 = 1
 folder_variable = "folder_name"
 variable_text = "Just some text that we want to render"
+role = "user"
+age = 25
+email = "test@example.com"
+score = 50
+username = "user123"
+password = "securepass"
+required_field = "important"
 
 [prompt]
 key_1 = "Enter the first key value"
 key_2 = "Enter the second key value (must be a number)"
 folder_variable = "What should we name the folder?"
 variable_text = "Enter the text you would like to include"
+role = "Select a role (admin, user, guest)"
+age = "Enter your age (must be between 18 and 65)"
+email = "Enter your email address"
+score = "Enter your score (0, 25, 50, 75, or 100)"
+username = "Choose a username (3-20 characters, alphanumeric)"
+password = "Create a password (min 8 characters)"
+required_field = "This field is required"
+
+[validation]
+# Basic value validation
+role.allowed_values = ["admin", "user", "guest"]
+score.allowed_values = [0, 25, 50, 75, 100]
+
+# Numeric validation
+age.min = 18
+age.max = 65
+age.type = "integer"
+key_2.type = "integer"
+
+# Format validation
+email.regex_match = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+email.not_empty = true
+
+# String length validation
+username.length_min = 3
+username.length_max = 20
+username.regex_match = "^[a-zA-Z0-9]+$"
+password.length_min = 8
+password.not_empty = true
+
+# Required field
+required_field.not_empty = true
