@@ -61,11 +61,11 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
 
         let input = if take_input {
             // Use the prompt if available, otherwise use the key and value
-            let default_prompt = format!("{k}? [{value}]");
             let prompt_text = prompts
                 .get(k)
                 .and_then(|p| p.as_str())
-                .unwrap_or(&default_prompt);
+                .map(|p| format!("{} [{value}]", p))
+                .unwrap_or_else(|| format!("{k}? [{value}]"));
 
             // Loop until we get valid input
             let mut valid_input = String::new();
