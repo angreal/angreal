@@ -1,5 +1,4 @@
 import os
-import tempfile
 import angreal
 
 
@@ -20,15 +19,14 @@ def test_get_context_no_angreal_dir():
     original_dir = os.getcwd()
 
     try:
-        # Create temporary directory for test
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            os.chdir(tmp_dir)
+        # Change to a directory far enough up to be out of any angreal project
+        os.chdir(os.path.join(original_dir, '..', '..', '..'))
 
-            # Test that get_context returns empty dict when no .angreal directory exists
-            context = angreal.get_context()
-            assert isinstance(context, dict)
-            assert len(context) == 0
-            assert context == {}
+        # Test that get_context returns empty dict when no .angreal directory exists
+        context = angreal.get_context()
+        assert isinstance(context, dict)
+        assert len(context) == 0
+        assert context == {}
     finally:
         # Always return to original directory
         os.chdir(original_dir)
