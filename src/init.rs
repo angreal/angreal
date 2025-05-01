@@ -9,7 +9,7 @@ use git_url_parse::{GitUrl, Scheme};
 use home::home_dir;
 
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PyModule};
+use pyo3::types::PyModule;
 
 use std::{
     env,
@@ -58,16 +58,12 @@ pub fn init(template: &str, force: bool, take_inputs: bool, values_file: Option<
         let init_contents = fs::read_to_string(rendered_angreal_init).unwrap();
         // Get our init function
         Python::with_gil(|py| {
-            let syspath: &PyList = py
-                .import("sys")
-                .unwrap()
-                .getattr("path")
-                .unwrap()
-                .downcast::<PyList>()
-                .unwrap();
-            syspath
-                .insert(0, rendered_dot_angreal_path.clone())
-                .unwrap();
+            // Change to the rendered directory before executing Python code
+            let current_dir = env::current_dir().unwrap();
+            if let Err(e) = env::set_current_dir(&rendered_dot_angreal_path) {
+                error!("Failed to change to rendered directory: {}", e);
+                exit(1);
+            }
 
             let function: Py<PyAny> = PyModule::from_code(py, &init_contents, "", "")
                 .unwrap()
@@ -82,9 +78,17 @@ pub fn init(template: &str, force: bool, take_inputs: bool, values_file: Option<
                     error!("Failed to execute init.py");
                     let formatter = PythonErrorFormatter::new(err);
                     println!("{}", formatter);
+                    // Change back to original directory before exiting
+                    let _ = env::set_current_dir(current_dir);
                     std::process::exit(1);
                 }
             };
+
+            // Change back to original directory after successful execution
+            if let Err(e) = env::set_current_dir(current_dir) {
+                error!("Failed to change back to original directory: {}", e);
+                exit(1);
+            }
         });
     }
 
