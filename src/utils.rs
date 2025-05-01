@@ -331,6 +331,7 @@ pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(render_template, m)?)?;
     m.add_function(wrap_pyfunction!(generate_context, m)?)?;
     m.add_function(wrap_pyfunction!(render_directory, m)?)?;
+    m.add_function(wrap_pyfunction!(get_context, m)?)?;
     Ok(())
 }
 
@@ -385,9 +386,12 @@ fn generate_context(path: &str, take_input: bool) -> PyResult<PyObject> {
 /// ```
 #[pyfunction]
 fn get_root() -> PyResult<String> {
-    let angreal_root =
-        is_angreal_project().expect("Can't find the angreal_root from where you're executing.");
-    Ok(String::from(angreal_root.to_string_lossy()))
+    match is_angreal_project() {
+        Ok(angreal_root) => Ok(String::from(angreal_root.to_string_lossy())),
+        Err(e) => Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
+            e.to_string(),
+        )),
+    }
 }
 
 #[pyfunction]
@@ -402,6 +406,45 @@ fn render_template(template: &str, context: &PyDict) -> PyResult<String> {
 
     Ok(tera.render("template", &ctx).unwrap())
 }
+
+/// Read the angreal.toml file from the .angreal folder and return it as a dictionary
+///
+/// # Examples
+/// ```python
+/// import angreal
+/// config = angreal.get_context()
+/// ```
+#[pyfunction]
+fn get_context() -> PyResult<PyObject> {
+    let angreal_root = match is_angreal_project() {
+        Ok(root) => root,
+        Err(_) => {
+            let empty = toml::Table::new();
+            return Ok(pythonize_this!(empty));
+        }
+    };
+
+    let toml_path = angreal_root.join("angreal.toml");
+
+    let file_contents = match fs::read_to_string(&toml_path) {
+        Ok(contents) => contents,
+        Err(_) => {
+            let empty = toml::Table::new();
+            return Ok(pythonize_this!(empty));
+        }
+    };
+
+    let toml_value = match file_contents.parse::<Table>() {
+        Ok(value) => value,
+        Err(_) => {
+            let empty = toml::Table::new();
+            return Ok(pythonize_this!(empty));
+        }
+    };
+
+    Ok(pythonize_this!(toml_value))
+}
+
 /// Tests whether or not a current path is an angreal project
 ///
 /// An angreal project is detected by attempting to find a `.angreal` file
@@ -415,7 +458,10 @@ fn render_template(template: &str, context: &PyDict) -> PyResult<String> {
 pub fn is_angreal_project() -> Result<PathBuf> {
     let angreal_path = Path::new(".angreal");
 
-    let mut check_dir = env::current_dir().unwrap();
+    let mut check_dir = match env::current_dir() {
+        Ok(dir) => dir,
+        Err(_) => return Err(anyhow!("This doesn't appear to be an angreal project.")),
+    };
     check_dir.push(angreal_path);
 
     let found = loop {
@@ -628,10 +674,13 @@ pub fn extract_prompts(toml_path: PathBuf) -> Result<Map<String, Value>> {
 #[path = "../tests"]
 mod tests {
     use super::*;
+    use pyo3::types::IntoPyDict;
+    use pyo3::types::PyDict;
     use std::env;
     use std::fs;
+    use std::io::Write;
     use std::path::Path;
-    use std::path::PathBuf; // Add this to import the functions from the parent module
+    use std::path::PathBuf;
 
     mod common;
 
@@ -1012,5 +1061,167 @@ mod tests {
             prompts.get("required_field").unwrap().as_str().unwrap(),
             "This field is required"
         );
+    }
+
+    #[test]
+    fn test_read_config() {
+        let starting_dir = std::env::current_dir().unwrap();
+        let tmp_dir = common::make_tmp_dir();
+        std::env::set_current_dir(&tmp_dir).unwrap_or(());
+
+        // Create .angreal directory
+        fs::create_dir(Path::new(".angreal")).unwrap_or(());
+
+        // Create a test angreal.toml file
+        let toml_content = r#"
+key_1 = "value_1"
+key_2 = 42
+nested = { key = "value" }
+array = [1, 2, 3]
+"#;
+        let mut toml_file =
+            fs::File::create(tmp_dir.join(".angreal").join("angreal.toml")).unwrap();
+        write!(toml_file, "{}", toml_content).unwrap();
+
+        // Test the read_config function
+        let config = get_context().unwrap();
+
+        // Test the Python bindings
+        Python::with_gil(|py| {
+            let dict = config.downcast::<PyDict>(py).unwrap();
+
+            // Verify the contents
+            assert_eq!(
+                dict.get_item("key_1").unwrap().extract::<String>().unwrap(),
+                "value_1"
+            );
+            assert_eq!(
+                dict.get_item("key_2").unwrap().extract::<i64>().unwrap(),
+                42
+            );
+
+            // Test nested dictionary
+            let nested = dict
+                .get_item("nested")
+                .unwrap()
+                .downcast::<PyDict>()
+                .unwrap();
+            assert_eq!(
+                nested.get_item("key").unwrap().extract::<String>().unwrap(),
+                "value"
+            );
+
+            // Test array
+            let array = dict
+                .get_item("array")
+                .unwrap()
+                .extract::<Vec<i64>>()
+                .unwrap();
+            assert_eq!(array, vec![1, 2, 3]);
+        });
+
+        // Cleanup
+        std::env::set_current_dir(starting_dir).unwrap_or(());
+        fs::remove_dir_all(&tmp_dir).unwrap_or(());
+    }
+
+    #[test]
+    fn test_read_config_missing_file() {
+        let starting_dir = std::env::current_dir().unwrap();
+        let tmp_dir = common::make_tmp_dir();
+        std::env::set_current_dir(&tmp_dir).unwrap_or(());
+
+        // Create .angreal directory but no toml file
+        fs::create_dir(Path::new(".angreal")).unwrap_or(());
+
+        // Test that read_config returns an error
+        let result = get_context();
+        assert!(result.is_err());
+
+        // Cleanup
+        std::env::set_current_dir(starting_dir).unwrap_or(());
+        fs::remove_dir_all(&tmp_dir).unwrap_or(());
+    }
+
+    #[test]
+    fn test_read_config_invalid_toml() {
+        let starting_dir = std::env::current_dir().unwrap();
+        let tmp_dir = common::make_tmp_dir();
+        std::env::set_current_dir(&tmp_dir).unwrap_or(());
+
+        // Create .angreal directory
+        fs::create_dir(Path::new(".angreal")).unwrap_or(());
+
+        // Create an invalid toml file
+        let invalid_toml = "this is not valid toml content";
+        let mut toml_file =
+            fs::File::create(tmp_dir.join(".angreal").join("angreal.toml")).unwrap();
+        write!(toml_file, "{}", invalid_toml).unwrap();
+
+        // Test that read_config returns an error
+        let result = get_context();
+        assert!(result.is_err());
+
+        // Cleanup
+        std::env::set_current_dir(starting_dir).unwrap_or(());
+        fs::remove_dir_all(&tmp_dir).unwrap_or(());
+    }
+
+    // Integration test for Python bindings
+    #[test]
+    fn test_read_config_python_bindings() {
+        let starting_dir = std::env::current_dir().unwrap();
+        let tmp_dir = common::make_tmp_dir();
+        std::env::set_current_dir(&tmp_dir).unwrap_or(());
+
+        // Create .angreal directory
+        fs::create_dir(Path::new(".angreal")).unwrap_or(());
+
+        // Create a test angreal.toml file
+        let toml_content = r#"
+key_1 = "value_1"
+key_2 = 42
+"#;
+        let mut toml_file =
+            fs::File::create(tmp_dir.join(".angreal").join("angreal.toml")).unwrap();
+        write!(toml_file, "{}", toml_content).unwrap();
+
+        // Test the Python bindings
+        Python::with_gil(|py| {
+            // Create a new module
+            let module = PyModule::new(py, "test_module").unwrap();
+
+            // Add our function to the module
+            module
+                .add_function(wrap_pyfunction!(get_context, module).unwrap())
+                .unwrap();
+
+            // Call the function through Python
+            let result: &PyDict = module
+                .getattr("get_context")
+                .unwrap()
+                .call0()
+                .unwrap()
+                .downcast()
+                .unwrap();
+
+            // Verify the contents
+            assert_eq!(
+                result
+                    .get_item("key_1")
+                    .unwrap()
+                    .extract::<String>()
+                    .unwrap(),
+                "value_1"
+            );
+            assert_eq!(
+                result.get_item("key_2").unwrap().extract::<i64>().unwrap(),
+                42
+            );
+        });
+
+        // Cleanup
+        std::env::set_current_dir(starting_dir).unwrap_or(());
+        fs::remove_dir_all(&tmp_dir).unwrap_or(());
     }
 }
