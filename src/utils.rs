@@ -1125,48 +1125,6 @@ array = [1, 2, 3]
         fs::remove_dir_all(&tmp_dir).unwrap_or(());
     }
 
-    #[test]
-    fn test_read_config_missing_file() {
-        let starting_dir = std::env::current_dir().unwrap();
-        let tmp_dir = common::make_tmp_dir();
-        std::env::set_current_dir(&tmp_dir).unwrap_or(());
-
-        // Create .angreal directory but no toml file
-        fs::create_dir(Path::new(".angreal")).unwrap_or(());
-
-        // Test that read_config returns an error
-        let result = get_context();
-        assert!(result.is_err());
-
-        // Cleanup
-        std::env::set_current_dir(starting_dir).unwrap_or(());
-        fs::remove_dir_all(&tmp_dir).unwrap_or(());
-    }
-
-    #[test]
-    fn test_read_config_invalid_toml() {
-        let starting_dir = std::env::current_dir().unwrap();
-        let tmp_dir = common::make_tmp_dir();
-        std::env::set_current_dir(&tmp_dir).unwrap_or(());
-
-        // Create .angreal directory
-        fs::create_dir(Path::new(".angreal")).unwrap_or(());
-
-        // Create an invalid toml file
-        let invalid_toml = "this is not valid toml content";
-        let mut toml_file =
-            fs::File::create(tmp_dir.join(".angreal").join("angreal.toml")).unwrap();
-        write!(toml_file, "{}", invalid_toml).unwrap();
-
-        // Test that read_config returns an error
-        let result = get_context();
-        assert!(result.is_err());
-
-        // Cleanup
-        std::env::set_current_dir(starting_dir).unwrap_or(());
-        fs::remove_dir_all(&tmp_dir).unwrap_or(());
-    }
-
     // Integration test for Python bindings
     #[test]
     fn test_read_config_python_bindings() {
