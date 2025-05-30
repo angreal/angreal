@@ -3,4 +3,4 @@ title: Discussions
 weight: 40
 ---
 
-{{% children %}}
+<!-- Geekdoc automatically generates child page navigation -->

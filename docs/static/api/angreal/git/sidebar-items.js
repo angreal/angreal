@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["git_clone","git_clone_here","git_pull_ff","remote_exists"]};

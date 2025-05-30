@@ -3,7 +3,7 @@ title: Your First Angreal
 weight: 10
 ---
 
-{{% notice note %}}This project is available under the [example folder of the git repository](https://github.com/angreal/angreal/tree/main/example).{{% /notice %}}
+{{< hint type=note >}}This project is available under the [example folder of the git repository](https://github.com/angreal/angreal/tree/main/example).{{< /hint >}}
 
 This a very simple project for taking meeting minutes !
 
@@ -61,9 +61,9 @@ The `README.md` is just meant to be a highlevel description of the meeting so yo
 
 
 ## `init.py`
-{{% notice info %}}
+{{< hint type=info >}}
 **Optional:** In this very trivial example, not much happens after the folder structure is created so the init isn't required.
-{{% /notice %}}
+{{< /hint >}}
 
 ```python
 def init():
@@ -73,9 +73,9 @@ def init():
 
 ## `task_take_notes.py`
 
-{{% notice info %}}
+{{< hint type=info >}}
 Angreal tasks must be a function in a python file that starts with `task_` in the `.angreal` folder.
-{{% /notice %}}
+{{< /hint >}}
 
 
 ```python

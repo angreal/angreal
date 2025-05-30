@@ -47,4 +47,4 @@ def build_command(target):
 
 ## Related Documentation
 
-{{% children %}}
+<!-- Geekdoc automatically generates child page navigation -->

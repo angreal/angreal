@@ -39,4 +39,4 @@ print(f"Templates directory: {templates_dir}")
 
 ## Related Documentation
 
-{{% children %}}
+<!-- Geekdoc automatically generates child page navigation -->

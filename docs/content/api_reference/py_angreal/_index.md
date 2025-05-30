@@ -6,4 +6,4 @@ title: Python API Reference
 
 This documentation covers the Python API for Angreal.
 
-{{% children %}}
+<!-- Geekdoc automatically generates child page navigation -->

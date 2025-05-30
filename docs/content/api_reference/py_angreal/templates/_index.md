@@ -53,4 +53,4 @@ def create_project():
 
 ## Related Documentation
 
-{{% children %}}
+<!-- Geekdoc automatically generates child page navigation -->

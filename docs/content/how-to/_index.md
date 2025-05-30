@@ -3,4 +3,4 @@ title: How To Guides
 weight: 30
 ---
 
-{{% children %}}
+<!-- Geekdoc automatically generates child page navigation -->

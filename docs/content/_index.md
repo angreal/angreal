@@ -1,60 +1,71 @@
 ---
-title: Angreal Home
-type: page
+title: "Angreal Documentation"
+geekdocNav: false
+geekdocAlign: center
+geekdocAnchor: false
+geekdocBreadcrumb: false
 ---
 
-# Angreal
----
+# Welcome to Angreal
 
-## Angreal is meant to:
-- allow the consistent creation of projects
-- provide consistent methods for interacting with projects
+{{< hint type=tip icon=gdoc_timer title="Quick Start" >}}
+Get started with Angreal in minutes
+{{< /hint >}}
 
-### Quick Start
+Angreal is a powerful task automation and project templating tool that combines the flexibility of Python with the performance of Rust. It helps developers automate repetitive tasks, maintain consistent project structures, and streamline their development workflows.
 
-1.  Install via `pip`
-2.  Initialize a project from a template
-3.  Use the template
+## What is Angreal?
 
-```bash
-$: pip install 'angreal>=2' #pip install angreal will also work
-$: angreal init https://github.com/angreal/python.git
-```
----
+Angreal provides:
 
-## What is it?
+- **Task Automation**: Define and run custom tasks with a simple Python API
+- **Project Templates**: Create and use templates to scaffold new projects quickly
+- **Cross-Platform**: Works seamlessly on Windows, macOS, and Linux
+- **Performance**: Rust-powered core for blazing-fast execution
+- **Extensible**: Python-based task definitions for maximum flexibility
 
-Angreal is an attempt to solve two problems that I was running into in
-both my personal and professional life as a data scientist and software
-developer. I do things often enough that they needed automation, I
-don\'t do things so often that I remember all of the steps/commands I
-might need to get them done. Angreal solves this problem by allowing me
-to remember by forgetting : I only have to remember the command to do
-something not the actual steps to complete the task.
+## Documentation Structure
 
-### How does it solve these challenges ?
+Our documentation follows the [Diataxis framework](https://diataxis.fr/) to help you find exactly what you need:
 
-Angreal provides a way to template the structure of projects and a way
-of executing methods for interacting with that project in a consistent
-manner. These methods (called tasks) travel with the project so while
-templated initially, they\'re customizable to the project - allowing some
-level of flexibility in how a task functions between projects.
+{{< columns >}}
 
-### Why 2.0 ?
+### 📚 [Tutorials](/angreal/tutorials)
+**Learning-oriented**
 
-The original angreal was built on top of a number of python modules that
-were under active development and used by a number of other projects.
-The nature of the application itself meant that core application found
-itself in dependency hell regularly - and became rather annoying to use.
-The 2.0.0 release is a complete rewrite that uses
-[Rust](https://www.rust-lang.org/) to provide a compiled binary with the goal that it will
-require no external python dependencies.
+Step-by-step guides to help you get started with Angreal. Perfect for beginners who want to learn by doing.
 
+<--->
 
-<!-- [![image](https://img.shields.io/pypi/v/angreal.svg)](https://pypi.python.org/pypi/angreal)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/angreal)
-[![image](https://img.shields.io/pypi/l/angreal.svg)](https://pypi.python.org/pypi/angreal)
-[![Angreal Tests](https://github.com/angreal/angreal/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/angreal/angreal/actions/workflows/ci.yaml)
-[![Angreal Docs Deploy](https://github.com/angreal/angreal/actions/workflows/docs.yaml/badge.svg)](https://github.com/angreal/angreal/actions/workflows/docs.yaml)
-[![Angreal Release](https://github.com/angreal/angreal/actions/workflows/release.yaml/badge.svg?event=release)](https://github.com/angreal/angreal/actions/workflows/release.yaml)
- -->
+### 🛠️ [How-to Guides](/angreal/how-to-guides)
+**Task-oriented**
+
+Practical guides showing you how to solve specific problems or accomplish particular tasks.
+
+{{< /columns >}}
+
+{{< columns >}}
+
+### 📖 [Reference](/angreal/reference)
+**Information-oriented**
+
+Complete technical reference for APIs, configuration options, and command-line interfaces.
+
+<--->
+
+### 💡 [Explanation](/angreal/explanation)
+**Understanding-oriented**
+
+Conceptual guides that explain the design decisions, architecture, and philosophy behind Angreal.
+
+{{< /columns >}}
+
+## Getting Started
+
+Ready to dive in? Start with our [Quick Start guide](/angreal/quick-start) to install Angreal and create your first task.
+
+{{< button relref="/quick-start" >}}Get Started{{< /button >}}
+
+## Contributing
+
+Angreal is open source and we welcome contributions! Check out our [Contributing Guide](/angreal/contributing) to learn how you can help improve Angreal.

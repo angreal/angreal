@@ -4,6 +4,11 @@
 
 docs/public/*
 docs/.hugo_build.lock
+docs/static/api/
+docs/static/py-docs/
+docs/themes/hugo-geekdoc/
+docs/resources/
+docs/data/menu/
 target/**
 .angreal/.pytest_cache**
 
