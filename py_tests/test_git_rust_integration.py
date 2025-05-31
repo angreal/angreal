@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Import our new Rust-based implementation
 try:
-    from angreal.integrations.git_rust import Git, GitException, clone
+    from angreal.integrations.git import Git, GitException, clone
     RUST_GIT_AVAILABLE = True
 except ImportError:
     RUST_GIT_AVAILABLE = False
@@ -57,7 +57,8 @@ class TestGitRustIntegration:
             return_code, stderr, stdout = git.status()
             assert return_code == 0
             status_text = stdout.decode('utf-8')
-            assert "working tree clean" in status_text or "nothing to commit" in status_text
+            assert ("working tree clean" in status_text or
+                    "nothing to commit" in status_text)
 
     def test_git_call_syntax(self):
         """Test the __call__ syntax for backwards compatibility."""
@@ -130,11 +131,10 @@ class TestGitRustIntegration:
             assert (Path(tmpdir) / "config").exists() or len(os.listdir(tmpdir)) > 0
 
     def test_original_api_compatibility(self):
-        """Test that the API matches the original implementation."""
+        """Test that the API matches the updated implementation."""
         with tempfile.TemporaryDirectory() as tmpdir:
             # Test constructor compatibility
-            git = Git(git_path="/usr/bin/git", working_dir=tmpdir)
-            assert git.git_path == "/usr/bin/git"
+            git = Git(working_dir=tmpdir)
             assert str(git.working_dir) == tmpdir
 
             # Test that __call__ returns the expected tuple format

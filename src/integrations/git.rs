@@ -1,3 +1,4 @@
+use crate::git::git_pull_ff;
 use anyhow::{bail, Context, Result};
 use git2::{Repository, Signature, StatusOptions};
 use std::collections::HashMap;
@@ -163,8 +164,10 @@ impl Git {
     }
 
     pub fn pull(&self, _remote: Option<&str>, _branch: Option<&str>) -> Result<()> {
-        // Pull is complex with git2, for now return an error suggesting to use fetch + merge
-        bail!("Pull operation not yet implemented with git2. Use fetch + merge instead.")
+        // Use the existing git_pull_ff implementation (fast-forward only)
+        // Note: This ignores remote/branch parameters and uses "origin/main"
+        git_pull_ff(&self.working_dir.to_string_lossy());
+        Ok(())
     }
 
     pub fn status(&self, short: bool) -> Result<String> {
@@ -200,16 +203,14 @@ impl Git {
                 }
 
                 output.push_str(&format!("{} {}\n", flags, path));
-            } else {
-                if status.contains(git2::Status::INDEX_NEW) {
-                    output.push_str(&format!("new file:   {}\n", path));
-                } else if status.contains(git2::Status::INDEX_MODIFIED) {
-                    output.push_str(&format!("modified:   {}\n", path));
-                } else if status.contains(git2::Status::WT_NEW) {
-                    output.push_str(&format!("untracked:  {}\n", path));
-                } else if status.contains(git2::Status::WT_MODIFIED) {
-                    output.push_str(&format!("modified:   {}\n", path));
-                }
+            } else if status.contains(git2::Status::INDEX_NEW) {
+                output.push_str(&format!("new file:   {}\n", path));
+            } else if status.contains(git2::Status::INDEX_MODIFIED) {
+                output.push_str(&format!("modified:   {}\n", path));
+            } else if status.contains(git2::Status::WT_NEW) {
+                output.push_str(&format!("untracked:  {}\n", path));
+            } else if status.contains(git2::Status::WT_MODIFIED) {
+                output.push_str(&format!("modified:   {}\n", path));
             }
         }
 
