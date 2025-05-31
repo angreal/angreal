@@ -14,6 +14,7 @@ pub mod builder;
 pub mod error_formatter;
 pub mod git;
 pub mod init;
+pub mod integrations;
 pub mod logger;
 pub mod py_logger;
 pub mod task;
@@ -22,10 +23,12 @@ pub mod validation;
 
 use builder::build_app;
 use error_formatter::PythonErrorFormatter;
+use integrations::uv::{UvIntegration, UvVirtualEnv};
 use task::ANGREAL_TASKS;
 
 use pyo3::types::{IntoPyDict, PyDict};
 use std::ops::Not;
+use std::path::{Path, PathBuf};
 use std::vec::Vec;
 
 use std::process::exit;
@@ -33,6 +36,57 @@ use std::process::exit;
 use pyo3::{prelude::*, wrap_pymodule};
 
 use log::{debug, error, warn};
+
+#[pyfunction]
+fn ensure_uv_installed() -> PyResult<()> {
+    UvIntegration::ensure_installed()
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
+}
+
+#[pyfunction]
+fn uv_version() -> PyResult<String> {
+    UvIntegration::version()
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
+}
+
+#[pyfunction]
+fn create_virtualenv(path: &str, python_version: Option<&str>) -> PyResult<()> {
+    UvVirtualEnv::create(Path::new(path), python_version)
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
+    Ok(())
+}
+
+#[pyfunction]
+fn install_packages(venv_path: &str, packages: Vec<String>) -> PyResult<()> {
+    let venv = UvVirtualEnv { path: PathBuf::from(venv_path) };
+    venv.install_packages(&packages)
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
+}
+
+#[pyfunction]
+fn install_requirements(venv_path: &str, requirements_file: &str) -> PyResult<()> {
+    let venv = UvVirtualEnv { path: PathBuf::from(venv_path) };
+    venv.install_requirements(Path::new(requirements_file))
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
+}
+
+#[pyfunction]
+fn discover_pythons() -> PyResult<Vec<(String, String)>> {
+    UvVirtualEnv::discover_pythons()
+        .map(|pythons| {
+            pythons.into_iter()
+                .map(|(version, path)| (version, path.display().to_string()))
+                .collect()
+        })
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
+}
+
+#[pyfunction]
+fn install_python(version: &str) -> PyResult<String> {
+    UvVirtualEnv::install_python(version)
+        .map(|path| path.display().to_string())
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
+}
 
 /// The main function is just an entry point to be called from the core angreal library.
 #[pyfunction]
@@ -216,6 +270,14 @@ fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(main, m)?)?;
     task::register(_py, m)?;
     utils::register(_py, m)?;
+    
+    m.add_function(wrap_pyfunction!(ensure_uv_installed, m)?)?;
+    m.add_function(wrap_pyfunction!(uv_version, m)?)?;
+    m.add_function(wrap_pyfunction!(create_virtualenv, m)?)?;
+    m.add_function(wrap_pyfunction!(install_packages, m)?)?;
+    m.add_function(wrap_pyfunction!(install_requirements, m)?)?;
+    m.add_function(wrap_pyfunction!(discover_pythons, m)?)?;
+    m.add_function(wrap_pyfunction!(install_python, m)?)?;
 
     m.add_wrapped(wrap_pymodule!(_integrations))?;
 

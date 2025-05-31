@@ -200,6 +200,23 @@ angreal init template/ project/
 - `true` - Enable debug logging
 - Any other value - Normal logging
 
+### UV Configuration
+
+UV-related environment variables for virtual environment management:
+
+```bash
+# Custom UV cache directory
+export UV_CACHE_DIR="/path/to/cache"
+
+# Custom UV installation directory  
+export UV_INSTALL_DIR="/path/to/uv"
+
+# Disable UV progress bars
+export UV_NO_PROGRESS=1
+```
+
+See [UV Installation and Management](/reference/configuration/uv-installation) for complete details.
+
 ## Global Cache Directory
 
 Angreal caches Git templates in:

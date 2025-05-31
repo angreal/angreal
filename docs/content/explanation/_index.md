@@ -18,6 +18,14 @@ Angreal uses a unique architecture:
 2. **Python Tasks**: Offers flexibility and ease of use for task definitions
 3. **Best of Both Worlds**: Performance where it matters, flexibility where you need it
 
+### Performance-First Integrations
+
+Angreal integrates with high-performance tools for speed-critical operations:
+
+- **UV Integration**: 10-50x faster virtual environment and package management
+- **Binary-First Approach**: Leverages fast external tools rather than pure Python implementations
+- **Subprocess Safety**: Secure, reliable integration with external binaries
+
 ### Template Philosophy
 
 Angreal's templating system is designed around:

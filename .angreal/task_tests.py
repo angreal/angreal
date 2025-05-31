@@ -1,6 +1,7 @@
 import angreal
 import os
 import subprocess
+import sys
 
 venv_path = os.path.join(angreal.get_root(),'..','.venv')
 
@@ -32,12 +33,12 @@ def python_tests():
     Run the Python unit tests
     """
     result = subprocess.run(
-        ["pip install ."], cwd=cwd, shell=True
+        [sys.executable, "-m", "pip", "install", "."], cwd=cwd
     )
     if result.returncode != 0:
         exit(result.returncode)
 
-    subprocess.run(["pytest -svv"], cwd=cwd, shell=True)
+    subprocess.run([sys.executable, "-m", "pytest", "-svv"], cwd=cwd)
 
 @test()
 @integration()
