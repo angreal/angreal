@@ -3,7 +3,6 @@ import os
 import subprocess
 import shutil
 
-from angreal.integrations.venv import VirtualEnv
 
 project_root = os.path.join(angreal.get_root(),'..')
 
@@ -19,10 +18,9 @@ def is_program_available(program_name):
                  "verify the development environment")
 def setup():
 
+    subprocess.run("python -m pip install maturin pre-commit pytest",
+                   shell=True, cwd=project_root, check=True)
     # Setup the virtual environment as .venv in the root folder
-    venv = VirtualEnv(path=os.path.join(project_root,'.venv'),now=True,
-                      requirements=['maturin','pre-commit','pytest'])
-    venv.install_requirements()
 
     # Install pre commit
     subprocess.run("pre-commit install", shell=True, cwd=project_root)
@@ -48,13 +46,3 @@ def setup():
         print("You're missing some system level dependencies,"
               " please use the above instructions to install them.")
     return
-
-
-@dev()
-@angreal.command(name="release", about="prepare and validate for a release event")
-def release():
-    # figure out what type of bump we need
-    # check the tag in cargo.toml matches provided tag
-    # run test
-    # print manual instructions
-    pass

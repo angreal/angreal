@@ -1,109 +1,200 @@
-import angreal
-import os
+# Copyright 2024 Cloacina Contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+Documentation tasks for Angreal.
+"""
+
 import subprocess
-import webbrowser
-import time
+import sys
+import shutil
+from pathlib import Path
 
-# Import functions from task_api_docs.py for API documentation generation
-# Add these imports so they're available for our new subcommands
+import angreal  # type: ignore
 
-venv_path = os.path.join(angreal.get_root(),'..','.venv')
+# Project root for accessing docs, etc. (one level up from .angreal)
+PROJECT_ROOT = Path(angreal.get_root()).parent
 
-cwd = os.path.join(angreal.get_root(),'..')
-docs_dir = os.path.join(cwd,"docs")
-rust_docs_dir = os.path.join(docs_dir, "static", "rust-docs")
-py_docs_dir = os.path.join(docs_dir, "static", "py-docs")
+# Define command group
+docs = angreal.command_group(name="docs", about="commands for documentation tasks")
 
-# Helper function to check if Docker is installed
-def is_docker_available():
-    """Check if Docker is installed and available."""
+
+def _clean_docs():
+    """Clean the documentation build directory."""
+    public_dir = PROJECT_ROOT / "docs" / "public"
+    if public_dir.exists():
+        print("Cleaning documentation build directory...")
+        shutil.rmtree(public_dir)
+        print("Clean complete!")
+    return 0
+
+
+def _integrate_rustdoc():
+    """Generate rustdoc and integrate it with the Hugo documentation site."""
+    print("Generating rustdoc...")
+
+    # Generate rustdoc
     try:
-        result = subprocess.run(
-            ["docker --version"],
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        return result.returncode == 0
-    except Exception:
-        return False
-
-docs = angreal.command_group(name="docs", about="commands for generating documentation")
-
-@docs()
-@angreal.command(name="stop", about="stop the currently running hugo server")
-def stop_hugo():
-    # Get container ID for the Hugo server
-    containers = subprocess.run(
-        ["docker ps --filter ancestor=klakegg/hugo:0.111.3 --quiet"],
-        shell=True, capture_output=True, text=True
-    ).stdout.strip()
-
-    if containers:
-        # Stop the container(s)
-        print("Stopping Hugo Docker container(s)...")
-        subprocess.run(["docker stop " + containers], shell=True)
-    else:
-        # Fallback to killing local processes
-        print("No Docker containers found, trying to kill local Hugo processes...")
-        subprocess.run(["pkill -f hugo"], shell=True)
-
-@docs()
-@angreal.command(name="serve", about="starts the docs site in the background.")
-@angreal.argument(name="open", long="open", short="o", takes_value=False,
-                  help="open results in web browser", is_flag=True)
-def build_hugo(open=True):
-    """
-    Serve the documentation locally using Hugo.
-
-    Args:
-        open: If True, open the documentation in a web browser
-        skip_api: If True, skip generating API documentation before serving
-    """
-    # Check if Docker is available
-    if is_docker_available():
-        # Start the Hugo server using Docker
-        print("Starting Hugo server on http://localhost:12345/angreal/")
-        server_process = subprocess.Popen(
-            [
-                "docker run --rm -it -v $(pwd)/docs:/src -p 12345:12345 " +
-                "klakegg/hugo:0.111.3 serve -D -p 12345 --bind 0.0.0.0",
-            ], cwd=cwd, shell=True
-        )
-
-
-    # Wait a moment for the server to start
-    time.sleep(1)
-
-    if open:
-        webbrowser.open_new("http://localhost:12345/angreal/")
-
-    print("Hugo server is running. Press Ctrl+C to stop.")
-    try:
-        # Keep the server running until keyboard interrupt
-        server_process.wait()
-    except KeyboardInterrupt:
-        print("Stopping Hugo server...")
-        stop_hugo()
-
-@docs()
-@angreal.command(name="build", about="build the documentation site")
-def build_docs():
-    """
-    Build the documentation site.
-
-    Args:
-        skip_api: If True, skip generating API documentation before building
-    """
-
-
-    # Check if Docker is available
-    print("Building documentation site...")
-    if is_docker_available():
-        # Build the documentation using Docker
         subprocess.run(
-            ["docker run --rm -v $(pwd)/docs:/src klakegg/hugo:0.111.3 --minify"],
-            cwd=cwd, shell=True, check=True
+            ["cargo", "doc", "--no-deps"],
+            check=True
         )
-        print(f"Documentation built successfully in {os.path.join(docs_dir, 'public')}")
-    return
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to generate rustdoc: {e}", file=sys.stderr)
+        return e.returncode
+
+    # Setup paths
+    hugo_docs_dir = PROJECT_ROOT / "docs"
+    rustdoc_output_dir = PROJECT_ROOT / "target/doc"
+    hugo_api_dir = hugo_docs_dir / "static/api"
+
+    # Create Hugo API directory if it doesn't exist
+    hugo_api_dir.mkdir(parents=True, exist_ok=True)
+
+    # Copy rustdoc output to Hugo static directory
+    print("Copying rustdoc output to Hugo...")
+    try:
+        # Use rsync for better file copying (preserves permissions,
+        # handles existing files better)
+        subprocess.run(
+            ["rsync", "-av", "--delete", f"{rustdoc_output_dir}/", str(hugo_api_dir)],
+            check=True
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to copy rustdoc output: {e}", file=sys.stderr)
+        return e.returncode
+
+    print("Rustdoc integration complete!")
+    return 0
+
+
+@docs()
+@angreal.command(name="clean", about="clean the documentation build directory")
+def clean():
+    """Clean the documentation build directory."""
+    return _clean_docs()
+
+
+@docs()
+@angreal.command(
+    name="serve",
+    about="serve the documentation site locally, by default building draft documents."
+)
+@angreal.argument(
+    name="prod",
+    long="prod",
+    help="exclude draft content from the build",
+    required=False,
+    takes_value=False,
+    is_flag=True
+)
+def serve(prod: bool = False):
+    """Serve the Hugo documentation site locally with integrated API docs.
+
+    Args:
+        prod: If True, excludes draft content from the build. Defaults to False.
+    """
+    print("=== Setting up documentation ===")
+
+    # Clean the build directory first
+    clean_result = _clean_docs()
+    if clean_result != 0:
+        return clean_result
+
+    # First integrate rustdoc
+    print("\nIntegrating API documentation...")
+    rustdoc_result = _integrate_rustdoc()
+    if rustdoc_result != 0:
+        return rustdoc_result
+
+    # Then start Hugo server
+    print("\n=== Starting Hugo server ===")
+    print("Documentation will be available at http://localhost:1313")
+    print("Press Ctrl+C to stop the server")
+
+    try:
+        # By default include drafts (-D), unless prod flag is set
+        cmd = ["hugo", "server", "-D"]
+        if prod:
+            cmd.remove("-D")
+            print("Excluding draft content from build")
+        else:
+            print("Including draft content in build")
+
+        result = subprocess.run(
+            cmd,
+            cwd=str(PROJECT_ROOT / "docs"),
+            check=True
+        )
+        return result.returncode
+    except subprocess.CalledProcessError as e:
+        print(f"Hugo server failed: {e}", file=sys.stderr)
+        return e.returncode
+
+
+@docs()
+@angreal.command(
+    name="build",
+    about="build the documentation site, by default excluding draft documents."
+)
+@angreal.argument(
+    name="draft",
+    long="draft",
+    help="include draft content in the build",
+    required=False,
+    takes_value=False,
+    is_flag=True
+)
+def build(draft: bool = False):
+    """Build the Hugo documentation site with integrated API docs.
+
+    Args:
+        draft: If True, includes draft content in the build. Defaults to False.
+    """
+    print("=== Building documentation site ===")
+
+    # Clean the build directory first
+    clean_result = _clean_docs()
+    if clean_result != 0:
+        return clean_result
+
+    # First integrate rustdoc
+    print("\nIntegrating API documentation...")
+    rustdoc_result = _integrate_rustdoc()
+    if rustdoc_result != 0:
+        return rustdoc_result
+
+    # Then build Hugo site
+    print("\nBuilding Hugo site...")
+    try:
+        # By default exclude drafts, unless draft flag is set
+        cmd = ["hugo"]
+        if draft:
+            cmd.append("-D")
+            print("Including draft content in build")
+        else:
+            print("Excluding draft content from build (production mode)")
+
+        result = subprocess.run(
+            cmd,
+            cwd=str(PROJECT_ROOT / "docs"),
+            check=True
+        )
+        if result.returncode == 0:
+            print("\n=== Build complete ===")
+            print(f"Documentation site built in {PROJECT_ROOT}/docs/public")
+        return result.returncode
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to build documentation: {e}", file=sys.stderr)
+        return e.returncode

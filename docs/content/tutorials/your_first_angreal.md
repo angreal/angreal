@@ -1,225 +1,315 @@
 ---
-title: Your First Angreal
+title: "Your First Angreal"
 weight: 10
 ---
 
-{{% notice note %}}This project is available under the [example folder of the git repository](https://github.com/angreal/angreal/tree/main/example).{{% /notice %}}
+# Your First Angreal
 
-This a very simple project for taking meeting minutes !
+In this tutorial, you'll create a complete Angreal project from scratch. We'll build a "meeting notes" system that demonstrates both task automation and project templating.
 
-We have some basic requirements for this template :
+{{< hint type=note >}}
+**Time Required**: 15-20 minutes
+**Prerequisites**: Python 3.8+, Angreal installed, basic Python knowledge
+{{< /hint >}}
 
--   on creation a folder with the meeting name will be created
--   on creation a file that introduces us to the reason the meetings
-    exist as an initial README.
--   a task to take minutes using an editor
+## What You'll Build
 
-## Template Layout
+A meeting notes system with:
+- A project template for consistent meeting structure
+- Automated task for taking timestamped notes
+- Customizable meeting details (name, cadence, agenda)
 
-Based on the above planned requirements we'll need files and folders created as follows :
+## Project Structure
+
+Here's what we'll create:
+
+```
+meeting_notes/
+├── angreal.toml           # Template configuration
+├── {{ name }}/            # Template directory (Tera variable)
+│   ├── .angreal/          # Angreal tasks directory
+│   │   ├── init.py        # Post-initialization script
+│   │   └── task_notes.py  # Note-taking task
+│   └── README.md          # Meeting overview template
+```
+
+## Step 1: Create the Template Structure
+
+First, create the project directory:
 
 ```bash
-meeting_notes
-├── angreal.toml
-└── {{ name }}
-    ├── .angreal
-    │   ├── init.py
-    │   └── task_take_notes.py
-    └── README.md
+mkdir meeting_notes
+cd meeting_notes
 ```
-## `angreal.toml`
 
-The `angreal.toml` file tells angreal what variables it needs to template and provides default values for them.
-Our template will have the following variables:
-- name
-- cadence
-- standing_agenda
+## Step 2: Define Template Variables
+
+Create `angreal.toml` to define the variables users will provide:
 
 ```toml
-name="another_meeting"
-cadence="weekly"
-standing_agenda="Complaints"
+# Template variables with defaults
+name = "weekly_standup"
+cadence = "weekly"
+standing_agenda = "Updates, blockers, and next steps"
 ```
 
-## `README.md`
+## Step 3: Create the README Template
 
-The `README.md` is just meant to be a highlevel description of the meeting so you can remember why you're there every week.
+Create a directory with a Tera template name:
+
+```bash
+mkdir "{{ name }}"
+```
+
+{{< hint type=warning >}}
+**Note**: Angreal uses [Tera](https://tera.netlify.app/) templating engine. The syntax is similar to Jinja2, but there are [some differences](https://tera.netlify.app/docs/#templates).
+{{< /hint >}}
+
+Create `{{ name }}/README.md`:
 
 ```markdown
 # {{ name }}
 
-
-## Cadence
-
+## Meeting Cadence
 {{ cadence }}
 
-
 ## Standing Agenda
-
 {{ standing_agenda }}
+
+## Notes
+Meeting notes will be stored in this directory with timestamps.
 ```
 
+## Step 4: Create the Initialization Script
 
-## `init.py`
-{{% notice info %}}
-**Optional:** In this very trivial example, not much happens after the folder structure is created so the init isn't required.
-{{% /notice %}}
+Create the `.angreal` directory:
+
+```bash
+mkdir "{{ name }}/.angreal"
+```
+
+Create `{{ name }}/.angreal/init.py`:
 
 ```python
+"""Post-initialization script for meeting notes template."""
+
 def init():
-    print("Initializing {{ name }} !")
-    return
+    """Run after template is rendered."""
+    print("Meeting notes project initialized!")
+    print("Run 'angreal notes' to take meeting notes")
+    print("See README.md for meeting details")
 ```
 
-## `task_take_notes.py`
+## Step 5: Create the Note-Taking Task
 
-{{% notice info %}}
-Angreal tasks must be a function in a python file that starts with `task_` in the `.angreal` folder.
-{{% /notice %}}
-
+Create `{{ name }}/.angreal/task_notes.py`:
 
 ```python
+"""Task for taking meeting notes."""
 import angreal
-
 import datetime
 import os
 import subprocess
 import tempfile
+from pathlib import Path
+
+@angreal.command(name="notes", about="Take meeting notes")
+@angreal.argument(
+    name="editor",
+    long="editor",
+    short="e",
+    help="Editor to use (default: $EDITOR or vi)"
+)
+@angreal.argument(
+    name="now",
+    long="now",
+    is_flag=True,
+    help="Open editor immediately"
+)
+def take_notes(editor=None, now=False):
+    """Create a timestamped meeting notes file."""
+    # Generate filename with current timestamp
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+    filename = f"notes_{timestamp}.md"
+
+    # Determine editor
+    if not editor:
+        editor = os.environ.get("EDITOR", "vi")
+
+    # Create initial content
+    initial_content = f"""# Meeting Notes - {timestamp}
+
+## Attendees
+-
+
+## Agenda Items
+{angreal.get_context().get('standing_agenda', 'No agenda set')}
+
+## Discussion
 
 
-@angreal.command(name='take-notes', about='Take notes for our meeting')
-@angreal.argument(name='now',long='now', takes_value=False)
-def angreal_cmd(now=False):
-    """
-    create a file for taking minutes
-    """
-    file_name = datetime.datetime.today().strftime('%Y-%m-%d-%H-%M')
+## Action Items
+- [ ]
 
-    # We're going to assume that you're running on ubuntu
-    # which has a binary called "editor" that will launch your
-    # default terminal editor. If you need something else - set the environment
-    # variable "EDITOR" to the appropriate command
-    editor = os.environ.get('EDITOR','editor')
+## Next Meeting
+"""
 
-    # Create our default file template using the current time as a header
-    (fd, path) = tempfile.mkstemp()
-    with open(fd, 'w') as default:
-        print('# {}'.format(file_name), file=default)
+    if now:
+        # Create temporary file with initial content
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as tf:
+            tf.write(initial_content)
+            temp_path = tf.name
 
-    # We want to start writing now if we're able
-    if now and editor:
-        subprocess.call('{} {}'.format(editor,path), shell=True)
+        # Open in editor
+        try:
+            subprocess.run([editor, temp_path], check=True)
 
+            # Read edited content
+            with open(temp_path, 'r') as f:
+                content = f.read()
 
-    # Send the finalized contents of the temporary file to the actual file
-    with open(file_name+'.md', 'a') as dst:
-        with open(path,'r') as src:
-            print(src.read(),file=dst)
+            # Save to final file
+            with open(filename, 'w') as f:
+                f.write(content)
 
-    # Clean up behind our selves
-    os.unlink(path)
-```
-A brief explanation of this code:
-    - import angreal and other libraries
-    - decorate a function with the `command`
-    - we decorate the same function with an `argument`
+            print(f"Notes saved to {filename}")
 
-The function itself:
-- determines the current date/time
-- tries to get an EDITOR variable from the environment, falling back to the `editor` command from Ubuntu
-- if you pass the `--now` argument, opens a temporary file using your editor
-- saves the notes taken to a file with the date and time the minutes were started.
+        except subprocess.CalledProcessError:
+            print(f"Editor '{editor}' failed. Check your EDITOR environment variable.")
+        finally:
+            # Clean up temp file
+            Path(temp_path).unlink(missing_ok=True)
+    else:
+        # Just create the file
+        with open(filename, 'w') as f:
+            f.write(initial_content)
+        print(f"Created {filename}")
+        print("Use 'angreal notes --now' to open in editor")
 
-## Using our Angreal
+@angreal.command(name="list", about="List all meeting notes")
+def list_notes():
+    """List all meeting notes files."""
+    notes = sorted(Path.cwd().glob("notes_*.md"))
 
-1. Initialize our template.
-```bash
-$ angreal init docs/content/tutorials/meeting_notes
+    if not notes:
+        print("No meeting notes found")
+        return
 
-cadence? ["weekly"]
->
-name? ["another_meeting"]
-> Hall of the Tower
-standing_agenda? ["Complaints"]
-> Discussing embroidery and fine turned calves
-
-Initializing Hall of the Tower !
-```
-```bash
-$ tree 'Hall of the Tower'
-Hall of the Tower
-└── README.md
-```
-
-```bash
-$ cat Hall\ of\ the\ Tower/README.md                                                                                                            ─╯
-# Hall of the Tower
-
-
-## Cadence
-
-Weekly
-
-
-## Standing Agenda
-
-Discussing embroidery and fine turned calves.
-
-```
-
-2. What commands do i have access to ?
-
-```bash
-$ cd 'Hall of the Tower'
-$ angreal
-
-angreal 2.0.0-rc.1
-
-USAGE:
-    angreal <SUBCOMMAND>
-
-OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
-SUBCOMMANDS:
-    help          Print this message or the help of the given subcommand(s)
-    init          Initialize an Angreal template from source.
-    take-notes    Take notes for our meeting
-
+    print("Meeting Notes:")
+    for note in notes:
+        # Extract date from filename
+        date_str = note.stem.replace("notes_", "")
+        print(f"  - {date_str}: {note.name}")
 ```
 
-3. How do i use `take-notes` ?
+## Step 6: Test Your Template
+
+### Initialize from the Template
+
+From the parent directory of `meeting_notes`:
 
 ```bash
-$ angreal take-notes --help
+angreal init meeting_notes my_team_standup
 
-take-notes
-
-    create a file for taking minutes
-
-
-USAGE:
-    take-notes [OPTIONS]
-
-OPTIONS:
-    -h, --help
-            Print help information
-
-        --now
-            open editor immediately
+# You'll be prompted for:
+# name? ["weekly_standup"] > my_team_standup
+# cadence? ["weekly"] > daily
+# standing_agenda? ["Updates, blockers, and next steps"] >
 ```
 
-Lets take some minutes, right now
+### Explore the Generated Project
 
 ```bash
-$ export EDITOR='vim'
-$ angreal take-minutes --now
+cd my_team_standup
+ls -la
+
+# Output:
+# .angreal/
+# README.md
 ```
 
-This will open an editor (vim if you set the `EDITOR` variable) write a note.
+Check the README:
 
+```bash
+cat README.md
+
+# Output:
+# # my_team_standup
+#
+# ## Meeting Cadence
+# daily
+#
+# ## Standing Agenda
+# Updates, blockers, and next steps
+# ...
 ```
-$ ls                                                                                                                                            ─╯
-2023-01-19-09-19.md  README.md
+
+### Use the Tasks
+
+List available commands:
+
+```bash
+angreal --help
+
+# You should see:
+# - notes: Take meeting notes
+# - list: List all meeting notes
 ```
+
+Take notes:
+
+```bash
+# Create a notes file without opening editor
+angreal notes
+
+# Or open in editor immediately
+angreal notes --now
+
+# List all notes
+angreal list
+```
+
+## Step 7: Share Your Template
+
+Push to GitHub:
+
+```bash
+cd meeting_notes
+git init
+git add .
+git commit -m "Meeting notes Angreal template"
+git remote add origin https://github.com/yourusername/meeting-notes-template.git
+git push -u origin main
+```
+
+Others can now use your template:
+
+```bash
+angreal init https://github.com/yourusername/meeting-notes-template.git their_meeting
+```
+
+## What You've Learned
+
+How to create an Angreal template with:
+- Template configuration (`angreal.toml`)
+- Tera templated directories and files
+- Post-initialization scripts
+- Custom tasks with arguments
+
+Key concepts:
+- Templates use [Tera](https://tera.netlify.app/) syntax (`{{ variable }}`)
+- Tasks are Python files starting with `task_` in `.angreal/`
+- The `@angreal.command` decorator creates CLI commands
+- The `@angreal.argument` decorator adds command-line options
+
+## Tera vs Jinja2
+
+While Tera syntax is similar to Jinja2, there are some differences,
+see the [Tera documentation](https://tera.netlify.app/docs/) for complete syntax reference.
+
+## Next Steps
+
+- Add more tasks (archive notes, search notes, generate reports)
+- Create templates for your own projects
+- Explore the [How-to Guides](/how-to-guides) for specific techniques
+- Read the [API Reference](/reference/python-api) for all available features

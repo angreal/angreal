@@ -1,0 +1,98 @@
+baseURL = "https://angreal.github.io/angreal/"
+title = "Angreal Documentation"
+theme = "hugo-geekdoc"
+
+pluralizeListTitles = false
+
+# Geekdoc required configuration
+pygmentsUseClasses = true
+pygmentsCodeFences = true
+disablePathToLower = true
+
+# Required if you want to render robots.txt template
+enableRobotsTXT = true
+
+# Needed for mermaid shortcodes
+[markup]
+  [markup.goldmark.renderer]
+    # Needed for mermaid shortcode or when nesting shortcodes
+    unsafe = true
+  [markup.tableOfContents]
+    startLevel = 1
+    endLevel = 9
+
+[taxonomies]
+   tag = "tags"
+
+[params]
+  # (Optional, default 6) Set how many table of contents levels to be showed on page.
+  geekdocToC = 3
+
+  # (Optional, default static/brand.svg) Set the path to a logo for the Geekdoc.
+  geekdocLogo = "images/wheel.png"
+
+  # (Optional, default false) Collapse all menu entries, can not be overwritten
+  # per page if enabled. Can be enabled per page via 'geekdocCollapseSection'.
+  geekdocCollapseAllSections = true
+
+  # (Optional, default true) Show page navigation links at the bottom of each
+  # docs page (bundle menu only).
+  geekdocNextPrev = false
+
+  # (Optional, default true) Show a breadcrumb navigation bar at the top of each docs page.
+  geekdocBreadcrumb = true
+
+  # (Optional, default none) Set source repository location. Used for 'Edit page' links.
+  geekdocRepo = "https://github.com/angreal/angreal"
+
+  # (Optional, default none) Enable 'Edit page' links. Requires 'geekdocRepo' param
+  # and the path must point to the parent directory of the 'content' folder.
+  geekdocEditPath = "edit/main/docs"
+
+  # (Optional, default true) Enables search function with flexsearch.
+  geekdocSearch = true
+
+  # (Optional, default false) Display search results with the parent folder as prefix.
+  geekdocSearchShowParent = true
+
+  # (Optional, default true) Add an anchor link to headlines.
+  geekdocAnchor = true
+
+  # (Optional, default true) Copy anchor url to clipboard on click.
+  geekdocAnchorCopy = true
+
+  # (Optional, default none) Sites main author.
+  geekdocAuthor = "Dylan Storey"
+
+  # (Optional, default "#7642d9") Controls the color of the sidebar.
+  geekdocAccentColor = "#1e88e5"
+
+[menu]
+  [[menu.main]]
+    name = "Quick Start"
+    url = "/quick-start/"
+    weight = 10
+  [[menu.main]]
+    name = "Tutorials"
+    url = "/tutorials/"
+    weight = 20
+  [[menu.main]]
+    name = "How-to Guides"
+    url = "/how-to-guides/"
+    weight = 30
+  [[menu.main]]
+    name = "Reference"
+    url = "/reference/"
+    weight = 40
+  [[menu.main]]
+    name = "Explanation"
+    url = "/explanation/"
+    weight = 50
+  [[menu.main]]
+    name = "Contributing"
+    url = "/contributing/"
+    weight = 60
+
+[outputs]
+  home = ["HTML"]
+  section = ["HTML"]

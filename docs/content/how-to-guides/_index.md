@@ -1,0 +1,37 @@
+---
+title: "How-to Guides"
+weight: 3
+geekdocCollapseSection: true
+---
+
+# How-to Guides
+
+Practical, goal-oriented guides for common Angreal tasks.
+
+{{< hint type=tip >}}
+**Looking for step-by-step learning?** Check out our [Tutorials](/tutorials) section.
+{{< /hint >}}
+
+## Task Management
+
+- [Create a Task](/how-to-guides/create-a-task) - Define custom automation tasks
+- [Add Arguments](/how-to-guides/add-arguments) - Make tasks configurable with command-line arguments
+- [Create Task Groups](/how-to-guides/create-task-group) - Organize related tasks together
+
+## Template Development
+
+- [Include Jinja Templates](/how-to-guides/include-jinja-templates) - Use dynamic templates in your projects
+- [Use Validation Rules](/how-to-guides/use-validation-rules) - Ensure template inputs are valid
+
+## Integrations
+
+- [Use Git Integration](/how-to-guides/use-git-integration) - Work with Git repositories in tasks
+- [Docker Integration](/how-to-guides/use-docker-integration) - Manage Docker containers and images
+- [Virtual Environments](/how-to-guides/work-with-virtual-environments) - Create and manage Python virtual environments
+
+## Tips for Using How-to Guides
+
+1. **Know your goal** - Each guide assumes you have a specific task in mind
+2. **Prerequisites matter** - Make sure you meet the requirements listed at the start
+3. **Adapt to your needs** - Code examples are starting points; modify them for your use case
+4. **Check the reference** - For detailed API information, see the [Reference](/reference) section
