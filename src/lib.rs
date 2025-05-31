@@ -58,14 +58,18 @@ fn create_virtualenv(path: &str, python_version: Option<&str>) -> PyResult<()> {
 
 #[pyfunction]
 fn install_packages(venv_path: &str, packages: Vec<String>) -> PyResult<()> {
-    let venv = UvVirtualEnv { path: PathBuf::from(venv_path) };
+    let venv = UvVirtualEnv {
+        path: PathBuf::from(venv_path),
+    };
     venv.install_packages(&packages)
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
 }
 
 #[pyfunction]
 fn install_requirements(venv_path: &str, requirements_file: &str) -> PyResult<()> {
-    let venv = UvVirtualEnv { path: PathBuf::from(venv_path) };
+    let venv = UvVirtualEnv {
+        path: PathBuf::from(venv_path),
+    };
     venv.install_requirements(Path::new(requirements_file))
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
 }
@@ -74,7 +78,8 @@ fn install_requirements(venv_path: &str, requirements_file: &str) -> PyResult<()
 fn discover_pythons() -> PyResult<Vec<(String, String)>> {
     UvVirtualEnv::discover_pythons()
         .map(|pythons| {
-            pythons.into_iter()
+            pythons
+                .into_iter()
                 .map(|(version, path)| (version, path.display().to_string()))
                 .collect()
         })
@@ -270,7 +275,7 @@ fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(main, m)?)?;
     task::register(_py, m)?;
     utils::register(_py, m)?;
-    
+
     m.add_function(wrap_pyfunction!(ensure_uv_installed, m)?)?;
     m.add_function(wrap_pyfunction!(uv_version, m)?)?;
     m.add_function(wrap_pyfunction!(create_virtualenv, m)?)?;

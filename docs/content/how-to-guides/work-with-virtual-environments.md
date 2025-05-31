@@ -13,7 +13,7 @@ Angreal uses UV (ultrafast Python package installer) to provide dramatically fas
 
 **Key Benefits:**
 - ⚡ 10x faster environment creation
-- 🚀 50x faster package installation  
+- 🚀 50x faster package installation
 - 🔧 Automatic UV installation
 - 🔄 Drop-in replacement for existing workflows
 
@@ -55,7 +55,7 @@ venv = VirtualEnv(
 
 # Or from a requirements file
 venv = VirtualEnv(
-    "myproject-env", 
+    "myproject-env",
     requirements="requirements.txt"
 )
 ```
@@ -70,14 +70,14 @@ The `@venv_required` decorator automatically creates and activates a virtual env
 from angreal.integrations.venv import venv_required
 import angreal
 
-@angreal.command(name="analyze", about="Run data analysis")  
+@angreal.command(name="analyze", about="Run data analysis")
 @venv_required(".venv", requirements=["pandas", "numpy", "matplotlib"])
 def analyze_data():
     """This function runs in an isolated environment."""
     import pandas as pd
     import numpy as np
     import matplotlib.pyplot as plt
-    
+
     # Your code runs with guaranteed package availability
     data = pd.DataFrame(np.random.rand(100, 4))
     data.plot()
@@ -88,7 +88,7 @@ def analyze_data():
 
 ```python
 @angreal.command(name="test", about="Run project tests")
-@venv_required("test-env", requirements="requirements-test.txt")  
+@venv_required("test-env", requirements="requirements-test.txt")
 def run_tests():
     """Run tests in isolated environment."""
     import pytest
@@ -105,7 +105,7 @@ def build_docs():
     import subprocess
     subprocess.run(["sphinx-build", "docs", "docs/_build"])
 
-@angreal.command(name="lint", about="Run code linting")  
+@angreal.command(name="lint", about="Run code linting")
 @venv_required("lint-env", requirements=["black", "isort", "flake8"])
 def lint_code():
     """Lint code with formatting tools."""
@@ -151,7 +151,7 @@ venv.install("requirements.txt")
 
 # Mix and match installation methods
 venv.install("pytest")  # Single package
-venv.install(["black", "isort"])  # Multiple packages  
+venv.install(["black", "isort"])  # Multiple packages
 venv.install("dev-requirements.txt")  # Requirements file
 ```
 
@@ -165,19 +165,19 @@ import angreal
 def setup_project():
     """Smart environment setup."""
     venv = VirtualEnv(".venv", now=False)
-    
+
     if not venv.exists:
         print("Creating new virtual environment...")
         venv = VirtualEnv(".venv", python="3.11")
         print("✓ Environment created")
     else:
         print("✓ Environment already exists")
-    
-    # Always ensure requirements are up to date  
+
+    # Always ensure requirements are up to date
     print("Installing/updating requirements...")
     venv.install("requirements.txt")
     print("✓ Requirements installed")
-    
+
     print(f"Environment ready at: {venv.python_executable}")
 ```
 
@@ -204,7 +204,7 @@ def setup_django():
             "pytest-django",    # Testing
         ]
     )
-    
+
     print(f"Django environment ready at: {venv.path}")
     print("Run: source django-env/bin/activate")
     print("Then: django-admin startproject myproject")
@@ -213,16 +213,16 @@ def setup_django():
 ### Data Science Workflow
 
 ```python
-import angreal  
+import angreal
 from angreal.integrations.venv import venv_required
 
 @angreal.command(name="analyze", about="Analyze dataset")
 @angreal.argument("dataset", help="Path to dataset file")
 @venv_required("data-env", requirements=[
-    "pandas", 
-    "numpy", 
-    "matplotlib", 
-    "seaborn", 
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "seaborn",
     "jupyter",
     "scikit-learn"
 ])
@@ -231,13 +231,13 @@ def analyze_dataset(dataset):
     import pandas as pd
     import matplotlib.pyplot as plt
     import seaborn as sns
-    
+
     # Load and analyze data
     df = pd.read_csv(dataset)
     print("Dataset shape:", df.shape)
     print("\nDataset info:")
     print(df.info())
-    
+
     # Create visualization
     plt.figure(figsize=(10, 6))
     sns.heatmap(df.corr(), annot=True)
@@ -261,7 +261,7 @@ def setup_testing():
         "test-env",
         requirements="requirements.txt"  # Base requirements
     )
-    
+
     # Add testing-specific packages
     test_env.install([
         "pytest",
@@ -272,7 +272,7 @@ def setup_testing():
         "isort",           # Import sorting
         "flake8",          # Linting
     ])
-    
+
     print("✓ Testing environment ready")
     print(f"Activate with: source {test_env.path}/bin/activate")
 
@@ -281,16 +281,16 @@ def setup_testing():
 def run_tests():
     """Run tests in isolated environment."""
     import subprocess
-    
+
     # Run tests with coverage
     result = subprocess.run([
-        "pytest", 
+        "pytest",
         "--cov=src",
         "--cov-report=html",
         "--cov-report=term",
         "-v"
     ])
-    
+
     if result.returncode == 0:
         print("✓ All tests passed!")
     else:
@@ -310,7 +310,7 @@ import sys
 # Create environment (5-10 seconds)
 subprocess.run([sys.executable, "-m", "venv", "myenv"])
 
-# Install packages (30-60 seconds for multiple packages)  
+# Install packages (30-60 seconds for multiple packages)
 subprocess.run(["myenv/bin/pip", "install", "pandas", "numpy", "matplotlib"])
 ```
 
@@ -356,13 +356,13 @@ else:
     print("Available Python versions:")
     for version, path in pythons:
         print(f"  {version}: {path}")
-    
+
     # Use first available version
     version = pythons[0][0]
     if "cpython-" in version:
         version = version.replace("cpython-", "").split(".")[0:2]
         version = ".".join(version)
-    
+
     venv = VirtualEnv("auto-env", python=version)
 ```
 
@@ -384,7 +384,7 @@ def create_env_with_retry(path, requirements, max_retries=3):
                 time.sleep(5)
             else:
                 raise
-    
+
 # Usage
 venv = create_env_with_retry("myproject", ["requests", "pandas"])
 ```
@@ -397,17 +397,17 @@ venv = create_env_with_retry("myproject", ["requests", "pandas"])
 # Good: Project-specific environment
 venv = VirtualEnv("myproject-env")
 
-# Better: Environment in project directory  
+# Better: Environment in project directory
 venv = VirtualEnv(".venv")  # Standard location
 ```
 
-### 2. Pin Requirements for Reproducibility  
+### 2. Pin Requirements for Reproducibility
 
 ```python
 # Good: Specific versions in requirements.txt
 """
 pandas==2.0.3
-numpy==1.24.3  
+numpy==1.24.3
 matplotlib==3.7.1
 """
 
@@ -425,7 +425,7 @@ def setup_dev():
     venv.install("requirements.txt")        # Production requirements
     venv.install("requirements-dev.txt")    # Development tools
 
-@angreal.command(name="prod-setup", about="Set up production environment") 
+@angreal.command(name="prod-setup", about="Set up production environment")
 def setup_prod():
     """Production environment - minimal packages."""
     venv = VirtualEnv("prod-env", requirements="requirements.txt")
@@ -439,11 +439,11 @@ from angreal.integrations.venv import VirtualEnv
 def check_environment(path):
     """Check environment status and health."""
     venv = VirtualEnv(path, now=False)
-    
+
     if not venv.exists:
         print(f"❌ Environment {path} does not exist")
         return False
-        
+
     print(f"✅ Environment {path} exists")
     print(f"   Python: {venv.python_executable}")
     print(f"   UV version: {VirtualEnv.version()}")
@@ -461,7 +461,7 @@ if check_environment(".venv"):
 Replace this:
 ```bash
 python -m venv myenv
-source myenv/bin/activate  
+source myenv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -496,7 +496,7 @@ conda install pandas numpy
 
 With this:
 ```python
-from angreal.integrations.venv import VirtualEnv  
+from angreal.integrations.venv import VirtualEnv
 venv = VirtualEnv("myenv", python="3.11", requirements=["pandas", "numpy"])
 ```
 

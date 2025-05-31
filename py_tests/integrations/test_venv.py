@@ -111,7 +111,7 @@ def test_discover_available_pythons():
     assert isinstance(pythons, list)
     # Should find at least the current Python
     assert len(pythons) > 0
-    
+
     # Each entry should be a tuple of (version, path)
     for version, path in pythons:
         assert isinstance(version, str)
@@ -139,7 +139,7 @@ def test_ensure_python():
     """
     # Get list of available Python installations first
     pythons = VirtualEnv.discover_available_pythons()
-    
+
     if pythons:
         # Find a stable Python version that's already installed (not download available)
         stable_python = None
@@ -147,7 +147,7 @@ def test_ensure_python():
             if "3.11" in version and "/opt/homebrew" in path:  # Use system Python 3.11
                 stable_python = (version, path)
                 break
-        
+
         if stable_python:
             version, _ = stable_python
             # Extract just the major.minor version (e.g., "3.11" from "cpython-3.11.12")
@@ -155,7 +155,7 @@ def test_ensure_python():
                 version = version.replace("cpython-", "").rsplit(".", 1)[0]  # "3.11"
             elif "-" in version:
                 version = version.split("-")[1].rsplit(".", 1)[0]  # Handle other formats
-            
+
             # This should succeed since the Python version is already available
             path = VirtualEnv.ensure_python(version)
             assert isinstance(path, str)

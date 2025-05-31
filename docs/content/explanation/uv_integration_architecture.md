@@ -58,11 +58,11 @@ graph TB
     A[Python API - venv.py] --> B[Rust Bindings - lib.rs]
     B --> C[UV Integration - uv/mod.rs]
     C --> D[UV Binary]
-    
+
     E[UvIntegration] --> F[Binary Management]
     E --> G[Version Control]
     E --> H[Auto-Installation]
-    
+
     I[UvVirtualEnv] --> J[Environment Operations]
     I --> K[Package Management]
     I --> L[Python Discovery]
@@ -91,11 +91,11 @@ pub fn ensure_installed() -> Result<()> {
     if Self::is_available() {
         return Ok(());
     }
-    
+
     // Platform-specific installation
     #[cfg(unix)]
     install_unix();
-    
+
     #[cfg(windows)]
     install_windows();
 }

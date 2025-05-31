@@ -12,7 +12,7 @@ Angreal provides several integration modules that connect with external tools an
 ### Virtual Environment Integration (UV-Powered)
 The `angreal.integrations.venv` module provides ultra-fast virtual environment and package management through UV integration.
 
-### Git Integration  
+### Git Integration
 The `angreal.integrations.git` module provides Git repository operations and automation.
 
 ### Docker Integration

@@ -208,7 +208,7 @@ UV-related environment variables for virtual environment management:
 # Custom UV cache directory
 export UV_CACHE_DIR="/path/to/cache"
 
-# Custom UV installation directory  
+# Custom UV installation directory
 export UV_INSTALL_DIR="/path/to/uv"
 
 # Disable UV progress bars

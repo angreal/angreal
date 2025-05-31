@@ -33,7 +33,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 - Works on macOS and Linux distributions
 - Uses secure HTTPS download
 
-#### Windows Installation  
+#### Windows Installation
 ```powershell
 irm https://astral.sh/uv/install.ps1 | iex
 ```
@@ -238,15 +238,15 @@ def check_uv_status():
     try:
         # Ensure UV is available
         ensure_uv_installed()
-        
+
         # Get version information
         version = uv_version()
         print(f"✅ UV is available: {version}")
-        
+
         # Test basic functionality
         pythons = VirtualEnv.discover_available_pythons()
         print(f"✅ UV discovered {len(pythons)} Python installations")
-        
+
         return True
     except Exception as e:
         print(f"❌ UV issue: {e}")
@@ -267,7 +267,7 @@ from pathlib import Path
 def setup_uv_custom():
     """Custom UV setup with error handling."""
     uv_path = Path.home() / ".local" / "bin" / "uv"
-    
+
     if not uv_path.exists():
         print("Installing UV...")
         try:
@@ -289,7 +289,7 @@ def setup_uv_custom():
             return False
     else:
         print("✅ UV already installed")
-    
+
     return True
 
 # Usage in Angreal tasks
@@ -322,21 +322,21 @@ from angreal.integrations.venv import VirtualEnv
 def health_check():
     """Comprehensive system health check."""
     checks = []
-    
+
     # UV availability
     try:
         version = VirtualEnv.version()
         checks.append(f"✅ UV: {version}")
     except Exception as e:
         checks.append(f"❌ UV: {e}")
-    
+
     # Python discovery
     try:
         pythons = VirtualEnv.discover_available_pythons()
         checks.append(f"✅ Python versions: {len(pythons)} found")
     except Exception as e:
         checks.append(f"❌ Python discovery: {e}")
-    
+
     # Environment creation test
     try:
         test_env = VirtualEnv("health-test", now=False)
@@ -346,7 +346,7 @@ def health_check():
         checks.append("✅ Environment operations: Working")
     except Exception as e:
         checks.append(f"❌ Environment operations: {e}")
-    
+
     # Print results
     print("System Health Check:")
     for check in checks:

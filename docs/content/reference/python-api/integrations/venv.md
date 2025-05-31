@@ -13,7 +13,7 @@ Angreal's virtual environment integration uses UV to provide 10-50x performance 
 
 **Performance Benefits:**
 - Virtual environment creation: ~10x faster than venv
-- Package installation: ~50x faster than pip  
+- Package installation: ~50x faster than pip
 - Overall workflow: 3x faster execution times
 
 ## Installation Requirements
@@ -22,7 +22,7 @@ UV is automatically installed when first used. No manual installation required.
 
 **Supported Platforms:**
 - macOS (via curl)
-- Linux (via curl) 
+- Linux (via curl)
 - Windows (via PowerShell)
 
 ## Functions
@@ -93,7 +93,7 @@ def exists(self) -> bool
 Get the Python executable path for this virtual environment.
 
 ```python
-@property  
+@property
 def python_executable(self) -> Path
 ```
 
@@ -130,7 +130,7 @@ def install(self, packages: Union[str, List[str], Path]) -> None
 # Install single package
 venv.install("requests")
 
-# Install multiple packages  
+# Install multiple packages
 venv.install(["pandas", "numpy", "matplotlib"])
 
 # Install from requirements file
@@ -222,7 +222,7 @@ venv.install_requirements()
 
 # Or with a requirements file
 venv = VirtualEnv(
-    "/path/to/myenv", 
+    "/path/to/myenv",
     requirements="requirements.txt"
 )
 venv.install_requirements()
@@ -326,7 +326,7 @@ RuntimeError: UV installation failed
 
 **Python Version Not Found:**
 ```python
-RuntimeError: Python 3.11 installed but not found  
+RuntimeError: Python 3.11 installed but not found
 ```
 **Solution:** Specify exact version or use `discover_available_pythons()` to see available versions
 
@@ -369,7 +369,7 @@ import virtualenv
 
 virtualenv.create_environment("myenv")
 
-# Angreal UV approach  
+# Angreal UV approach
 from angreal.integrations.venv import VirtualEnv
 
 venv = VirtualEnv("myenv", python="3.11")
@@ -381,7 +381,7 @@ venv = VirtualEnv("myenv", python="3.11")
 
 UV is automatically installed when:
 1. Any VirtualEnv operation is performed
-2. The venv module is imported  
+2. The venv module is imported
 3. UV is not found in the system PATH
 
 ### Manual UV Operations
@@ -395,7 +395,7 @@ from angreal import ensure_uv_installed, uv_version
 # Ensure UV is available
 ensure_uv_installed()
 
-# Check version  
+# Check version
 version = uv_version()
 print(f"UV version: {version}")
 ```
@@ -410,6 +410,6 @@ print(f"UV version: {version}")
 ## See Also
 
 - [UV Integration Architecture](/explanation/uv_integration_architecture) - Architectural decisions and implementation details
-- [Working with Virtual Environments](/how-to-guides/work-with-virtual-environments) - How-to guide  
+- [Working with Virtual Environments](/how-to-guides/work-with-virtual-environments) - How-to guide
 - [Python Utils](/reference/python-api/utils) - Other Python utilities
 - [UV Documentation](https://docs.astral.sh/uv/) - Official UV documentation
