@@ -1,45 +1,56 @@
 ---
-title: "Templates Module"
-weight: 2
+title: Templates System
+weight: 20
 ---
 
-# Templates Module
 
-The templates module provides functions for working with Angreal project templates.
+The template system allows you to generate files and directories from templates. It forms the foundation of Angreal's project creation capabilities.
 
-## Available Functions
+## Overview
 
-- [`render_template`](/reference/python-api/templates/render_template) - Render a single template file
-- [`render_directory`](/reference/python-api/templates/render_directory) - Render a directory of templates
-- [`generate_context`](/reference/python-api/templates/generate_context) - Generate template context
+Angreal's template system consists of:
 
-## Template Format
+- **Template Rendering** - Generate files from templates
+- **Directory Rendering** - Process entire directories of templates
+- **Context Generation** - Create variables for templates
+- **angreal.toml Format** - Configure template variables and prompts
 
-- [angreal.toml Format](/reference/python-api/templates/angreal_toml_format) - Template configuration file format
-- [Template Guide](/reference/python-api/templates/template_guide) - Comprehensive templating guide
+Templates use the [Tera](https://tera.netlify.app/) templating engine, which provides Jinja2-like syntax.
 
-## Quick Example
+## Key Components
+
+| Component | Description | Documentation |
+|-----------|-------------|---------------|
+| `render_template` | Render a single template file | [API Reference](render_template) |
+| `render_directory` | Process a directory of templates | [API Reference](render_directory) |
+| `generate_context` | Create context variables for templates | [API Reference](generate_context) |
+| `angreal.toml` | Define template variables and prompts | [Format Reference](angreal_toml_format) |
+
+## Comprehensive Guide
+
+For a complete walkthrough of using templates, see the [Template System Guide](template_guide/).
+
+## Example
 
 ```python
 import angreal
-from pathlib import Path
+import os
 
-# Render a single template
-angreal.render_template(
-    template_path="template.txt.j2",
-    output_path="output.txt",
-    context={"name": "My Project"}
-)
+def create_project():
+    # Generate context for templates
+    context = angreal.generate_context(
+        template_path="templates/project",
+        interactive=True
+    )
 
-# Render a directory
-angreal.render_directory(
-    source_dir=Path("templates"),
-    output_dir=Path("output"),
-    context={"project_name": "awesome"}
-)
+    # Render a directory of templates
+    angreal.render_directory(
+        source_directory="templates/project",
+        target_directory=context.get("project_name", "new-project"),
+        context=context
+    )
 ```
 
-## See Also
+## Related Documentation
 
-- [Include Jinja Templates](/how-to-guides/include-jinja-templates) - How-to guide
-- [Your First Angreal](/tutorials/your_first_angreal) - Tutorial with templates
+<!-- Geekdoc automatically generates child page navigation -->

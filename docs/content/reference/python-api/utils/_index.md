@@ -1,57 +1,42 @@
 ---
-title: "Utils Module"
-weight: 3
+title: Utility Functions
+weight: 40
 ---
 
-# Utils Module
 
-The utils module provides utility functions for working with Angreal projects.
+Angreal provides utility functions for common operations when working with projects and commands.
 
-## Available Functions
+## Overview
 
-- [`get_root()`](/reference/python-api/utils/get_root) - Get the project root directory
-- [`get_context()`](/reference/python-api/utils/get_context) - Get template context
-- [`required_version()`](/reference/python-api/utils/required_version) - Enforce Angreal version requirements
+These utilities help with:
 
-## Quick Examples
+- **Project Structure** - Locating the project root directory
+- **Version Checking** - Ensuring the right Angreal version is used
 
-### Get Project Root
+## Key Functions
+
+| Function | Description | Documentation |
+|----------|-------------|---------------|
+| `get_root` | Get the root directory of the Angreal project | [API Reference](get_root) |
+| `required_version` | Check for minimum required Angreal version | [API Reference](required_version) |
+
+## Example
+
 ```python
 import angreal
 import os
 
-# Get the project root directory
-root = angreal.get_root()
-print(f"Project root: {root}")
-
-# Build paths relative to root
-config_file = os.path.join(root, "config.yaml")
-```
-
-### Check Angreal Version
-```python
-import angreal
-
-# Require exact version
+# Check for required version
 angreal.required_version("2.0.0")
 
-# Require minimum version
-angreal.required_version(">=2.0.0")
+# Get the project root
+root_dir = angreal.get_root()
+templates_dir = os.path.join(root_dir, "templates")
 
-# Require version range
-angreal.required_version(">=2.0.0,<3.0.0")
+print(f"Project root: {root_dir}")
+print(f"Templates directory: {templates_dir}")
 ```
 
-### Get Template Context
-```python
-import angreal
+## Related Documentation
 
-# Get context from previous template run
-context = angreal.get_context()
-print(f"Project name: {context.get('project_name')}")
-```
-
-## See Also
-
-- [API Reference](/reference/python-api) - Python API overview
-- [How-to Guides](/how-to-guides) - Practical examples
+<!-- Geekdoc automatically generates child page navigation -->

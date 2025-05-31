@@ -12,6 +12,18 @@ test = angreal.command_group(name="test", about="commands for testing the"
 unit = angreal.command_group(name="unit", about="commands for running unit tests")
 integration = angreal.command_group(name="integration",
                                     about="commands for running integration tests")
+
+@test()
+@angreal.command(name="all", about="run all tests")
+def rust_tests():
+    """
+    Run the Rust tests
+    """
+    python_tests()
+    integration_rust_tests()
+    unit_rust_tests()
+
+
 @test()
 @unit()
 @angreal.command(name="python", about="run pytest unit tests")

@@ -1,44 +1,50 @@
 ---
-title: "Commands Module"
-weight: 1
+title: Commands
+weight: 10
 ---
 
-# Commands Module
+# Command System
 
-The commands module provides decorators and functions for defining Angreal tasks.
+The command system allows you to create CLI commands for your Angreal projects. Commands are defined using Python decorators and can be grouped into logical categories.
 
-## Available Functions
+## Overview
 
-- [`@command`](/reference/python-api/commands/command_decorator) - Define a command
-- [`@argument`](/reference/python-api/commands/argument_decorator) - Add arguments to commands
-- [`command_group`](/reference/python-api/commands/command_group) - Create command groups
+Angreal's command system consists of:
 
-## Quick Examples
+- **Commands** - Individual operations that can be executed from the command line
+- **Command Groups** - Collections of related commands
+- **Arguments** - Parameters that commands can accept
 
-### Simple Command
+## Key Components
+
+| Component | Description | Documentation |
+|-----------|-------------|---------------|
+| `@command` | Decorator to define a command | [API Reference](command_decorator) |
+| `@command_group` | Decorator to create a group of commands | [API Reference](command_group) |
+| `@argument` | Decorator to add arguments to commands | [API Reference](argument_decorator) |
+
+## Comprehensive Guide
+
+For a complete walkthrough of creating commands and arguments, see the [Command System Guide](commands_guide).
+
+## Examples
+
 ```python
 import angreal
 
-@angreal.command(name="test", about="Run tests")
-def test_command():
-    """Run the test suite."""
-    print("Running tests...")
+# Define a command group
+dev = angreal.command_group(name="dev", about="Development commands")
+
+# Create a command in the group
+@dev()
+@angreal.command(name="build", about="Build the project")
+@angreal.argument(name="target", long="target", takes_value=True,
+                 help="Build target", default_value="debug")
+def build_command(target):
+    """Build the project for the specified target."""
+    print(f"Building project for target: {target}")
 ```
 
-### Command with Arguments
-```python
-@angreal.command(name="deploy", about="Deploy application")
-@angreal.argument(name="env", help="Environment to deploy to")
-@angreal.argument(name="dry_run", long="dry-run", is_flag=True, help="Perform a dry run")
-def deploy_command(env, dry_run=False):
-    """Deploy to the specified environment."""
-    if dry_run:
-        print(f"Would deploy to {env}")
-    else:
-        print(f"Deploying to {env}")
-```
+## Related Documentation
 
-## See Also
-
-- [Commands Guide](/reference/python-api/commands/commands_guide) - Comprehensive guide
-- [Create a Task](/how-to-guides/create-a-task) - How-to guide
+<!-- Geekdoc automatically generates child page navigation -->

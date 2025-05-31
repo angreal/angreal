@@ -1,71 +1,55 @@
 ---
 title: "Angreal Documentation"
-geekdocNav: false
-geekdocAlign: center
 geekdocAnchor: false
 geekdocBreadcrumb: false
 ---
 
-# Welcome to Angreal
+# Angreal
 
-{{< hint type=tip icon=gdoc_timer title="Quick Start" >}}
-Get started with Angreal in minutes
-{{< /hint >}}
+**Task automation and project templating that scales**
 
-Angreal is a powerful task automation and project templating tool that combines the flexibility of Python with the performance of Rust. It helps developers automate repetitive tasks, maintain consistent project structures, and streamline their development workflows.
+Angreal combines the flexibility of Python with the performance of Rust to help developers automate repetitive tasks and maintain consistent project structures.
 
 ## What is Angreal?
 
-Angreal provides:
+Angreal solves the problem of "doing things often enough that they need automation, but not so often that you remember all the steps." It lets you remember by forgetting—you only need to remember the command, not the implementation details.
 
-- **Task Automation**: Define and run custom tasks with a simple Python API
-- **Project Templates**: Create and use templates to scaffold new projects quickly
-- **Cross-Platform**: Works seamlessly on Windows, macOS, and Linux
-- **Performance**: Rust-powered core for blazing-fast execution
-- **Extensible**: Python-based task definitions for maximum flexibility
+### Core Features
 
-## Documentation Structure
+- **Task Automation** - Define custom commands using Python decorators
+- **Project Templates** - Create reusable project scaffolds with Jinja2 templating
+- **Cross-Platform** - Works seamlessly on Windows, macOS, and Linux
+- **Fast & Reliable** - Rust-powered core with Python flexibility
+- **Project-Local** - Tasks and configuration travel with your project
 
-Our documentation follows the [Diataxis framework](https://diataxis.fr/) to help you find exactly what you need:
+## Why Angreal?
 
-{{< columns >}}
+The original Angreal was built on Python modules that created dependency conflicts. Version 2.0 is a complete rewrite using Rust for the core operations, eliminating dependency hell while maintaining the ease of Python for task definitions.
 
-### 📚 [Tutorials](/angreal/tutorials)
-**Learning-oriented**
+## Quick Example
 
-Step-by-step guides to help you get started with Angreal. Perfect for beginners who want to learn by doing.
+```bash
+# Install Angreal
+pip install 'angreal>=2'
 
-<--->
+# Initialize from a template
+angreal init https://github.com/angreal/python.git
 
-### 🛠️ [How-to Guides](/angreal/how-to-guides)
-**Task-oriented**
+# Define a custom task in .angreal/tasks.py
+@angreal.command(name="test", about="Run tests")
+def run_tests():
+    subprocess.run(["pytest", "tests/"])
 
-Practical guides showing you how to solve specific problems or accomplish particular tasks.
+# Run your task
+angreal test
+```
 
-{{< /columns >}}
+## Documentation Navigation
 
-{{< columns >}}
+Use the sidebar to explore:
 
-### 📖 [Reference](/angreal/reference)
-**Information-oriented**
-
-Complete technical reference for APIs, configuration options, and command-line interfaces.
-
-<--->
-
-### 💡 [Explanation](/angreal/explanation)
-**Understanding-oriented**
-
-Conceptual guides that explain the design decisions, architecture, and philosophy behind Angreal.
-
-{{< /columns >}}
-
-## Getting Started
-
-Ready to dive in? Start with our [Quick Start guide](/angreal/quick-start) to install Angreal and create your first task.
-
-{{< button relref="/quick-start" >}}Get Started{{< /button >}}
-
-## Contributing
-
-Angreal is open source and we welcome contributions! Check out our [Contributing Guide](/angreal/contributing) to learn how you can help improve Angreal.
+- **Quick Start** - Get up and running in minutes
+- **Tutorials** - Learn by building real projects
+- **How-to Guides** - Solve specific problems
+- **Reference** - Complete API and CLI documentation
+- **Explanation** - Understand the design and philosophy

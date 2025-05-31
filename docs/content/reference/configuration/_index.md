@@ -99,12 +99,12 @@ license = "Choose a license (MIT, Apache-2.0, GPL-3.0)"
 
 **Without custom prompts:**
 ```
-project_name: 
+project_name:
 ```
 
 **With custom prompts:**
 ```
-Enter your project name: 
+Enter your project name:
 ```
 
 ## Validation Rules
@@ -177,7 +177,7 @@ When validation fails, Angreal shows descriptive error messages:
 
 - **not_empty**: "Field cannot be empty"
 - **length_min**: "Must be at least 3 characters"
-- **length_max**: "Must be at most 50 characters"  
+- **length_max**: "Must be at most 50 characters"
 - **min/max**: "Value must be between 18 and 65"
 - **type**: "Value must be an integer"
 - **allowed_values**: "Input must be one of: MIT, Apache-2.0, GPL-3.0"
@@ -248,7 +248,7 @@ host = "localhost"
 port = 5432
 name = "webapp_db"
 
-# API configuration  
+# API configuration
 [api]
 version = "v1"
 port = 8000
@@ -293,7 +293,7 @@ database.port.type = "integer"
 database.port.min = 1
 database.port.max = 65535
 
-api.port.type = "integer"  
+api.port.type = "integer"
 api.port.min = 1024
 api.port.max = 65535
 

@@ -8,24 +8,7 @@ geekdocCollapseSection: true
 
 Conceptual guides that explain the "why" behind Angreal's design and implementation.
 
-## Core Concepts
-
-{{< columns >}}
-
-### [Why Angreal?](/angreal/explanation/why-angreal)
-The motivation and philosophy behind the project.
-
-<--->
-
-### [Architecture](/angreal/explanation/architecture)
-How Angreal combines Rust and Python for optimal performance and flexibility.
-
-{{< /columns >}}
-
-### [Init Behaviour](/angreal/explanation/init-behaviour)
-Deep dive into how `angreal init` works and template resolution.
-
-## Design Decisions
+## High Level Philosophy
 
 ### The Rust + Python Approach
 
@@ -56,10 +39,10 @@ Angreal automatically discovers tasks by:
 1. **Convention over Configuration**: Sensible defaults with override options
 2. **Progressive Disclosure**: Simple tasks stay simple, complex tasks are possible
 3. **Project-Local**: Tasks and configuration travel with the project
-4. **Cross-Platform**: Works the same on Windows, macOS, and Linux
+4. **Cross-Platform**: Core functionality works consistently across Windows, macOS, and Linux, with task authors able to handle OS-specific needs
 
 ## Further Reading
 
-- [Contributing](/angreal/contributing) - How to contribute to Angreal
-- [API Reference](/angreal/reference) - Technical details
-- [Tutorials](/angreal/tutorials) - Learn by example
+- [Contributing](/contributing) - How to contribute to Angreal
+- [API Reference](/reference) - Technical details
+- [Tutorials](/tutorials) - Learn by example

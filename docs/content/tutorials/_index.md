@@ -9,19 +9,19 @@ geekdocCollapseSection: true
 Welcome to the Angreal tutorials! These step-by-step guides will help you learn Angreal by building real projects.
 
 {{< hint type=note >}}
-**New to Angreal?** Start with [Your First Angreal](/angreal/tutorials/your_first_angreal) to learn the basics.
+**New to Angreal?** Start with [Your First Angreal](/tutorials/your_first_angreal) to learn the basics.
 {{< /hint >}}
 
 ## Available Tutorials
 
 {{< columns >}}
 
-### [Your First Angreal](/angreal/tutorials/your_first_angreal)
+### [Your First Angreal](/tutorials/your_first_angreal)
 Learn the fundamentals by creating a simple task automation project.
 
 <--->
 
-### [Meeting Notes Template](/angreal/tutorials/meeting-notes)
+### [Meeting Notes Template](/tutorials/meeting-notes)
 Build a template for generating consistent meeting notes.
 
 {{< /columns >}}
@@ -40,7 +40,7 @@ Each tutorial follows a consistent structure:
 
 Make sure you have:
 
-- ✅ Installed Angreal ([Quick Start](/angreal/quick-start))
+- ✅ Installed Angreal ([Quick Start](/quick-start))
 - ✅ Basic familiarity with Python
 - ✅ A code editor or IDE
 - ✅ About 15-30 minutes per tutorial
