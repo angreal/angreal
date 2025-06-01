@@ -213,19 +213,19 @@ fn install_python(version: &str) -> PyResult<String> {
 /// Handle the tree command
 fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool) -> PyResult<()> {
     use crate::builder::command_tree::CommandNode;
-    
+
     // Build command tree from registered tasks
     let mut root = CommandNode::new_group("angreal".to_string(), None);
-    
+
     if in_angreal_project {
         // Add all registered tasks to the command tree
         for task in ANGREAL_TASKS.lock().unwrap().iter() {
             root.add_command(task.clone());
         }
     }
-    
+
     let json_output = sub_matches.is_present("json");
-    
+
     if json_output {
         // Output JSON format
         match root.to_json() {
@@ -246,7 +246,7 @@ fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool)
             }
         }
     }
-    
+
     Ok(())
 }
 

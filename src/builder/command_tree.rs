@@ -47,11 +47,12 @@ impl CommandNode {
             name: command.name.clone(),
             about: command.about.clone(),
             long_about: command.long_about.clone(),
-            group: command.group.as_ref().map(|groups| {
-                groups.iter().map(|g| g.name.clone()).collect()
-            }),
+            group: command
+                .group
+                .as_ref()
+                .map(|groups| groups.iter().map(|g| g.name.clone()).collect()),
         };
-        
+
         CommandNode {
             name,
             command: Some(serializable_command),
@@ -103,7 +104,7 @@ impl CommandNode {
         if self.name != "root" {
             let connector = if is_last { "└── " } else { "├── " };
             output.push_str(&format!("{}{}{}", prefix, connector, self.name));
-            
+
             // Add description if available
             if let Some(about) = &self.about {
                 output.push_str(&format!(" - {}", about));

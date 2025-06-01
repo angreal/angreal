@@ -279,10 +279,7 @@ pub fn generate_completions(args: &[String]) -> Result<Vec<String>> {
     let mut completions = Vec::new();
 
     // Filter out empty strings from args (shell completion often adds them)
-    let filtered_args: Vec<String> = args.iter()
-        .filter(|s| !s.is_empty())
-        .cloned()
-        .collect();
+    let filtered_args: Vec<String> = args.iter().filter(|s| !s.is_empty()).cloned().collect();
 
     // If we're completing the first argument after 'angreal'
     if filtered_args.is_empty() {
@@ -349,26 +346,26 @@ fn get_available_tasks() -> Result<Vec<String>> {
 /// Get completions for nested commands
 fn get_nested_command_completions(args: &[String]) -> Result<Vec<String>> {
     use crate::builder::command_tree::CommandNode;
-    
+
     let mut completions = Vec::new();
-    
+
     // Build command tree from registered tasks
     let mut root = CommandNode::new_group("root".to_string(), None);
-    
+
     // Load tasks
     let angreal_path = crate::utils::is_angreal_project()?;
     let task_files = crate::utils::get_task_files(angreal_path)?;
-    
+
     // Load task files to register commands
     for task_file in task_files {
         let _ = crate::utils::load_python(task_file); // Ignore errors for completion
     }
-    
+
     // Add all registered tasks to the command tree
     for task in crate::task::ANGREAL_TASKS.lock().unwrap().iter() {
         root.add_command(task.clone());
     }
-    
+
     // Navigate the command tree based on the current args
     let mut current_node = &root;
     for arg in args {
@@ -379,7 +376,7 @@ fn get_nested_command_completions(args: &[String]) -> Result<Vec<String>> {
             return Ok(completions);
         }
     }
-    
+
     // Return the names of all children at the current level
     for (name, child) in &current_node.children {
         // Only suggest groups if they have children, or commands if they're leaf nodes
@@ -387,10 +384,10 @@ fn get_nested_command_completions(args: &[String]) -> Result<Vec<String>> {
             completions.push(name.clone());
         }
     }
-    
+
     // Sort for consistent output
     completions.sort();
-    
+
     Ok(completions)
 }
 
