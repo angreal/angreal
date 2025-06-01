@@ -93,4 +93,3 @@ The binary-first approach allows for:
 - Easy UV version updates
 - Potential support for multiple package managers
 - Simple integration of future UV features
-

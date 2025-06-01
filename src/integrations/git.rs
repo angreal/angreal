@@ -172,11 +172,11 @@ impl Git {
 
     pub fn status(&self, short: bool) -> Result<String> {
         let repo = self.get_repo()?;
-        
+
         // Create status options with workaround for 32-bit systems
         let mut opts = StatusOptions::new();
         opts.include_untracked(true);
-        
+
         // On 32-bit systems, we may need to disable certain checks that can overflow
         // when dealing with large file system values
         #[cfg(target_pointer_width = "32")]
@@ -185,7 +185,7 @@ impl Git {
             opts.include_ignored(false);
             opts.recurse_untracked_dirs(false);
         }
-        
+
         let statuses = match repo.statuses(Some(&mut opts)) {
             Ok(s) => s,
             Err(e) => {
@@ -195,7 +195,7 @@ impl Git {
                     simple_opts.include_untracked(false);
                     simple_opts.include_ignored(false);
                     simple_opts.recurse_untracked_dirs(false);
-                    
+
                     match repo.statuses(Some(&mut simple_opts)) {
                         Ok(s) => s,
                         Err(_) => {

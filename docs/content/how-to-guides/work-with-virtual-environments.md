@@ -77,4 +77,3 @@ for version, path in pythons:
 - Read the [Virtual Environment API Reference](/reference/python-api/integrations/venv) for complete API documentation
 - Learn about [UV Integration Architecture](/explanation/uv_integration_architecture) for implementation details
 - Explore [Creating Tasks](/how-to-guides/create-a-task) to integrate environments with your automation workflows
-
