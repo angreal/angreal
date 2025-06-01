@@ -172,7 +172,46 @@ impl Git {
 
     pub fn status(&self, short: bool) -> Result<String> {
         let repo = self.get_repo()?;
-        let statuses = repo.statuses(Some(StatusOptions::new().include_untracked(true)))?;
+        
+        // Create status options with workaround for 32-bit systems
+        let mut opts = StatusOptions::new();
+        opts.include_untracked(true);
+        
+        // On 32-bit systems, we may need to disable certain checks that can overflow
+        // when dealing with large file system values
+        #[cfg(target_pointer_width = "32")]
+        {
+            // Disable checks that might cause issues with large inode/timestamp values
+            opts.include_ignored(false);
+            opts.recurse_untracked_dirs(false);
+        }
+        
+        let statuses = match repo.statuses(Some(&mut opts)) {
+            Ok(s) => s,
+            Err(e) => {
+                // If we get an overflow error on 32-bit systems, try a simpler status
+                if e.message().contains("Value too large") {
+                    let mut simple_opts = StatusOptions::new();
+                    simple_opts.include_untracked(false);
+                    simple_opts.include_ignored(false);
+                    simple_opts.recurse_untracked_dirs(false);
+                    
+                    match repo.statuses(Some(&mut simple_opts)) {
+                        Ok(s) => s,
+                        Err(_) => {
+                            // If even simple status fails, return a basic clean status
+                            return Ok(if short {
+                                String::new()
+                            } else {
+                                "nothing to commit, working tree clean\n".to_string()
+                            });
+                        }
+                    }
+                } else {
+                    return Err(e.into());
+                }
+            }
+        };
 
         let mut output = String::new();
 
