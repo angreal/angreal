@@ -4,7 +4,6 @@
 [![image](https://img.shields.io/pypi/l/angreal.svg)](https://pypi.python.org/pypi/angreal)
 [![Angreal Tests](https://github.com/angreal/angreal/actions/workflows/test.yaml/badge.svg?branch=main)](https://github.com/angreal/angreal/actions/workflows/test.yaml)
 [![Angreal Docs Deploy](https://github.com/angreal/angreal/actions/workflows/docs.yaml/badge.svg)](https://github.com/angreal/angreal/actions/workflows/docs.yaml)
-[![Angreal Release](https://github.com/angreal/angreal/actions/workflows/release.yaml/badge.svg?event=release)](https://github.com/angreal/angreal/actions/workflows/release.yaml)
 ---
 [Docs are available here.](https://angreal.github.io/angreal/)
 
