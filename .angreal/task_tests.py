@@ -12,26 +12,27 @@ cwd = os.path.join(angreal.get_root(),'..')
 test = angreal.command_group(name="test", about="commands for testing the"
                              " application and library")
 
-unit = angreal.command_group(name="unit", about="commands for running unit tests")
-integration = angreal.command_group(name="integration",
-                                    about="commands for running integration tests")
-
-completion = angreal.command_group(name="completion",
-                                  about="commands for testing shell completion")
-
 @test()
 @angreal.command(name="all", about="run all tests")
-def rust_tests():
+def all_tests():
     """
-    Run the Rust tests
+    Run all tests: Python, Rust (unit + integration), and completion tests
     """
+    print("=== Running All Tests ===\n")
+
+    print("1. Running Python tests...")
     python_tests()
-    integration_rust_tests()
-    unit_rust_tests()
+
+    print("\n2. Running Rust tests...")
+    rust_tests_combined()
+
+    print("\n3. Running completion tests...")
+    test_completion_all()
+
+    print("\n🎉 All test suites completed!")
 
 
 @test()
-@unit()
 @angreal.command(name="python", about="run pytest unit tests")
 def python_tests():
     """
@@ -46,8 +47,42 @@ def python_tests():
     subprocess.run([sys.executable, "-m", "pytest", "-svv"], cwd=cwd)
 
 @test()
-@integration()
-@angreal.command(name="rust", about="run cargo integration tests")
+@angreal.command(name="rust", about="run cargo unit and integration tests")
+@angreal.argument(
+    name="unit_only",
+    long="unit-only",
+    help="run only unit tests",
+    required=False,
+    takes_value=False,
+    is_flag=True
+)
+@angreal.argument(
+    name="integration_only",
+    long="integration-only",
+    help="run only integration tests",
+    required=False,
+    takes_value=False,
+    is_flag=True
+)
+def rust_tests_combined(unit_only: bool = False, integration_only: bool = False):
+    """
+    Run Rust unit and integration tests
+    """
+    if unit_only and integration_only:
+        print("Error: Cannot specify both --unit-only and --integration-only")
+        return 1
+
+    if integration_only:
+        print("Running Rust integration tests only...")
+        integration_rust_tests()
+    elif unit_only:
+        print("Running Rust unit tests only...")
+        unit_rust_tests()
+    else:
+        print("Running all Rust tests...")
+        unit_rust_tests()
+        integration_rust_tests()
+
 def integration_rust_tests():
     """
     Run the Rust integration tests
@@ -58,9 +93,6 @@ def integration_rust_tests():
         ], cwd=cwd, shell=True
     )
 
-@test()
-@unit()
-@angreal.command(name="rust", about="run cargo unit tests")
 def unit_rust_tests():
     """
     Run the Rust unit tests
@@ -73,8 +105,36 @@ def unit_rust_tests():
 
 
 @test()
-@completion()
-@angreal.command(name="bash", about="test bash completion script generation")
+@angreal.command(name="completion", about="run all shell completion tests")
+@angreal.argument(
+    name="shell",
+    long="shell",
+    help="run tests for specific shell (bash, zsh)",
+    required=False,
+    takes_value=True
+)
+def test_completion_all(shell: str = None):
+    """
+    Run all completion tests or tests for a specific shell
+    """
+    if shell and shell not in ["bash", "zsh"]:
+        print(f"Error: Unknown shell '{shell}'. Supported: bash, zsh")
+        return 1
+
+    if shell == "bash":
+        print("Running bash completion tests only...")
+        test_bash_completion()
+    elif shell == "zsh":
+        print("Running zsh completion tests only...")
+        test_zsh_completion()
+    else:
+        print("Running all completion tests...")
+        test_bash_completion()
+        test_zsh_completion()
+        test_completion_generation()
+        test_template_discovery()
+        print("🎉 All completion tests passed!")
+
 def test_bash_completion():
     """
     Test bash completion script generation
@@ -109,10 +169,6 @@ def test_bash_completion():
 
     print("✅ Bash completion script generation: PASSED")
 
-
-@test()
-@completion()
-@angreal.command(name="zsh", about="test zsh completion script generation")
 def test_zsh_completion():
     """
     Test zsh completion script generation
@@ -147,10 +203,6 @@ def test_zsh_completion():
 
     print("✅ Zsh completion script generation: PASSED")
 
-
-@test()
-@completion()
-@angreal.command(name="completions", about="test completion generation for commands")
 def test_completion_generation():
     """
     Test completion generation for various command contexts
@@ -198,13 +250,6 @@ def test_completion_generation():
     else:
         print(f"Project completion failed: {result.stderr}")
 
-
-@test()
-@completion()
-@angreal.command(
-    name="template-discovery",
-    about="test template discovery for completion"
-)
 def test_template_discovery():
     """
     Test template discovery functionality
@@ -265,20 +310,3 @@ def test_template_discovery():
                 os.environ["HOME"] = original_home
             else:
                 os.environ.pop("HOME", None)
-
-
-@test()
-@completion()
-@angreal.command(name="all", about="run all completion tests")
-def test_completion_all():
-    """
-    Run all completion tests
-    """
-    print("Running all completion tests...")
-
-    test_bash_completion()
-    test_zsh_completion()
-    test_completion_generation()
-    test_template_discovery()
-
-    print("🎉 All completion tests passed!")
