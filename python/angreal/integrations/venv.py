@@ -14,8 +14,6 @@ from angreal import (
     install_python,
 )
 
-ensure_uv_installed()
-
 
 def venv_required(path, requirements=None):
     """Wrap a function in a virtual environment before execution
@@ -62,6 +60,7 @@ class VirtualEnv:
 
     def _create(self) -> None:
         """Create virtual environment using UV."""
+        ensure_uv_installed()
         create_virtualenv(str(self.path), self.python_version)
 
     def install_requirements(self) -> None:
@@ -69,6 +68,7 @@ class VirtualEnv:
         if not self.requirements:
             return
 
+        ensure_uv_installed()
         if isinstance(self.requirements, list):
             install_packages(str(self.path), self.requirements)
         elif isinstance(self.requirements, str) and Path(self.requirements).exists():
@@ -83,6 +83,7 @@ class VirtualEnv:
 
     def install(self, packages: Union[str, List[str], Path]) -> None:
         """Install packages using UV."""
+        ensure_uv_installed()
         if isinstance(packages, (str, Path)) and str(packages).endswith('.txt'):
             install_requirements(str(self.path), str(packages))
         else:
@@ -105,16 +106,19 @@ class VirtualEnv:
     @staticmethod
     def discover_available_pythons() -> List[tuple[str, str]]:
         """Discover all Python installations on the system."""
+        ensure_uv_installed()
         return discover_pythons()
 
     @staticmethod
     def ensure_python(version: str) -> str:
         """Ensure a specific Python version is available, installing if needed."""
+        ensure_uv_installed()
         return install_python(version)
 
     @staticmethod
     def version() -> str:
         """Get UV version."""
+        ensure_uv_installed()
         return uv_version()
 
     def __str__(self):
