@@ -23,6 +23,8 @@ jobs:
           python-version: '3.12'
           architecture: x64
       - uses: dtolnay/rust-toolchain@stable
+      - name: Install UV manually
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH="$HOME/.local/bin:$PATH"
       - name: Build wheels - x86_64
         uses: PyO3/maturin-action@v1
         with:
@@ -30,6 +32,7 @@ jobs:
           args: --release --out dist --sdist -i 3.9 3.10 3.11 3.12 3.13
       - name: Install built wheel - x86_64
         run: |
+          export PATH="$HOME/.local/bin:$PATH"
           pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
@@ -48,12 +51,15 @@ jobs:
           python-version: '3.12'
           architecture: x64
       - uses: dtolnay/rust-toolchain@stable
+      - name: Install UV manually
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH="$HOME/.local/bin:$PATH"
       - name: Build wheels - universal2
         uses: PyO3/maturin-action@v1
         with:
           args: --release --target universal2-apple-darwin --out dist -i 3.9 3.10 3.11 3.12 3.13
       - name: Install built wheel - universal2
         run: |
+          export PATH="$HOME/.local/bin:$PATH"
           pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
@@ -80,6 +86,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Set PowerShell execution policy
         run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+      - name: Install UV manually
+        run: |
+          irm https://astral.sh/uv/install.ps1 | iex
+          $env:PATH = "$env:USERPROFILE\.local\bin;$env:PATH"
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -87,6 +97,10 @@ jobs:
           args: --release --out dist -i ${{ matrix.platform.interpreter }}
       - name: Install built wheel
         run: |
+          # Add UV to PATH if it exists
+          $env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.cargo\bin;$env:PATH"
+          # Verify UV installation
+          try { uv --version; Write-Host "UV found: $(uv --version)" } catch { Write-Host "UV not found in PATH" }
           pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
@@ -152,7 +166,18 @@ jobs:
             apt-get update
             apt-get install -y --no-install-recommends python3 python3-pip python3-venv git curl
             pip3 install -U pip pytest packaging
+            # Install UV manually
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            # Add UV to system PATH permanently
+            echo 'export PATH="/root/.local/bin:$PATH"' >> /etc/profile
+            echo 'export PATH="/root/.local/bin:$PATH"' >> /root/.bashrc
           run: |
+            # Source the PATH update and verify UV installation
+            export PATH="/root/.local/bin:$HOME/.cargo/bin:$PATH"
+            which uv && echo "UV found at: $(which uv)" || echo "UV not found in PATH"
+            # Set custom temp directory to avoid ARM7 filesystem issues
+            export TMPDIR=/home/runner/tmp
+            mkdir -p $TMPDIR
             pip3 install packaging pytest angreal --find-links dist --force-reinstall
             pytest
       - name: Upload wheels
@@ -228,10 +253,21 @@ jobs:
           distro: alpine_latest
           githubToken: ${{ github.token }}
           install: |
-            apk add py3-pip
+            apk add py3-pip curl
+            # Install UV manually
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            # Add UV to system PATH permanently
+            echo 'export PATH="/root/.local/bin:$PATH"' >> /etc/profile
+            echo 'export PATH="/root/.local/bin:$PATH"' >> /root/.profile
           run: |
             python3 -m venv .venv
             . .venv/bin/activate
+            # Source the PATH update and verify UV installation
+            export PATH="/root/.local/bin:$HOME/.cargo/bin:$PATH"
+            which uv && echo "UV found at: $(which uv)" || echo "UV not found in PATH"
+            # Set custom temp directory to avoid ARM filesystem issues
+            export TMPDIR=/home/runner/tmp
+            mkdir -p $TMPDIR
             pip3 install -U pip pytest
             pip3 install packaging pytest angreal --find-links dist --force-reinstall
       - name: Upload wheels
