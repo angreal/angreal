@@ -86,6 +86,19 @@ fn add_completion_subcommands(app: App<'static>) -> App<'static> {
     )
 }
 
+fn add_tree_subcommand(app: App<'static>) -> App<'static> {
+    app.subcommand(
+        Command::new("tree")
+            .about("Display the command tree structure")
+            .arg(
+                Arg::new("json")
+                    .long("json")
+                    .takes_value(false)
+                    .help("Output in JSON format"),
+            ),
+    )
+}
+
 fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
     // Build the command tree
     let mut root = CommandNode::new_group("angreal".to_string(), None);
@@ -157,8 +170,9 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
     // Build the initial App with angreal sub commands
     let mut app = base_app_setup();
 
-    // Always add completion subcommands (hidden)
+    // Always add completion subcommands (hidden) and tree command
     app = add_completion_subcommands(app);
+    app = add_tree_subcommand(app);
 
     if in_angreal_project {
         app = add_project_subcommands(app);

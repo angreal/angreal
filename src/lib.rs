@@ -210,6 +210,46 @@ fn install_python(version: &str) -> PyResult<String> {
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
 }
 
+/// Handle the tree command
+fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool) -> PyResult<()> {
+    use crate::builder::command_tree::CommandNode;
+    
+    // Build command tree from registered tasks
+    let mut root = CommandNode::new_group("angreal".to_string(), None);
+    
+    if in_angreal_project {
+        // Add all registered tasks to the command tree
+        for task in ANGREAL_TASKS.lock().unwrap().iter() {
+            root.add_command(task.clone());
+        }
+    }
+    
+    let json_output = sub_matches.is_present("json");
+    
+    if json_output {
+        // Output JSON format
+        match root.to_json() {
+            Ok(json) => println!("{}", json),
+            Err(e) => {
+                error!("Failed to serialize command tree to JSON: {}", e);
+                std::process::exit(1);
+            }
+        }
+    } else {
+        // Output human-readable tree format
+        if in_angreal_project && !root.children.is_empty() {
+            println!("{}", root.display_tree());
+        } else {
+            println!("No commands available");
+            if !in_angreal_project {
+                println!("(Not in an angreal project - only 'init' command is available)");
+            }
+        }
+    }
+    
+    Ok(())
+}
+
 /// The main function is just an entry point to be called from the core angreal library.
 #[pyfunction]
 fn main() -> PyResult<()> {
@@ -322,6 +362,10 @@ fn main() -> PyResult<()> {
                 }
             }
             return Ok(());
+        }
+        Some(("tree", _sub_matches)) => {
+            // Command tree display
+            return handle_tree_command(_sub_matches, in_angreal_project);
         }
         Some((task, sub_m)) => {
             if !in_angreal_project {
