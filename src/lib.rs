@@ -11,6 +11,7 @@ extern crate version;
 pub mod macros;
 
 pub mod builder;
+pub mod completion;
 pub mod error_formatter;
 pub mod git;
 pub mod init;
@@ -224,6 +225,11 @@ fn main() -> PyResult<()> {
     let mut argvs: Vec<String> = std::env::args().collect();
     argvs = argvs.split_off(2);
 
+    // Auto-install shell completion on first run (before other operations)
+    if let Err(e) = completion::auto_install_completion() {
+        warn!("Failed to auto-install shell completion: {}", e);
+    }
+
     debug!("Checking if binary is up to date...");
     match utils::check_up_to_date() {
         Ok(()) => (),
@@ -284,6 +290,39 @@ fn main() -> PyResult<()> {
                 None
             },
         ),
+        Some(("_complete", _sub_matches)) => {
+            // Hidden command for shell completion
+            let args: Vec<String> = _sub_matches
+                .values_of("args")
+                .unwrap_or_default()
+                .map(|s| s.to_string())
+                .collect();
+
+            match completion::generate_completions(&args) {
+                Ok(completions) => {
+                    for completion in completions {
+                        println!("{}", completion);
+                    }
+                }
+                Err(e) => {
+                    debug!("Completion generation failed: {}", e);
+                }
+            }
+            return Ok(());
+        }
+        Some(("_completion", _sub_matches)) => {
+            // Hidden command for completion script generation
+            let shell = _sub_matches.value_of("shell").unwrap_or("bash");
+            match shell {
+                "bash" => println!("{}", completion::bash::generate_completion_script()),
+                "zsh" => println!("{}", completion::zsh::generate_completion_script()),
+                _ => {
+                    error!("Unsupported shell for completion: {}", shell);
+                    exit(1);
+                }
+            }
+            return Ok(());
+        }
         Some((task, sub_m)) => {
             if !in_angreal_project {
                 error!("This doesn't appear to be an angreal project.");
