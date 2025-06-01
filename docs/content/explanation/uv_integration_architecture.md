@@ -5,6 +5,7 @@ weight: 30
 
 # UV Integration Architecture
 
+
 This document explains how Angreal integrates with UV and why we chose a binary-first approach.
 
 ## Overview
@@ -39,6 +40,7 @@ graph TD
 
 ### Platform-Specific Installation
 
+
 **Unix/macOS**:
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -48,6 +50,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```powershell
 irm https://astral.sh/uv/install.ps1 | iex
 ```
+
 
 ### Error Handling
 
@@ -90,3 +93,4 @@ The binary-first approach allows for:
 - Easy UV version updates
 - Potential support for multiple package managers
 - Simple integration of future UV features
+
