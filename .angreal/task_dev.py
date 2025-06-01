@@ -18,7 +18,7 @@ def is_program_available(program_name):
                  "verify the development environment")
 def setup():
 
-    subprocess.run("python -m pip install maturin pre-commit pytest",
+    subprocess.run("python3 -m pip install -e .",
                    shell=True, cwd=project_root, check=True)
     # Setup the virtual environment as .venv in the root folder
 
