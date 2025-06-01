@@ -5,16 +5,16 @@ weight: 1
 
 # angreal.integrations.git
 
-Programmatic access to git operations.
+Programmatic access to git operations using a high-performance Rust backend.
 
 ## Classes
 
 ### Git
 
-A lightweight wrapper for git operations.
+A high-performance wrapper for git operations powered by Rust and libgit2.
 
 ```python
-from angreal.integrations import Git
+from angreal.integrations.git import Git
 
 git = Git()
 ```
@@ -22,16 +22,14 @@ git = Git()
 #### Constructor
 
 ```python
-Git(git_path=None, working_dir=None)
+Git(working_dir=None)
 ```
 
 **Parameters:**
-- `git_path` (str, optional): Path to the git executable. If not provided, will search PATH.
 - `working_dir` (str, optional): The working directory for git operations. Defaults to current directory.
 
 **Raises:**
-- `FileNotFoundError`: If the specified working_dir doesn't exist
-- `OSError`: If git is not found in PATH
+- `RuntimeError`: If the specified working_dir doesn't exist
 
 #### Methods
 

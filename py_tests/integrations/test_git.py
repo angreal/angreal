@@ -5,19 +5,11 @@ import shutil
 from angreal.integrations.git import Git, GitException
 
 
-def test_git_no_path():
+def test_git_no_working_dir():
     """
-    test git object fails with no path
+    test git object works with no working directory specified
     """
-    Git(git_path=None)
-
-
-def test_git_bad_path():
-    """
-    test git object fails with bad path
-    """
-    with pytest.raises(OSError):
-        Git(git_path="not git")
+    Git()
 
 
 def test_git_bad_subcommand():

@@ -6,7 +6,7 @@ license = "GPL-3.0-only"
 name = "angreal"
 readme = "README.md"
 repository = "https://github.com/angreal/angreal"
-version = "2.2.0"
+version = "2.3.0"
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -36,6 +36,7 @@ openssl = { version = "0.10", features = ["vendored"] }
 pythonize = { version ="0.18.0" }
 pyo3 = { version = "^0.18", features = ["auto-initialize"]}
 reqwest = { version = "0.11.18", features = ["blocking","json"] }
+serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1" }
 tempfile = { version = "3.10.0"}
 tera = { version = "1.17.1" , features = ["builtins"]}
