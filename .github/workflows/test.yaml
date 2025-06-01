@@ -6,8 +6,16 @@ on:  # yamllint disable-line rule:truthy
     branches:
       - main
       - master
-      - 'cicd-*'  # Special trigger for CI/CD testing branches
+      - dev
+      - 'feat/**'  # Feature branches
+      - 'fix/**'   # Bugfix branches
+      - 'cicd-*'   # Special trigger for CI/CD testing branches
       - 'cicd/**'  # Alternative pattern for nested cicd branches
+  pull_request:
+    branches:
+      - main
+      - master
+      - dev
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
