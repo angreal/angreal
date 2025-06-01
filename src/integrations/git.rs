@@ -439,17 +439,17 @@ impl Git {
 fn extract_repo_name(url: &str) -> Result<String> {
     let name = if url.starts_with("git@") || url.ends_with(".git") {
         url.split('/')
-            .last()
+            .next_back()
             .and_then(|s| s.strip_suffix(".git"))
             .or_else(|| {
                 url.split(':')
-                    .last()?
+                    .next_back()?
                     .split('/')
-                    .last()?
+                    .next_back()?
                     .strip_suffix(".git")
             })
     } else {
-        url.split('/').last()
+        url.split('/').next_back()
     };
 
     name.map(|s| s.to_string())

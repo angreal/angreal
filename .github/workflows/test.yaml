@@ -26,7 +26,7 @@ env:
   CARGO_NET_RETRY: 10
   RUSTUP_MAX_RETRIES: 10
   RUST_BACKTRACE: full
-  RUST_VERSION: "1.75.0"  # Latest stable Rust version
+  RUST_VERSION: "1.85.1"  # Latest stable Rust version
   # Control production uploads based on branch
   IS_CICD_BRANCH: ${{ startsWith(github.ref, 'refs/heads/cicd') }}
   # Use test repositories for cicd branches
@@ -46,6 +46,7 @@ jobs:
         uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
+          toolchain: ${{ env.RUST_VERSION }}
           components: rustfmt, clippy
       - uses: pre-commit/action@v3.0.0
         with:
@@ -77,6 +78,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --all
 
@@ -87,6 +90,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
       - uses: Swatinem/rust-cache@v2
       - uses: webfactory/ssh-agent@v0.9.1
         with:
@@ -122,6 +127,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
       - uses: Swatinem/rust-cache@v2
       - uses: webfactory/ssh-agent@v0.9.1
         with:
@@ -157,6 +164,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
       - uses: Swatinem/rust-cache@v2
       - uses: webfactory/ssh-agent@v0.9.1
         with:

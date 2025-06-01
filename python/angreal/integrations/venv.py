@@ -44,7 +44,13 @@ class VirtualEnv:
 
     base_path = Path.home() / ".venv"
 
-    def __init__(self, path: Union[str, Path] = ".venv", python: Optional[str] = None, requirements=None, now=True):
+    def __init__(
+        self,
+        path: Union[str, Path] = ".venv",
+        python: Optional[str] = None,
+        requirements=None,
+        now=True
+    ):
         self.path = Path(path)
         self.python_version = python
         self.requirements = requirements
@@ -71,7 +77,8 @@ class VirtualEnv:
             install_packages(str(self.path), [self.requirements])
         else:
             raise TypeError(
-                f"requirements should be one of: file, list, or string got {type(self.requirements)}"
+                f"requirements should be one of: file, list, or string "
+                f"got {type(self.requirements)}"
             )
 
     def install(self, packages: Union[str, List[str], Path]) -> None:

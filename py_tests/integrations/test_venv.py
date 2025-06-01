@@ -131,7 +131,11 @@ def test_uv_version():
     assert "uv" in version.lower()
 
 
-@pytest.mark.skipif(True, reason="UV install_python has discovery mismatch issue - functionality works but test assertion fails")
+@pytest.mark.skipif(
+    True,
+    reason="UV install_python has discovery mismatch issue - "
+    "functionality works but test assertion fails"
+)
 def test_ensure_python():
     """
     Test ensuring a Python version is available
@@ -154,7 +158,8 @@ def test_ensure_python():
             if "cpython-" in version:
                 version = version.replace("cpython-", "").rsplit(".", 1)[0]  # "3.11"
             elif "-" in version:
-                version = version.split("-")[1].rsplit(".", 1)[0]  # Handle other formats
+                # Handle other formats
+                version = version.split("-")[1].rsplit(".", 1)[0]
 
             # This should succeed since the Python version is already available
             path = VirtualEnv.ensure_python(version)
