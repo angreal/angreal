@@ -63,6 +63,29 @@ fn add_init_subcommand(app: App<'static>) -> App<'static> {
     )
 }
 
+fn add_completion_subcommands(app: App<'static>) -> App<'static> {
+    app.subcommand(
+        Command::new("_complete")
+            .hide(true) // Hidden from help
+            .about("Generate shell completions (internal use)")
+            .arg(
+                Arg::new("args")
+                    .multiple_values(true)
+                    .help("Arguments to complete"),
+            ),
+    )
+    .subcommand(
+        Command::new("_completion")
+            .hide(true) // Hidden from help
+            .about("Generate completion script (internal use)")
+            .arg(
+                Arg::new("shell")
+                    .takes_value(true)
+                    .help("Shell to generate completion for"),
+            ),
+    )
+}
+
 fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
     // Build the command tree
     let mut root = CommandNode::new_group("angreal".to_string(), None);
@@ -133,6 +156,9 @@ fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
 pub fn build_app(in_angreal_project: bool) -> App<'static> {
     // Build the initial App with angreal sub commands
     let mut app = base_app_setup();
+
+    // Always add completion subcommands (hidden)
+    app = add_completion_subcommands(app);
 
     if in_angreal_project {
         app = add_project_subcommands(app);
