@@ -92,12 +92,12 @@ jobs:
       - run: pip install .
       - name: Unit Tests
         run: |
-          angreal test unit rust
-          angreal test unit python
+          angreal test rust --unit-only
+          angreal test python
           angreal --version
       - name: Integration Tests
         continue-on-error: true
-        run: angreal test integration rust
+        run: angreal test rust --integration-only
       - name: Functional Tests
         continue-on-error: true
         run: |
@@ -127,12 +127,12 @@ jobs:
       - run: pip install .
       - name: Unit Tests
         run: |
-          angreal test unit rust
-          angreal test unit python
+          angreal test rust --unit-only
+          angreal test python
           angreal --version
       - name: Integration Tests
         continue-on-error: true
-        run: angreal test integration rust
+        run: angreal test rust --integration-only
       - name: Functional Tests
         continue-on-error: true
         run: |
@@ -162,12 +162,12 @@ jobs:
       - run: pip install .
       - name: Unit Tests
         run: |
-          angreal test unit rust
-          angreal test unit python
+          angreal test rust --unit-only
+          angreal test python
           angreal --version
       - name: Integration Tests
         continue-on-error: true
-        run: angreal test integration rust
+        run: angreal test rust --integration-only
       - name: Functional Tests
         continue-on-error: true
         run: |
