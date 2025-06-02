@@ -213,6 +213,8 @@ fn install_python(version: &str) -> PyResult<String> {
 /// Handle the tree command
 fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool) -> PyResult<()> {
     use crate::builder::command_tree::CommandNode;
+    use crate::builder::select_args;
+    use crate::task::{AngrealCommand, AngrealGroup};
 
     // Build command tree from registered tasks
     let mut root = CommandNode::new_group("angreal".to_string(), None);
@@ -220,7 +222,74 @@ fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool)
     if in_angreal_project {
         // Add all registered tasks to the command tree
         for task in ANGREAL_TASKS.lock().unwrap().iter() {
-            root.add_command(task.clone());
+            // Get arguments for this command
+            let args = select_args(&task.name);
+            
+            // Create a command node
+            let mut command_node = CommandNode::new_command(task.name.clone(), task.clone());
+            
+            // Add arguments as child nodes
+            if !args.is_empty() {
+                // Group arguments by type
+                let mut required_args = Vec::new();
+                let mut optional_args = Vec::new();
+                
+                for arg in args {
+                    let arg_name = if let Some(long) = &arg.long {
+                        format!("--{}", long)
+                    } else if let Some(short) = arg.short {
+                        format!("-{}", short)
+                    } else {
+                        arg.name.clone()
+                    };
+                    
+                    let help = arg.help.as_deref().unwrap_or("No description");
+                    let arg_type = arg.python_type.as_deref().unwrap_or("str");
+                    let default = arg.default_value.as_deref().map(|d| format!(" (default: {})", d));
+                    
+                    let arg_info = format!("[{}]{} - {}", 
+                        arg_type,
+                        default.unwrap_or_default(),
+                        help
+                    );
+                    
+                    // Create a dummy command for the argument
+                    let arg_cmd = AngrealCommand {
+                        name: arg_name,
+                        about: Some(arg_info),
+                        long_about: None,
+                        group: None,
+                        func: task.func.clone(),
+                    };
+                    
+                    if arg.required.unwrap_or(false) {
+                        required_args.push(arg_cmd);
+                    } else {
+                        optional_args.push(arg_cmd);
+                    }
+                }
+                
+                // Add required arguments group
+                if !required_args.is_empty() {
+                    let mut required_group = CommandNode::new_group("required arguments".to_string(), Some("Required arguments for this command".to_string()));
+                    for arg in required_args {
+                        required_group.add_command(arg);
+                    }
+                    command_node.children.insert("required arguments".to_string(), required_group);
+                }
+                
+                // Add optional arguments group
+                if !optional_args.is_empty() {
+                    let mut optional_group = CommandNode::new_group("optional arguments".to_string(), Some("Optional arguments for this command".to_string()));
+                    for arg in optional_args {
+                        optional_group.add_command(arg);
+                    }
+                    command_node.children.insert("optional arguments".to_string(), optional_group);
+                }
+            }
+            
+            // Add the command to the root
+            root.children.insert(task.name.clone(), command_node);
         }
     }
 
