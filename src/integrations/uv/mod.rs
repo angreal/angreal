@@ -226,7 +226,7 @@ else:
                 // Final fallback for Unix
                 self.path.join("lib").join("python3").join("site-packages")
             };
-            
+
             return Ok(site_packages_path);
         }
 
