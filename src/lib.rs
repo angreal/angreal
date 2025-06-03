@@ -221,7 +221,7 @@ fn get_venv_activation_info(venv_path: &str) -> PyResult<integrations::uv::Activ
 
 /// Handle the tree command
 fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool) -> PyResult<()> {
-    use crate::builder::command_tree::CommandNode;
+    use crate::builder::command_tree::{ArgumentSchema, CommandNode};
     use crate::builder::select_args;
     #[allow(unused_imports)]
     use crate::task::{AngrealCommand, AngrealGroup};
@@ -232,20 +232,24 @@ fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool)
     if in_angreal_project {
         // Add all registered tasks to the command tree
         for task in ANGREAL_TASKS.lock().unwrap().iter() {
-            // Get arguments for this command
-            let args = select_args(&task.name);
+            root.add_command(task.clone());
+        }
+    }
 
-            // Create a command node
-            let mut command_node = CommandNode::new_command(task.name.clone(), task.clone());
+    let json_output = sub_matches.is_present("json");
 
-            // Add arguments as child nodes
-            if !args.is_empty() {
-                // Group arguments by type
-                let mut required_args = Vec::new();
-                let mut optional_args = Vec::new();
+    if json_output {
+        // Output new schema JSON format
+        let mut schema = root.to_project_schema();
 
-                for arg in args {
-                    let arg_name = if let Some(long) = &arg.long {
+        // Populate arguments for each command
+        for command_schema in &mut schema.commands {
+            let args = select_args(&command_schema.name);
+
+            command_schema.arguments = args
+                .into_iter()
+                .map(|arg| {
+                    let flag = if let Some(long) = &arg.long {
                         format!("--{}", long)
                     } else if let Some(short) = arg.short {
                         format!("-{}", short)
@@ -253,71 +257,41 @@ fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool)
                         arg.name.clone()
                     };
 
-                    let help = arg.help.as_deref().unwrap_or("No description");
-                    let arg_type = arg.python_type.as_deref().unwrap_or("str");
-                    let default = arg
-                        .default_value
-                        .as_deref()
-                        .map(|d| format!(" (default: {})", d));
-
-                    let arg_info =
-                        format!("[{}]{} - {}", arg_type, default.unwrap_or_default(), help);
-
-                    // Create a dummy command for the argument
-                    let arg_cmd = AngrealCommand {
-                        name: arg_name,
-                        about: Some(arg_info),
-                        long_about: None,
-                        group: None,
-                        func: task.func.clone(),
+                    let arg_type = if arg.is_flag.unwrap_or(false) {
+                        "flag".to_string()
+                    } else if arg.name.starts_with("--") || arg.name.starts_with("-") {
+                        "parameter".to_string()
+                    } else {
+                        "positional".to_string()
                     };
 
-                    if arg.required.unwrap_or(false) {
-                        required_args.push(arg_cmd);
-                    } else {
-                        optional_args.push(arg_cmd);
-                    }
-                }
+                    let default_value = arg.default_value.map(|v| {
+                        match arg.python_type.as_deref().unwrap_or("str") {
+                            "int" => serde_json::Value::Number(serde_json::Number::from(
+                                v.parse::<i64>().unwrap_or(0),
+                            )),
+                            "float" => serde_json::Value::Number(
+                                serde_json::Number::from_f64(v.parse::<f64>().unwrap_or(0.0))
+                                    .unwrap(),
+                            ),
+                            "bool" => serde_json::Value::Bool(v.parse::<bool>().unwrap_or(false)),
+                            _ => serde_json::Value::String(v),
+                        }
+                    });
 
-                // Add required arguments group
-                if !required_args.is_empty() {
-                    let mut required_group = CommandNode::new_group(
-                        "required arguments".to_string(),
-                        Some("Required arguments for this command".to_string()),
-                    );
-                    for arg in required_args {
-                        required_group.add_command(arg);
+                    ArgumentSchema {
+                        name: arg.name,
+                        flag,
+                        arg_type,
+                        required: arg.required.unwrap_or(false),
+                        description: arg.help,
+                        default: default_value,
                     }
-                    command_node
-                        .children
-                        .insert("required arguments".to_string(), required_group);
-                }
-
-                // Add optional arguments group
-                if !optional_args.is_empty() {
-                    let mut optional_group = CommandNode::new_group(
-                        "optional arguments".to_string(),
-                        Some("Optional arguments for this command".to_string()),
-                    );
-                    for arg in optional_args {
-                        optional_group.add_command(arg);
-                    }
-                    command_node
-                        .children
-                        .insert("optional arguments".to_string(), optional_group);
-                }
-            }
-
-            // Add the command to the root
-            root.children.insert(task.name.clone(), command_node);
+                })
+                .collect();
         }
-    }
 
-    let json_output = sub_matches.is_present("json");
-
-    if json_output {
-        // Output JSON format
-        match root.to_json() {
+        match serde_json::to_string_pretty(&schema) {
             Ok(json) => println!("{}", json),
             Err(e) => {
                 error!("Failed to serialize command tree to JSON: {}", e);
@@ -325,13 +299,63 @@ fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool)
             }
         }
     } else {
-        // Output human-readable tree format
-        if in_angreal_project && !root.children.is_empty() {
-            println!("{}", root.display_tree());
-        } else {
-            println!("No commands available");
-            if !in_angreal_project {
-                println!("(Not in an angreal project - only 'init' command is available)");
+        // Always output JSON format by default
+        let mut schema = root.to_project_schema();
+
+        // Populate arguments for each command
+        for command_schema in &mut schema.commands {
+            let args = select_args(&command_schema.name);
+
+            command_schema.arguments = args
+                .into_iter()
+                .map(|arg| {
+                    let flag = if let Some(long) = &arg.long {
+                        format!("--{}", long)
+                    } else if let Some(short) = arg.short {
+                        format!("-{}", short)
+                    } else {
+                        arg.name.clone()
+                    };
+
+                    let arg_type = if arg.is_flag.unwrap_or(false) {
+                        "flag".to_string()
+                    } else if arg.name.starts_with("--") || arg.name.starts_with("-") {
+                        "parameter".to_string()
+                    } else {
+                        "positional".to_string()
+                    };
+
+                    let default_value = arg.default_value.map(|v| {
+                        match arg.python_type.as_deref().unwrap_or("str") {
+                            "int" => serde_json::Value::Number(serde_json::Number::from(
+                                v.parse::<i64>().unwrap_or(0),
+                            )),
+                            "float" => serde_json::Value::Number(
+                                serde_json::Number::from_f64(v.parse::<f64>().unwrap_or(0.0))
+                                    .unwrap(),
+                            ),
+                            "bool" => serde_json::Value::Bool(v.parse::<bool>().unwrap_or(false)),
+                            _ => serde_json::Value::String(v),
+                        }
+                    });
+
+                    ArgumentSchema {
+                        name: arg.name,
+                        flag,
+                        arg_type,
+                        required: arg.required.unwrap_or(false),
+                        description: arg.help,
+                        default: default_value,
+                    }
+                })
+                .collect();
+        }
+
+        match serde_json::to_string_pretty(&schema) {
+            Ok(json) => println!("{}", json),
+            Err(e) => {
+                error!("Failed to serialize command tree to JSON: {}", e);
+                std::process::exit(1);
             }
         }
     }
