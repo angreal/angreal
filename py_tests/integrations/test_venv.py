@@ -196,7 +196,8 @@ def test_ensure_python():
                for _, p in pythons if "<download" not in p)
 
 
-@pytest.mark.xfail(sys.platform == 'win32', reason="Virtual environment activation fails on Windows")
+@pytest.mark.xfail(sys.platform == 'win32',
+                   reason="Virtual environment activation fails on Windows")
 def test_basic_activation():
     """
     Test basic activation and deactivation of virtual environment
@@ -234,7 +235,8 @@ def test_basic_activation():
         shutil.rmtree(venv_path)
 
 
-@pytest.mark.xfail(sys.platform == 'win32', reason="Virtual environment activation fails on Windows")
+@pytest.mark.xfail(sys.platform == 'win32',
+                   reason="Virtual environment activation fails on Windows")
 def test_context_manager():
     """
     Test using VirtualEnv as a context manager
@@ -263,7 +265,8 @@ def test_context_manager():
         shutil.rmtree(venv_path)
 
 
-@pytest.mark.xfail(sys.platform == 'win32', reason="Virtual environment activation fails on Windows")
+@pytest.mark.xfail(sys.platform == 'win32',
+                   reason="Virtual environment activation fails on Windows")
 def test_venv_required_with_activation():
     """
     Test venv_required decorator with activation
@@ -499,7 +502,8 @@ def test_install_method():
         shutil.rmtree("test_install_method_venv")
 
 
-@pytest.mark.xfail(sys.platform == 'win32', reason="Virtual environment activation fails on Windows")
+@pytest.mark.xfail(sys.platform == 'win32',
+                   reason="Virtual environment activation fails on Windows")
 def test_package_import_after_activation():
     """
     Test that packages installed in venv are importable after activation
