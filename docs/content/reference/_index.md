@@ -28,16 +28,17 @@ Detailed reference for the Python API used in task definitions.
 
 ## Command Line Interface
 
-- [CLI Reference](/reference/cli) - Complete command-line interface documentation
-- [Configuration](/reference/configuration) - Configuration file formats and options
+- [CLI Reference](/reference/cli/) - Complete command-line interface documentation
+- [Configuration](/reference/configuration/) - Configuration file formats and options
 
 ## Quick Links
 
 ### Python API Modules
 
-- [`angreal.command`](/reference/python-api/commands) - Task definition decorators
-- [`angreal.template`](/reference/python-api/templates) - Template rendering functions
-- [`angreal.utils`](/reference/python-api/utils) - Utility functions
+- [`angreal.command`](/reference/python-api/commands/) - Task definition decorators
+- [`angreal.template`](/reference/python-api/templates/) - Template rendering functions
+- [`angreal.utils`](/reference/python-api/utils/) - Utility functions
+- [`angreal.integrations.venv`](/reference/python-api/integrations/venv/) - Virtual environment management
 
 ### Common Patterns
 

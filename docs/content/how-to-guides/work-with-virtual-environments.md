@@ -16,6 +16,7 @@ The virtual environment integration provides:
 - Install packages and requirements
 - Ensure specific Python versions
 - Automatic environment activation for tasks
+- Programmatic activation within Python processes
 
 ## Basic Usage
 
@@ -28,10 +29,48 @@ from angreal.integrations.venv import VirtualEnv
 venv = VirtualEnv("myproject-env")
 
 # Install packages
-venv.install_packages(["django", "requests"])
+venv.install(["django", "requests"])
 
 # Install from requirements file
-venv.install_requirements("requirements.txt")
+venv.install("requirements.txt")
+```
+
+## Activating Virtual Environments
+
+### Manual Activation
+
+```python
+from angreal.integrations.venv import VirtualEnv
+
+# Create and activate a virtual environment
+venv = VirtualEnv("data-env", now=True)
+venv.install(["numpy", "pandas"])
+
+# Activate the environment
+venv.activate()
+
+# Now you can import the installed packages
+import numpy as np
+import pandas as pd
+
+# Remember to deactivate when done
+venv.deactivate()
+```
+
+### Using Context Manager
+
+```python
+from angreal.integrations.venv import VirtualEnv
+
+# Automatic activation/deactivation with context manager
+with VirtualEnv("analysis-env", now=True) as venv:
+    venv.install("scikit-learn")
+    
+    # Environment is activated here
+    from sklearn import datasets
+    iris = datasets.load_iris()
+    
+# Environment is automatically deactivated here
 ```
 
 ## Using with Tasks
@@ -43,12 +82,11 @@ import angreal
 
 @angreal.command(name="analyze", about="Run data analysis")
 @venv_required(".venv", requirements=["pandas", "numpy"])
-
 def analyze_data():
-    """This function runs in an isolated environment."""
+    """This function runs in an isolated environment with packages available."""
     import pandas as pd
     import numpy as np
-    # Your code here
+    # Your code here - the virtual environment is activated
 ```
 
 ## Python Version Management

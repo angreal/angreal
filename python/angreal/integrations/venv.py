@@ -12,6 +12,7 @@ from angreal import (
     install_requirements,
     discover_pythons,
     install_python,
+    get_venv_activation_info,
 )
 
 
@@ -27,11 +28,17 @@ def venv_required(path, requirements=None):
     def decorator(f):
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            initial_sys_prefix = sys.prefix
             venv = VirtualEnv(path=path, now=True, requirements=requirements)
             venv.install_requirements()
-            rv = f(*args, **kwargs)
-            sys.prefix = initial_sys_prefix
+            
+            # Activate the virtual environment
+            venv.activate()
+            try:
+                rv = f(*args, **kwargs)
+            finally:
+                # Always deactivate
+                venv.deactivate()
+            
             return rv
         return wrapper
     return decorator
@@ -49,10 +56,17 @@ class VirtualEnv:
         requirements=None,
         now=True
     ):
-        self.path = Path(path)
+        # Convert to Path and resolve to absolute path
+        self.path = Path(path).resolve()
         self.python_version = python
         self.requirements = requirements
         self.now = now
+        
+        # Activation state tracking
+        self._is_activated = False
+        self._original_prefix = None
+        self._original_path = None
+        self._original_real_prefix = None
 
         if self.now:
             if not self.exists:
@@ -120,6 +134,75 @@ class VirtualEnv:
         """Get UV version."""
         ensure_uv_installed()
         return uv_version()
+
+    def activate(self) -> None:
+        """Activate the virtual environment in the current Python process."""
+        if self._is_activated:
+            return
+        
+        # Ensure the venv exists
+        if not self.exists:
+            raise RuntimeError(f"Virtual environment does not exist at {self.path}")
+        
+        # Get activation info from Rust
+        activation_info = get_venv_activation_info(str(self.path))
+        
+        # Save original state
+        self._original_prefix = sys.prefix
+        self._original_path = sys.path.copy()
+        if hasattr(sys, 'real_prefix'):
+            self._original_real_prefix = sys.real_prefix
+        
+        # Update sys.prefix to the virtual environment
+        sys.prefix = activation_info.venv_prefix
+        
+        # Set sys.real_prefix to the original prefix (for compatibility)
+        if not hasattr(sys, 'real_prefix'):
+            sys.real_prefix = self._original_prefix
+        
+        # Prepend venv's site-packages to sys.path
+        site_packages = activation_info.site_packages
+        if site_packages not in sys.path:
+            # Remove any existing entries first to ensure venv takes precedence
+            sys.path = [p for p in sys.path if 'site-packages' not in p]
+            sys.path.insert(0, site_packages)
+            
+            # Also add the venv's lib directory
+            lib_dir = str(Path(activation_info.venv_path) / "lib")
+            if lib_dir not in sys.path:
+                sys.path.insert(0, lib_dir)
+        
+        self._is_activated = True
+    
+    def deactivate(self) -> None:
+        """Restore original Python environment."""
+        if not self._is_activated:
+            return
+        
+        # Restore original state
+        if self._original_prefix is not None:
+            sys.prefix = self._original_prefix
+        
+        if self._original_path is not None:
+            sys.path = self._original_path.copy()
+        
+        # Restore or remove sys.real_prefix
+        if self._original_real_prefix is not None:
+            sys.real_prefix = self._original_real_prefix
+        elif hasattr(sys, 'real_prefix'):
+            delattr(sys, 'real_prefix')
+        
+        self._is_activated = False
+    
+    def __enter__(self):
+        """Context manager support."""
+        self.activate()
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager support."""
+        self.deactivate()
+        return False
 
     def __str__(self):
         return str(self.path)

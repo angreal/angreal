@@ -210,6 +210,15 @@ fn install_python(version: &str) -> PyResult<String> {
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
 }
 
+#[pyfunction]
+fn get_venv_activation_info(venv_path: &str) -> PyResult<integrations::uv::ActivationInfo> {
+    let venv = UvVirtualEnv {
+        path: PathBuf::from(venv_path),
+    };
+    venv.get_activation_info()
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
+}
+
 /// Handle the tree command
 fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool) -> PyResult<()> {
     use crate::builder::command_tree::CommandNode;
@@ -552,6 +561,8 @@ fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(install_requirements, m)?)?;
     m.add_function(wrap_pyfunction!(discover_pythons, m)?)?;
     m.add_function(wrap_pyfunction!(install_python, m)?)?;
+    m.add_function(wrap_pyfunction!(get_venv_activation_info, m)?)?;
+    m.add_class::<integrations::uv::ActivationInfo>()?;
 
     m.add_wrapped(wrap_pymodule!(_integrations))?;
 

@@ -1,6 +1,7 @@
 use anyhow::{bail, Context, Result};
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use pyo3::prelude::*;
 
 pub struct UvIntegration;
 
@@ -66,6 +67,19 @@ impl UvIntegration {
         println!("UV successfully installed: {}", Self::version()?);
         Ok(())
     }
+}
+
+#[pyclass]
+#[derive(Clone)]
+pub struct ActivationInfo {
+    #[pyo3(get)]
+    pub venv_path: String,
+    #[pyo3(get)]
+    pub venv_prefix: String,
+    #[pyo3(get)]
+    pub site_packages: String,
+    #[pyo3(get)]
+    pub python_executable: String,
 }
 
 pub struct UvVirtualEnv {
@@ -143,12 +157,54 @@ impl UvVirtualEnv {
         Ok(())
     }
 
-    fn python_executable(&self) -> PathBuf {
+    pub fn python_executable(&self) -> PathBuf {
         if cfg!(windows) {
             self.path.join("Scripts").join("python.exe")
         } else {
             self.path.join("bin").join("python")
         }
+    }
+
+    pub fn site_packages(&self) -> Result<PathBuf> {
+        let python_exe = self.python_executable();
+        
+        let output = Command::new(&python_exe)
+            .arg("-c")
+            .arg("import site; print(site.getsitepackages()[0])")
+            .output()
+            .context("Failed to get site-packages path")?;
+
+        if !output.status.success() {
+            bail!("Failed to determine site-packages location");
+        }
+
+        let site_packages_str = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        Ok(PathBuf::from(site_packages_str))
+    }
+
+    pub fn get_activation_info(&self) -> Result<ActivationInfo> {
+        let python_exe = self.python_executable();
+        let site_packages = self.site_packages()?;
+        
+        // Get the virtual environment's sys.prefix
+        let output = Command::new(&python_exe)
+            .arg("-c")
+            .arg("import sys; print(sys.prefix)")
+            .output()
+            .context("Failed to get virtual environment prefix")?;
+
+        if !output.status.success() {
+            bail!("Failed to get virtual environment prefix");
+        }
+
+        let venv_prefix = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        
+        Ok(ActivationInfo {
+            venv_path: self.path.to_string_lossy().to_string(),
+            venv_prefix,
+            site_packages: site_packages.to_string_lossy().to_string(),
+            python_executable: python_exe.to_string_lossy().to_string(),
+        })
     }
 
     pub fn discover_pythons() -> Result<Vec<(String, PathBuf)>> {
@@ -200,9 +256,22 @@ impl UvVirtualEnv {
         }
 
         let pythons = Self::discover_pythons()?;
+        
+        // Handle different version formats
+        // If version doesn't start with "cpython-", try to find it with cpython prefix
+        let search_version = if version.starts_with("cpython-") {
+            version.to_string()
+        } else {
+            format!("cpython-{}", version)
+        };
+        
         pythons
             .into_iter()
-            .find(|(v, _)| v.starts_with(version))
+            .find(|(v, p)| {
+                // Check if the discovered version starts with our search version
+                // This handles cases like "cpython-3.11" matching "cpython-3.11.12-macos-aarch64-none"
+                v.starts_with(&search_version) && !p.to_string_lossy().contains("<download")
+            })
             .map(|(_, path)| path)
             .ok_or_else(|| anyhow::anyhow!("Python {} installed but not found", version))
     }

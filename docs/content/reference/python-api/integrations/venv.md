@@ -29,7 +29,7 @@ UV is automatically installed when first used. No manual installation required.
 
 ### venv_required
 
-Decorator that wraps a function in a virtual environment before execution.
+Decorator that wraps a function in a virtual environment before execution. The virtual environment is activated before the function runs and deactivated afterward, ensuring packages installed in the venv are available for import.
 
 ```python
 @venv_required(path, requirements=None)
@@ -45,9 +45,15 @@ from angreal.integrations.venv import venv_required
 
 @venv_required("/path/to/venv", requirements=["requests", "pandas"])
 def process_data():
+    # These imports work because the venv is activated
     import requests
     import pandas as pd
-    # Your code here
+    
+    # Your code here - runs in the activated virtual environment
+    df = pd.DataFrame({'data': [1, 2, 3]})
+    response = requests.get('https://api.example.com')
+    
+# After the function completes, the original environment is restored
 ```
 
 ## Classes
@@ -69,7 +75,7 @@ VirtualEnv(path, python=None, requirements=None, now=True)
 ```
 
 **Parameters:**
-- `path` (str | Path): The path to the virtual environment
+- `path` (str | Path): The path to the virtual environment. Relative paths are resolved to absolute paths based on the current working directory.
 - `python` (str, optional): Python version to use (e.g., "3.11", "3.12")
 - `requirements` (str | List[str], optional): Requirements to install
 - `now` (bool, optional): Create environment immediately. Defaults to True.
@@ -137,6 +143,68 @@ venv.install(["pandas", "numpy", "matplotlib"])
 venv.install("requirements.txt")
 ```
 
+##### activate
+
+Activate the virtual environment in the current Python process.
+
+```python
+def activate(self) -> None
+```
+
+This method modifies `sys.prefix` and `sys.path` to make the virtual environment's packages available for import. Unlike shell activation, this affects only the current Python process.
+
+**Example:**
+```python
+venv = VirtualEnv("myenv", now=True)
+venv.install("requests")
+
+# Before activation, requests might not be importable
+venv.activate()
+
+# Now requests can be imported
+import requests
+response = requests.get("https://api.github.com")
+
+# Remember to deactivate when done
+venv.deactivate()
+```
+
+**Raises:**
+- `RuntimeError`: If the virtual environment does not exist
+
+##### deactivate
+
+Restore the original Python environment.
+
+```python
+def deactivate(self) -> None
+```
+
+This method restores `sys.prefix` and `sys.path` to their original values before activation. Safe to call multiple times.
+
+**Example:**
+```python
+venv = VirtualEnv("myenv", now=True)
+venv.activate()
+# Use the virtual environment
+venv.deactivate()  # Restore original environment
+```
+
+#### Context Manager Support
+
+VirtualEnv supports the context manager protocol for automatic activation/deactivation:
+
+```python
+with VirtualEnv("myenv", now=True) as venv:
+    venv.install("numpy")
+    
+    # Virtual environment is activated here
+    import numpy as np
+    array = np.array([1, 2, 3])
+    
+# Virtual environment is automatically deactivated here
+```
+
 #### Static Methods
 
 ##### discover_available_pythons
@@ -190,6 +258,30 @@ def version() -> str
 
 **Returns:**
 - `str`: UV version string
+
+## Activation Behavior
+
+### How Activation Works
+
+Unlike shell-based virtual environment activation (which modifies environment variables), the VirtualEnv activation methods work within the Python process by:
+
+1. Modifying `sys.prefix` to point to the virtual environment
+2. Updating `sys.path` to prioritize the virtual environment's site-packages
+3. Preserving the original state for restoration during deactivation
+
+### Activation Notes
+
+- **Process-Only**: Activation only affects the current Python process, not subprocesses or the shell
+- **Import Availability**: After activation, packages installed in the venv become importable
+- **Multiple Activations**: Only one virtual environment can be active at a time. Activating a second venv will override the first
+- **Thread Safety**: Activation modifies global Python state (`sys.prefix`, `sys.path`) and is not thread-safe
+- **Subprocess Behavior**: Subprocesses will not inherit the activation - use the venv's Python executable directly for subprocesses
+
+### Limitations
+
+- **No Nested Activation**: The current implementation does not support nested virtual environment activation. Deactivating always restores the original environment, not any previously activated environment
+- **No Shell Integration**: This activation does not affect your shell environment or terminal prompt
+- **Module Caching**: Python's module import cache may retain modules from before activation. Use `importlib.reload()` if needed
 
 ## Examples
 
@@ -282,6 +374,47 @@ venv.install(["flask", "sqlalchemy", "pytest"])
 
 # Install from requirements file
 venv.install("requirements.txt")
+```
+
+### Programmatic Activation
+
+```python
+from angreal.integrations.venv import VirtualEnv
+import sys
+
+# Create and set up environment
+venv = VirtualEnv("data-science-env", now=True)
+venv.install(["numpy", "pandas", "matplotlib"])
+
+print(f"Before activation - sys.prefix: {sys.prefix}")
+
+# Activate the environment
+venv.activate()
+print(f"After activation - sys.prefix: {sys.prefix}")
+
+# Now we can import the installed packages
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Do some work with the packages
+data = pd.DataFrame(np.random.randn(100, 4), columns=['A', 'B', 'C', 'D'])
+data.plot()
+
+# Deactivate when done
+venv.deactivate()
+print(f"After deactivation - sys.prefix: {sys.prefix}")
+
+# Using context manager for automatic cleanup
+with VirtualEnv("analysis-env", now=True) as venv:
+    venv.install("scikit-learn")
+    
+    # This import works because we're in the activated environment
+    from sklearn.datasets import load_iris
+    iris = load_iris()
+    print(f"Loaded {len(iris.data)} samples")
+    
+# Environment is automatically deactivated here
 ```
 
 ### Performance Monitoring
