@@ -109,7 +109,7 @@ impl CommandNode {
             if let Some(about) = &self.about {
                 // Split the about text into lines to handle arguments section
                 let lines: Vec<&str> = about.split('\n').collect();
-                
+
                 // Add the main description (first line)
                 if !lines.is_empty() {
                     output.push_str(&format!(" - {}", lines[0]));
@@ -126,14 +126,16 @@ impl CommandNode {
                         // Start new section
                         if !args_in_section.is_empty() {
                             // Print previous section
-                            output.push_str(&format!("{}{}    {}\n", 
-                                prefix, 
+                            output.push_str(&format!(
+                                "{}{}    {}\n",
+                                prefix,
                                 if is_last { " " } else { "│" },
                                 current_section
                             ));
                             for arg in &args_in_section {
-                                output.push_str(&format!("{}{}    {}\n", 
-                                    prefix, 
+                                output.push_str(&format!(
+                                    "{}{}    {}\n",
+                                    prefix,
                                     if is_last { " " } else { "│" },
                                     arg
                                 ));
@@ -149,14 +151,16 @@ impl CommandNode {
 
                 // Print final section if any
                 if !args_in_section.is_empty() {
-                    output.push_str(&format!("{}{}    {}\n", 
-                        prefix, 
+                    output.push_str(&format!(
+                        "{}{}    {}\n",
+                        prefix,
                         if is_last { " " } else { "│" },
                         current_section
                     ));
                     for arg in &args_in_section {
-                        output.push_str(&format!("{}{}    {}\n", 
-                            prefix, 
+                        output.push_str(&format!(
+                            "{}{}    {}\n",
+                            prefix,
                             if is_last { " " } else { "│" },
                             arg
                         ));
@@ -306,7 +310,7 @@ mod tests {
     fn test_display_tree_with_arguments() {
         Python::with_gil(|py| {
             let mut root = CommandNode::new_group("root".to_string(), None);
-            
+
             // Create a command with arguments
             let command = AngrealCommand {
                 name: "test_cmd".to_string(),
@@ -315,11 +319,14 @@ mod tests {
                 group: None,
                 func: py.None(),
             };
-            
+
             let mut command_node = CommandNode::new_command("test_cmd".to_string(), command);
-            
+
             // Add required arguments group
-            let mut required_group = CommandNode::new_group("required arguments".to_string(), Some("Required arguments for this command".to_string()));
+            let mut required_group = CommandNode::new_group(
+                "required arguments".to_string(),
+                Some("Required arguments for this command".to_string()),
+            );
             required_group.add_command(AngrealCommand {
                 name: "--target".to_string(),
                 about: Some("[str] - Build target to use".to_string()),
@@ -327,10 +334,15 @@ mod tests {
                 group: None,
                 func: py.None(),
             });
-            command_node.children.insert("required arguments".to_string(), required_group);
-            
+            command_node
+                .children
+                .insert("required arguments".to_string(), required_group);
+
             // Add optional arguments group
-            let mut optional_group = CommandNode::new_group("optional arguments".to_string(), Some("Optional arguments for this command".to_string()));
+            let mut optional_group = CommandNode::new_group(
+                "optional arguments".to_string(),
+                Some("Optional arguments for this command".to_string()),
+            );
             optional_group.add_command(AngrealCommand {
                 name: "--debug".to_string(),
                 about: Some("[bool] - Enable debug mode".to_string()),
@@ -338,12 +350,14 @@ mod tests {
                 group: None,
                 func: py.None(),
             });
-            command_node.children.insert("optional arguments".to_string(), optional_group);
-            
+            command_node
+                .children
+                .insert("optional arguments".to_string(), optional_group);
+
             root.children.insert("test_cmd".to_string(), command_node);
-            
+
             let expected = "└── test_cmd - Test command with arguments\n     ├── optional arguments - Optional arguments for this command\n     │    └── --debug - [bool] - Enable debug mode\n     └── required arguments - Required arguments for this command\n          └── --target - [str] - Build target to use\n";
-            
+
             assert_eq!(root.display_tree(), expected);
         });
     }

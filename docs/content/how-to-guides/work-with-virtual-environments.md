@@ -65,11 +65,11 @@ from angreal.integrations.venv import VirtualEnv
 # Automatic activation/deactivation with context manager
 with VirtualEnv("analysis-env", now=True) as venv:
     venv.install("scikit-learn")
-    
+
     # Environment is activated here
     from sklearn import datasets
     iris = datasets.load_iris()
-    
+
 # Environment is automatically deactivated here
 ```
 

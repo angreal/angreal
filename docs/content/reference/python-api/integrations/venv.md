@@ -48,11 +48,11 @@ def process_data():
     # These imports work because the venv is activated
     import requests
     import pandas as pd
-    
+
     # Your code here - runs in the activated virtual environment
     df = pd.DataFrame({'data': [1, 2, 3]})
     response = requests.get('https://api.example.com')
-    
+
 # After the function completes, the original environment is restored
 ```
 
@@ -197,11 +197,11 @@ VirtualEnv supports the context manager protocol for automatic activation/deacti
 ```python
 with VirtualEnv("myenv", now=True) as venv:
     venv.install("numpy")
-    
+
     # Virtual environment is activated here
     import numpy as np
     array = np.array([1, 2, 3])
-    
+
 # Virtual environment is automatically deactivated here
 ```
 
@@ -408,12 +408,12 @@ print(f"After deactivation - sys.prefix: {sys.prefix}")
 # Using context manager for automatic cleanup
 with VirtualEnv("analysis-env", now=True) as venv:
     venv.install("scikit-learn")
-    
+
     # This import works because we're in the activated environment
     from sklearn.datasets import load_iris
     iris = load_iris()
     print(f"Loaded {len(iris.data)} samples")
-    
+
 # Environment is automatically deactivated here
 ```
 

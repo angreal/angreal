@@ -1,7 +1,7 @@
 use anyhow::{bail, Context, Result};
+use pyo3::prelude::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use pyo3::prelude::*;
 
 pub struct UvIntegration;
 
@@ -167,7 +167,7 @@ impl UvVirtualEnv {
 
     pub fn site_packages(&self) -> Result<PathBuf> {
         let python_exe = self.python_executable();
-        
+
         let output = Command::new(&python_exe)
             .arg("-c")
             .arg("import site; print(site.getsitepackages()[0])")
@@ -185,7 +185,7 @@ impl UvVirtualEnv {
     pub fn get_activation_info(&self) -> Result<ActivationInfo> {
         let python_exe = self.python_executable();
         let site_packages = self.site_packages()?;
-        
+
         // Get the virtual environment's sys.prefix
         let output = Command::new(&python_exe)
             .arg("-c")
@@ -198,7 +198,7 @@ impl UvVirtualEnv {
         }
 
         let venv_prefix = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        
+
         Ok(ActivationInfo {
             venv_path: self.path.to_string_lossy().to_string(),
             venv_prefix,
@@ -256,7 +256,7 @@ impl UvVirtualEnv {
         }
 
         let pythons = Self::discover_pythons()?;
-        
+
         // Handle different version formats
         // If version doesn't start with "cpython-", try to find it with cpython prefix
         let search_version = if version.starts_with("cpython-") {
@@ -264,7 +264,7 @@ impl UvVirtualEnv {
         } else {
             format!("cpython-{}", version)
         };
-        
+
         pythons
             .into_iter()
             .find(|(v, p)| {
