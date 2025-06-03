@@ -168,14 +168,66 @@ impl UvVirtualEnv {
     pub fn site_packages(&self) -> Result<PathBuf> {
         let python_exe = self.python_executable();
 
+        // Use a more reliable method to get site-packages for both Unix and Windows
+        let python_script = r#"
+import site
+import sys
+import os
+
+# Try to get site-packages path that belongs to this virtual environment
+site_packages_paths = site.getsitepackages()
+
+# Find the site-packages that belongs to our venv
+for path in site_packages_paths:
+    # Check if this site-packages path is within our virtual environment
+    if sys.prefix in path:
+        print(path)
+        break
+else:
+    # Fallback: construct manually
+    if os.name == 'nt':  # Windows
+        print(os.path.join(sys.prefix, 'Lib', 'site-packages'))
+    else:  # Unix/Linux/macOS
+        # Find python version
+        import sysconfig
+        version = sysconfig.get_python_version()
+        print(os.path.join(sys.prefix, 'lib', f'python{version}', 'site-packages'))
+"#;
+
         let output = Command::new(&python_exe)
             .arg("-c")
-            .arg("import site; print(site.getsitepackages()[0])")
+            .arg(python_script)
             .output()
             .context("Failed to get site-packages path")?;
 
         if !output.status.success() {
-            bail!("Failed to determine site-packages location");
+            // Fallback: construct the path manually based on platform
+            let site_packages_path = if cfg!(windows) {
+                self.path.join("Lib").join("site-packages")
+            } else {
+                // Find the lib directory with version-specific path
+                let lib_dir = self.path.join("lib");
+                if lib_dir.exists() {
+                    // Look for python3.x directory
+                    if let Ok(entries) = std::fs::read_dir(&lib_dir) {
+                        for entry in entries.flatten() {
+                            let name = entry.file_name();
+                            if let Some(name_str) = name.to_str() {
+                                if name_str.starts_with("python") {
+                                    let site_packages = entry.path().join("site-packages");
+                                    if site_packages.exists() {
+                                        return Ok(site_packages);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // Final fallback for Unix
+                self.path.join("lib").join("python3").join("site-packages")
+            };
+            
+            return Ok(site_packages_path);
         }
 
         let site_packages_str = String::from_utf8_lossy(&output.stdout).trim().to_string();

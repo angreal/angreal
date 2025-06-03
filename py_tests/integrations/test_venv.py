@@ -134,6 +134,7 @@ def test_uv_version():
 
 
 
+@pytest.mark.xfail(reason="UV Python downloads not available for all architectures")
 def test_ensure_python():
     """
     Test ensuring a Python version is available

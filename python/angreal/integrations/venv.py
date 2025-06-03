@@ -162,15 +162,17 @@ class VirtualEnv:
 
         # Prepend venv's site-packages to sys.path
         site_packages = activation_info.site_packages
+        
+        # Remove any existing site-packages paths to ensure venv takes precedence
+        original_sys_path = sys.path.copy()
+        sys.path = [p for p in sys.path if 'site-packages' not in p or site_packages in p]
+        
+        # Insert the venv site-packages at the beginning if not already there
         if site_packages not in sys.path:
-            # Remove any existing entries first to ensure venv takes precedence
-            sys.path = [p for p in sys.path if 'site-packages' not in p]
             sys.path.insert(0, site_packages)
-
-            # Also add the venv's lib directory
-            lib_dir = str(Path(activation_info.venv_path) / "lib")
-            if lib_dir not in sys.path:
-                sys.path.insert(0, lib_dir)
+        
+        # For Windows, we may also need to add the Scripts directory to PATH
+        # But we don't modify os.environ['PATH'] here to avoid side effects
 
         self._is_activated = True
 
