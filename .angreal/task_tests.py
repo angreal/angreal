@@ -1,11 +1,9 @@
 import angreal
 import os
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
-
-venv_path = os.path.join(angreal.get_root(),'..','.venv')
+from angreal.integrations.venv import VirtualEnv
 
 cwd = os.path.join(angreal.get_root(),'..')
 
@@ -36,15 +34,22 @@ def all_tests():
 @angreal.command(name="python", about="run pytest unit tests")
 def python_tests():
     """
-    Run the Python unit tests
+    Run the Python unit tests in isolated environment
     """
-    result = subprocess.run(
-        [sys.executable, "-m", "pip", "install", "."], cwd=cwd
-    )
-    if result.returncode != 0:
-        exit(result.returncode)
+    with VirtualEnv("angreal-pytest-venv", requirements=["pytest"], now=True) as venv:
+        # Install angreal in development mode
+        subprocess.run(
+            [str(venv.python_executable), "-m", "pip", "install", "-e", "."],
+            cwd=cwd, check=True
+        )
 
-    subprocess.run([sys.executable, "-m", "pytest", "-svv"], cwd=cwd)
+        # Run pytest
+        result = subprocess.run(
+            [str(venv.python_executable), "-m", "pytest", "-svv"],
+            cwd=cwd
+        )
+        if result.returncode != 0:
+            exit(result.returncode)
 
 @test()
 @angreal.command(name="rust", about="run cargo unit and integration tests")
