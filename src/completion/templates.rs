@@ -17,8 +17,10 @@ use std::time::Duration;
 #[derive(Deserialize)]
 struct GitHubRepo {
     name: String,
+    #[allow(dead_code)]
     description: Option<String>,
     #[serde(rename = "html_url")]
+    #[allow(dead_code)]
     url: String,
 }
 
@@ -104,46 +106,19 @@ fn get_github_templates() -> Result<Vec<String>> {
         // Filter for template repositories
         if is_template_repo(&repo) {
             templates.push(repo.name);
-
-            // Also add the full GitHub URL as an option
-            templates.push(repo.url);
+            // Don't add full URLs to completion - they're messy and users can specify full URLs manually
         }
     }
 
     Ok(templates)
 }
 
-/// Determine if a GitHub repository is likely a template
+/// Determine if a GitHub repository is a template (exclude meta repos)
 fn is_template_repo(repo: &GitHubRepo) -> bool {
     let name = repo.name.to_lowercase();
-    let description = repo
-        .description
-        .as_ref()
-        .map(|d| d.to_lowercase())
-        .unwrap_or_default();
 
-    // Skip meta repositories
-    if name == "angreal" || name.starts_with('.') {
-        return false;
-    }
-
-    // Include repositories that look like templates
-    name.contains("template")
-        || name.contains("starter")
-        || name.contains("boilerplate")
-        || description.contains("template")
-        || description.contains("starter")
-        || description.contains("boilerplate")
-        // Include common project types
-        || name.contains("python")
-        || name.contains("rust")
-        || name.contains("node")
-        || name.contains("django")
-        || name.contains("flask")
-        || name.contains("api")
-        || name.contains("cli")
-        // If no clear indicators, include it (user can filter)
-        || (!name.contains("action") && !name.contains("workflow"))
+    // Skip anything that starts with "angreal"
+    !name.starts_with("angreal")
 }
 
 /// Get popular template suggestions (hardcoded fallback)

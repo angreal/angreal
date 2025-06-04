@@ -99,6 +99,62 @@ fn add_tree_subcommand(app: App<'static>) -> App<'static> {
     )
 }
 
+fn add_alias_subcommand(app: App<'static>) -> App<'static> {
+    app.subcommand(
+        Command::new("alias")
+            .about("Manage angreal command aliases")
+            .setting(AppSettings::SubcommandRequiredElseHelp)
+            .subcommand(
+                Command::new("create")
+                    .about("Create a new alias for angreal")
+                    .arg(
+                        Arg::new("name")
+                            .takes_value(true)
+                            .required(true)
+                            .help("Name of the alias to create"),
+                    ),
+            )
+            .subcommand(
+                Command::new("remove")
+                    .about("Remove an existing alias")
+                    .arg(
+                        Arg::new("name")
+                            .takes_value(true)
+                            .required(true)
+                            .help("Name of the alias to remove"),
+                    ),
+            )
+            .subcommand(Command::new("list").about("List all registered aliases")),
+    )
+}
+
+fn add_completion_subcommand(app: App<'static>) -> App<'static> {
+    app.subcommand(
+        Command::new("completion")
+            .about("Manage shell completion")
+            .setting(AppSettings::SubcommandRequiredElseHelp)
+            .subcommand(
+                Command::new("install")
+                    .about("Install or reinstall shell completion")
+                    .arg(
+                        Arg::new("shell")
+                            .takes_value(true)
+                            .help("Specific shell to install for (bash, zsh)"),
+                    ),
+            )
+            .subcommand(
+                Command::new("uninstall")
+                    .about("Remove shell completion")
+                    .arg(
+                        Arg::new("shell")
+                            .takes_value(true)
+                            .help("Specific shell to uninstall for (bash, zsh)"),
+                    ),
+            )
+            .subcommand(Command::new("status").about("Show completion installation status")),
+    )
+}
+
 fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
     // Build the command tree
     let mut root = CommandNode::new_group("angreal".to_string(), None);
@@ -170,9 +226,11 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
     // Build the initial App with angreal sub commands
     let mut app = base_app_setup();
 
-    // Always add completion subcommands (hidden) and tree command
+    // Always add completion subcommands (hidden), tree command, alias management, and completion management
     app = add_completion_subcommands(app);
     app = add_tree_subcommand(app);
+    app = add_alias_subcommand(app);
+    app = add_completion_subcommand(app);
 
     if in_angreal_project {
         app = add_project_subcommands(app);

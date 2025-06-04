@@ -31,5 +31,3 @@ angreal = "angreal:main"
 [tool.maturin]
 python-source = "python"
 features = ["pyo3/extension-module"]
-# Exclude Cargo.lock from PyPI distributions
-exclude = ["Cargo.lock"]

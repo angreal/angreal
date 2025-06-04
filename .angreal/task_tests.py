@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 from angreal.integrations.venv import VirtualEnv
 
-cwd = os.path.join(angreal.get_root(),'..')
+project_root = Path(angreal.get_root()).parent
 
 test = angreal.command_group(name="test", about="commands for testing the"
                              " application and library")
@@ -36,17 +36,31 @@ def python_tests():
     """
     Run the Python unit tests in isolated environment
     """
-    with VirtualEnv("angreal-pytest-venv", requirements=["pytest"], now=True) as venv:
-        # Install angreal in development mode
+    with VirtualEnv("angreal-pytest-venv", now=True) as venv:
+        # Ensure pip is available
+        python_exe = venv.path / "bin" / "python"
+        pip_exe = venv.path / "bin" / "pip3"
+
+        # Install pip and dependencies
         subprocess.run(
-            [str(venv.python_executable), "-m", "pip", "install", "-e", "."],
-            cwd=cwd, check=True
+            [str(python_exe), "-m", "ensurepip"],
+            check=True, capture_output=True
+        )
+        subprocess.run(
+            [str(pip_exe), "install", "maturin", "pytest"],
+            check=True, capture_output=True
+        )
+
+        # Build and install angreal in development mode
+        subprocess.run(
+            [str(pip_exe), "install", "-e", str(project_root)],
+            check=True
         )
 
         # Run pytest
         result = subprocess.run(
             [str(venv.python_executable), "-m", "pytest", "-svv"],
-            cwd=cwd
+            cwd=str(project_root)
         )
         if result.returncode != 0:
             exit(result.returncode)
@@ -95,7 +109,7 @@ def integration_rust_tests():
     subprocess.run(
         [
             "cargo test --test integration -v -- --nocapture --test-threads=1",
-        ], cwd=cwd, shell=True
+        ], cwd=str(project_root), shell=True
     )
 
 def unit_rust_tests():
@@ -105,7 +119,7 @@ def unit_rust_tests():
     subprocess.run(
         [
             "cargo test --lib -v -- --nocapture --test-threads=1",
-        ], cwd=cwd, shell=True
+        ], cwd=str(project_root), shell=True
     )
 
 
@@ -153,7 +167,7 @@ def test_bash_completion():
     # Use the angreal command directly
     result = subprocess.run(
         ["angreal", "_completion", "bash"],
-        cwd=cwd,
+        cwd=str(project_root),
         capture_output=True,
         text=True,
         env=env
@@ -187,7 +201,7 @@ def test_zsh_completion():
     # Use the angreal command directly
     result = subprocess.run(
         ["angreal", "_completion", "zsh"],
-        cwd=cwd,
+        cwd=str(project_root),
         capture_output=True,
         text=True,
         env=env
@@ -220,7 +234,7 @@ def test_completion_generation():
 
     result = subprocess.run(
         ["angreal", "_complete", "init"],
-        cwd=cwd,
+        cwd=str(project_root),
         capture_output=True,
         text=True,
         env=env
@@ -237,7 +251,7 @@ def test_completion_generation():
     # Test completion for project tasks (when in angreal project)
     result = subprocess.run(
         ["angreal", "_complete"],
-        cwd=cwd,
+        cwd=str(project_root),
         capture_output=True,
         text=True,
         env=env
@@ -282,7 +296,7 @@ def test_template_discovery():
 
             result = subprocess.run(
                 ["angreal", "_complete", "init"],
-                cwd=cwd,
+                cwd=str(project_root),
                 capture_output=True,
                 text=True,
                 env=env
