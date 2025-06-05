@@ -100,6 +100,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install UV manually
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH="$HOME/.local/bin:$PATH"
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
@@ -137,6 +139,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install UV manually
+        run: |
+          irm https://astral.sh/uv/install.ps1 | iex
+          $env:PATH = "$env:USERPROFILE\.local\bin;$env:PATH"
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .
@@ -174,6 +180,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install UV manually
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH="$HOME/.local/bin:$PATH"
       - run: pip install maturin pytest
       - run: maturin build
       - run: pip install .

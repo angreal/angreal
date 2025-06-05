@@ -542,7 +542,7 @@ print(f"UV version: {version}")
 
 ## See Also
 
-- [UV Integration Architecture](/explanation/uv_integration_architecture) - Architectural decisions and implementation details
-- [Working with Virtual Environments](/how-to-guides/work-with-virtual-environments) - How-to guide
-- [Python Utils](/reference/python-api/utils) - Other Python utilities
+- [UV Integration Architecture](/angreal/explanation/uv_integration_architecture) - Architectural decisions and implementation details
+- [Working with Virtual Environments](/angreal/how-to-guides/work-with-virtual-environments) - How-to guide
+- [Python Utils](/angreal/reference/python-api/utils) - Other Python utilities
 - [UV Documentation](https://docs.astral.sh/uv/) - Official UV documentation

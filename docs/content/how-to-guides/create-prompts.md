@@ -101,6 +101,5 @@ python_version.allowed_values = ["3.8", "3.9", "3.10", "3.11"]
 
 ## Related Documentation
 
-- [Validation Rules](../reference/validation-rules) - Learn about input validation
-- [Template Variables](../reference/template-variables) - More about template variables
-- [Template System](../reference/template-system) - Overview of the template system
+- [Use Validation Rules](/angreal/how-to-guides/use-validation-rules) - Learn about input validation
+- [Configuration Reference](/angreal/reference/configuration/) - Complete reference for angreal.toml

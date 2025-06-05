@@ -70,5 +70,5 @@ Uses Tera templating syntax (similar to Jinja2):
 
 ## See Also
 
-- [Template Development Guide](/how-to-guides/create-templates) - Complete templating guide
-- [Tera Documentation](https://tera.netlify.app/docs/) - Template syntax reference
+- [Template Development Guide](/angreal/how-to-guides/create-templates) - Complete templating guide
+- [Tera Documentation](https://keats.github.io/tera/docs/) - Template syntax reference

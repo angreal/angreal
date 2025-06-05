@@ -10,12 +10,16 @@ _angreal() {
     local context state line
     typeset -A opt_args
 
-    # Get current completion context
-    local completion_words=("${words[@]:2}")  # Remove 'angreal' from words
+    # Build arguments to pass to completion (exclude 'angreal' and current incomplete word)
+    local completion_args=()
+    local i
+    for (( i=2; i < CURRENT; i++ )); do
+        completion_args+=("${words[i]}")
+    done
 
     # Call angreal to get completions
     local IFS=$'\n'
-    local completions=($(angreal _complete "${completion_words[@]}" 2>/dev/null))
+    local completions=($(angreal _complete "${completion_args[@]}" 2>/dev/null))
 
     if (( ${#completions[@]} > 0 )); then
         # Use custom completions

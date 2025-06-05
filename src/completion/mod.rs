@@ -274,6 +274,192 @@ pub fn auto_install_completion() -> Result<()> {
     Ok(())
 }
 
+/// Force install completion for specific shell or detected shell
+pub fn force_install_completion(shell: Option<&str>) -> Result<()> {
+    let config = if let Some(shell_name) = shell {
+        // Create config for specific shell
+        let shell_type = match shell_name {
+            "bash" => Shell::Bash,
+            "zsh" => Shell::Zsh,
+            _ => anyhow::bail!("Unsupported shell: {}. Use 'bash' or 'zsh'", shell_name),
+        };
+
+        let home = env::var("HOME").context("HOME environment variable not set")?;
+        let (install_path, completion_script) = match shell_type {
+            Shell::Bash => {
+                let path = PathBuf::from(&home)
+                    .join(".bash_completion.d")
+                    .join("angreal");
+                let script = bash::generate_completion_script();
+                (path, script)
+            }
+            Shell::Zsh => {
+                let zsh_dir = find_zsh_completion_dir(&home)?;
+                let path = zsh_dir.join("_angreal");
+                let script = zsh::generate_completion_script();
+                (path, script)
+            }
+            Shell::Unknown(_) => unreachable!(),
+        };
+
+        CompletionConfig {
+            shell: shell_type,
+            install_path,
+            completion_script,
+        }
+    } else {
+        // Use detected shell
+        CompletionConfig::for_current_shell()
+            .context("Failed to detect shell for completion setup")?
+    };
+
+    println!(
+        "Installing {} completion{}...",
+        config.shell.name(),
+        if config.is_installed() {
+            " (reinstalling)"
+        } else {
+            ""
+        }
+    );
+
+    config
+        .install()
+        .with_context(|| format!("Failed to install {} completion", config.shell.name()))?;
+
+    println!("✅ {} completion installed!", config.shell.name());
+    println!("Restart your shell or run:");
+    match config.shell {
+        Shell::Bash => println!("   source ~/.bashrc"),
+        Shell::Zsh => println!("   source ~/.zshrc"),
+        Shell::Unknown(_) => {}
+    }
+
+    Ok(())
+}
+
+/// Uninstall completion for specific shell or detected shell
+pub fn uninstall_completion(shell: Option<&str>) -> Result<()> {
+    let configs = if let Some(shell_name) = shell {
+        // Uninstall specific shell
+        let shell_type = match shell_name {
+            "bash" => Shell::Bash,
+            "zsh" => Shell::Zsh,
+            _ => anyhow::bail!("Unsupported shell: {}. Use 'bash' or 'zsh'", shell_name),
+        };
+
+        let home = env::var("HOME").context("HOME environment variable not set")?;
+        let install_path = match shell_type {
+            Shell::Bash => PathBuf::from(&home)
+                .join(".bash_completion.d")
+                .join("angreal"),
+            Shell::Zsh => {
+                let zsh_dir = find_zsh_completion_dir(&home)?;
+                zsh_dir.join("_angreal")
+            }
+            Shell::Unknown(_) => unreachable!(),
+        };
+
+        vec![(shell_type, install_path)]
+    } else {
+        // Uninstall from all common locations
+        let home = env::var("HOME").context("HOME environment variable not set")?;
+        vec![
+            (
+                Shell::Bash,
+                PathBuf::from(&home)
+                    .join(".bash_completion.d")
+                    .join("angreal"),
+            ),
+            (
+                Shell::Zsh,
+                PathBuf::from(&home)
+                    .join(".zsh_completions")
+                    .join("_angreal"),
+            ),
+            (
+                Shell::Zsh,
+                PathBuf::from(&home)
+                    .join(".zsh")
+                    .join("completions")
+                    .join("_angreal"),
+            ),
+        ]
+    };
+
+    let mut removed_any = false;
+    for (shell_type, path) in configs {
+        if path.exists() {
+            fs::remove_file(&path)
+                .with_context(|| format!("Failed to remove completion file: {}", path.display()))?;
+            println!("✅ Removed {} completion", shell_type.name());
+            removed_any = true;
+        }
+    }
+
+    if !removed_any {
+        println!("No completion files found to remove.");
+    }
+
+    Ok(())
+}
+
+/// Show completion installation status
+pub fn show_completion_status() -> Result<()> {
+    let home = env::var("HOME").context("HOME environment variable not set")?;
+
+    // Check common completion locations
+    let locations = vec![
+        (
+            "Bash",
+            PathBuf::from(&home)
+                .join(".bash_completion.d")
+                .join("angreal"),
+        ),
+        (
+            "Zsh (local)",
+            PathBuf::from(&home)
+                .join(".zsh_completions")
+                .join("_angreal"),
+        ),
+        (
+            "Zsh (oh-my-zsh)",
+            PathBuf::from(&home)
+                .join(".oh-my-zsh")
+                .join("completions")
+                .join("_angreal"),
+        ),
+        (
+            "Zsh (system)",
+            PathBuf::from("/usr/local/share/zsh/site-functions").join("_angreal"),
+        ),
+    ];
+
+    println!("Shell completion status:");
+    let mut found_any = false;
+
+    for (name, path) in locations {
+        if path.exists() {
+            println!("  ✅ {} - installed at {}", name, path.display());
+            found_any = true;
+        } else {
+            println!("  ❌ {} - not found", name);
+        }
+    }
+
+    if !found_any {
+        println!(
+            "\nNo completion files found. Run 'angreal completion install' to set up completion."
+        );
+    }
+
+    // Show current shell
+    let current_shell = Shell::detect();
+    println!("\nCurrent shell: {}", current_shell.name());
+
+    Ok(())
+}
+
 /// Generate completions for current command line
 pub fn generate_completions(args: &[String]) -> Result<Vec<String>> {
     let mut completions = Vec::new();
@@ -283,6 +469,10 @@ pub fn generate_completions(args: &[String]) -> Result<Vec<String>> {
 
     // If we're completing the first argument after 'angreal'
     if filtered_args.is_empty() {
+        // Always add built-in commands
+        completions.push("alias".to_string());
+        completions.push("tree".to_string());
+
         // Add 'init' command if not in angreal project
         if crate::utils::is_angreal_project().is_err() {
             completions.push("init".to_string());
@@ -298,6 +488,50 @@ pub fn generate_completions(args: &[String]) -> Result<Vec<String>> {
         // Complete template names
         completions.extend(templates::get_template_suggestions()?);
         return Ok(completions);
+    }
+
+    // Handle 'alias' command completion
+    if !filtered_args.is_empty() && filtered_args[0] == "alias" {
+        if filtered_args.len() == 1 {
+            // Complete subcommands for 'alias'
+            completions.extend(vec![
+                "create".to_string(),
+                "remove".to_string(),
+                "list".to_string(),
+            ]);
+            return Ok(completions);
+        } else if filtered_args.len() == 2 && filtered_args[1] == "remove" {
+            // Complete with existing aliases for 'alias remove'
+            if let Ok(aliases) = crate::list_entrypoints() {
+                completions.extend(aliases);
+            }
+            return Ok(completions);
+        } else if filtered_args.len() >= 2 {
+            // For 'alias create' or 'alias list', no further completion needed
+            return Ok(completions);
+        }
+    }
+
+    // Handle 'completion' command completion
+    if !filtered_args.is_empty() && filtered_args[0] == "completion" {
+        if filtered_args.len() == 1 {
+            // Complete subcommands for 'completion'
+            completions.extend(vec![
+                "install".to_string(),
+                "uninstall".to_string(),
+                "status".to_string(),
+            ]);
+            return Ok(completions);
+        } else if filtered_args.len() == 2
+            && (filtered_args[1] == "install" || filtered_args[1] == "uninstall")
+        {
+            // Complete with shell options for 'completion install/uninstall'
+            completions.extend(vec!["bash".to_string(), "zsh".to_string()]);
+            return Ok(completions);
+        } else if filtered_args.len() >= 2 {
+            // For 'completion status' or other completed commands, no further completion needed
+            return Ok(completions);
+        }
     }
 
     // Handle nested command completion for angreal projects
@@ -325,13 +559,16 @@ fn get_available_tasks() -> Result<Vec<String>> {
 
     // Get registered tasks
     for task in crate::task::ANGREAL_TASKS.lock().unwrap().iter() {
-        // Add top-level task names
         if task.group.is_none() || task.group.as_ref().unwrap().is_empty() {
+            // Top-level task - add the task name directly
             tasks.push(task.name.clone());
         } else {
-            // Add group names
-            for group in task.group.as_ref().unwrap() {
-                tasks.push(group.name.clone());
+            // Grouped task - add only the top-level group name for initial completion
+            // The nested completion will handle deeper levels
+            if let Some(groups) = &task.group {
+                if let Some(first_group) = groups.first() {
+                    tasks.push(first_group.name.clone());
+                }
             }
         }
     }

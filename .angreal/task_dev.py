@@ -1,48 +1,38 @@
 import angreal
 import os
-import subprocess
 import shutil
-
 
 project_root = os.path.join(angreal.get_root(),'..')
 
-dev = angreal.command_group(name="dev", about="tasks for"
-                            "the management of the dev experience")
+dev = angreal.command_group(name="dev", about="development utilities")
 
 def is_program_available(program_name):
     return shutil.which(program_name) is not None
 
-
 @dev()
-@angreal.command(name="install", about="install and "
-                 "verify the development environment")
-def setup():
-
-    subprocess.run("python3 -m pip install -e .",
-                   shell=True, cwd=project_root, check=True)
-    # Setup the virtual environment as .venv in the root folder
-
-    # Install pre commit
-    subprocess.run("pre-commit install", shell=True, cwd=project_root)
-
-
-    # Check for system level dependencies and flash
-    # a message if they're not installed
-    # We're not going to automate setup cause that's
-    # more work than i'm interested in doing
+@angreal.command(name="check-deps", about="check system dependencies")
+def check_system_dependencies():
+    """
+    Check for required system-level dependencies
+    """
     dependencies_required = (
         ("hugo" , "please visit : https://gohugo.io/installation/"),
         ("cargo", "curl --proto '=https' --tlsv1.2"
          " -sSf https://sh.rustup.rs | sh && rustup update")
     )
 
-    missing_deps = True
-    for dep in dependencies_required :
-        if not is_program_available(dep[0]):
-            print(f"{dep[0]} is not available install via {dep[0]}")
+    missing_deps = False
+    for dep in dependencies_required:
+        if is_program_available(dep[0]):
+            print(f"✅ {dep[0]} is available")
+        else:
+            print(f"❌ {dep[0]} is not available - install via: {dep[1]}")
             missing_deps = True
 
     if missing_deps:
-        print("You're missing some system level dependencies,"
-              " please use the above instructions to install them.")
-    return
+        print("\n⚠️  Some system dependencies are missing. "
+              "Install them to use all features.")
+        return 1
+    else:
+        print("\n🎉 All system dependencies are available!")
+        return 0

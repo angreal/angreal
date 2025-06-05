@@ -9,6 +9,7 @@ In this tutorial, you'll create a complete Angreal project from scratch. We'll b
 
 {{< hint type=note >}}
 **Time Required**: 15-20 minutes
+
 **Prerequisites**: Python 3.8+, Angreal installed, basic Python knowledge
 {{< /hint >}}
 
@@ -26,11 +27,11 @@ Here's what we'll create:
 ```
 meeting_notes/
 ├── angreal.toml           # Template configuration
-├── {{ name }}/            # Template directory (Tera variable)
-│   ├── .angreal/          # Angreal tasks directory
-│   │   ├── init.py        # Post-initialization script
-│   │   └── task_notes.py  # Note-taking task
-│   └── README.md          # Meeting overview template
+└──  {{ name }}/            # Template directory (Tera variable)
+    ├── .angreal/          # Angreal tasks directory
+    │   ├── init.py        # Post-initialization script
+    │   └── task_notes.py  # Note-taking task
+    └── README.md          # Meeting overview template
 ```
 
 ## Step 1: Create the Template Structure
@@ -62,7 +63,7 @@ mkdir "{{ name }}"
 ```
 
 {{< hint type=warning >}}
-**Note**: Angreal uses [Tera](https://tera.netlify.app/) templating engine. The syntax is similar to Jinja2, but there are [some differences](https://tera.netlify.app/docs/#templates).
+**Note**: Angreal uses [Tera](https://keats.github.io/tera/docs/) templating engine. The syntax is similar to Jinja2, but there are some differences.
 {{< /hint >}}
 
 Create `{{ name }}/README.md`:
@@ -297,19 +298,15 @@ How to create an Angreal template with:
 - Custom tasks with arguments
 
 Key concepts:
-- Templates use [Tera](https://tera.netlify.app/) syntax (`{{ variable }}`)
+- Templates use [Tera](https://keats.github.io/tera/) syntax (`{{ variable }}`)
 - Tasks are Python files starting with `task_` in `.angreal/`
 - The `@angreal.command` decorator creates CLI commands
 - The `@angreal.argument` decorator adds command-line options
 
-## Tera vs Jinja2
-
-While Tera syntax is similar to Jinja2, there are some differences,
-see the [Tera documentation](https://tera.netlify.app/docs/) for complete syntax reference.
 
 ## Next Steps
 
 - Add more tasks (archive notes, search notes, generate reports)
 - Create templates for your own projects
-- Explore the [How-to Guides](/how-to-guides) for specific techniques
-- Read the [API Reference](/reference/python-api) for all available features
+- Explore the [How-to Guides](/angreal/how-to-guides/) for specific techniques
+- Read the [API Reference](/angreal/reference/python-api) for all available features

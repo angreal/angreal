@@ -215,7 +215,7 @@ export UV_INSTALL_DIR="/path/to/uv"
 export UV_NO_PROGRESS=1
 ```
 
-See [UV Installation and Management](/reference/configuration/uv-installation) for complete details.
+See [UV Installation and Management](/angreal/reference/configuration/uv-installation) for complete details.
 
 ## Global Cache Directory
 
@@ -322,6 +322,6 @@ include_docs.type = "boolean"
 
 ## See Also
 
-- [Template Development](/how-to-guides/create-templates) - Creating templates with configuration
-- [CLI Reference](/reference/cli) - Command-line options and usage
-- [Tera Templating](https://tera.netlify.app/docs/) - Template syntax reference
+- [Template Development](/angreal/how-to-guides/create-templates) - Creating templates with configuration
+- [CLI Reference](/angreal/reference/cli) - Command-line options and usage
+- [Tera Templating](https://keats.github.io/tera/docs/) - Template syntax reference

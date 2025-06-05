@@ -81,5 +81,5 @@ angreal t[TAB]
 
 ## Related Documentation
 
-- [Create Tasks](/how-to-guides/create-a-task) - How to create tasks with completion support
-- [Create Templates](/how-to-guides/create-templates) - How to create templates with completion support
+- [Create Tasks](/angreal/how-to-guides/create-a-task) - How to create tasks with completion support
+- [Create Templates](/angreal/how-to-guides/create-templates) - How to create templates with completion support
