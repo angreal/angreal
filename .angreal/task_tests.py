@@ -37,9 +37,14 @@ def python_tests():
     Run the Python unit tests in isolated environment
     """
     with VirtualEnv("angreal-pytest-venv", now=True) as venv:
-        # Ensure pip is available
-        python_exe = venv.path / "bin" / "python"
-        pip_exe = venv.path / "bin" / "pip3"
+        # Ensure pip is available (platform-specific paths)
+        import sys
+        if sys.platform == "win32":
+            python_exe = venv.path / "Scripts" / "python.exe"
+            pip_exe = venv.path / "Scripts" / "pip.exe"
+        else:
+            python_exe = venv.path / "bin" / "python"
+            pip_exe = venv.path / "bin" / "pip3"
 
         # Install pip and dependencies
         subprocess.run(
@@ -106,21 +111,23 @@ def integration_rust_tests():
     """
     Run the Rust integration tests
     """
-    subprocess.run(
-        [
-            "cargo test --test integration -v -- --nocapture --test-threads=1",
-        ], cwd=str(project_root), shell=True
+    result = subprocess.run(
+        "cargo test --test integration -v -- --nocapture --test-threads=1",
+        cwd=str(project_root), shell=True
     )
+    if result.returncode != 0:
+        exit(result.returncode)
 
 def unit_rust_tests():
     """
     Run the Rust unit tests
     """
-    subprocess.run(
-        [
-            "cargo test --lib -v -- --nocapture --test-threads=1",
-        ], cwd=str(project_root), shell=True
+    result = subprocess.run(
+        "cargo test --lib -v -- --nocapture --test-threads=1",
+        cwd=str(project_root), shell=True
     )
+    if result.returncode != 0:
+        exit(result.returncode)
 
 
 @test()
