@@ -451,7 +451,7 @@ fn register_entrypoint(name: &str) -> PyResult<()> {
     }
 
     // Update registry
-    let registry_path = data_dir.join("aliases.json");
+    let registry_path = home.join(".angrealrc").join("aliases.json");
     let mut aliases: Vec<String> = if registry_path.exists() {
         let content = fs::read_to_string(&registry_path).map_err(|e| {
             PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
@@ -532,11 +532,7 @@ fn unregister_entrypoint(name: &str) -> PyResult<()> {
     }
 
     // Update registry
-    let registry_path = home
-        .join(".local")
-        .join("share")
-        .join("angreal")
-        .join("aliases.json");
+    let registry_path = home.join(".angrealrc").join("aliases.json");
 
     if registry_path.exists() {
         let content = fs::read_to_string(&registry_path).map_err(|e| {

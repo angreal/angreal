@@ -121,19 +121,6 @@ fn is_template_repo(repo: &GitHubRepo) -> bool {
     !name.starts_with("angreal")
 }
 
-/// Get popular template suggestions (hardcoded fallback)
-pub fn get_popular_templates() -> Vec<String> {
-    vec![
-        "python-cli".to_string(),
-        "python-package".to_string(),
-        "django-api".to_string(),
-        "flask-api".to_string(),
-        "rust-cli".to_string(),
-        "node-api".to_string(),
-        "react-app".to_string(),
-    ]
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -159,13 +146,6 @@ mod tests {
             url: "https://github.com/angreal/angreal".to_string(),
         };
         assert!(!is_template_repo(&meta_repo));
-    }
-
-    #[test]
-    fn test_get_popular_templates() {
-        let templates = get_popular_templates();
-        assert!(!templates.is_empty());
-        assert!(templates.contains(&"python-cli".to_string()));
     }
 
     #[test]
