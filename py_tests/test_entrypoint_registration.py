@@ -15,12 +15,12 @@ class TestEntrypointRegistration:
         self.temp_home = tempfile.mkdtemp()
         self.original_home = os.environ.get('HOME')
         self.original_userprofile = os.environ.get('USERPROFILE')
-        
+
         # Set both HOME and USERPROFILE for cross-platform compatibility
         os.environ['HOME'] = self.temp_home
         if os.name == 'nt':  # Windows
             os.environ['USERPROFILE'] = self.temp_home
-        
+
         # Clean up any existing entrypoints to ensure test isolation
         try:
             angreal.cleanup_entrypoints()
@@ -34,18 +34,18 @@ class TestEntrypointRegistration:
             angreal.cleanup_entrypoints()
         except Exception:
             pass  # Ignore errors during cleanup
-            
+
         # Restore original environment
         if self.original_home:
             os.environ['HOME'] = self.original_home
         else:
             os.environ.pop('HOME', None)
-            
+
         if self.original_userprofile:
             os.environ['USERPROFILE'] = self.original_userprofile
         elif os.name == 'nt':  # Windows
             os.environ.pop('USERPROFILE', None)
-            
+
         shutil.rmtree(self.temp_home, ignore_errors=True)
 
     def test_register_entrypoint(self):
@@ -60,7 +60,7 @@ class TestEntrypointRegistration:
             script_path = Path(self.temp_home) / ".local" / "bin" / f"{alias_name}.bat"
         else:  # Unix
             script_path = Path(self.temp_home) / ".local" / "bin" / alias_name
-        
+
         assert script_path.exists()
         assert script_path.is_file()
 
@@ -68,7 +68,7 @@ class TestEntrypointRegistration:
         content = script_path.read_text()
         assert "ANGREAL_ALIAS:" in content
         assert alias_name in content
-        
+
         if os.name == 'nt':  # Windows
             assert "python -m angreal" in content
         else:  # Unix
@@ -147,7 +147,7 @@ class TestEntrypointRegistration:
             script_path = Path(self.temp_home) / ".local" / "bin" / f"{alias_name}.bat"
         else:  # Unix
             script_path = Path(self.temp_home) / ".local" / "bin" / alias_name
-        
+
         script_path.parent.mkdir(parents=True, exist_ok=True)
         script_path.write_text("existing script")
 
@@ -182,7 +182,7 @@ class TestEntrypointRegistration:
             script_path = Path(self.temp_home) / ".local" / "bin" / f"{alias_name}.bat"
         else:  # Unix
             script_path = Path(self.temp_home) / ".local" / "bin" / alias_name
-        
+
         content = script_path.read_text()
 
         if os.name == 'nt':  # Windows
