@@ -371,7 +371,7 @@ uv cache clean
 
 ## Further Reading
 
-- [UV Integration Architecture](/explanation/uv_integration_architecture) - Architectural decisions
-- [Virtual Environment API](/reference/python-api/integrations/venv) - Python API reference
-- [Working with Virtual Environments](/how-to-guides/work-with-virtual-environments) - Usage guide
+- [UV Integration Architecture](/angreal/explanation/uv_integration_architecture) - Architectural decisions
+- [Virtual Environment API](/angreal/reference/python-api/integrations/venv) - Python API reference
+- [Working with Virtual Environments](/angreal/how-to-guides/work-with-virtual-environments) - Usage guide
 - [UV Documentation](https://docs.astral.sh/uv/) - Official UV documentation

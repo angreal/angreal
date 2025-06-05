@@ -50,7 +50,7 @@ $: angreal <command to run>
 ## A Quick Example
 
 Let\'s say you\'re starting a new software project and plan on using
-[python 3](www.python.org). You also want to make sure that you\'re
+[python 3](https://www.python.org). You also want to make sure that you\'re
 following good practices and have documentation, testing, and type
 hinting as part of the project.
 

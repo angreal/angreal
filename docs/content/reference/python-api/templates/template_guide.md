@@ -15,7 +15,7 @@ The template system consists of three main components:
 2. **Render Directory** - Render entire directories of templates
 3. **Generate Context** - Create context variables for templates
 
-Angreal uses [Tera](https://tera.netlify.app/) (a Rust template engine similar to Jinja2) for template rendering.
+Angreal uses [Tera](https://keats.github.io/tera/docs/) (a Rust template engine similar to Jinja2) for template rendering.
 
 ## Template Variables
 
@@ -152,4 +152,4 @@ This project uses unittest for testing.
 - [render_template](render_template) - Full API reference for `angreal.render_template`
 - [render_directory](render_directory) - Full API reference for `angreal.render_directory`
 - [generate_context](generate_context) - Full API reference for `angreal.generate_context`
-- [Tera Documentation](https://tera.netlify.app/docs/) - Documentation for the Tera template engine
+- [Tera Documentation](https://keats.github.io/tera/docs/) - Documentation for the Tera template engine

@@ -106,12 +106,12 @@ for version, path in pythons:
 
 ## Related Documentation
 
-- [Virtual Environment API Reference](/reference/python-api/integrations/venv) - Complete API documentation
-- [Create Tasks](/how-to-guides/create-a-task) - How to integrate environments with tasks
+- [Virtual Environment API Reference](/angreal/reference/python-api/integrations/venv) - Complete API documentation
+- [Create Tasks](/angreal/how-to-guides/create-a-task) - How to integrate environments with tasks
 
 
 ## Next Steps
 
-- Read the [Virtual Environment API Reference](/reference/python-api/integrations/venv) for complete API documentation
-- Learn about [UV Integration Architecture](/explanation/uv_integration_architecture) for implementation details
-- Explore [Creating Tasks](/how-to-guides/create-a-task) to integrate environments with your automation workflows
+- Read the [Virtual Environment API Reference](/angreal/reference/python-api/integrations/venv) for complete API documentation
+- Learn about [UV Integration Architecture](/angreal/explanation/uv_integration_architecture) for implementation details
+- Explore [Creating Tasks](/angreal/how-to-guides/create-a-task) to integrate environments with your automation workflows

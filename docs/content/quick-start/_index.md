@@ -120,7 +120,6 @@ angreal init /path/to/template my-new-project
 
 Popular templates:
 - `https://github.com/angreal/python.git` - Python project template
-- `https://github.com/angreal/rust.git` - Rust project template
 
 ## Troubleshooting
 
@@ -138,6 +137,6 @@ pip install --upgrade angreal
 
 ## Next Steps
 
-- Learn more about [creating tasks](/how-to-guides/create-a-task)
-- Explore [project templates](/tutorials)
-- Read the [API reference](/reference)
+- Learn more about [creating tasks](/angreal/how-to-guides/create-a-task)
+- Explore [project templates](/angreal/tutorials)
+- Read the [API reference](/angreal/reference)

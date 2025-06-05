@@ -15,7 +15,7 @@ Angreal's template system consists of:
 - **Context Generation** - Create variables for templates
 - **angreal.toml Format** - Configure template variables and prompts
 
-Templates use the [Tera](https://tera.netlify.app/) templating engine, which provides Jinja2-like syntax.
+Templates use the [Tera](https://keats.github.io/tera/docs/) templating engine, which provides Jinja2-like syntax.
 
 ## Key Components
 

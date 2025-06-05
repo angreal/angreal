@@ -79,6 +79,85 @@ Angreal resolves templates in the following order:
 For a detailed explanation of how Angreal resolves and processes templates, see [Angreal Init Behavior](/angreal/explanation/angreal_init_behaviour/).
 {{< /hint >}}
 
+### tree
+
+Get a structured view of all available commands and tasks in an Angreal project.
+
+```bash
+angreal tree [OPTIONS]
+```
+
+**Options:**
+- `--json` - Output command structure in JSON format for machine processing
+
+**Examples:**
+
+```bash
+# Human-readable tree view
+angreal tree
+
+# JSON output for tooling integration
+angreal tree --json
+```
+
+### alias
+
+Create and manage command aliases for white-labeling Angreal.
+
+```bash
+angreal alias <SUBCOMMAND>
+```
+
+**Subcommands:**
+- `create <name>` - Create a new command alias
+- `remove <name>` - Remove an existing alias
+- `list` - List all registered aliases
+
+**Examples:**
+
+```bash
+# Create a custom command name
+angreal alias create mycompany-tool
+
+# Now you can use 'mycompany-tool' instead of 'angreal'
+mycompany-tool init template/
+
+# List all aliases
+angreal alias list
+
+# Remove an alias
+angreal alias remove mycompany-tool
+```
+
+### completion
+
+Install and manage shell completion for Angreal.
+
+```bash
+angreal completion <SUBCOMMAND>
+```
+
+**Subcommands:**
+- `install [shell]` - Install shell completion (bash, zsh)
+- `uninstall [shell]` - Uninstall shell completion
+- `status` - Show completion installation status
+
+**Examples:**
+
+```bash
+# Install completion for current shell
+angreal completion install
+
+# Install for specific shell
+angreal completion install bash
+
+# Check completion status
+angreal completion status
+
+# Uninstall completion
+angreal completion uninstall
+```
+
 ### help
 
 Print help information for Angreal or a specific subcommand.
@@ -206,7 +285,7 @@ where angreal
 
 ## See Also
 
-- [Quick Start](/quick-start) - Getting started with Angreal
-- [Python API Reference](/reference/python-api) - Task definition API
-- [Configuration Reference](/reference/configuration) - Configuration file formats
-- [How-to Guides](/how-to-guides) - Common task examples
+- [Quick Start](/angreal/quick-start) - Getting started with Angreal
+- [Python API Reference](/angreal/reference/python-api) - Task definition API
+- [Configuration Reference](/angreal/reference/configuration) - Configuration file formats
+- [How-to Guides](/angreal/how-to-guides) - Common task examples

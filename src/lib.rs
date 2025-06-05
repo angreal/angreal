@@ -382,7 +382,7 @@ fn register_entrypoint(name: &str) -> PyResult<()> {
         ))
     })?;
 
-    let data_dir = home.join(".local").join("share").join("angreal");
+    let data_dir = home.join(".angrealrc");
     fs::create_dir_all(&data_dir).map_err(|e| {
         PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
             "Failed to create data directory: {}",
@@ -493,11 +493,7 @@ fn list_entrypoints() -> PyResult<Vec<String>> {
         PyErr::new::<pyo3::exceptions::PyRuntimeError, _>("Cannot find home directory")
     })?;
 
-    let registry_path = home
-        .join(".local")
-        .join("share")
-        .join("angreal")
-        .join("aliases.json");
+    let registry_path = home.join(".angrealrc").join("aliases.json");
 
     if !registry_path.exists() {
         return Ok(Vec::new());

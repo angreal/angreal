@@ -51,6 +51,6 @@ Angreal automatically discovers tasks by:
 
 ## Further Reading
 
-- [Contributing](/contributing) - How to contribute to Angreal
-- [API Reference](/reference) - Technical details
-- [Tutorials](/tutorials) - Learn by example
+- [Contributing](/angreal/contributing) - How to contribute to Angreal
+- [API Reference](/angreal/reference) - Technical details
+- [Tutorials](/angreal/tutorials) - Learn by example
