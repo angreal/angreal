@@ -216,6 +216,14 @@ impl AngrealCommand {
             "Current ANGREAL_TASKS registry size: {}",
             tasks.len()
         );
+        drop(tasks);
+        
+        // Also update arguments registry with new path key
+        let mut args_registry = ANGREAL_ARGS.lock().unwrap();
+        if let Some(args) = args_registry.remove(&old_path_key) {
+            args_registry.insert(new_path_key.clone(), args);
+            debug!("Moved arguments from '{}' to '{}'", old_path_key, new_path_key);
+        }
 
         Ok(())
     }
