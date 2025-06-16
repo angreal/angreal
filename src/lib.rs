@@ -41,6 +41,7 @@ use std::fs;
 use log::{debug, error, warn};
 
 use crate::integrations::git::Git;
+use crate::task::generate_path_key_from_parts;
 
 #[pyclass]
 struct PyGit {
@@ -232,7 +233,7 @@ fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool)
 
     if in_angreal_project {
         // Add all registered tasks to the command tree
-        for task in ANGREAL_TASKS.lock().unwrap().iter() {
+        for (_, task) in ANGREAL_TASKS.lock().unwrap().iter() {
             root.add_command(task.clone());
         }
     }
@@ -827,29 +828,23 @@ fn main() -> PyResult<()> {
 
             let task = command_groups.pop().unwrap();
 
-            let some_command = ANGREAL_TASKS.lock().unwrap().clone();
-            let some_command = some_command.iter().find(|&x| {
-                x.name == task.as_str()
-                    && x.group
-                        .clone()
-                        .unwrap()
-                        .iter()
-                        .map(|x| x.name.to_string())
-                        .collect::<Vec<String>>()
-                        == command_groups
-            });
+            // Generate the full path key for command lookup
+            let command_path = generate_path_key_from_parts(&command_groups, &task);
+            let tasks_registry = ANGREAL_TASKS.lock().unwrap();
 
-            debug!("Executing command: {}", task);
-            let command = match some_command {
+            debug!("Looking up command with path: {}", command_path);
+            let command = match tasks_registry.get(&command_path) {
                 None => {
                     error!("Command '{}' not found.", task);
                     app_copy.print_help().unwrap_or(());
                     exit(1)
                 }
-                Some(some_command) => some_command,
+                Some(found_command) => found_command,
             };
 
-            let args = builder::select_args(task.as_str());
+            debug!("Executing command: {}", task);
+
+            let args = builder::select_args(&command_path);
             Python::with_gil(|py| {
                 debug!("Starting Python execution for command: {}", task);
                 let mut kwargs: Vec<(&str, PyObject)> = Vec::new();

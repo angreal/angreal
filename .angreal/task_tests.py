@@ -56,9 +56,9 @@ def python_tests():
             check=True, capture_output=True
         )
 
-        # Build and install angreal in development mode
+        # Build and install angreal (non-editable to ensure Rust compilation)
         subprocess.run(
-            [str(pip_exe), "install", "-e", str(project_root)],
+            [str(pip_exe), "install", str(project_root)],
             check=True
         )
 

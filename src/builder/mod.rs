@@ -2,20 +2,19 @@
 //!
 pub mod command_tree;
 
-use crate::task::{AngrealArg, ANGREAL_ARGS, ANGREAL_TASKS};
+use crate::task::{generate_path_key_from_parts, AngrealArg, ANGREAL_ARGS, ANGREAL_TASKS};
 use clap::{App, AppSettings, Arg, ArgAction, Command};
 
 use command_tree::CommandNode;
 
-/// Get the args for a given command.
-pub fn select_args(name: &str) -> Vec<AngrealArg> {
+/// Get the args for a given command using full command path.
+pub fn select_args(command_path: &str) -> Vec<AngrealArg> {
     ANGREAL_ARGS
         .lock()
         .unwrap()
-        .iter()
-        .filter(|a| a.command_name == name)
+        .get(command_path)
         .cloned()
-        .collect()
+        .unwrap_or_default()
 }
 
 fn base_app_setup() -> App<'static> {
@@ -160,8 +159,8 @@ fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
     let mut root = CommandNode::new_group("angreal".to_string(), None);
 
     // Add all commands to the tree
-    for cmd in ANGREAL_TASKS.lock().unwrap().clone() {
-        root.add_command(cmd);
+    for (_, cmd) in ANGREAL_TASKS.lock().unwrap().iter() {
+        root.add_command(cmd.clone());
     }
 
     // Convert command tree to clap App structure
@@ -175,7 +174,13 @@ fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
 
         // If this is a command node (has command data), add its arguments
         if let Some(command) = &node.command {
-            let args = select_args(&command.name);
+            // Generate the full command path for argument lookup
+            let command_path = if let Some(ref groups) = command.group {
+                generate_path_key_from_parts(groups, &command.name)
+            } else {
+                command.name.clone()
+            };
+            let args = select_args(&command_path);
             for arg in args {
                 let name_static: &'static str =
                     Box::leak(Box::new(arg.name.clone()).into_boxed_str());
