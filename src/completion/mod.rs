@@ -558,7 +558,7 @@ fn get_available_tasks() -> Result<Vec<String>> {
     }
 
     // Get registered tasks
-    for task in crate::task::ANGREAL_TASKS.lock().unwrap().iter() {
+    for (_, task) in crate::task::ANGREAL_TASKS.lock().unwrap().iter() {
         if task.group.is_none() || task.group.as_ref().unwrap().is_empty() {
             // Top-level task - add the task name directly
             tasks.push(task.name.clone());
@@ -599,7 +599,7 @@ fn get_nested_command_completions(args: &[String]) -> Result<Vec<String>> {
     }
 
     // Add all registered tasks to the command tree
-    for task in crate::task::ANGREAL_TASKS.lock().unwrap().iter() {
+    for (_, task) in crate::task::ANGREAL_TASKS.lock().unwrap().iter() {
         root.add_command(task.clone());
     }
 
