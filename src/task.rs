@@ -5,9 +5,9 @@ use log::debug;
 use once_cell::sync::Lazy;
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::Mutex;
-use std::cell::RefCell;
 
 /// Registers the Command and Arg structs to the python api in the `angreal` module
 pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
@@ -20,17 +20,19 @@ pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 }
 
 /// A long lived structure that stores AngrealCommands upon registration, keyed by full path
-pub static ANGREAL_TASKS: Lazy<Mutex<HashMap<String, AngrealCommand>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+pub static ANGREAL_TASKS: Lazy<Mutex<HashMap<String, AngrealCommand>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
 
 /// A long lived structure that stores AngrealArgs for commands upon registration, keyed by command path
-pub static ANGREAL_ARGS: Lazy<Mutex<HashMap<String, Vec<AngrealArg>>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+pub static ANGREAL_ARGS: Lazy<Mutex<HashMap<String, Vec<AngrealArg>>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
 
 /// A long lived structure that stores Angreal Groups for commands upon registration
 pub static ANGREAL_GROUPS: Lazy<Mutex<Vec<AngrealGroup>>> = Lazy::new(|| Mutex::new(vec![]));
 
 // Thread-local storage for tracking the last registered command path for argument linking
 thread_local! {
-    static LAST_COMMAND_PATH: RefCell<Option<String>> = RefCell::new(None);
+    static LAST_COMMAND_PATH: RefCell<Option<String>> = const { RefCell::new(None) };
 }
 
 /// Set the current command path for argument registration
@@ -48,7 +50,11 @@ pub fn generate_command_path_key(command: &AngrealCommand) -> String {
     match &command.group {
         None => command.name.clone(),
         Some(groups) => {
-            let group_path = groups.iter().map(|g| g.name.clone()).collect::<Vec<_>>().join(".");
+            let group_path = groups
+                .iter()
+                .map(|g| g.name.clone())
+                .collect::<Vec<_>>()
+                .join(".");
             format!("{}.{}", group_path, command.name)
         }
     }
@@ -163,14 +169,20 @@ impl AngrealCommand {
             group,
             func,
         };
-        
+
         let path_key = generate_command_path_key(&cmd);
-        ANGREAL_TASKS.lock().unwrap().insert(path_key.clone(), cmd.clone());
-        
+        ANGREAL_TASKS
+            .lock()
+            .unwrap()
+            .insert(path_key.clone(), cmd.clone());
+
         // Set current command path for argument registration
         set_current_command_path(path_key.clone());
-        
-        debug!("Registered new command '{}' with path key: {}", name, path_key);
+
+        debug!(
+            "Registered new command '{}' with path key: {}",
+            name, path_key
+        );
         debug!(
             "Updated ANGREAL_TASKS registry size: {}",
             ANGREAL_TASKS.lock().unwrap().len()
@@ -180,10 +192,10 @@ impl AngrealCommand {
     /// Add a (task::AngrealGroup) to the task::AngrealCommand called on
     pub fn add_group(&mut self, group: AngrealGroup) -> PyResult<()> {
         debug!("Adding group '{}' to command '{}'", group.name, self.name);
-        
+
         // Get the current path key for this command
         let old_path_key = generate_command_path_key(self);
-        
+
         if self.group.is_none() {
             debug!(
                 "Initializing empty group vector for command '{}'",
@@ -197,32 +209,35 @@ impl AngrealCommand {
         debug!("Adding group '{}' to command '{}'", group.name, self.name);
         g.insert(0, group);
         self.group = Some(g.clone());
-        
+
         // Generate new path key and update registry
         let new_path_key = generate_command_path_key(self);
         let mut tasks = ANGREAL_TASKS.lock().unwrap();
-        
+
         // Remove old entry and insert with new key
         if let Some(_cmd) = tasks.remove(&old_path_key) {
             tasks.insert(new_path_key.clone(), self.clone());
-            debug!("Updated command path from '{}' to '{}'", old_path_key, new_path_key);
+            debug!(
+                "Updated command path from '{}' to '{}'",
+                old_path_key, new_path_key
+            );
         } else {
             // Fallback: just insert with new key
             tasks.insert(new_path_key.clone(), self.clone());
             debug!("Inserted command with new path: '{}'", new_path_key);
         }
-        
-        debug!(
-            "Current ANGREAL_TASKS registry size: {}",
-            tasks.len()
-        );
+
+        debug!("Current ANGREAL_TASKS registry size: {}", tasks.len());
         drop(tasks);
-        
+
         // Also update arguments registry with new path key
         let mut args_registry = ANGREAL_ARGS.lock().unwrap();
         if let Some(args) = args_registry.remove(&old_path_key) {
             args_registry.insert(new_path_key.clone(), args);
-            debug!("Moved arguments from '{}' to '{}'", old_path_key, new_path_key);
+            debug!(
+                "Moved arguments from '{}' to '{}'",
+                old_path_key, new_path_key
+            );
         }
 
         Ok(())
@@ -333,10 +348,10 @@ impl AngrealArg {
             "Creating new AngrealArg '{}' for command '{}'",
             name, command_name
         );
-        
+
         // Get the current command path or fallback to command_name if not available
         let command_path = get_current_command_path().unwrap_or_else(|| command_name.to_string());
-        
+
         let arg = AngrealArg {
             name: name.to_string(),
             command_name: command_name.to_string(),
@@ -356,11 +371,14 @@ impl AngrealArg {
             help: help.map(|i| i.to_string()),
             required,
         };
-        
+
         // Insert into HashMap using command path as key
         let mut args_registry = ANGREAL_ARGS.lock().unwrap();
-        args_registry.entry(command_path.clone()).or_insert_with(Vec::new).push(arg.clone());
-        
+        args_registry
+            .entry(command_path.clone())
+            .or_default()
+            .push(arg.clone());
+
         debug!(
             "Registered new argument '{}' for command path '{}'",
             name, command_path
@@ -384,7 +402,7 @@ mod tests {
             // Save and restore global state for test isolation
             let original_tasks = ANGREAL_TASKS.lock().unwrap().clone();
             let original_args = ANGREAL_ARGS.lock().unwrap().clone();
-            
+
             // Clear any existing commands for clean test
             ANGREAL_TASKS.lock().unwrap().clear();
             ANGREAL_ARGS.lock().unwrap().clear();
@@ -394,7 +412,7 @@ mod tests {
                 name: "group1".to_string(),
                 about: Some("First group".to_string()),
             };
-            
+
             let group2 = AngrealGroup {
                 name: "group2".to_string(),
                 about: Some("Second group".to_string()),
@@ -420,7 +438,7 @@ mod tests {
             // Register both commands
             let path1 = generate_command_path_key(&cmd1);
             let path2 = generate_command_path_key(&cmd2);
-            
+
             ANGREAL_TASKS.lock().unwrap().insert(path1.clone(), cmd1);
             ANGREAL_TASKS.lock().unwrap().insert(path2.clone(), cmd2);
 
@@ -434,12 +452,28 @@ mod tests {
             assert!(ANGREAL_TASKS.lock().unwrap().get("group2.all").is_some());
 
             // Verify they have different about texts
-            let retrieved_cmd1 = ANGREAL_TASKS.lock().unwrap().get("group1.all").unwrap().clone();
-            let retrieved_cmd2 = ANGREAL_TASKS.lock().unwrap().get("group2.all").unwrap().clone();
-            
-            assert_eq!(retrieved_cmd1.about, Some("Run all tests in group1".to_string()));
-            assert_eq!(retrieved_cmd2.about, Some("Run all tests in group2".to_string()));
-            
+            let retrieved_cmd1 = ANGREAL_TASKS
+                .lock()
+                .unwrap()
+                .get("group1.all")
+                .unwrap()
+                .clone();
+            let retrieved_cmd2 = ANGREAL_TASKS
+                .lock()
+                .unwrap()
+                .get("group2.all")
+                .unwrap()
+                .clone();
+
+            assert_eq!(
+                retrieved_cmd1.about,
+                Some("Run all tests in group1".to_string())
+            );
+            assert_eq!(
+                retrieved_cmd2.about,
+                Some("Run all tests in group2".to_string())
+            );
+
             // Restore original state
             *ANGREAL_TASKS.lock().unwrap() = original_tasks;
             *ANGREAL_ARGS.lock().unwrap() = original_args;
@@ -452,7 +486,7 @@ mod tests {
             // Save and restore global state for test isolation
             let original_tasks = ANGREAL_TASKS.lock().unwrap().clone();
             let original_args = ANGREAL_ARGS.lock().unwrap().clone();
-            
+
             // Clear registries for clean test
             ANGREAL_TASKS.lock().unwrap().clear();
             ANGREAL_ARGS.lock().unwrap().clear();
@@ -462,7 +496,7 @@ mod tests {
                 name: "group1".to_string(),
                 about: None,
             };
-            
+
             let group2 = AngrealGroup {
                 name: "group2".to_string(),
                 about: None,
@@ -486,7 +520,7 @@ mod tests {
 
             let path1 = generate_command_path_key(&cmd1);
             let path2 = generate_command_path_key(&cmd2);
-            
+
             ANGREAL_TASKS.lock().unwrap().insert(path1.clone(), cmd1);
             ANGREAL_TASKS.lock().unwrap().insert(path2.clone(), cmd2);
 
@@ -532,8 +566,18 @@ mod tests {
             };
 
             // Register arguments using the HashMap structure
-            ANGREAL_ARGS.lock().unwrap().entry(path1.clone()).or_insert_with(Vec::new).push(arg1);
-            ANGREAL_ARGS.lock().unwrap().entry(path2.clone()).or_insert_with(Vec::new).push(arg2);
+            ANGREAL_ARGS
+                .lock()
+                .unwrap()
+                .entry(path1.clone())
+                .or_insert_with(Vec::new)
+                .push(arg1);
+            ANGREAL_ARGS
+                .lock()
+                .unwrap()
+                .entry(path2.clone())
+                .or_insert_with(Vec::new)
+                .push(arg2);
 
             // Verify arguments are correctly separated by command path
             let args1 = crate::builder::select_args(&path1);
@@ -541,21 +585,21 @@ mod tests {
 
             assert_eq!(args1.len(), 1);
             assert_eq!(args2.len(), 1);
-            
+
             assert_eq!(args1[0].name, "verbose");
             assert_eq!(args2[0].name, "force");
 
             // Verify that arguments don't cross-contaminate
             assert_eq!(args1[0].command_path, "group1.test");
             assert_eq!(args2[0].command_path, "group2.test");
-            
+
             // Restore original state
             *ANGREAL_TASKS.lock().unwrap() = original_tasks;
             *ANGREAL_ARGS.lock().unwrap() = original_args;
         });
     }
 
-    #[test] 
+    #[test]
     fn test_path_key_generation() {
         // Test top-level command (no group)
         let key = generate_path_key_from_parts(&[], "build");
@@ -566,7 +610,8 @@ mod tests {
         assert_eq!(key, "docker.run");
 
         // Test nested groups
-        let key = generate_path_key_from_parts(&["docker".to_string(), "compose".to_string()], "up");
+        let key =
+            generate_path_key_from_parts(&["docker".to_string(), "compose".to_string()], "up");
         assert_eq!(key, "docker.compose.up");
     }
 }

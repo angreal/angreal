@@ -2,7 +2,7 @@
 //!
 pub mod command_tree;
 
-use crate::task::{AngrealArg, ANGREAL_ARGS, ANGREAL_TASKS, generate_path_key_from_parts};
+use crate::task::{generate_path_key_from_parts, AngrealArg, ANGREAL_ARGS, ANGREAL_TASKS};
 use clap::{App, AppSettings, Arg, ArgAction, Command};
 
 use command_tree::CommandNode;

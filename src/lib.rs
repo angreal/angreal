@@ -831,7 +831,7 @@ fn main() -> PyResult<()> {
             // Generate the full path key for command lookup
             let command_path = generate_path_key_from_parts(&command_groups, &task);
             let tasks_registry = ANGREAL_TASKS.lock().unwrap();
-            
+
             debug!("Looking up command with path: {}", command_path);
             let command = match tasks_registry.get(&command_path) {
                 None => {
