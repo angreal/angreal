@@ -81,10 +81,17 @@ def _integrate_rustdoc():
 
 @docs()
 @angreal.command(
-    name="clean", 
+    name="clean",
     about="Clean documentation build artifacts and cache",
-    when_to_use=["Before fresh documentation builds", "When build artifacts are corrupted", "During documentation troubleshooting"],
-    when_not_to_use=["During normal development", "When incremental builds are sufficient"]
+    when_to_use=[
+        "Before fresh documentation builds",
+        "When build artifacts are corrupted",
+        "During documentation troubleshooting"
+    ],
+    when_not_to_use=[
+        "During normal development",
+        "When incremental builds are sufficient"
+    ]
 )
 def clean():
     """Clean the documentation build directory."""
@@ -95,8 +102,15 @@ def clean():
 @angreal.command(
     name="serve",
     about="Start local documentation server with live reload",
-    when_to_use=["During documentation writing", "For previewing documentation changes", "When reviewing documentation locally"],
-    when_not_to_use=["In production environments", "For final documentation builds"]
+    when_to_use=[
+        "During documentation writing",
+        "For previewing documentation changes",
+        "When reviewing documentation locally"
+    ],
+    when_not_to_use=[
+        "In production environments",
+        "For final documentation builds"
+    ]
 )
 @angreal.argument(
     name="prod",
@@ -154,7 +168,11 @@ def serve(prod: bool = False):
 @angreal.command(
     name="build",
     about="Build production documentation site with Rust API docs",
-    when_to_use=["For production deployments", "Before releasing documentation", "For final documentation review"],
+    when_to_use=[
+        "For production deployments",
+        "Before releasing documentation",
+        "For final documentation review"
+    ],
     when_not_to_use=["During active documentation writing", "For quick local previews"]
 )
 @angreal.argument(

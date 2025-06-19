@@ -11,10 +11,17 @@ def is_program_available(program_name):
 
 @dev()
 @angreal.command(
-    name="check-deps", 
+    name="check-deps",
     about="Verify required development tools are installed",
-    when_to_use=["Setting up development environment", "Troubleshooting build issues", "Before running documentation or build tasks"],
-    when_not_to_use=["During normal development workflow", "When all dependencies are known to be installed"]
+    when_to_use=[
+        "Setting up development environment",
+        "Troubleshooting build issues",
+        "Before running documentation or build tasks"
+    ],
+    when_not_to_use=[
+        "During normal development workflow",
+        "When all dependencies are known to be installed"
+    ]
 )
 def check_system_dependencies():
     """

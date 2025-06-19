@@ -17,7 +17,7 @@ weight: 10
 import angreal
 
 @angreal.command(
-    name='command-name', 
+    name='command-name',
     about='text-to-display',
     when_to_use=['During development', 'For testing features'],
     when_not_to_use=['In production deployments', 'When debugging']

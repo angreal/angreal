@@ -23,7 +23,7 @@ Here's a basic example of creating a command:
 import angreal
 
 @angreal.command(
-    name="hello", 
+    name="hello",
     about="Say hello to someone",
     when_to_use=["For greeting users", "During initial setup"],
     when_not_to_use=["In automated scripts", "During production deployment"]
@@ -57,7 +57,7 @@ dev = angreal.command_group(name="dev", about="Development commands")
 # Add a command to the group
 @dev()
 @angreal.command(
-    name="build", 
+    name="build",
     about="Build the project",
     when_to_use=["After code changes", "Before testing", "During development"],
     when_not_to_use=["In production environments", "Without code changes"]

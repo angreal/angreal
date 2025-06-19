@@ -222,7 +222,7 @@ fn get_venv_activation_info(venv_path: &str) -> PyResult<integrations::uv::Activ
 }
 
 /// Handle the tree command
-fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool) -> PyResult<()> {
+fn handle_tree_command(_sub_matches: &clap::ArgMatches, in_angreal_project: bool) -> PyResult<()> {
     use crate::builder::command_tree::CommandNode;
 
     // Build command tree from registered tasks
@@ -267,19 +267,17 @@ fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool)
         } else {
             command_parts[0].to_string()
         };
-        
+
         let args = builder::select_args(&command_path);
-        
+
         command_schema.parameters = args
             .into_iter()
             .map(|arg| {
                 // Only set flag field if there's an actual CLI flag (long or short)
                 let flag = if let Some(long) = &arg.long {
                     Some(format!("--{}", long))
-                } else if let Some(short) = arg.short {
-                    Some(format!("-{}", short))
                 } else {
-                    None // Positional argument - no flag
+                    arg.short.map(|short| format!("-{}", short))
                 };
 
                 // Use the actual Python data type, but convert "bool" flag type correctly

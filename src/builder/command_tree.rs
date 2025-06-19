@@ -66,7 +66,6 @@ pub struct ParameterSchema {
     pub description: Option<String>,
 }
 
-
 impl CommandNode {
     /// Create a new group node
     pub fn new_group(name: String, about: Option<String>) -> Self {
@@ -131,7 +130,11 @@ impl CommandNode {
     }
 
     /// Convert to new schema format
-    pub fn to_project_schema(&self, angreal_root: String, angreal_version: String) -> ProjectSchema {
+    pub fn to_project_schema(
+        &self,
+        angreal_root: String,
+        angreal_version: String,
+    ) -> ProjectSchema {
         let mut commands = Vec::new();
         self.collect_commands(&mut commands, vec![]);
 
@@ -179,7 +182,11 @@ impl CommandNode {
     }
 
     /// Convert to new schema JSON format
-    pub fn to_schema_json(&self, angreal_root: String, angreal_version: String) -> Result<String, serde_json::Error> {
+    pub fn to_schema_json(
+        &self,
+        angreal_root: String,
+        angreal_version: String,
+    ) -> Result<String, serde_json::Error> {
         let schema = self.to_project_schema(angreal_root, angreal_version);
         serde_json::to_string_pretty(&schema)
     }
