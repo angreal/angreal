@@ -106,12 +106,6 @@ def python_tests():
     ]
 )
 @angreal.argument(
-    name="test_filter",
-    help="filter tests by name pattern",
-    required=False,
-    takes_value=True
-)
-@angreal.argument(
     name="unit_only",
     long="unit-only",
     help="run only unit tests",
