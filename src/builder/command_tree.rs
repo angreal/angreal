@@ -28,49 +28,42 @@ pub struct SerializableCommand {
     pub long_about: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub group: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub when_to_use: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub when_not_to_use: Option<Vec<String>>,
 }
 
-/// New schema structures for the desired JSON output format
+/// Tree schema for MCP consumption
 #[derive(Debug, Clone, Serialize)]
 pub struct ProjectSchema {
-    pub name: String,
+    pub angreal_root: String,
+    pub angreal_version: String,
     pub commands: Vec<CommandSchema>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CommandSchema {
-    pub name: String,
-    pub path: String,
+    pub command: String,
     pub description: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub group: Option<String>,
+    pub when_to_use: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub when_not_to_use: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub arguments: Vec<ArgumentSchema>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub examples: Vec<ExampleSchema>,
+    pub parameters: Vec<ParameterSchema>,
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct ArgumentSchema {
+pub struct ParameterSchema {
     pub name: String,
-    pub flag: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub flag: Option<String>,
     #[serde(rename = "type")]
-    pub arg_type: String,
+    pub param_type: String,
     pub required: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub default: Option<serde_json::Value>,
-}
-
-#[derive(Debug, Clone, Serialize)]
-pub struct ExampleSchema {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub command: Option<String>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub args: Vec<String>,
 }
 
 impl CommandNode {
@@ -94,6 +87,8 @@ impl CommandNode {
                 .group
                 .as_ref()
                 .map(|groups| groups.iter().map(|g| g.name.clone()).collect()),
+            when_to_use: command.when_to_use.clone(),
+            when_not_to_use: command.when_not_to_use.clone(),
         };
 
         CommandNode {
@@ -135,12 +130,17 @@ impl CommandNode {
     }
 
     /// Convert to new schema format
-    pub fn to_project_schema(&self) -> ProjectSchema {
+    pub fn to_project_schema(
+        &self,
+        angreal_root: String,
+        angreal_version: String,
+    ) -> ProjectSchema {
         let mut commands = Vec::new();
         self.collect_commands(&mut commands, vec![]);
 
         ProjectSchema {
-            name: self.name.clone(),
+            angreal_root,
+            angreal_version,
             commands,
         }
     }
@@ -149,24 +149,18 @@ impl CommandNode {
     fn collect_commands(&self, commands: &mut Vec<CommandSchema>, path_segments: Vec<String>) {
         // If this node has a command, add it to the list
         if let Some(command) = &self.command {
-            let full_path = if path_segments.is_empty() {
+            let full_command = if path_segments.is_empty() {
                 self.name.clone()
             } else {
                 format!("{} {}", path_segments.join(" "), self.name)
             };
 
-            let group = command
-                .group
-                .as_ref()
-                .and_then(|groups| groups.first().cloned());
-
             commands.push(CommandSchema {
-                name: self.name.clone(),
-                path: full_path,
+                command: full_command,
                 description: command.about.clone().unwrap_or_default(),
-                group,
-                arguments: vec![], // Will be populated by caller with actual arguments
-                examples: vec![],  // Could be extended in the future
+                when_to_use: command.when_to_use.clone(),
+                when_not_to_use: command.when_not_to_use.clone(),
+                parameters: vec![], // Will be populated by caller
             });
         }
 
@@ -188,8 +182,12 @@ impl CommandNode {
     }
 
     /// Convert to new schema JSON format
-    pub fn to_schema_json(&self) -> Result<String, serde_json::Error> {
-        let schema = self.to_project_schema();
+    pub fn to_schema_json(
+        &self,
+        angreal_root: String,
+        angreal_version: String,
+    ) -> Result<String, serde_json::Error> {
+        let schema = self.to_project_schema(angreal_root, angreal_version);
         serde_json::to_string_pretty(&schema)
     }
 }
@@ -225,6 +223,8 @@ mod tests {
                 long_about: None,
                 group: None,
                 func,
+                when_to_use: None,
+                when_not_to_use: None,
             };
 
             let node = CommandNode::new_command(name.clone(), command);
@@ -250,6 +250,8 @@ mod tests {
                 long_about: None,
                 group: None,
                 func: py.None(),
+                when_to_use: None,
+                when_not_to_use: None,
             };
 
             root.add_command(command);
@@ -284,6 +286,8 @@ mod tests {
                 long_about: None,
                 group: Some(vec![group1.clone(), group2.clone()]),
                 func: py.None(),
+                when_to_use: None,
+                when_not_to_use: None,
             };
 
             root.add_command(command);
@@ -320,17 +324,19 @@ mod tests {
                     about: Some("Test group".to_string()),
                 }]),
                 func: py.None(),
+                when_to_use: None,
+                when_not_to_use: None,
             };
 
             root.add_command(command);
 
-            let schema = root.to_project_schema();
+            let schema = root.to_project_schema("/test/root".to_string(), "2.4.2".to_string());
 
-            assert_eq!(schema.name, "angreal");
+            assert_eq!(schema.angreal_root, "/test/root");
+            assert_eq!(schema.angreal_version, "2.4.2");
             assert_eq!(schema.commands.len(), 1);
-            assert_eq!(schema.commands[0].name, "test_cmd");
+            assert_eq!(schema.commands[0].command, "test test_cmd");
             assert_eq!(schema.commands[0].description, "Test command");
-            assert_eq!(schema.commands[0].group, Some("test".to_string()));
         });
     }
 }

@@ -89,6 +89,7 @@ fn add_tree_subcommand(app: App<'static>) -> App<'static> {
     app.subcommand(
         Command::new("tree")
             .about("Display the command tree structure")
+            .hide(true)
             .arg(
                 Arg::new("json")
                     .long("json")
@@ -102,6 +103,7 @@ fn add_alias_subcommand(app: App<'static>) -> App<'static> {
     app.subcommand(
         Command::new("alias")
             .about("Manage angreal command aliases")
+            .hide(true)
             .setting(AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
                 Command::new("create")
@@ -131,6 +133,7 @@ fn add_completion_subcommand(app: App<'static>) -> App<'static> {
     app.subcommand(
         Command::new("completion")
             .about("Manage shell completion")
+            .hide(true)
             .setting(AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
                 Command::new("install")

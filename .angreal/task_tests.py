@@ -11,7 +11,19 @@ test = angreal.command_group(name="test", about="commands for testing the"
                              " application and library")
 
 @test()
-@angreal.command(name="all", about="run all tests")
+@angreal.command(
+    name="all",
+    about="Run complete test suite (Python, Rust, completion)",
+    when_to_use=[
+        "Before major releases",
+        "After significant changes",
+        "For comprehensive validation"
+    ],
+    when_not_to_use=[
+        "During rapid development cycles",
+        "When running specific test types"
+    ]
+)
 def all_tests():
     """
     Run all tests: Python, Rust (unit + integration), and completion tests
@@ -31,7 +43,16 @@ def all_tests():
 
 
 @test()
-@angreal.command(name="python", about="run pytest unit tests")
+@angreal.command(
+    name="python",
+    about="Run Python unit tests with pytest in isolated environment",
+    when_to_use=[
+        "After Python code changes",
+        "Before committing Python changes",
+        "To verify Python functionality"
+    ],
+    when_not_to_use=["When only Rust code changed", "During Rust development cycles"]
+)
 def python_tests():
     """
     Run the Python unit tests in isolated environment
@@ -71,7 +92,19 @@ def python_tests():
             exit(result.returncode)
 
 @test()
-@angreal.command(name="rust", about="run cargo unit and integration tests")
+@angreal.command(
+    name="rust",
+    about="Run Rust unit and integration tests with cargo",
+    when_to_use=[
+        "After Rust code changes",
+        "Before committing Rust changes",
+        "To verify core functionality"
+    ],
+    when_not_to_use=[
+        "When only Python code changed",
+        "During Python development cycles"
+    ]
+)
 @angreal.argument(
     name="unit_only",
     long="unit-only",
@@ -131,7 +164,19 @@ def unit_rust_tests():
 
 
 @test()
-@angreal.command(name="completion", about="run all shell completion tests")
+@angreal.command(
+    name="completion",
+    about="Run shell completion tests for bash and zsh",
+    when_to_use=[
+        "After modifying completion logic",
+        "Before releases",
+        "When testing shell integration"
+    ],
+    when_not_to_use=[
+        "During core functionality development",
+        "When completion is not affected"
+    ]
+)
 @angreal.argument(
     name="shell",
     long="shell",
