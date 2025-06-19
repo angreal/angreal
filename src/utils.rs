@@ -674,7 +674,6 @@ pub fn extract_prompts(toml_path: PathBuf) -> Result<Map<String, Value>> {
 #[path = "../tests"]
 mod tests {
     use super::*;
-    use pyo3::types::IntoPyDict;
     use pyo3::types::PyDict;
     use std::env;
     use std::fs;

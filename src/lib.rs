@@ -223,10 +223,7 @@ fn get_venv_activation_info(venv_path: &str) -> PyResult<integrations::uv::Activ
 
 /// Handle the tree command
 fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool) -> PyResult<()> {
-    use crate::builder::command_tree::{ArgumentSchema, CommandNode};
-    use crate::builder::select_args;
-    #[allow(unused_imports)]
-    use crate::task::{AngrealCommand, AngrealGroup};
+    use crate::builder::command_tree::CommandNode;
 
     // Build command tree from registered tasks
     let mut root = CommandNode::new_group("angreal".to_string(), None);
@@ -238,127 +235,76 @@ fn handle_tree_command(sub_matches: &clap::ArgMatches, in_angreal_project: bool)
         }
     }
 
-    let json_output = sub_matches.is_present("json");
-
-    if json_output {
-        // Output new schema JSON format
-        let mut schema = root.to_project_schema();
-
-        // Populate arguments for each command
-        for command_schema in &mut schema.commands {
-            let args = select_args(&command_schema.name);
-
-            command_schema.arguments = args
-                .into_iter()
-                .map(|arg| {
-                    let flag = if let Some(long) = &arg.long {
-                        format!("--{}", long)
-                    } else if let Some(short) = arg.short {
-                        format!("-{}", short)
-                    } else {
-                        arg.name.clone()
-                    };
-
-                    let arg_type = if arg.is_flag.unwrap_or(false) {
-                        "flag".to_string()
-                    } else if arg.name.starts_with("--") || arg.name.starts_with("-") {
-                        "parameter".to_string()
-                    } else {
-                        "positional".to_string()
-                    };
-
-                    let default_value = arg.default_value.map(|v| {
-                        match arg.python_type.as_deref().unwrap_or("str") {
-                            "int" => serde_json::Value::Number(serde_json::Number::from(
-                                v.parse::<i64>().unwrap_or(0),
-                            )),
-                            "float" => serde_json::Value::Number(
-                                serde_json::Number::from_f64(v.parse::<f64>().unwrap_or(0.0))
-                                    .unwrap(),
-                            ),
-                            "bool" => serde_json::Value::Bool(v.parse::<bool>().unwrap_or(false)),
-                            _ => serde_json::Value::String(v),
-                        }
-                    });
-
-                    ArgumentSchema {
-                        name: arg.name,
-                        flag,
-                        arg_type,
-                        required: arg.required.unwrap_or(false),
-                        description: arg.help,
-                        default: default_value,
-                    }
-                })
-                .collect();
-        }
-
-        match serde_json::to_string_pretty(&schema) {
-            Ok(json) => println!("{}", json),
-            Err(e) => {
-                error!("Failed to serialize command tree to JSON: {}", e);
-                std::process::exit(1);
-            }
+    // Get angreal root directory and version
+    let angreal_root = if in_angreal_project {
+        match utils::is_angreal_project() {
+            Ok(root_path) => root_path.display().to_string(),
+            Err(_) => std::env::current_dir()
+                .unwrap_or_default()
+                .display()
+                .to_string(),
         }
     } else {
-        // Always output JSON format by default
-        let mut schema = root.to_project_schema();
+        std::env::current_dir()
+            .unwrap_or_default()
+            .display()
+            .to_string()
+    };
 
-        // Populate arguments for each command
-        for command_schema in &mut schema.commands {
-            let args = select_args(&command_schema.name);
+    let angreal_version = env!("CARGO_PKG_VERSION").to_string();
 
-            command_schema.arguments = args
-                .into_iter()
-                .map(|arg| {
-                    let flag = if let Some(long) = &arg.long {
-                        format!("--{}", long)
-                    } else if let Some(short) = arg.short {
-                        format!("-{}", short)
-                    } else {
-                        arg.name.clone()
-                    };
+    // Always output the enhanced JSON format
+    let mut schema = root.to_project_schema(angreal_root, angreal_version);
 
-                    let arg_type = if arg.is_flag.unwrap_or(false) {
-                        "flag".to_string()
-                    } else if arg.name.starts_with("--") || arg.name.starts_with("-") {
-                        "parameter".to_string()
-                    } else {
-                        "positional".to_string()
-                    };
+    // Populate parameters for each command
+    for command_schema in &mut schema.commands {
+        // Convert command like "test rust" to path key like "test.rust"
+        let command_parts: Vec<&str> = command_schema.command.split_whitespace().collect();
+        let command_path = if command_parts.len() > 1 {
+            let (command_name, groups) = command_parts.split_last().unwrap();
+            let group_strings: Vec<String> = groups.iter().map(|s| s.to_string()).collect();
+            generate_path_key_from_parts(&group_strings, command_name)
+        } else {
+            command_parts[0].to_string()
+        };
+        
+        let args = builder::select_args(&command_path);
+        
+        command_schema.parameters = args
+            .into_iter()
+            .map(|arg| {
+                // Only set flag field if there's an actual CLI flag (long or short)
+                let flag = if let Some(long) = &arg.long {
+                    Some(format!("--{}", long))
+                } else if let Some(short) = arg.short {
+                    Some(format!("-{}", short))
+                } else {
+                    None // Positional argument - no flag
+                };
 
-                    let default_value = arg.default_value.map(|v| {
-                        match arg.python_type.as_deref().unwrap_or("str") {
-                            "int" => serde_json::Value::Number(serde_json::Number::from(
-                                v.parse::<i64>().unwrap_or(0),
-                            )),
-                            "float" => serde_json::Value::Number(
-                                serde_json::Number::from_f64(v.parse::<f64>().unwrap_or(0.0))
-                                    .unwrap(),
-                            ),
-                            "bool" => serde_json::Value::Bool(v.parse::<bool>().unwrap_or(false)),
-                            _ => serde_json::Value::String(v),
-                        }
-                    });
+                // Use the actual Python data type, but convert "bool" flag type correctly
+                let param_type = if arg.is_flag.unwrap_or(false) {
+                    "bool".to_string()
+                } else {
+                    arg.python_type.unwrap_or_else(|| "str".to_string())
+                };
 
-                    ArgumentSchema {
-                        name: arg.name,
-                        flag,
-                        arg_type,
-                        required: arg.required.unwrap_or(false),
-                        description: arg.help,
-                        default: default_value,
-                    }
-                })
-                .collect();
-        }
+                builder::command_tree::ParameterSchema {
+                    name: arg.name,
+                    flag,
+                    param_type,
+                    required: arg.required.unwrap_or(false),
+                    description: arg.help,
+                }
+            })
+            .collect();
+    }
 
-        match serde_json::to_string_pretty(&schema) {
-            Ok(json) => println!("{}", json),
-            Err(e) => {
-                error!("Failed to serialize command tree to JSON: {}", e);
-                std::process::exit(1);
-            }
+    match serde_json::to_string_pretty(&schema) {
+        Ok(json) => println!("{}", json),
+        Err(e) => {
+            error!("Failed to serialize command tree to JSON: {}", e);
+            std::process::exit(1);
         }
     }
 

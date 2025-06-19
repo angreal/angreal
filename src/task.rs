@@ -47,7 +47,7 @@ pub fn get_current_command_path() -> Option<String> {
 
 /// Generate a full path key for a command based on its group hierarchy
 pub fn generate_command_path_key(command: &AngrealCommand) -> String {
-    match &command.group {
+    let path = match &command.group {
         None => command.name.clone(),
         Some(groups) => {
             let group_path = groups
@@ -57,16 +57,20 @@ pub fn generate_command_path_key(command: &AngrealCommand) -> String {
                 .join(".");
             format!("{}.{}", group_path, command.name)
         }
-    }
+    };
+    // Strip any leading dots that might have been introduced
+    path.strip_prefix('.').unwrap_or(&path).to_string()
 }
 
 /// Generate a full path key for a command based on group names and command name
 pub fn generate_path_key_from_parts(groups: &[String], command_name: &str) -> String {
-    if groups.is_empty() {
+    let path = if groups.is_empty() {
         command_name.to_string()
     } else {
         format!("{}.{}", groups.join("."), command_name)
-    }
+    };
+    // Strip any leading dots that might have been introduced
+    path.strip_prefix('.').unwrap_or(&path).to_string()
 }
 
 /// A group is just a special type of sub-command
@@ -125,6 +129,12 @@ pub struct AngrealCommand {
     /// The group this command belongs to
     #[pyo3(get)]
     pub group: Option<Vec<AngrealGroup>>,
+    /// Scenarios when this command should be used
+    #[pyo3(get)]
+    pub when_to_use: Option<Vec<String>>,
+    /// Scenarios when this command should not be used
+    #[pyo3(get)]
+    pub when_not_to_use: Option<Vec<String>>,
 }
 
 /// Methods exposed to the python API
@@ -160,6 +170,8 @@ impl AngrealCommand {
         about: Option<&str>,
         long_about: Option<&str>,
         group: Option<Vec<AngrealGroup>>,
+        when_to_use: Option<Vec<String>>,
+        when_not_to_use: Option<Vec<String>>,
     ) -> Self {
         debug!("Creating new AngrealCommand with name: {}", name);
         let cmd = AngrealCommand {
@@ -168,6 +180,8 @@ impl AngrealCommand {
             long_about: long_about.map(|i| i.to_string()),
             group,
             func,
+            when_to_use,
+            when_not_to_use,
         };
 
         let path_key = generate_command_path_key(&cmd);
@@ -425,6 +439,8 @@ mod tests {
                 long_about: None,
                 group: Some(vec![group1.clone()]),
                 func: py.None(),
+                when_to_use: None,
+                when_not_to_use: None,
             };
 
             let cmd2 = AngrealCommand {
@@ -433,6 +449,8 @@ mod tests {
                 long_about: None,
                 group: Some(vec![group2.clone()]),
                 func: py.None(),
+                when_to_use: None,
+                when_not_to_use: None,
             };
 
             // Register both commands
@@ -508,6 +526,8 @@ mod tests {
                 long_about: None,
                 group: Some(vec![group1]),
                 func: py.None(),
+                when_to_use: None,
+                when_not_to_use: None,
             };
 
             let cmd2 = AngrealCommand {
@@ -516,6 +536,8 @@ mod tests {
                 long_about: None,
                 group: Some(vec![group2]),
                 func: py.None(),
+                when_to_use: None,
+                when_not_to_use: None,
             };
 
             let path1 = generate_command_path_key(&cmd1);
