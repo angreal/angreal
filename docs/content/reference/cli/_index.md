@@ -100,6 +100,17 @@ angreal tree
 angreal tree --json
 ```
 
+**MCP Integration:**
+
+The `tree` command is designed for integration with Model Context Protocol (MCP) servers and AI agents. It provides a machine-readable JSON schema that includes:
+
+- Project context (root directory, Angreal version)
+- Complete command hierarchy with full command paths
+- Usage guidance (`when_to_use` and `when_not_to_use` fields)
+- Parameter information with types and requirements
+
+This enables AI agents to understand available commands and make informed decisions about when and how to use them. The JSON output is optimized for MCP consumption and automated tooling integration.
+
 ### alias
 
 Create and manage command aliases for white-labeling Angreal.

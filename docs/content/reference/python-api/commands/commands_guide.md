@@ -22,7 +22,12 @@ Here's a basic example of creating a command:
 ```python
 import angreal
 
-@angreal.command(name="hello", about="Say hello to someone")
+@angreal.command(
+    name="hello", 
+    about="Say hello to someone",
+    when_to_use=["For greeting users", "During initial setup"],
+    when_not_to_use=["In automated scripts", "During production deployment"]
+)
 @angreal.argument(name="name", long="name", takes_value=True, help="Name to greet")
 def hello_command(name="World"):
     """
@@ -51,7 +56,12 @@ dev = angreal.command_group(name="dev", about="Development commands")
 
 # Add a command to the group
 @dev()
-@angreal.command(name="build", about="Build the project")
+@angreal.command(
+    name="build", 
+    about="Build the project",
+    when_to_use=["After code changes", "Before testing", "During development"],
+    when_not_to_use=["In production environments", "Without code changes"]
+)
 def build_command():
     """
     Build the project for development.
