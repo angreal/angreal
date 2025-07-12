@@ -3,7 +3,8 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
-# from angreal.integrations import VirtualEnv  # TODO: Fix module registration
+
+from angreal.integrations.venv import VirtualEnv
 
 project_root = Path(angreal.get_root()).parent
 
@@ -57,11 +58,46 @@ def python_tests():
     """
     Run the Python unit tests in isolated environment
     """
-    # TODO: Re-enable VirtualEnv when module registration is fixed
-    print("VirtualEnv temporarily disabled - running pytest directly")
-    result = subprocess.run(["python", "-m", "pytest", "-svv"], cwd=str(project_root))
-    if result.returncode != 0:
-        exit(result.returncode)
+    if VirtualEnv is None:
+        print("VirtualEnv not available - running pytest directly")
+        result = subprocess.run(["python", "-m", "pytest", "-svv"], cwd=str(project_root))
+        if result.returncode != 0:
+            exit(result.returncode)
+        return
+        
+    with VirtualEnv("angreal-pytest-venv", now=True) as venv:
+        # Ensure pip is available (platform-specific paths)
+        import sys
+        if sys.platform == "win32":
+            python_exe = os.path.join(venv.path, "Scripts", "python.exe")
+            pip_exe = os.path.join(venv.path, "Scripts", "pip.exe")
+        else:
+            python_exe = os.path.join(venv.path, "bin", "python")
+            pip_exe = os.path.join(venv.path, "bin", "pip3")
+
+        # Install pip and dependencies
+        subprocess.run(
+            [python_exe, "-m", "ensurepip"],
+            check=True, capture_output=True
+        )
+        subprocess.run(
+            [pip_exe, "install", "maturin", "pytest"],
+            check=True, capture_output=True
+        )
+
+        # Build and install angreal (non-editable to ensure Rust compilation)
+        subprocess.run(
+            [pip_exe, "install", str(project_root)],
+            check=True
+        )
+
+        # Run pytest
+        result = subprocess.run(
+            [venv.python_executable, "-m", "pytest", "-svv"],
+            cwd=str(project_root)
+        )
+        if result.returncode != 0:
+            exit(result.returncode)
 
 @test()
 @angreal.command(

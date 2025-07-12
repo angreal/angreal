@@ -11,12 +11,18 @@ pub mod venv;
 /// 
 /// This will be exposed as angreal.integrations in Python
 #[pymodule]
-pub fn integrations(_py: Python, m: &PyModule) -> PyResult<()> {
+pub fn integrations(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(docker::docker_integration))?;
     m.add_wrapped(wrap_pymodule!(git::git_integration))?;
     
-    // Add VirtualEnv directly to integrations module for now
-    crate::python_bindings::venv::register_venv(_py, m)?;
+    // Create and register the venv submodule
+    let venv_module = wrap_pymodule!(venv::venv)(py);
+    m.add_submodule(venv_module.as_ref(py))?;
+    
+    // Also register it in sys.modules for proper import support
+    let sys = py.import("sys")?;
+    let modules = sys.getattr("modules")?;
+    modules.set_item("angreal.integrations.venv", venv_module)?;
     
     Ok(())
 }

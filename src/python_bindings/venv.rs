@@ -90,17 +90,88 @@ impl VirtualEnv {
     }
 }
 
-/// Check if virtual environment tools are required for the current project
+/// Decorator that wraps a function to run in a virtual environment
+/// 
+/// This is equivalent to the Python @venv_required decorator
 #[pyfunction]
-pub fn venv_required() -> bool {
-    // This function checks if virtual environment functionality is needed
-    // For now, always return true since Python projects typically need venv
-    true
+#[pyo3(signature = (path, requirements = None))]
+pub fn venv_required(path: &str, requirements: Option<PyObject>) -> PyResult<VenvRequiredDecorator> {
+    Ok(VenvRequiredDecorator {
+        path: path.to_string(),
+        requirements,
+    })
+}
+
+/// A Python callable that wraps the venv_required decorator logic
+#[pyclass]
+pub struct VenvRequiredDecorator {
+    path: String,
+    requirements: Option<PyObject>,
+}
+
+#[pymethods]
+impl VenvRequiredDecorator {
+    fn __call__(&self, py: Python, func: PyObject) -> PyResult<PyObject> {
+        // Create a Rust-based wrapper function
+        let wrapper = VenvRequiredWrapper {
+            original_func: func,
+            path: self.path.clone(),
+            requirements: self.requirements.clone(),
+        };
+        
+        // Convert the Rust wrapper to a Python callable
+        Ok(wrapper.into_py(py))
+    }
+}
+
+/// The actual wrapper function that handles venv lifecycle
+#[pyclass]
+struct VenvRequiredWrapper {
+    original_func: PyObject,
+    path: String,
+    requirements: Option<PyObject>,
+}
+
+#[pymethods]
+impl VenvRequiredWrapper {
+    fn __call__(&self, py: Python, args: &pyo3::types::PyTuple, kwargs: Option<&pyo3::types::PyDict>) -> PyResult<PyObject> {
+        // Create VirtualEnv with now=True
+        let venv_class = py.get_type::<VirtualEnv>();
+        let venv_kwargs = pyo3::types::PyDict::new(py);
+        venv_kwargs.set_item("now", true)?;
+        if let Some(reqs) = &self.requirements {
+            venv_kwargs.set_item("requirements", reqs)?;
+        }
+        
+        let venv = venv_class.call((&self.path,), Some(venv_kwargs))?;
+        
+        // Install requirements if any
+        venv.call_method0("install_requirements")?;
+        
+        // Activate the venv
+        venv.call_method0("activate")?;
+        
+        // Call the original function and ensure deactivation happens
+        let call_result = if let Some(kwargs) = kwargs {
+            self.original_func.call(py, args, Some(kwargs))
+        } else {
+            self.original_func.call(py, args, None)
+        };
+        
+        // Always deactivate, regardless of success or failure
+        let _ = venv.call_method0("deactivate");
+        
+        let result = call_result;
+        
+        result
+    }
 }
 
 /// Register the venv module
 pub fn register_venv(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<VirtualEnv>()?;
+    m.add_class::<VenvRequiredDecorator>()?;
+    m.add_class::<VenvRequiredWrapper>()?;
     m.add_function(pyo3::wrap_pyfunction!(venv_required, m)?)?;
     Ok(())
 }
