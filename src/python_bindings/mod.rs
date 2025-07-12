@@ -9,11 +9,8 @@ use pyo3::types::PyDict;
 use pyo3::wrap_pymodule;
 
 pub mod integrations;
-
-// Future modules for decorator implementation
-// pub mod decorators;
-// pub mod venv;
-// pub mod utils;
+pub mod decorators;
+pub mod venv;
 
 /// Initialize angreal's Python bindings
 /// 
@@ -60,6 +57,9 @@ pub(crate) fn create_angreal_module(py: Python) -> PyResult<&PyModule> {
     // m.add_function(wrap_pyfunction!(main, m)?)?;
     // m.add_function(wrap_pyfunction!(ensure_uv_installed, m)?)?;
     // ... etc
+    
+    // Register decorator functions
+    decorators::register_decorators(py, m)?;
     
     // Register submodules
     m.add_wrapped(wrap_pymodule!(integrations::integrations))?;
