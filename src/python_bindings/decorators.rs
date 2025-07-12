@@ -64,14 +64,16 @@ pub fn register_decorators(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(group, m)?)?;
     m.add_function(wrap_pyfunction!(command_group, m)?)?;
     m.add_function(wrap_pyfunction!(command, m)?)?;
+    m.add_function(wrap_pyfunction!(argument, m)?)?;
     m.add_class::<GroupDecorator>()?;
     m.add_class::<CommandDecorator>()?;
-    // TODO: Add argument decorator
+    m.add_class::<ArgumentDecorator>()?;
     Ok(())
 }
 
 /// A Python callable that wraps the group decorator logic
 #[pyclass]
+#[derive(Clone)]
 pub struct GroupDecorator {
     name: String,
     about: Option<String>,
@@ -79,26 +81,38 @@ pub struct GroupDecorator {
 
 #[pymethods]
 impl GroupDecorator {
-    fn __call__(&self, py: Python, func: PyObject) -> PyResult<PyObject> {
-        // Check if function has __command attribute
-        let has_command = func.getattr(py, "__command").is_ok();
-        
-        if !has_command {
-            return Err(PyErr::new::<pyo3::exceptions::PySyntaxError, _>(
-                "The group decorator must be applied before a command."
-            ));
-        }
-        
-        // Create the AngrealGroup using PyO3's class instantiation
-        let group_class = py.get_type::<AngrealGroup>();
-        let group = group_class.call1((&self.name, self.about.as_deref()))?;
-        
-        // Get the __command attribute and call add_group on it
-        let command = func.getattr(py, "__command")?;
-        command.call_method1(py, "add_group", (group,))?;
-        
-        // Return the original function (no wrapping needed in Rust)
-        Ok(func)
+    #[pyo3(signature = (func = None,))]  
+    fn __call__(&self, func: Option<PyObject>) -> PyResult<PyObject> {
+        Python::with_gil(|py| {
+            match func {
+                Some(func) => {
+                    // Called as a decorator on a function
+                    // Check if function has __command attribute
+                    let has_command = func.getattr(py, "__command").is_ok();
+                    
+                    if !has_command {
+                        return Err(PyErr::new::<pyo3::exceptions::PySyntaxError, _>(
+                            "The group decorator must be applied before a command."
+                        ));
+                    }
+                    
+                    // Create the AngrealGroup using PyO3's class instantiation
+                    let group_class = py.get_type::<AngrealGroup>();
+                    let group = group_class.call1((&self.name, self.about.as_deref()))?;
+                    
+                    // Get the __command attribute and call add_group on it
+                    let command = func.getattr(py, "__command")?;
+                    command.call_method1(py, "add_group", (group,))?;
+                    
+                    // Return the original function (no wrapping needed in Rust)
+                    Ok(func)
+                }
+                None => {
+                    // Called as @test() - return self as the decorator
+                    Ok(self.clone().into_py(py))
+                }
+            }
+        })
     }
 }
 
@@ -150,7 +164,9 @@ pub struct CommandDecorator {
 
 #[pymethods]
 impl CommandDecorator {
-    fn __call__(&self, py: Python, func: PyObject) -> PyResult<PyObject> {
+    #[pyo3(signature = (func,))]
+    fn __call__(&self, func: PyObject) -> PyResult<PyObject> {
+        Python::with_gil(|py| {
         // Get or generate command name
         let name = match &self.name {
             Some(name) => name.clone(),
@@ -194,49 +210,114 @@ impl CommandDecorator {
         // Set the __command attribute on the function
         func.setattr(py, "__command", command)?;
         
-        // Process any existing arguments (this replicates the Python logic)
+        // Process any existing arguments stored by @argument decorators
         let arguments = func.getattr(py, "__arguments")?;
         if !arguments.is_none(py) {
             if let Ok(args_list) = arguments.extract::<Vec<PyObject>>(py) {
-                for arg_dict in args_list {
-                    // Create Arg with the command name
-                    if let Ok(arg_dict) = arg_dict.downcast::<pyo3::types::PyDict>(py) {
-                        // Extract the arg name from the dictionary
-                        let arg_name = arg_dict
-                            .get_item("name")
-                            .and_then(|v| v.extract::<String>().ok())
-                            .unwrap_or_default();
-                        
-                        // Create AngrealArg using PyO3's class instantiation with kwargs
+                for arg_kwargs_obj in args_list {
+                    // Each item should be the kwargs dict from the @argument decorator
+                    if let Ok(kwargs_dict) = arg_kwargs_obj.downcast::<pyo3::types::PyDict>(py) {
+                        // Create AngrealArg using PyO3's class instantiation
                         let arg_class = py.get_type::<crate::task::AngrealArg>();
                         
-                        // Create kwargs dict for the constructor
-                        let kwargs = PyDict::new(py);
-                        kwargs.set_item("name", &arg_name)?;
-                        kwargs.set_item("command_name", &name)?;
-                        kwargs.set_item("default_value", py.None())?;
-                        kwargs.set_item("is_flag", py.None())?;
-                        kwargs.set_item("require_equals", py.None())?;
-                        kwargs.set_item("multiple_values", py.None())?;
-                        kwargs.set_item("number_of_values", py.None())?;
-                        kwargs.set_item("max_values", py.None())?;
-                        kwargs.set_item("min_values", py.None())?;
-                        kwargs.set_item("short", py.None())?;
-                        kwargs.set_item("long", py.None())?;
-                        kwargs.set_item("long_help", py.None())?;
-                        kwargs.set_item("help", py.None())?;
-                        kwargs.set_item("required", py.None())?;
-                        kwargs.set_item("takes_value", py.None())?;
-                        kwargs.set_item("python_type", py.None())?;
+                        // Extract parameters from kwargs
+                        let arg_name = kwargs_dict.get_item("name")
+                            .map(|v| v.extract::<String>())
+                            .transpose()?
+                            .unwrap_or_else(|| "default".to_string());
                         
-                        // Call with empty args and kwargs
-                        let _arg = arg_class.call((), Some(kwargs))?;
+                        // Create a new kwargs dict for AngrealArg constructor
+                        let arg_kwargs = pyo3::types::PyDict::new(py);
+                        arg_kwargs.set_item("name", &arg_name)?;
+                        arg_kwargs.set_item("command_name", &name)?;
+                        
+                        // Copy over all the argument parameters with proper defaults
+                        for (key, value) in kwargs_dict.iter() {
+                            let key_str = key.extract::<String>()?;
+                            match key_str.as_str() {
+                                "name" => arg_kwargs.set_item("name", value)?,
+                                "short" => {
+                                    // Convert string to char if provided
+                                    if let Ok(s) = value.extract::<String>() {
+                                        if let Some(c) = s.chars().next() {
+                                            arg_kwargs.set_item("short", c)?;
+                                        } else {
+                                            arg_kwargs.set_item("short", py.None())?;
+                                        }
+                                    } else {
+                                        arg_kwargs.set_item("short", py.None())?;
+                                    }
+                                },
+                                "long" => arg_kwargs.set_item("long", value)?,
+                                "help" => arg_kwargs.set_item("help", value)?,
+                                "long_help" => arg_kwargs.set_item("long_help", value)?,
+                                "required" => arg_kwargs.set_item("required", value)?,
+                                "takes_value" => arg_kwargs.set_item("takes_value", value)?,
+                                "is_flag" => arg_kwargs.set_item("is_flag", value)?,
+                                "default_value" => arg_kwargs.set_item("default_value", value)?,
+                                "multiple_values" => arg_kwargs.set_item("multiple_values", value)?,
+                                "number_of_values" => arg_kwargs.set_item("number_of_values", value)?,
+                                "max_values" => arg_kwargs.set_item("max_values", value)?,
+                                "min_values" => arg_kwargs.set_item("min_values", value)?,
+                                "require_equals" => arg_kwargs.set_item("require_equals", value)?,
+                                "python_type" => arg_kwargs.set_item("python_type", value)?,
+                                _ => {} // Ignore unknown parameters
+                            }
+                        }
+                        
+                        // Set defaults for missing parameters
+                        if !arg_kwargs.contains("default_value")? {
+                            arg_kwargs.set_item("default_value", py.None())?;
+                        }
+                        if !arg_kwargs.contains("is_flag")? {
+                            arg_kwargs.set_item("is_flag", py.None())?;
+                        }
+                        if !arg_kwargs.contains("require_equals")? {
+                            arg_kwargs.set_item("require_equals", py.None())?;
+                        }
+                        if !arg_kwargs.contains("multiple_values")? {
+                            arg_kwargs.set_item("multiple_values", py.None())?;
+                        }
+                        if !arg_kwargs.contains("number_of_values")? {
+                            arg_kwargs.set_item("number_of_values", py.None())?;
+                        }
+                        if !arg_kwargs.contains("max_values")? {
+                            arg_kwargs.set_item("max_values", py.None())?;
+                        }
+                        if !arg_kwargs.contains("min_values")? {
+                            arg_kwargs.set_item("min_values", py.None())?;
+                        }
+                        if !arg_kwargs.contains("short")? {
+                            arg_kwargs.set_item("short", py.None())?;
+                        }
+                        if !arg_kwargs.contains("long")? {
+                            arg_kwargs.set_item("long", py.None())?;
+                        }
+                        if !arg_kwargs.contains("long_help")? {
+                            arg_kwargs.set_item("long_help", py.None())?;
+                        }
+                        if !arg_kwargs.contains("help")? {
+                            arg_kwargs.set_item("help", py.None())?;
+                        }
+                        if !arg_kwargs.contains("required")? {
+                            arg_kwargs.set_item("required", py.None())?;
+                        }
+                        if !arg_kwargs.contains("takes_value")? {
+                            arg_kwargs.set_item("takes_value", py.None())?;
+                        }
+                        if !arg_kwargs.contains("python_type")? {
+                            arg_kwargs.set_item("python_type", py.None())?;
+                        }
+                        
+                        // Create the AngrealArg instance - this will register it in ANGREAL_ARGS
+                        let _arg = arg_class.call((), Some(arg_kwargs))?;
                     }
                 }
             }
         }
         
         Ok(func)
+        })
     }
 }
 
@@ -282,5 +363,59 @@ pub fn command(kwargs: Option<&PyDict>) -> PyResult<CommandDecorator> {
     })
 }
 
-// TODO: Implement the remaining decorators:
-// - argument
+/// Create an argument decorator that adds command-line arguments to commands
+/// 
+/// This function returns a Python decorator that can be applied to commands
+/// to add command-line arguments. It's equivalent to the Python @argument decorator.
+#[pyfunction]
+#[pyo3(signature = (**kwargs))]
+pub fn argument(kwargs: Option<&PyDict>) -> PyResult<ArgumentDecorator> {
+    // Extract parameters from kwargs - just store them for now
+    let name = kwargs
+        .and_then(|d| d.get_item("name"))
+        .map(|v| v.extract::<String>())
+        .transpose()?
+        .unwrap_or_else(|| "default".to_string());
+        
+    Ok(ArgumentDecorator {
+        name,
+        kwargs_dict: kwargs.map(|d| d.to_object(d.py())),
+    })
+}
+
+/// A Python callable that wraps the argument decorator logic
+#[pyclass]
+#[derive(Clone)]
+pub struct ArgumentDecorator {
+    name: String,
+    kwargs_dict: Option<PyObject>,
+}
+
+#[pymethods]
+impl ArgumentDecorator {
+    #[pyo3(signature = (func,))]
+    fn __call__(&self, func: PyObject) -> PyResult<PyObject> {
+        Python::with_gil(|py| {
+            // Initialize __arguments list if not present
+            let mut arguments = if let Ok(args) = func.getattr(py, "__arguments") {
+                if args.is_none(py) {
+                    Vec::new()
+                } else {
+                    args.extract::<Vec<PyObject>>(py).unwrap_or_else(|_| Vec::new())
+                }
+            } else {
+                Vec::new()
+            };
+
+            // Just store the kwargs for later processing by the command decorator
+            if let Some(kwargs_obj) = &self.kwargs_dict {
+                arguments.push(kwargs_obj.clone());
+            }
+
+            // Set the updated __arguments list
+            func.setattr(py, "__arguments", arguments.to_object(py))?;
+
+            Ok(func)
+        })
+    }
+}
