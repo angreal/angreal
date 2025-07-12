@@ -8,7 +8,7 @@ use std::path::Path;
 
 use crate::integrations::git::Git;
 
-#[pyclass]
+#[pyclass(extends=pyo3::exceptions::PyException)]
 pub struct GitException {
     message: String,
 }
@@ -127,6 +127,11 @@ impl PyGit {
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
 
         Ok((output.exit_code, output.stderr, output.stdout))
+    }
+    
+    fn __getattr__(&self, py: Python, name: &str) -> PyResult<PyObject> {
+        // For any unknown method, raise GitException
+        Err(PyErr::new::<GitException, _>(format!("Git command '{}' not found", name)))
     }
 }
 
