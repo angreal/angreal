@@ -36,3 +36,5 @@ exit_criteria_met: false
 ## Notes
 
 This task sets up the foundation for converting Python code to PyO3 bindings.
+
+**See audit findings in**: `audit-python-deps-create-map.md` - PyO3 is already configured in the project, we need to extend it with decorator functions.

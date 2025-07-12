@@ -43,3 +43,5 @@ exit_criteria_met: false
 ## Notes
 
 The VirtualEnv class is complex with system interactions. Need to ensure all subprocess calls work correctly through PyO3.
+
+**See audit findings in**: `audit-python-deps-create-map.md` - Shows all VirtualEnv methods and the Rust UV functions they use.

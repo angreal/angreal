@@ -36,3 +36,5 @@ exit_criteria_met: false
 ## Notes
 
 The Docker files appear to be re-exporting from angreal._integrations which suggests the actual implementation is already in Rust.
+
+**See audit findings in**: `audit-python-deps-create-map.md` - Confirms Docker is already fully implemented in Rust, just needs import path updates.

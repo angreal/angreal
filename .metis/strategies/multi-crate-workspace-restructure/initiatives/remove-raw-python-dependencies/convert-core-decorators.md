@@ -40,3 +40,5 @@ exit_criteria_met: false
 ## Notes
 
 These are the core decorators in angreal/__init__.py that need to be converted to maintain compatibility.
+
+**See audit findings in**: `audit-python-deps-create-map.md` - Details on all decorators and their Rust object dependencies (Group, Command, Arg).
