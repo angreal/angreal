@@ -9,6 +9,23 @@ use std::path::Path;
 use crate::integrations::git::Git;
 
 #[pyclass]
+pub struct GitException {
+    message: String,
+}
+
+#[pymethods]
+impl GitException {
+    #[new]
+    fn new(message: String) -> Self {
+        Self { message }
+    }
+    
+    fn __str__(&self) -> String {
+        self.message.clone()
+    }
+}
+
+#[pyclass(name = "Git")]
 pub struct PyGit {
     inner: Git,
 }
@@ -126,6 +143,7 @@ pub fn git_clone(remote: &str, destination: Option<&str>) -> PyResult<String> {
 /// This will be exposed as angreal.integrations.git in Python
 #[pymodule]
 pub fn git_integration(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_class::<GitException>()?;
     m.add_class::<PyGit>()?;
     m.add_function(wrap_pyfunction!(git_clone, m)?)?;
     Ok(())
