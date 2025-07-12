@@ -63,8 +63,10 @@ pub fn register_decorators(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(required_version, m)?)?;
     m.add_function(wrap_pyfunction!(group, m)?)?;
     m.add_function(wrap_pyfunction!(command_group, m)?)?;
+    m.add_function(wrap_pyfunction!(command, m)?)?;
     m.add_class::<GroupDecorator>()?;
-    // TODO: Add other decorators as we implement them
+    m.add_class::<CommandDecorator>()?;
+    // TODO: Add argument decorator
     Ok(())
 }
 
@@ -136,6 +138,149 @@ pub fn command_group(name: &str, about: Option<&str>) -> PyResult<GroupDecorator
     })
 }
 
+/// A Python callable that wraps the command decorator logic
+#[pyclass]
+pub struct CommandDecorator {
+    name: Option<String>,
+    about: Option<String>,
+    long_about: Option<String>,
+    when_to_use: Option<Vec<String>>,
+    when_not_to_use: Option<Vec<String>>,
+}
+
+#[pymethods]
+impl CommandDecorator {
+    fn __call__(&self, py: Python, func: PyObject) -> PyResult<PyObject> {
+        // Get or generate command name
+        let name = match &self.name {
+            Some(name) => name.clone(),
+            None => {
+                // Get function name and convert underscores to hyphens
+                let func_name = func.getattr(py, "__name__")?
+                    .extract::<String>(py)?
+                    .to_lowercase()
+                    .replace("_", "-");
+                func_name
+            }
+        };
+        
+        // Initialize __arguments if not present
+        if func.getattr(py, "__arguments").is_err() {
+            func.setattr(py, "__arguments", py.None())?;
+        }
+        
+        // Convert Option<Vec<String>> to Python objects
+        let when_to_use_py = match &self.when_to_use {
+            Some(vec) => vec.to_object(py),
+            None => py.None(),
+        };
+        let when_not_to_use_py = match &self.when_not_to_use {
+            Some(vec) => vec.to_object(py),
+            None => py.None(),
+        };
+        
+        // Create the AngrealCommand using PyO3's class instantiation
+        let command_class = py.get_type::<crate::task::AngrealCommand>();
+        let command = command_class.call1((
+            &name,
+            func.clone(),
+            self.about.as_deref(),
+            self.long_about.as_deref(),
+            py.None(), // group (empty initially)
+            when_to_use_py,
+            when_not_to_use_py,
+        ))?;
+        
+        // Set the __command attribute on the function
+        func.setattr(py, "__command", command)?;
+        
+        // Process any existing arguments (this replicates the Python logic)
+        let arguments = func.getattr(py, "__arguments")?;
+        if !arguments.is_none(py) {
+            if let Ok(args_list) = arguments.extract::<Vec<PyObject>>(py) {
+                for arg_dict in args_list {
+                    // Create Arg with the command name
+                    if let Ok(arg_dict) = arg_dict.downcast::<pyo3::types::PyDict>(py) {
+                        // Extract the arg name from the dictionary
+                        let arg_name = arg_dict
+                            .get_item("name")
+                            .and_then(|v| v.extract::<String>().ok())
+                            .unwrap_or_default();
+                        
+                        // Create AngrealArg using PyO3's class instantiation with kwargs
+                        let arg_class = py.get_type::<crate::task::AngrealArg>();
+                        
+                        // Create kwargs dict for the constructor
+                        let kwargs = PyDict::new(py);
+                        kwargs.set_item("name", &arg_name)?;
+                        kwargs.set_item("command_name", &name)?;
+                        kwargs.set_item("default_value", py.None())?;
+                        kwargs.set_item("is_flag", py.None())?;
+                        kwargs.set_item("require_equals", py.None())?;
+                        kwargs.set_item("multiple_values", py.None())?;
+                        kwargs.set_item("number_of_values", py.None())?;
+                        kwargs.set_item("max_values", py.None())?;
+                        kwargs.set_item("min_values", py.None())?;
+                        kwargs.set_item("short", py.None())?;
+                        kwargs.set_item("long", py.None())?;
+                        kwargs.set_item("long_help", py.None())?;
+                        kwargs.set_item("help", py.None())?;
+                        kwargs.set_item("required", py.None())?;
+                        kwargs.set_item("takes_value", py.None())?;
+                        kwargs.set_item("python_type", py.None())?;
+                        
+                        // Call with empty args and kwargs
+                        let _arg = arg_class.call((), Some(kwargs))?;
+                    }
+                }
+            }
+        }
+        
+        Ok(func)
+    }
+}
+
+/// Create a command decorator that registers functions as commands
+/// 
+/// This function returns a Python decorator that can be applied to functions.
+/// It's equivalent to the Python @command decorator.
+#[pyfunction]
+#[pyo3(signature = (**kwargs))]
+pub fn command(kwargs: Option<&PyDict>) -> PyResult<CommandDecorator> {
+    // Extract parameters from kwargs
+    let name = kwargs
+        .and_then(|d| d.get_item("name"))
+        .map(|v| v.extract::<String>())
+        .transpose()?;
+        
+    let about = kwargs
+        .and_then(|d| d.get_item("about"))
+        .map(|v| v.extract::<String>())
+        .transpose()?;
+        
+    let long_about = kwargs
+        .and_then(|d| d.get_item("long_about"))
+        .map(|v| v.extract::<String>())
+        .transpose()?;
+        
+    let when_to_use = kwargs
+        .and_then(|d| d.get_item("when_to_use"))
+        .map(|v| v.extract::<Vec<String>>())
+        .transpose()?;
+        
+    let when_not_to_use = kwargs
+        .and_then(|d| d.get_item("when_not_to_use"))
+        .map(|v| v.extract::<Vec<String>>())
+        .transpose()?;
+
+    Ok(CommandDecorator {
+        name,
+        about,
+        long_about,
+        when_to_use,
+        when_not_to_use,
+    })
+}
+
 // TODO: Implement the remaining decorators:
-// - command  
 // - argument
