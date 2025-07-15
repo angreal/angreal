@@ -3,14 +3,14 @@ id: rust-native-git-integration
 level: initiative
 title: "Rust Native Git Integration"
 created_at: 2025-07-12T13:36:02.619044+00:00
-updated_at: 2025-07-12T13:45:38.516065+00:00
+updated_at: 2025-07-15T19:48:35.407425+00:00
 parent: multi-crate-workspace-restructure
 blocked_by: []
 archived: false
 
 tags:
   - "#initiative"
-  - "#phase/discovery"
+  - "#phase/completed"
 
 
 exit_criteria_met: false

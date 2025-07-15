@@ -52,7 +52,7 @@ jobs:
         with:
           toolchain: stable
       - name: Generate Rust documentation
-        run: cargo doc --no-deps
+        run: cargo doc --no-deps --workspace
       - name: Copy Rust docs to Hugo static directory
         run: mkdir -p docs/static/rust-docs && cp -r target/doc/* docs/static/rust-docs/
       - name: Setup Python
@@ -60,7 +60,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install Angreal and dependencies
-        run: pip install -e ".[dev]"
+        run: pip install -e "./crates/angreal[dev]"
       - name: Generate documentation with Angreal
         run: angreal docs build
         # This uses Angreal's built-in docs build command which handles API docs generation and Hugo build

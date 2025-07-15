@@ -1,21 +1,26 @@
 ---
-id: migrate-docker-imports
+id: migrate-docker-import-structure
 level: task
 title: "Migrate Docker Import Structure"
-created_at: 2025-07-11T16:09:00.000000+00:00
-updated_at: 2025-07-11T16:09:00.000000+00:00
+created_at: 2025-07-11T16:09:00+00:00
+updated_at: 2025-07-15T19:48:15.490467+00:00
 parent: remove-raw-python-dependencies
-blocked_by: ["configure-pyo3-project"]
+blocked_by: [configure-pyo3-project]
 archived: false
 
 tags:
   - "#task"
-  - "#phase/todo"
+  - "#phase/completed"
+
 
 exit_criteria_met: false
 ---
 
 # Migrate Docker Import Structure
+
+## Acceptance Criteria
+
+## Acceptance Criteria
 
 ## Acceptance Criteria
 
