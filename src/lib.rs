@@ -18,6 +18,7 @@ pub mod init;
 pub mod integrations;
 pub mod logger;
 pub mod py_logger;
+pub mod python_bindings;
 pub mod task;
 pub mod utils;
 pub mod validation;
@@ -852,6 +853,9 @@ fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     task::register(_py, m)?;
     utils::register(_py, m)?;
 
+    // Register decorators from our new python_bindings module
+    python_bindings::decorators::register_decorators(_py, m)?;
+
     // UV integration functions
     m.add_function(wrap_pyfunction!(ensure_uv_installed, m)?)?;
     m.add_function(wrap_pyfunction!(uv_version, m)?)?;
@@ -869,44 +873,44 @@ fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(unregister_entrypoint, m)?)?;
     m.add_function(wrap_pyfunction!(cleanup_entrypoints, m)?)?;
 
-    m.add_wrapped(wrap_pymodule!(_integrations))?;
+    m.add_wrapped(wrap_pymodule!(python_bindings::integrations::integrations))?;
 
     let sys = PyModule::import(_py, "sys")?;
     let sys_modules: &PyDict = sys.getattr("modules")?.downcast()?;
-    sys_modules.set_item("angreal._integrations", m.getattr("_integrations")?)?;
+    sys_modules.set_item("angreal.integrations", m.getattr("integrations")?)?;
     sys_modules.set_item(
-        "angreal._integrations.docker",
-        m.getattr("_integrations")?.getattr("docker")?,
+        "angreal.integrations.docker",
+        m.getattr("integrations")?.getattr("docker_integration")?,
     )?;
 
     sys_modules.set_item(
-        "angreal._integrations.docker.image",
-        m.getattr("_integrations")?
-            .getattr("docker")?
+        "angreal.integrations.docker.image",
+        m.getattr("integrations")?
+            .getattr("docker_integration")?
             .getattr("image")?,
     )?;
     sys_modules.set_item(
-        "angreal._integrations.docker.container",
-        m.getattr("_integrations")?
-            .getattr("docker")?
+        "angreal.integrations.docker.container",
+        m.getattr("integrations")?
+            .getattr("docker_integration")?
             .getattr("container")?,
     )?;
     sys_modules.set_item(
-        "angreal._integrations.docker.network",
-        m.getattr("_integrations")?
-            .getattr("docker")?
+        "angreal.integrations.docker.network",
+        m.getattr("integrations")?
+            .getattr("docker_integration")?
             .getattr("network")?,
     )?;
     sys_modules.set_item(
-        "angreal._integrations.docker.volume",
-        m.getattr("_integrations")?
-            .getattr("docker")?
+        "angreal.integrations.docker.volume",
+        m.getattr("integrations")?
+            .getattr("docker_integration")?
             .getattr("volume")?,
     )?;
 
     sys_modules.set_item(
-        "angreal._integrations.git_module",
-        m.getattr("_integrations")?.getattr("git_module")?,
+        "angreal.integrations.git",
+        m.getattr("integrations")?.getattr("git_integration")?,
     )?;
 
     Ok(())

@@ -31,6 +31,11 @@ impl Git {
         true
     }
 
+    /// Get the working directory path
+    pub fn working_dir(&self) -> &Path {
+        &self.working_dir
+    }
+
     /// Get or open repository
     fn get_repo(&self) -> Result<Repository> {
         Repository::open(&self.working_dir).with_context(|| {

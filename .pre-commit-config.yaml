@@ -28,13 +28,3 @@ repos:
         name: Check YAML files with yamllint
         entry: yamllint -c .yamllint-config.yml --strict
         types: [yaml]
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.2
-    hooks:
-      - id: codespell
-        name: Run codespell to check for common misspellings in files
-        language: python
-        types: [text]
-        exclude: ^docs/themes/.*$
-        args:
-          - --ignore-words=.spelling_wordlist.txt
