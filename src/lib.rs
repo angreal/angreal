@@ -852,7 +852,7 @@ fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(main, m)?)?;
     task::register(_py, m)?;
     utils::register(_py, m)?;
-    
+
     // Register decorators from our new python_bindings module
     python_bindings::decorators::register_decorators(_py, m)?;
 

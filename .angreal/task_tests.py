@@ -60,11 +60,13 @@ def python_tests():
     """
     if VirtualEnv is None:
         print("VirtualEnv not available - running pytest directly")
-        result = subprocess.run(["python", "-m", "pytest", "-svv"], cwd=str(project_root))
+        result = subprocess.run(
+            ["python", "-m", "pytest", "-svv"], cwd=str(project_root)
+        )
         if result.returncode != 0:
             exit(result.returncode)
         return
-        
+
     with VirtualEnv("angreal-pytest-venv", now=True) as venv:
         # Ensure pip is available (platform-specific paths)
         import sys

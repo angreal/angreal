@@ -52,7 +52,7 @@ src/
 │   ├── decorators.rs        # Future: @command, @group, @argument bindings
 │   ├── venv.rs              # Future: VirtualEnv Python wrapper
 │   ├── utils.rs             # Future: required_version, etc.
-│   └── integrations/        
+│   └── integrations/
 │       ├── mod.rs
 │       ├── docker.rs        # Move Docker PyO3 bindings here
 │       └── git.rs           # Move PyGit class here

@@ -4,7 +4,7 @@ use pyo3::prelude::*;
 use pyo3::wrap_pymodule;
 
 /// Docker integration module
-/// 
+///
 /// This will be exposed as angreal.integrations.docker in Python
 #[pymodule]
 pub fn docker_integration(_py: Python, m: &PyModule) -> PyResult<()> {

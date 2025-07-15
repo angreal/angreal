@@ -9,7 +9,7 @@ use pyo3::prelude::*;
 // These will be added as we convert the decorators
 
 // Example structure:
-// #[pyfunction] 
+// #[pyfunction]
 // pub fn required_version(specifier: &str) -> PyResult<()> {
 //     // Implementation using Rust equivalent of packaging.specifiers
 // }

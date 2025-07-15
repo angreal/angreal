@@ -1,5 +1,7 @@
 //! Git integration bindings
 
+#![allow(non_local_definitions)]
+
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use pyo3::wrap_pyfunction;
@@ -19,7 +21,7 @@ impl GitException {
     fn new(message: String) -> Self {
         Self { message }
     }
-    
+
     fn __str__(&self) -> String {
         self.message.clone()
     }
@@ -47,9 +49,9 @@ impl PyGit {
                 .execute(subcommand, &args)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok((
-                output.exit_code, 
+                output.exit_code,
                 pyo3::types::PyBytes::new(py, output.stderr.as_bytes()).into(),
-                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into()
+                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into(),
             ))
         })
     }
@@ -61,11 +63,12 @@ impl PyGit {
                 self.inner.execute("init", &["--bare"])
             } else {
                 self.inner.execute("init", &[])
-            }.map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
+            }
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok((
-                output.exit_code, 
+                output.exit_code,
                 pyo3::types::PyBytes::new(py, output.stderr.as_bytes()).into(),
-                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into()
+                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into(),
             ))
         })
     }
@@ -73,17 +76,19 @@ impl PyGit {
     #[pyo3(signature = (*paths))]
     fn add(&self, paths: &pyo3::types::PyTuple) -> PyResult<(i32, PyObject, PyObject)> {
         Python::with_gil(|py| {
-            let path_strs: Vec<String> = paths.iter()
+            let path_strs: Vec<String> = paths
+                .iter()
                 .map(|p| p.extract::<String>())
                 .collect::<Result<Vec<_>, _>>()?;
             let path_refs: Vec<&str> = path_strs.iter().map(|s| s.as_str()).collect();
-            let output = self.inner
+            let output = self
+                .inner
                 .execute("add", &path_refs)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok((
-                output.exit_code, 
+                output.exit_code,
                 pyo3::types::PyBytes::new(py, output.stderr.as_bytes()).into(),
-                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into()
+                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into(),
             ))
         })
     }
@@ -96,19 +101,24 @@ impl PyGit {
             } else {
                 vec!["-m", message]
             };
-            let output = self.inner
+            let output = self
+                .inner
                 .execute("commit", &args)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok((
-                output.exit_code, 
+                output.exit_code,
                 pyo3::types::PyBytes::new(py, output.stderr.as_bytes()).into(),
-                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into()
+                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into(),
             ))
         })
     }
 
     #[pyo3(signature = (remote=None, branch=None))]
-    fn push(&self, remote: Option<&str>, branch: Option<&str>) -> PyResult<(i32, PyObject, PyObject)> {
+    fn push(
+        &self,
+        remote: Option<&str>,
+        branch: Option<&str>,
+    ) -> PyResult<(i32, PyObject, PyObject)> {
         Python::with_gil(|py| {
             let mut args = vec![];
             if let Some(r) = remote {
@@ -117,19 +127,24 @@ impl PyGit {
             if let Some(b) = branch {
                 args.push(b);
             }
-            let output = self.inner
+            let output = self
+                .inner
                 .execute("push", &args)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok((
-                output.exit_code, 
+                output.exit_code,
                 pyo3::types::PyBytes::new(py, output.stderr.as_bytes()).into(),
-                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into()
+                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into(),
             ))
         })
     }
 
     #[pyo3(signature = (remote=None, branch=None))]
-    fn pull(&self, remote: Option<&str>, branch: Option<&str>) -> PyResult<(i32, PyObject, PyObject)> {
+    fn pull(
+        &self,
+        remote: Option<&str>,
+        branch: Option<&str>,
+    ) -> PyResult<(i32, PyObject, PyObject)> {
         Python::with_gil(|py| {
             let mut args = vec![];
             if let Some(r) = remote {
@@ -138,13 +153,14 @@ impl PyGit {
             if let Some(b) = branch {
                 args.push(b);
             }
-            let output = self.inner
+            let output = self
+                .inner
                 .execute("pull", &args)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok((
-                output.exit_code, 
+                output.exit_code,
                 pyo3::types::PyBytes::new(py, output.stderr.as_bytes()).into(),
-                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into()
+                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into(),
             ))
         })
     }
@@ -157,19 +173,24 @@ impl PyGit {
             } else {
                 vec![]
             };
-            let output = self.inner
+            let output = self
+                .inner
                 .execute("status", &args)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok((
-                output.exit_code, 
+                output.exit_code,
                 pyo3::types::PyBytes::new(py, output.stderr.as_bytes()).into(),
-                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into()
+                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into(),
             ))
         })
     }
 
     #[pyo3(signature = (name=None, delete=None))]
-    fn branch(&self, name: Option<&str>, delete: Option<bool>) -> PyResult<(i32, PyObject, PyObject)> {
+    fn branch(
+        &self,
+        name: Option<&str>,
+        delete: Option<bool>,
+    ) -> PyResult<(i32, PyObject, PyObject)> {
         Python::with_gil(|py| {
             let mut args = vec![];
             if delete.unwrap_or(false) {
@@ -178,13 +199,14 @@ impl PyGit {
             if let Some(n) = name {
                 args.push(n);
             }
-            let output = self.inner
+            let output = self
+                .inner
                 .execute("branch", &args)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok((
-                output.exit_code, 
+                output.exit_code,
                 pyo3::types::PyBytes::new(py, output.stderr.as_bytes()).into(),
-                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into()
+                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into(),
             ))
         })
     }
@@ -197,13 +219,14 @@ impl PyGit {
             } else {
                 vec![branch]
             };
-            let output = self.inner
+            let output = self
+                .inner
                 .execute("checkout", &args)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok((
-                output.exit_code, 
+                output.exit_code,
                 pyo3::types::PyBytes::new(py, output.stderr.as_bytes()).into(),
-                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into()
+                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into(),
             ))
         })
     }
@@ -216,13 +239,14 @@ impl PyGit {
             } else {
                 vec![name]
             };
-            let output = self.inner
+            let output = self
+                .inner
                 .execute("tag", &args)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok((
-                output.exit_code, 
+                output.exit_code,
                 pyo3::types::PyBytes::new(py, output.stderr.as_bytes()).into(),
-                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into()
+                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into(),
             ))
         })
     }
@@ -236,11 +260,12 @@ impl PyGit {
     ) -> PyResult<(i32, PyObject, PyObject)> {
         Python::with_gil(|py| {
             // Convert args to Vec<String>
-            let arg_strs: Vec<String> = args.iter()
+            let arg_strs: Vec<String> = args
+                .iter()
                 .map(|p| p.extract::<String>())
                 .collect::<Result<Vec<_>, _>>()?;
             let arg_refs: Vec<&str> = arg_strs.iter().map(|s| s.as_str()).collect();
-            
+
             let output = if let Some(dict) = kwargs {
                 // Convert PyDict to HashMap<&str, &str>
                 let mut options = HashMap::new();
@@ -267,21 +292,24 @@ impl PyGit {
             })?;
 
             Ok((
-                output.exit_code, 
+                output.exit_code,
                 pyo3::types::PyBytes::new(py, output.stderr.as_bytes()).into(),
-                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into()
+                pyo3::types::PyBytes::new(py, output.stdout.as_bytes()).into(),
             ))
         })
     }
-    
+
     #[getter]
     fn working_dir(&self) -> String {
         self.inner.working_dir().display().to_string()
     }
-    
+
     fn __getattr__(&self, _py: Python, name: &str) -> PyResult<PyObject> {
         // For any unknown method, raise GitException
-        Err(PyErr::new::<GitException, _>(format!("Git command '{}' not found", name)))
+        Err(PyErr::new::<GitException, _>(format!(
+            "Git command '{}' not found",
+            name
+        )))
     }
 }
 
@@ -294,14 +322,14 @@ pub fn git_clone(remote: &str, destination: Option<&str>) -> PyResult<String> {
 }
 
 /// Git integration module
-/// 
+///
 /// This will be exposed as angreal.integrations.git in Python
 #[pymodule]
 pub fn git_integration(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<GitException>()?;
     // Export PyGit as "Git" to match the expected interface
     m.add("Git", _py.get_type::<PyGit>())?;
-    // Export git_clone as "clone" to match the expected interface  
+    // Export git_clone as "clone" to match the expected interface
     m.add("clone", wrap_pyfunction!(git_clone, m)?)?;
     Ok(())
 }
