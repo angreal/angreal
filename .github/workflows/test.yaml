@@ -62,7 +62,7 @@ jobs:
       - name: Spell Check
         uses: crate-ci/typos@v1.16.26
         with:
-          files: ./crates/angreal/py_tests
+          files: ./py_tests
       - name: Spell Check
         uses: crate-ci/typos@v1.16.26
         with:
