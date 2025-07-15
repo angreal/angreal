@@ -54,7 +54,7 @@ jobs:
       - name: Spell Check
         uses: crate-ci/typos@v1.16.26
         with:
-          files: ./src
+          files: ./crates/angreal/src
       - name: Spell Check
         uses: crate-ci/typos@v1.16.26
         with:
@@ -62,11 +62,11 @@ jobs:
       - name: Spell Check
         uses: crate-ci/typos@v1.16.26
         with:
-          files: ./py_tests
+          files: ./crates/angreal/py_tests
       - name: Spell Check
         uses: crate-ci/typos@v1.16.26
         with:
-          files: ./tests
+          files: ./crates/angreal/tests
 
   build-verification:
     name: "Build Verify"
@@ -77,7 +77,7 @@ jobs:
         with:
           toolchain: ${{ env.RUST_VERSION }}
       - uses: Swatinem/rust-cache@v2
-      - run: cargo build --all
+      - run: cargo build --workspace
 
   linux-tests:
     name: "Linux Tests"
@@ -99,8 +99,8 @@ jobs:
       - name: Install UV manually
         run: curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH="$HOME/.local/bin:$PATH"
       - run: pip install maturin pytest
-      - run: maturin build
-      - run: pip install .
+      - run: maturin build --manifest-path crates/angreal/Cargo.toml
+      - run: pip install ./crates/angreal
       - name: Unit Tests
         run: |
           angreal test rust --unit-only
@@ -140,8 +140,8 @@ jobs:
           irm https://astral.sh/uv/install.ps1 | iex
           $env:PATH = "$env:USERPROFILE\.local\bin;$env:PATH"
       - run: pip install maturin pytest
-      - run: maturin build
-      - run: pip install .
+      - run: maturin build --manifest-path crates/angreal/Cargo.toml
+      - run: pip install ./crates/angreal
       - name: Unit Tests
         run: |
           angreal test rust --unit-only
@@ -179,8 +179,8 @@ jobs:
       - name: Install UV manually
         run: curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH="$HOME/.local/bin:$PATH"
       - run: pip install maturin pytest
-      - run: maturin build
-      - run: pip install .
+      - run: maturin build --manifest-path crates/angreal/Cargo.toml
+      - run: pip install ./crates/angreal
       - name: Unit Tests
         run: |
           angreal test rust --unit-only

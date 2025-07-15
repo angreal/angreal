@@ -89,7 +89,7 @@ def python_tests():
 
         # Build and install angreal (non-editable to ensure Rust compilation)
         subprocess.run(
-            [pip_exe, "install", str(project_root)],
+            [pip_exe, "install", str(project_root / "crates" / "angreal")],
             check=True
         )
 
@@ -155,7 +155,7 @@ def integration_rust_tests():
     Run the Rust integration tests
     """
     result = subprocess.run(
-        "cargo test --test integration -v -- --nocapture --test-threads=1",
+        "cargo test --workspace --test integration -v -- --nocapture --test-threads=1",
         cwd=str(project_root), shell=True
     )
     if result.returncode != 0:
@@ -166,7 +166,7 @@ def unit_rust_tests():
     Run the Rust unit tests
     """
     result = subprocess.run(
-        "cargo test --lib -v -- --nocapture --test-threads=1",
+        "cargo test --workspace --lib -v -- --nocapture --test-threads=1",
         cwd=str(project_root), shell=True
     )
     if result.returncode != 0:
