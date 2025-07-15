@@ -574,7 +574,7 @@ fn main() -> PyResult<()> {
         Ok(()) => (),
         Err(e) => warn!(
             "An error occurred while checking if our binary is up to date. {}",
-            e.to_string()
+            e
         ),
     };
 

@@ -3,14 +3,14 @@ id: remove-raw-python-dependencies
 level: initiative
 title: "Remove Raw Python Dependencies"
 created_at: 2025-07-11T15:44:02.411971+00:00
-updated_at: 2025-07-12T13:45:46.055486+00:00
+updated_at: 2025-07-15T19:48:31.722251+00:00
 parent: multi-crate-workspace-restructure
 blocked_by: []
 archived: false
 
 tags:
   - "#initiative"
-  - "#phase/decompose"
+  - "#phase/completed"
 
 
 exit_criteria_met: false

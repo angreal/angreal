@@ -1,21 +1,26 @@
 ---
-id: convert-core-decorators
+id: convert-core-decorators-to-pyo3
 level: task
 title: "Convert Core Decorators to PyO3"
-created_at: 2025-07-11T16:06:00.000000+00:00
-updated_at: 2025-07-11T16:06:00.000000+00:00
+created_at: 2025-07-11T16:06:00+00:00
+updated_at: 2025-07-15T19:48:14.152830+00:00
 parent: remove-raw-python-dependencies
-blocked_by: ["configure-pyo3-project"]
+blocked_by: [configure-pyo3-project]
 archived: false
 
 tags:
   - "#task"
-  - "#phase/todo"
+  - "#phase/completed"
+
 
 exit_criteria_met: false
 ---
 
 # Convert Core Decorators to PyO3
+
+## Acceptance Criteria
+
+## Acceptance Criteria
 
 ## Acceptance Criteria
 
