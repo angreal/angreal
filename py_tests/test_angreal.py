@@ -9,16 +9,22 @@ def func():
     pass
 
 def test_generate_context():
-    toml = os.path.join(here,'..', "crates/angreal/tests/common/test_assets/test_template/angreal.toml")
+    toml = os.path.join(
+        here, '..', "crates/angreal/tests/common/test_assets/test_template/angreal.toml"
+    )
     x = angreal.generate_context(toml,False)
     assert isinstance(x,dict)
     assert x.get("key_1") == "value_1"
     assert x.get("key_2") == 1
 
 def test_render_directory():
-    toml = os.path.join(here,'..', "crates/angreal/tests/common/test_assets/test_template/angreal.toml")
+    toml = os.path.join(
+        here, '..', "crates/angreal/tests/common/test_assets/test_template/angreal.toml"
+    )
     ctx = angreal.generate_context(toml,False)
-    src = os.path.join(here,'..', "crates/angreal/tests/common/test_assets/test_template")
+    src = os.path.join(
+        here, '..', "crates/angreal/tests/common/test_assets/test_template"
+    )
     x = angreal.render_directory(src=src, dst="",force=False, context=ctx )
     for f in x:
         assert os.path.exists(f)
