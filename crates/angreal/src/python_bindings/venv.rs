@@ -258,9 +258,9 @@ impl VirtualEnv {
                     // Try to convert to string for validation
                     match reqs.extract::<i32>(py) {
                         Ok(_) => Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
-                            "requirements should be a string, list of strings, or Path object, not int"
+                            "requirements should be a string, list of strings, or Path object, not int",
                         )),
-                        Err(_) => self.install(reqs.clone()) // Let install handle the error
+                        Err(_) => self.install(reqs.clone()), // Let install handle the error
                     }
                 }
             })

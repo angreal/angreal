@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use pyo3::prelude::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;

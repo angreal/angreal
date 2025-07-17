@@ -1,5 +1,5 @@
 //! Filesystem utilities
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 
 use glob::glob;
 use std::convert::TryInto;
@@ -8,11 +8,11 @@ use std::ops::Not;
 use std::path::{Path, PathBuf};
 use std::vec::Vec;
 use tera::Context;
-use toml::{map::Map, Table, Value};
+use toml::{Table, Value, map::Map};
 
+use pyo3::PyResult;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyModule};
-use pyo3::PyResult;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -284,7 +284,9 @@ pub fn check_up_to_date() -> Result<()> {
     let upstream = value_or_return_err!(Version::from(upstream));
 
     if upstream > current {
-        println!("A newer version of angreal is available, use pip install --upgrade angreal to upgrade.")
+        println!(
+            "A newer version of angreal is available, use pip install --upgrade angreal to upgrade."
+        )
     };
     Ok(())
 }

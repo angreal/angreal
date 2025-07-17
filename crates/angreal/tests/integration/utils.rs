@@ -5,8 +5,8 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use tempfile::tempdir;
-use toml::map::Map;
 use toml::Value;
+use toml::map::Map;
 
 use crate::common;
 

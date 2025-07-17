@@ -40,7 +40,10 @@ pub fn min(input: &str, min_value: &Value) -> Result<(), String> {
     }
 
     // If we get here, either the min_value wasn't a number or the input couldn't be parsed
-    Err(format!("Invalid min validation. Either '{}' is not a number or the minimum value is not specified correctly", input))
+    Err(format!(
+        "Invalid min validation. Either '{}' is not a number or the minimum value is not specified correctly",
+        input
+    ))
 }
 
 #[cfg(test)]
@@ -60,9 +63,11 @@ mod tests {
         // Invalid inputs
         let result = min(4.to_string().as_str(), &min_value);
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .contains("must be greater than or equal to 5"));
+        assert!(
+            result
+                .unwrap_err()
+                .contains("must be greater than or equal to 5")
+        );
     }
 
     #[test]
@@ -77,8 +82,10 @@ mod tests {
         // Invalid inputs
         let result = min(5.0.to_string().as_str(), &min_value);
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .contains("must be greater than or equal to 5.5"));
+        assert!(
+            result
+                .unwrap_err()
+                .contains("must be greater than or equal to 5.5")
+        );
     }
 }

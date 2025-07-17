@@ -1,9 +1,9 @@
 //! Logging for the core application
 //!
+use log4rs::Handle;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::console::Target;
 use log4rs::config::{Appender, Config, Root};
-use log4rs::Handle;
 
 /// initializes the angreal logger instance
 pub fn init_logger() -> Handle {

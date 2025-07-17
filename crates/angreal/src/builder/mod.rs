@@ -2,7 +2,7 @@
 //!
 pub mod command_tree;
 
-use crate::task::{generate_path_key_from_parts, AngrealArg, ANGREAL_ARGS, ANGREAL_TASKS};
+use crate::task::{ANGREAL_ARGS, ANGREAL_TASKS, AngrealArg, generate_path_key_from_parts};
 use clap::{App, AppSettings, Arg, ArgAction, Command};
 
 use command_tree::CommandNode;
@@ -85,7 +85,6 @@ fn add_completion_subcommands(app: App<'static>) -> App<'static> {
     )
 }
 
-
 fn add_alias_subcommand(app: App<'static>) -> App<'static> {
     app.subcommand(
         Command::new("alias")
@@ -143,7 +142,6 @@ fn add_completion_subcommand(app: App<'static>) -> App<'static> {
             .subcommand(Command::new("status").about("Show completion installation status")),
     )
 }
-
 
 fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
     // Build the command tree

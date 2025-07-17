@@ -222,7 +222,6 @@ fn get_venv_activation_info(venv_path: &str) -> PyResult<integrations::uv::Activ
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
 }
 
-
 #[pyfunction]
 fn register_entrypoint(name: &str) -> PyResult<()> {
     use home::home_dir;
@@ -757,74 +756,82 @@ fn main() -> PyResult<()> {
 /// This function should be called by any external tool that needs to discover angreal commands
 pub fn initialize_python_tasks() -> Result<(), Box<dyn std::error::Error>> {
     use pyo3::types::PyDict;
-    
+
     debug!("Initializing Python bindings for angreal tasks");
-    
+
     // First, ensure the angreal module is registered in Python
     Python::with_gil(|py| -> PyResult<()> {
         // Get sys.modules
         let sys = PyModule::import(py, "sys")?;
         let modules: &PyDict = sys.getattr("modules")?.downcast()?;
-        
+
         // Check if angreal module is already available
         if !modules.contains("angreal")? {
             debug!("Registering angreal module in Python sys.modules");
-            
+
             // Create the angreal module manually
             let angreal_module = PyModule::new(py, "angreal")?;
-            
+
             // Register the module components (from the pymodule function)
             angreal_module.add("__version__", env!("CARGO_PKG_VERSION"))?;
-            
+
             // Register logger
             py_logger::register();
-            
+
             // Register core components
             task::register(py, angreal_module)?;
             utils::register(py, angreal_module)?;
             python_bindings::decorators::register_decorators(py, angreal_module)?;
-            
+
             // Register integrations submodule (from the full pymodule function)
-            angreal_module.add_wrapped(wrap_pymodule!(python_bindings::integrations::integrations))?;
-            
+            angreal_module
+                .add_wrapped(wrap_pymodule!(python_bindings::integrations::integrations))?;
+
             // Set up sys.modules entries for integrations (matching the pymodule function)
-            modules.set_item("angreal.integrations", angreal_module.getattr("integrations")?)?;
+            modules.set_item(
+                "angreal.integrations",
+                angreal_module.getattr("integrations")?,
+            )?;
             modules.set_item(
                 "angreal.integrations.docker",
-                angreal_module.getattr("integrations")?.getattr("docker_integration")?,
+                angreal_module
+                    .getattr("integrations")?
+                    .getattr("docker_integration")?,
             )?;
             modules.set_item(
                 "angreal.integrations.git",
-                angreal_module.getattr("integrations")?.getattr("git_integration")?,
+                angreal_module
+                    .getattr("integrations")?
+                    .getattr("git_integration")?,
             )?;
-            
+
             // Register the main module in sys.modules
             modules.set_item("angreal", angreal_module)?;
-            
+
             debug!("Successfully registered angreal module in Python");
         } else {
             debug!("Angreal module already available in sys.modules");
         }
-        
+
         Ok(())
     })?;
-    
+
     // Check if we're in an angreal project
-    let angreal_path = utils::is_angreal_project()
-        .map_err(|e| format!("Not in angreal project: {}", e))?;
-    
+    let angreal_path =
+        utils::is_angreal_project().map_err(|e| format!("Not in angreal project: {}", e))?;
+
     debug!("Found angreal project at: {}", angreal_path.display());
-    
+
     // Get task files
     let task_files = utils::get_task_files(angreal_path)
         .map_err(|e| format!("Failed to get task files: {}", e))?;
-    
+
     debug!("Found {} task files to load", task_files.len());
-    
+
     // Load each Python task file to populate ANGREAL_TASKS registry
     for task_file in task_files.iter() {
         debug!("Loading Python task file: {}", task_file.display());
-        
+
         match utils::load_python(task_file.clone()) {
             Ok(_) => debug!("Successfully loaded task file: {}", task_file.display()),
             Err(e) => {
@@ -833,10 +840,10 @@ pub fn initialize_python_tasks() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     }
-    
+
     let task_count = ANGREAL_TASKS.lock().unwrap().len();
     debug!("Successfully initialized {} angreal tasks", task_count);
-    
+
     Ok(())
 }
 

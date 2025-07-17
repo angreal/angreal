@@ -283,18 +283,22 @@ mod tests {
         // Test invalid inputs (too short)
         let result = validate_input("us", "username", &validation_table);
         assert!(result.is_err());
-        assert!(result
-            .clone()
-            .unwrap_err()
-            .contains("at least 3 characters"));
+        assert!(
+            result
+                .clone()
+                .unwrap_err()
+                .contains("at least 3 characters")
+        );
 
         // Test invalid inputs (too long)
         let result = validate_input("a_very_long_username_1234", "username", &validation_table);
         assert!(result.is_err());
-        assert!(result
-            .clone()
-            .unwrap_err()
-            .contains("not exceed 20 characters"));
+        assert!(
+            result
+                .clone()
+                .unwrap_err()
+                .contains("not exceed 20 characters")
+        );
 
         // Test invalid inputs (wrong length for fixed-length code)
         let result = validate_input("12345", "code", &validation_table);

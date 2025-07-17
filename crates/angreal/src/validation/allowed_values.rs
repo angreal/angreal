@@ -80,10 +80,12 @@ mod tests {
         // Test invalid input
         let result = allowed_values("moderator", &allowed);
         assert!(result.is_err());
-        assert!(result
-            .clone()
-            .unwrap_err()
-            .contains("Input must be one of:"));
+        assert!(
+            result
+                .clone()
+                .unwrap_err()
+                .contains("Input must be one of:")
+        );
         assert!(result.unwrap_err().contains("admin"));
     }
 

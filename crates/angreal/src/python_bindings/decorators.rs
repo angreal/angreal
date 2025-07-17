@@ -11,7 +11,7 @@ use crate::task::AngrealGroup;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use pyo3::wrap_pyfunction;
-use version_compare::{compare, Cmp};
+use version_compare::{Cmp, compare};
 
 /// Check if the current angreal version meets the specified requirement
 ///
