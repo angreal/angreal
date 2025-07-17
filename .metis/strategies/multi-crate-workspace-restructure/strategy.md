@@ -3,14 +3,14 @@ id: multi-crate-workspace-restructure
 level: strategy
 title: "Multi-Crate Workspace Restructure"
 created_at: 2025-07-11T15:29:43.762964+00:00
-updated_at: 2025-07-11T15:29:43.762964+00:00
-parent:
+updated_at: 2025-07-16T01:01:22.844171+00:00
+parent: 
 blocked_by: []
 archived: false
 
 tags:
   - "#strategy"
-  - "#phase/shaping"
+  - "#phase/completed"
 
 
 exit_criteria_met: false

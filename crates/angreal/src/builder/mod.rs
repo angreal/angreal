@@ -85,19 +85,6 @@ fn add_completion_subcommands(app: App<'static>) -> App<'static> {
     )
 }
 
-fn add_tree_subcommand(app: App<'static>) -> App<'static> {
-    app.subcommand(
-        Command::new("tree")
-            .about("Display the command tree structure")
-            .hide(true)
-            .arg(
-                Arg::new("json")
-                    .long("json")
-                    .takes_value(false)
-                    .help("Output in JSON format"),
-            ),
-    )
-}
 
 fn add_alias_subcommand(app: App<'static>) -> App<'static> {
     app.subcommand(
@@ -156,6 +143,7 @@ fn add_completion_subcommand(app: App<'static>) -> App<'static> {
             .subcommand(Command::new("status").about("Show completion installation status")),
     )
 }
+
 
 fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
     // Build the command tree
@@ -234,9 +222,8 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
     // Build the initial App with angreal sub commands
     let mut app = base_app_setup();
 
-    // Always add completion subcommands (hidden), tree command, alias management, and completion management
+    // Always add completion subcommands (hidden), alias management, and completion management
     app = add_completion_subcommands(app);
-    app = add_tree_subcommand(app);
     app = add_alias_subcommand(app);
     app = add_completion_subcommand(app);
 

@@ -222,93 +222,6 @@ fn get_venv_activation_info(venv_path: &str) -> PyResult<integrations::uv::Activ
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
 }
 
-/// Handle the tree command
-fn handle_tree_command(_sub_matches: &clap::ArgMatches, in_angreal_project: bool) -> PyResult<()> {
-    use crate::builder::command_tree::CommandNode;
-
-    // Build command tree from registered tasks
-    let mut root = CommandNode::new_group("angreal".to_string(), None);
-
-    if in_angreal_project {
-        // Add all registered tasks to the command tree
-        for (_, task) in ANGREAL_TASKS.lock().unwrap().iter() {
-            root.add_command(task.clone());
-        }
-    }
-
-    // Get angreal root directory and version
-    let angreal_root = if in_angreal_project {
-        match utils::is_angreal_project() {
-            Ok(root_path) => root_path.display().to_string(),
-            Err(_) => std::env::current_dir()
-                .unwrap_or_default()
-                .display()
-                .to_string(),
-        }
-    } else {
-        std::env::current_dir()
-            .unwrap_or_default()
-            .display()
-            .to_string()
-    };
-
-    let angreal_version = env!("CARGO_PKG_VERSION").to_string();
-
-    // Always output the enhanced JSON format
-    let mut schema = root.to_project_schema(angreal_root, angreal_version);
-
-    // Populate parameters for each command
-    for command_schema in &mut schema.commands {
-        // Convert command like "test rust" to path key like "test.rust"
-        let command_parts: Vec<&str> = command_schema.command.split_whitespace().collect();
-        let command_path = if command_parts.len() > 1 {
-            let (command_name, groups) = command_parts.split_last().unwrap();
-            let group_strings: Vec<String> = groups.iter().map(|s| s.to_string()).collect();
-            generate_path_key_from_parts(&group_strings, command_name)
-        } else {
-            command_parts[0].to_string()
-        };
-
-        let args = builder::select_args(&command_path);
-
-        command_schema.parameters = args
-            .into_iter()
-            .map(|arg| {
-                // Only set flag field if there's an actual CLI flag (long or short)
-                let flag = if let Some(long) = &arg.long {
-                    Some(format!("--{}", long))
-                } else {
-                    arg.short.map(|short| format!("-{}", short))
-                };
-
-                // Use the actual Python data type, but convert "bool" flag type correctly
-                let param_type = if arg.is_flag.unwrap_or(false) {
-                    "bool".to_string()
-                } else {
-                    arg.python_type.unwrap_or_else(|| "str".to_string())
-                };
-
-                builder::command_tree::ParameterSchema {
-                    name: arg.name,
-                    flag,
-                    param_type,
-                    required: arg.required.unwrap_or(false),
-                    description: arg.help,
-                }
-            })
-            .collect();
-    }
-
-    match serde_json::to_string_pretty(&schema) {
-        Ok(json) => println!("{}", json),
-        Err(e) => {
-            error!("Failed to serialize command tree to JSON: {}", e);
-            std::process::exit(1);
-        }
-    }
-
-    Ok(())
-}
 
 #[pyfunction]
 fn register_entrypoint(name: &str) -> PyResult<()> {
@@ -662,10 +575,6 @@ fn main() -> PyResult<()> {
             }
             return Ok(());
         }
-        Some(("tree", _sub_matches)) => {
-            // Command tree display
-            return handle_tree_command(_sub_matches, in_angreal_project);
-        }
         Some(("alias", sub_matches)) => {
             // Handle alias subcommands
             match sub_matches.subcommand() {
@@ -841,6 +750,93 @@ fn main() -> PyResult<()> {
     }
 
     debug!("Angreal application completed successfully.");
+    Ok(())
+}
+
+/// Initialize Python bindings and load angreal tasks for external tools
+/// This function should be called by any external tool that needs to discover angreal commands
+pub fn initialize_python_tasks() -> Result<(), Box<dyn std::error::Error>> {
+    use pyo3::types::PyDict;
+    
+    debug!("Initializing Python bindings for angreal tasks");
+    
+    // First, ensure the angreal module is registered in Python
+    Python::with_gil(|py| -> PyResult<()> {
+        // Get sys.modules
+        let sys = PyModule::import(py, "sys")?;
+        let modules: &PyDict = sys.getattr("modules")?.downcast()?;
+        
+        // Check if angreal module is already available
+        if !modules.contains("angreal")? {
+            debug!("Registering angreal module in Python sys.modules");
+            
+            // Create the angreal module manually
+            let angreal_module = PyModule::new(py, "angreal")?;
+            
+            // Register the module components (from the pymodule function)
+            angreal_module.add("__version__", env!("CARGO_PKG_VERSION"))?;
+            
+            // Register logger
+            py_logger::register();
+            
+            // Register core components
+            task::register(py, angreal_module)?;
+            utils::register(py, angreal_module)?;
+            python_bindings::decorators::register_decorators(py, angreal_module)?;
+            
+            // Register integrations submodule (from the full pymodule function)
+            angreal_module.add_wrapped(wrap_pymodule!(python_bindings::integrations::integrations))?;
+            
+            // Set up sys.modules entries for integrations (matching the pymodule function)
+            modules.set_item("angreal.integrations", angreal_module.getattr("integrations")?)?;
+            modules.set_item(
+                "angreal.integrations.docker",
+                angreal_module.getattr("integrations")?.getattr("docker_integration")?,
+            )?;
+            modules.set_item(
+                "angreal.integrations.git",
+                angreal_module.getattr("integrations")?.getattr("git_integration")?,
+            )?;
+            
+            // Register the main module in sys.modules
+            modules.set_item("angreal", angreal_module)?;
+            
+            debug!("Successfully registered angreal module in Python");
+        } else {
+            debug!("Angreal module already available in sys.modules");
+        }
+        
+        Ok(())
+    })?;
+    
+    // Check if we're in an angreal project
+    let angreal_path = utils::is_angreal_project()
+        .map_err(|e| format!("Not in angreal project: {}", e))?;
+    
+    debug!("Found angreal project at: {}", angreal_path.display());
+    
+    // Get task files
+    let task_files = utils::get_task_files(angreal_path)
+        .map_err(|e| format!("Failed to get task files: {}", e))?;
+    
+    debug!("Found {} task files to load", task_files.len());
+    
+    // Load each Python task file to populate ANGREAL_TASKS registry
+    for task_file in task_files.iter() {
+        debug!("Loading Python task file: {}", task_file.display());
+        
+        match utils::load_python(task_file.clone()) {
+            Ok(_) => debug!("Successfully loaded task file: {}", task_file.display()),
+            Err(e) => {
+                warn!("Failed to load task file {}: {}", task_file.display(), e);
+                // Continue loading other files even if one fails
+            }
+        }
+    }
+    
+    let task_count = ANGREAL_TASKS.lock().unwrap().len();
+    debug!("Successfully initialized {} angreal tasks", task_count);
+    
     Ok(())
 }
 

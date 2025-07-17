@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "crates/angreal",
+    "crates/angreal-mcp",
 ]
 default-members = ["crates/angreal"]
 
@@ -20,6 +21,10 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1"
 toml = { version = "0.6", features = ["preserve_order"] }
 pyo3 = { version = "^0.18", features = ["auto-initialize"] }
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+async-trait = "0.1"
 
 # Build profile optimizations
 [profile.release]

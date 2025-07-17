@@ -6,7 +6,7 @@ created_at: 2025-07-11T16:07:00+00:00
 updated_at: 2025-07-15T19:48:14.855346+00:00
 parent: remove-raw-python-dependencies
 blocked_by: [configure-pyo3-project]
-archived: false
+archived: true
 
 tags:
   - "#task"
@@ -17,6 +17,8 @@ exit_criteria_met: false
 ---
 
 # Convert Virtual Environment Integration
+
+## Acceptance Criteria
 
 ## Acceptance Criteria
 

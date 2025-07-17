@@ -1,0 +1,28 @@
+[package]
+name = "angreal-mcp"
+version = "0.5.0"
+edition = "2021"
+description = "MCP server for angreal projects"
+license = "MIT"
+
+[[bin]]
+name = "angreal-mcp"
+path = "src/main.rs"
+
+[dependencies]
+angreal = { path = "../angreal", version = "2.4.2" }
+rust-mcp-sdk = { version = "0.5.0", default-features = false, features = [
+    "server",
+    "macros",
+    "2025_06_18",
+] }
+schemars = "0.8"
+chrono = { version = "0.4", features = ["serde"] }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+async-trait = { workspace = true }
+pyo3 = { version = "^0.18", features = ["auto-initialize"] }

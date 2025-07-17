@@ -6,7 +6,7 @@ created_at: 2025-07-11T16:10:00+00:00
 updated_at: 2025-07-15T19:48:16.018139+00:00
 parent: remove-raw-python-dependencies
 blocked_by: [convert-core-decorators, convert-venv-integration, migrate-docker-imports]
-archived: false
+archived: true
 
 tags:
   - "#task"
@@ -17,6 +17,8 @@ exit_criteria_met: false
 ---
 
 # Remove Python Directory
+
+## Acceptance Criteria
 
 ## Acceptance Criteria
 
