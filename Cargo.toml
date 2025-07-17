@@ -12,6 +12,7 @@ edition = "2021"
 license = "GPL-3.0-only"
 homepage = "https://github.com/angreal/angreal"
 repository = "https://github.com/angreal/angreal"
+readme = "README.md"
 
 [workspace.dependencies]
 # Core dependencies that could be shared across crates
