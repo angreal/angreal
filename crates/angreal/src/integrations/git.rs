@@ -1,5 +1,5 @@
 use crate::git::git_pull_ff;
-use anyhow::{Context, Result, bail};
+use anyhow::{bail, Context, Result};
 use git2::{Repository, Signature, StatusOptions};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};

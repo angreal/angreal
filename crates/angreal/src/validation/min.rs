@@ -63,11 +63,9 @@ mod tests {
         // Invalid inputs
         let result = min(4.to_string().as_str(), &min_value);
         assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .contains("must be greater than or equal to 5")
-        );
+        assert!(result
+            .unwrap_err()
+            .contains("must be greater than or equal to 5"));
     }
 
     #[test]
@@ -82,10 +80,8 @@ mod tests {
         // Invalid inputs
         let result = min(5.0.to_string().as_str(), &min_value);
         assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .contains("must be greater than or equal to 5.5")
-        );
+        assert!(result
+            .unwrap_err()
+            .contains("must be greater than or equal to 5.5"));
     }
 }

@@ -37,7 +37,7 @@ The foundation must provide a solid base for dynamic tool discovery and command 
    - Set up JSON-RPC communication layer using rust-mcp-sdk abstractions
 
 3. **Project Detection**:
-   - Implement angreal project detection logic (use the library "is angreal project" that exists) 
+   - Implement angreal project detection logic (use the library "is angreal project" that exists)
    - Handle cases where server starts outside angreal projects, for now in this event - nothing should happen it should silently run with zero tools.
 
 4. **Configuration & Logging**:

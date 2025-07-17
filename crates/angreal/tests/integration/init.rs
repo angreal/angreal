@@ -4,8 +4,6 @@ use std::fs;
 use std::ops::Not;
 use std::path::{Path, PathBuf};
 
-use tempfile;
-
 #[test]
 fn test_init_from_git() {
     init(

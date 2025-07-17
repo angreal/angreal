@@ -57,11 +57,9 @@ mod tests {
         // Invalid inputs
         let result = max(11.to_string().as_str(), &max_value);
         assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .contains("must be less than or equal to 10")
-        );
+        assert!(result
+            .unwrap_err()
+            .contains("must be less than or equal to 10"));
     }
 
     #[test]
@@ -76,10 +74,8 @@ mod tests {
         // Invalid inputs
         let result = max(8.0.to_string().as_str(), &max_value);
         assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .contains("must be less than or equal to 7.5")
-        );
+        assert!(result
+            .unwrap_err()
+            .contains("must be less than or equal to 7.5"));
     }
 }

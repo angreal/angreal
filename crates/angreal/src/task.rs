@@ -592,13 +592,13 @@ mod tests {
                 .lock()
                 .unwrap()
                 .entry(path1.clone())
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(arg1);
             ANGREAL_ARGS
                 .lock()
                 .unwrap()
                 .entry(path2.clone())
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(arg2);
 
             // Verify arguments are correctly separated by command path

@@ -27,7 +27,7 @@ async fn main() -> Result<()> {
 
     // Check if we're in an angreal project
     let is_angreal_project = angreal::utils::is_angreal_project().is_ok();
-    
+
     if !is_angreal_project {
         warn!("Not in an angreal project, running with zero tools");
     } else {
@@ -58,7 +58,8 @@ This server provides MCP tools for angreal project automation. Use these tools w
 Available tools are dynamically discovered from the project's .angreal/task_*.py files.
 Each tool corresponds to an angreal command and will execute in the project context.
 
-Tools accept arguments as defined by each command. Check tool descriptions for specifics."#.to_string(),
+Tools accept arguments as defined by each command. Check tool descriptions for specifics."#
+                .to_string(),
         ),
         protocol_version: LATEST_PROTOCOL_VERSION.to_string(),
     };
@@ -78,7 +79,7 @@ Tools accept arguments as defined by each command. Check tool descriptions for s
     let server = server_runtime::create_server(server_details, transport, handler);
 
     info!("MCP server started, listening on stdio");
-    
+
     // Run the server
     server
         .start()

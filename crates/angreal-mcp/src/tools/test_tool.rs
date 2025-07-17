@@ -20,7 +20,10 @@ pub struct TestTool {
 
 impl TestTool {
     pub async fn call_tool(&self) -> std::result::Result<CallToolResult, CallToolError> {
-        let message = self.message.as_deref().unwrap_or("Hello from angreal MCP server!");
+        let message = self
+            .message
+            .as_deref()
+            .unwrap_or("Hello from angreal MCP server!");
 
         let response = serde_json::json!({
             "test_response": format!("Test tool received: {}", message),

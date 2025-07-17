@@ -4,7 +4,7 @@ level: strategy
 title: "MCP Server Integration"
 created_at: 2025-07-16T00:56:46.567846+00:00
 updated_at: 2025-07-16T01:17:56.996+00:00
-parent: 
+parent:
 blocked_by: []
 archived: false
 

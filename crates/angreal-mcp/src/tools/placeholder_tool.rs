@@ -17,7 +17,9 @@ pub struct PlaceholderTool {}
 
 impl PlaceholderTool {
     #[allow(dead_code)]
-    pub async fn call_tool(&self) -> Result<CallToolResult, rust_mcp_sdk::schema::schema_utils::CallToolError> {
+    pub async fn call_tool(
+        &self,
+    ) -> Result<CallToolResult, rust_mcp_sdk::schema::schema_utils::CallToolError> {
         Ok(CallToolResult::text_content(vec![TextContent::from(
             "This is a placeholder tool and should not be called".to_string(),
         )]))

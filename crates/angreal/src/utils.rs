@@ -1,5 +1,5 @@
 //! Filesystem utilities
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 
 use glob::glob;
 use std::convert::TryInto;
@@ -8,11 +8,11 @@ use std::ops::Not;
 use std::path::{Path, PathBuf};
 use std::vec::Vec;
 use tera::Context;
-use toml::{Table, Value, map::Map};
+use toml::{map::Map, Table, Value};
 
-use pyo3::PyResult;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyModule};
+use pyo3::PyResult;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -948,14 +948,11 @@ mod tests {
                 .unwrap(),
             "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         );
-        assert_eq!(
-            validations
-                .get("email.not_empty")
-                .unwrap()
-                .as_bool()
-                .unwrap(),
-            true
-        );
+        assert!(validations
+            .get("email.not_empty")
+            .unwrap()
+            .as_bool()
+            .unwrap());
 
         // Check username validation
         assert_eq!(
@@ -992,24 +989,18 @@ mod tests {
                 .unwrap(),
             8
         );
-        assert_eq!(
-            validations
-                .get("password.not_empty")
-                .unwrap()
-                .as_bool()
-                .unwrap(),
-            true
-        );
+        assert!(validations
+            .get("password.not_empty")
+            .unwrap()
+            .as_bool()
+            .unwrap());
 
         // Check required_field validation
-        assert_eq!(
-            validations
-                .get("required_field.not_empty")
-                .unwrap()
-                .as_bool()
-                .unwrap(),
-            true
-        );
+        assert!(validations
+            .get("required_field.not_empty")
+            .unwrap()
+            .as_bool()
+            .unwrap());
     }
 
     #[test]
