@@ -27,6 +27,8 @@ jobs:
         run: curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH="$HOME/.local/bin:$PATH"
       - name: Build wheels - x86_64
         uses: PyO3/maturin-action@v1
+        env:
+          OPENSSL_NO_VENDOR: 1
         with:
           target: x86_64
           args: --release --out dist --sdist -i 3.9 3.10 3.11 3.12 3.13 --manifest-path crates/angreal/Cargo.toml
@@ -55,6 +57,8 @@ jobs:
         run: curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH="$HOME/.local/bin:$PATH"
       - name: Build wheels - universal2
         uses: PyO3/maturin-action@v1
+        env:
+          OPENSSL_NO_VENDOR: 1
         with:
           args: --release --target universal2-apple-darwin --out dist -i 3.9 3.10 3.11 3.12 3.13 --manifest-path crates/angreal/Cargo.toml
       - name: Install built wheel - universal2
