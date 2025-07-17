@@ -117,8 +117,10 @@ jobs:
         with:
           python-version: '3.12'
           architecture: x64
-      - name: Install IPC::Cmd Perl module (if needed)
-        run: cpan IPC::Cmd
+      - name: Install OpenSSL build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libssl-dev pkg-config
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
