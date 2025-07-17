@@ -117,16 +117,18 @@ jobs:
         with:
           python-version: '3.12'
           architecture: x64
-      - name: Install OpenSSL build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libssl-dev pkg-config
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           rust-toolchain: stable
           target: x86_64
           manylinux: auto
+          before-script-linux: |
+            if command -v yum &> /dev/null; then
+              yum update -y && yum install -y perl-IPC-Cmd perl-core
+            else
+              apt-get update -y && apt-get install -y libipc-cmd-perl
+            fi
           args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13 --manifest-path crates/angreal/Cargo.toml
       - name: Install built wheel
         run: |
