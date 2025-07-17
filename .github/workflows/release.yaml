@@ -115,169 +115,31 @@ jobs:
           overwrite: true
   linux:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target: [x86_64, i686]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: '3.12'
           architecture: x64
+      - name: Install Perl dependencies for OpenSSL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libipc-system-simple-perl
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           rust-toolchain: stable
-          target: ${{ matrix.target }}
+          target: x86_64
           manylinux: auto
           args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13 --manifest-path crates/angreal/Cargo.toml
       - name: Install built wheel
-        if: matrix.target == 'x86_64'
         run: |
           pip install packaging pytest angreal --find-links dist --force-reinstall
           pytest
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-${{ matrix.target }}
-          path: dist
-          overwrite: true
-  linux-cross:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target: [aarch64, armv7, s390x, ppc64le]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          rust-toolchain: stable
-          target: ${{ matrix.target }}
-          manylinux: auto
-          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13 --manifest-path crates/angreal/Cargo.toml
-      - uses: uraimo/run-on-arch-action@v2
-        if: matrix.target != 'ppc64'
-        name: Install built wheel
-        with:
-          arch: ${{ matrix.target }}
-          distro: ubuntu22.04
-          githubToken: ${{ github.token }}
-          install: |
-            apt-get update
-            apt-get install -y --no-install-recommends python3 python3-pip python3-venv git curl
-            pip3 install -U pip pytest packaging
-            # Install UV manually
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-            # Add UV to system PATH permanently
-            echo 'export PATH="/root/.local/bin:$PATH"' >> /etc/profile
-            echo 'export PATH="/root/.local/bin:$PATH"' >> /root/.bashrc
-          run: |
-            # Source the PATH update and verify UV installation
-            export PATH="/root/.local/bin:$HOME/.cargo/bin:$PATH"
-            which uv && echo "UV found at: $(which uv)" || echo "UV not found in PATH"
-            # Set custom temp directory to avoid ARM7 filesystem issues
-            export TMPDIR=/home/runner/tmp
-            mkdir -p $TMPDIR
-            pip3 install packaging pytest angreal --find-links dist --force-reinstall
-            pytest
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-linux-cross-${{ matrix.target }}
-          path: dist
-          overwrite: true
-  musllinux:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target:
-          - x86_64-unknown-linux-musl
-          - i686-unknown-linux-musl
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-          architecture: x64
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          rust-toolchain: stable
-          target: ${{ matrix.target }}
-          manylinux: musllinux_1_2
-          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13 --manifest-path crates/angreal/Cargo.toml
-      - name: Install built wheel
-        if: matrix.target == 'x86_64-unknown-linux-musl'
-        uses: addnab/docker-run-action@v3
-        with:
-          image: alpine:latest
-          options: -v ${{ github.workspace }}:/io -w /io
-          run: |
-            apk add py3-pip
-            python3 -m venv .venv
-            . .venv/bin/activate
-            pip3 install pip pytest packaging
-            pip3 install packaging pytest angreal --find-links /io/dist --force-reinstall
-
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-musllinux-${{ matrix.target }}
-          path: dist
-          overwrite: true
-  musllinux-cross:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform:
-          - target: aarch64-unknown-linux-musl
-            arch: aarch64
-          - target: armv7-unknown-linux-musleabihf
-            arch: armv7
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          rust-toolchain: stable
-          target: ${{ matrix.platform.target }}
-          manylinux: musllinux_1_2
-          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13 --manifest-path crates/angreal/Cargo.toml
-      - uses: uraimo/run-on-arch-action@v2
-        name: Install built wheel
-        with:
-          arch: ${{ matrix.platform.arch }}
-          distro: alpine_latest
-          githubToken: ${{ github.token }}
-          install: |
-            apk add py3-pip curl
-            # Install UV manually
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-            # Add UV to system PATH permanently
-            echo 'export PATH="/root/.local/bin:$PATH"' >> /etc/profile
-            echo 'export PATH="/root/.local/bin:$PATH"' >> /root/.profile
-          run: |
-            python3 -m venv .venv
-            . .venv/bin/activate
-            # Source the PATH update and verify UV installation
-            export PATH="/root/.local/bin:$HOME/.cargo/bin:$PATH"
-            which uv && echo "UV found at: $(which uv)" || echo "UV not found in PATH"
-            # Set custom temp directory to avoid ARM filesystem issues
-            export TMPDIR=/home/runner/tmp
-            mkdir -p $TMPDIR
-            pip3 install -U pip pytest
-            pip3 install packaging pytest angreal --find-links dist --force-reinstall
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-musllinux-cross-${{ matrix.platform.arch }}
+          name: wheels-linux-x86_64
           path: dist
           overwrite: true
   release-pypi:
@@ -288,9 +150,6 @@ jobs:
       - macos-x86_64
       - windows
       - linux
-      - linux-cross
-      - musllinux
-      - musllinux-cross
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
@@ -322,9 +181,6 @@ jobs:
       - macos-x86_64
       - windows
       - linux
-      - linux-cross
-      - musllinux
-      - musllinux-cross
     if: |
       startsWith(github.ref, 'refs/heads/cicd/') ||
       startsWith(github.ref, 'refs/heads/build') ||
@@ -356,9 +212,6 @@ jobs:
       - macos-x86_64
       - windows
       - linux
-      - linux-cross
-      - musllinux
-      - musllinux-cross
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
