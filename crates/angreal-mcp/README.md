@@ -191,4 +191,4 @@ RUST_LOG=debug cargo run
 
 ## License
 
-This project is licensed under MIT.
+This project is licensed under GPL-3.0-only.

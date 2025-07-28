@@ -3,7 +3,7 @@ name = "angreal_mcp"
 version = "0.5.0"
 edition = "2021"
 description = "MCP server for angreal projects"
-license = "MIT"
+license = "GPL-3.0-only"
 readme = "README.md"
 repository = "https://github.com/angreal/angreal"
 homepage = "https://github.com/angreal/angreal"
@@ -13,7 +13,7 @@ name = "angreal-mcp"
 path = "src/main.rs"
 
 [dependencies]
-angreal = { path = "../angreal", version = "2.4.3" }
+angreal = { path = "../angreal", version = "2.4.4" }
 rust-mcp-sdk = { version = "0.5.0", default-features = false, features = [
     "server",
     "macros",
