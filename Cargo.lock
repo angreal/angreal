@@ -43,7 +43,7 @@ dependencies = [
 
 [[package]]
 name = "angreal"
-version = "2.4.4"
+version = "2.4.5"
 dependencies = [
  "anyhow",
  "clap",
@@ -76,7 +76,7 @@ dependencies = [
 
 [[package]]
 name = "angreal_mcp"
-version = "0.5.0"
+version = "2.4.5"
 dependencies = [
  "angreal",
  "anyhow",
