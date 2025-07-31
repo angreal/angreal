@@ -27,7 +27,7 @@
 #### 1. Tutorial Expansion
 **Create 3 new tutorials:**
 - **"Creating Your First Template"** - Essential learning path
-- **"Integration Basics"** - Docker/Git/UV hands-on guide  
+- **"Integration Basics"** - Docker/Git/UV hands-on guide
 - **"Advanced Task Automation"** - Complex workflows
 
 #### 2. Complete Missing API Reference
@@ -84,7 +84,7 @@
 
 ### Files to Create:
 1. `/docs/content/tutorials/creating_templates.md`
-2. `/docs/content/tutorials/integration_basics.md`  
+2. `/docs/content/tutorials/integration_basics.md`
 3. `/docs/content/how-to-guides/handle-errors.md`
 4. `/docs/content/how-to-guides/test-tasks.md`
 5. `/docs/content/reference/python-api/integrations/git.md`

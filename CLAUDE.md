@@ -19,7 +19,7 @@ Angreal is a hybrid Rust/Python project that provides task automation and projec
   - Git2 - Git operations
   - Tera - Template engine
   - Diesel/SQLite - Local data storage
-  
+
 - **Python Build**:
   - Maturin - Rust/Python packaging
   - PyTest - Testing framework
@@ -65,7 +65,7 @@ angreal/
   - Core library architecture
   - Command building and execution
   - Integration implementations
-  
+
 - `/crates/angreal/src/python_bindings/` → @pyo3-bridge-builder
   - Python-Rust interface design
   - Type conversions and error handling

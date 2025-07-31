@@ -1,12 +1,11 @@
 //! PyO3 bindings for Docker Compose integration
 
 use crate::integrations::docker_compose::{
-    DockerCompose as RustDockerCompose, ComposeOutput,
-    UpOptions, DownOptions, RestartOptions, LogsOptions, PsOptions,
-    BuildOptions, StopOptions, ExecOptions, ConfigOptions
+    BuildOptions, ComposeOutput, ConfigOptions, DockerCompose as RustDockerCompose, DownOptions,
+    ExecOptions, LogsOptions, PsOptions, RestartOptions, StopOptions, UpOptions,
 };
+use pyo3::exceptions::{PyIOError, PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::exceptions::{PyRuntimeError, PyIOError, PyValueError};
 use std::collections::HashMap;
 
 /// Python wrapper for Docker Compose operations
@@ -46,8 +45,9 @@ impl PyDockerCompose {
     #[new]
     #[pyo3(signature = (file, project_name=None))]
     fn new(file: &str, project_name: Option<&str>) -> PyResult<Self> {
-        let mut compose = RustDockerCompose::new(file)
-            .map_err(|e| PyIOError::new_err(format!("Failed to create Docker Compose instance: {}", e)))?;
+        let mut compose = RustDockerCompose::new(file).map_err(|e| {
+            PyIOError::new_err(format!("Failed to create Docker Compose instance: {}", e))
+        })?;
 
         if let Some(name) = project_name {
             compose = compose.with_project_name(name);
@@ -100,7 +100,9 @@ impl PyDockerCompose {
             services: services.unwrap_or_default(),
         };
 
-        let result = self.inner.up(options)
+        let result = self
+            .inner
+            .up(options)
             .map_err(|e| PyRuntimeError::new_err(format!("Docker Compose up failed: {}", e)))?;
 
         Ok(result.into())
@@ -120,7 +122,9 @@ impl PyDockerCompose {
             timeout,
         };
 
-        let result = self.inner.down(options)
+        let result = self
+            .inner
+            .down(options)
             .map_err(|e| PyRuntimeError::new_err(format!("Docker Compose down failed: {}", e)))?;
 
         Ok(result.into())
@@ -138,8 +142,9 @@ impl PyDockerCompose {
             services: services.unwrap_or_default(),
         };
 
-        let result = self.inner.restart(options)
-            .map_err(|e| PyRuntimeError::new_err(format!("Docker Compose restart failed: {}", e)))?;
+        let result = self.inner.restart(options).map_err(|e| {
+            PyRuntimeError::new_err(format!("Docker Compose restart failed: {}", e))
+        })?;
 
         Ok(result.into())
     }
@@ -162,7 +167,9 @@ impl PyDockerCompose {
             services: services.unwrap_or_default(),
         };
 
-        let result = self.inner.logs(options)
+        let result = self
+            .inner
+            .logs(options)
             .map_err(|e| PyRuntimeError::new_err(format!("Docker Compose logs failed: {}", e)))?;
 
         Ok(result.into())
@@ -184,7 +191,9 @@ impl PyDockerCompose {
             filter_services: filter_services.unwrap_or_default(),
         };
 
-        let result = self.inner.ps(options)
+        let result = self
+            .inner
+            .ps(options)
             .map_err(|e| PyRuntimeError::new_err(format!("Docker Compose ps failed: {}", e)))?;
 
         Ok(result.into())
@@ -206,7 +215,9 @@ impl PyDockerCompose {
             services: services.unwrap_or_default(),
         };
 
-        let result = self.inner.build(options)
+        let result = self
+            .inner
+            .build(options)
             .map_err(|e| PyRuntimeError::new_err(format!("Docker Compose build failed: {}", e)))?;
 
         Ok(result.into())
@@ -216,7 +227,9 @@ impl PyDockerCompose {
     #[pyo3(signature = (services=None))]
     fn start(&self, services: Option<Vec<String>>) -> PyResult<PyComposeOutput> {
         let services = services.unwrap_or_default();
-        let result = self.inner.start(&services)
+        let result = self
+            .inner
+            .start(&services)
             .map_err(|e| PyRuntimeError::new_err(format!("Docker Compose start failed: {}", e)))?;
 
         Ok(result.into())
@@ -234,7 +247,9 @@ impl PyDockerCompose {
             services: services.unwrap_or_default(),
         };
 
-        let result = self.inner.stop(options)
+        let result = self
+            .inner
+            .stop(options)
             .map_err(|e| PyRuntimeError::new_err(format!("Docker Compose stop failed: {}", e)))?;
 
         Ok(result.into())
@@ -242,6 +257,7 @@ impl PyDockerCompose {
 
     /// Execute a command in a service container (docker-compose exec)
     #[pyo3(signature = (service, command, detach=false, tty=true, user=None, workdir=None, env=None))]
+    #[allow(clippy::too_many_arguments)]
     fn exec(
         &self,
         service: &str,
@@ -264,7 +280,9 @@ impl PyDockerCompose {
             env: env.unwrap_or_default(),
         };
 
-        let result = self.inner.exec(service, &command, options)
+        let result = self
+            .inner
+            .exec(service, &command, options)
             .map_err(|e| PyRuntimeError::new_err(format!("Docker Compose exec failed: {}", e)))?;
 
         Ok(result.into())
@@ -274,7 +292,9 @@ impl PyDockerCompose {
     #[pyo3(signature = (services=None))]
     fn pull(&self, services: Option<Vec<String>>) -> PyResult<PyComposeOutput> {
         let services = services.unwrap_or_default();
-        let result = self.inner.pull(&services)
+        let result = self
+            .inner
+            .pull(&services)
             .map_err(|e| PyRuntimeError::new_err(format!("Docker Compose pull failed: {}", e)))?;
 
         Ok(result.into())
@@ -282,19 +302,16 @@ impl PyDockerCompose {
 
     /// Validate and view the compose configuration (docker-compose config)
     #[pyo3(signature = (quiet=false, services=false, volumes=false))]
-    fn config(
-        &self,
-        quiet: bool,
-        services: bool,
-        volumes: bool,
-    ) -> PyResult<PyComposeOutput> {
+    fn config(&self, quiet: bool, services: bool, volumes: bool) -> PyResult<PyComposeOutput> {
         let options = ConfigOptions {
             quiet,
             services,
             volumes,
         };
 
-        let result = self.inner.config(options)
+        let result = self
+            .inner
+            .config(options)
             .map_err(|e| PyRuntimeError::new_err(format!("Docker Compose config failed: {}", e)))?;
 
         Ok(result.into())

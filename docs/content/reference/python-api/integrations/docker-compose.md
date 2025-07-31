@@ -73,8 +73,8 @@ if not DockerCompose.is_available():
 Start services defined in the compose file.
 
 ```python
-up(detach: bool = True, 
-   build: bool = False, 
+up(detach: bool = True,
+   build: bool = False,
    remove_orphans: bool = False,
    force_recreate: bool = False,
    no_recreate: bool = False,
@@ -389,40 +389,40 @@ def manage_dev_stack():
     if not DockerCompose.is_available():
         print("Docker Compose is not available")
         return 1
-    
+
     # Initialize stack
     stack = compose("docker-compose.dev.yml", project_name="myapp-dev")
-    
+
     # Pull latest images
     print("Pulling latest images...")
     result = stack.pull()
     if not result.success:
         print(f"Pull failed: {result.stderr}")
         return 1
-    
+
     # Build and start services
     print("Starting services...")
     result = stack.up(detach=True, build=True, remove_orphans=True)
     if not result.success:
         print(f"Failed to start: {result.stderr}")
         return 1
-    
+
     # Check status
     result = stack.ps()
     print("Running services:")
     print(result.stdout)
-    
+
     # View logs
     result = stack.logs(services=["web"], tail="20")
     print("Recent web logs:")
     print(result.stdout)
-    
+
     # Execute database migration
     print("Running migrations...")
     result = stack.exec("web", ["python", "manage.py", "migrate"])
     if not result.success:
         print(f"Migration failed: {result.stderr}")
-    
+
     return 0
 ```
 

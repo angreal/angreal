@@ -29,7 +29,7 @@ impl DockerCompose {
     /// Create a new Docker Compose instance
     pub fn new<P: AsRef<Path>>(compose_file: P) -> Result<Self> {
         let compose_file = compose_file.as_ref().to_path_buf();
-        
+
         if !compose_file.exists() {
             anyhow::bail!(
                 "Docker Compose file does not exist: {}",
@@ -299,7 +299,12 @@ impl DockerCompose {
     }
 
     /// Execute a command in a service container (docker-compose exec)
-    pub fn exec(&self, service: &str, command: &[String], options: ExecOptions) -> Result<ComposeOutput> {
+    pub fn exec(
+        &self,
+        service: &str,
+        command: &[String],
+        options: ExecOptions,
+    ) -> Result<ComposeOutput> {
         let mut args = vec!["exec"];
 
         if options.detach {
@@ -465,14 +470,18 @@ mod tests {
 
         let temp_dir = TempDir::new().unwrap();
         let compose_file = temp_dir.path().join("docker-compose.yml");
-        
+
         // Create a minimal compose file
-        fs::write(&compose_file, r#"
+        fs::write(
+            &compose_file,
+            r#"
 version: '3'
 services:
   test:
     image: hello-world
-"#).unwrap();
+"#,
+        )
+        .unwrap();
 
         let compose = DockerCompose::new(&compose_file).unwrap();
         assert_eq!(compose.compose_file(), &compose_file);
@@ -488,18 +497,22 @@ services:
 
         let temp_dir = TempDir::new().unwrap();
         let compose_file = temp_dir.path().join("docker-compose.yml");
-        
-        fs::write(&compose_file, r#"
+
+        fs::write(
+            &compose_file,
+            r#"
 version: '3'
 services:
   test:
     image: hello-world
-"#).unwrap();
+"#,
+        )
+        .unwrap();
 
         let compose = DockerCompose::new(&compose_file)
             .unwrap()
             .with_project_name("test-project");
-        
+
         assert_eq!(compose.project_name(), Some("test-project"));
     }
 

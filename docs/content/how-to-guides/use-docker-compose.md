@@ -25,7 +25,7 @@ stack.restart()                 # Restart all
 stack.stop()                    # Stop (keep containers)
 stack.start()                   # Start stopped containers
 
-# Monitoring  
+# Monitoring
 stack.ps()                      # List containers
 stack.logs(tail="50")           # View logs
 stack.config()                  # Validate config
@@ -188,7 +188,7 @@ from angreal.integrations.docker import compose
 def start_dev(build=False):
     """Start development services"""
     stack = compose("docker-compose.dev.yml")
-    
+
     result = stack.up(detach=True, build=build)
     if result.success:
         print("✓ Services started")
@@ -205,19 +205,19 @@ def start_dev(build=False):
 def reset_database():
     """Reset database to clean state"""
     stack = compose("docker-compose.yml")
-    
+
     # Stop and remove volumes
     stack.down(volumes=True)
-    
+
     # Start fresh database
     result = stack.up(detach=True, services=["db"])
     if not result.success:
         return 1
-    
+
     # Run migrations
     import time
     time.sleep(5)  # Wait for DB
-    
+
     result = stack.exec("web", ["python", "manage.py", "migrate"])
     return 0 if result.success else 1
 ```
@@ -229,17 +229,17 @@ def reset_database():
 def run_tests():
     """Run integration tests"""
     stack = compose("docker-compose.test.yml")
-    
+
     try:
         # Start test environment
         if not stack.up(detach=True, build=True).success:
             return 1
-        
+
         # Run tests
         result = stack.exec("test", ["pytest", "-v"])
         print(result.stdout)
         return 0 if result.success else 1
-        
+
     finally:
         # Clean up
         stack.down(volumes=True)
