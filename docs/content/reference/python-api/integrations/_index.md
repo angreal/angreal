@@ -18,4 +18,7 @@ The `angreal.integrations.git` module provides Git repository operations and aut
 ### Docker Integration
 The `angreal.integrations.docker` module provides Docker container and image management capabilities.
 
+### Docker Compose Integration
+The `angreal.integrations.docker.compose` function provides a Pythonic interface for managing multi-container Docker applications using Docker Compose.
+
 <!-- Geekdoc automatically generates child page navigation -->

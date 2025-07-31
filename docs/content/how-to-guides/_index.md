@@ -26,6 +26,7 @@ Practical, goal-oriented guides for common Angreal tasks.
 ## Integrations
 
 - [Virtual Environments](/angreal/how-to-guides/work-with-virtual-environments) - Create and manage Python virtual environments
+- [Docker Compose](/angreal/how-to-guides/use-docker-compose) - Manage multi-container applications with Docker Compose
 
 ## Tips for Using How-to Guides
 

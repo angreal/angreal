@@ -3,6 +3,7 @@
 use pyo3::prelude::*;
 use pyo3::wrap_pymodule;
 
+pub mod compose;
 pub mod docker;
 pub mod git;
 pub mod venv;
