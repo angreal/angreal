@@ -77,10 +77,6 @@ angreal/
   - Async request handling
 
 #### Python API and Tasks
-- `/.angreal/` → @python-cli-developer
-  - Task definitions using decorators
-  - Command groups and arguments
-  - Integration usage examples
 
 - `/py_tests/` → @test-strategy-agent + @python-cli-developer
   - Python test suite

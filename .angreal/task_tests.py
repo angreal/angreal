@@ -58,15 +58,8 @@ def python_tests():
     """
     Run the Python unit tests in isolated environment
     """
-    if VirtualEnv is None:
-        print("VirtualEnv not available - running pytest directly")
-        result = subprocess.run(
-            ["python", "-m", "pytest", "-svv"], cwd=str(project_root)
-        )
-        if result.returncode != 0:
-            exit(result.returncode)
-        return
 
+    print("Creating isolated test environment...")
     with VirtualEnv("angreal-pytest-venv", now=True) as venv:
         # Ensure pip is available (platform-specific paths)
         import sys
@@ -77,23 +70,28 @@ def python_tests():
             python_exe = os.path.join(venv.path, "bin", "python")
             pip_exe = os.path.join(venv.path, "bin", "pip3")
 
-        # Install pip and dependencies
+        # Install pip and dependencies with streaming output
+        print("Ensuring pip is available...")
         subprocess.run(
             [python_exe, "-m", "ensurepip"],
-            check=True, capture_output=True
+            check=True
         )
+        
+        print("Installing test dependencies (maturin, pytest)...")
         subprocess.run(
             [pip_exe, "install", "maturin", "pytest"],
-            check=True, capture_output=True
+            check=True
         )
 
-        # Build and install angreal (non-editable to ensure Rust compilation)
+        # Build and install angreal with streaming output
+        print("Building and installing angreal from source...")
         subprocess.run(
             [pip_exe, "install", str(project_root / "crates" / "angreal")],
             check=True
         )
 
-        # Run pytest
+        # Run pytest with streaming output
+        print("Running Python tests with pytest...")
         result = subprocess.run(
             [venv.python_executable, "-m", "pytest", "-svv"],
             cwd=str(project_root)

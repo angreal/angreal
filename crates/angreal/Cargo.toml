@@ -5,7 +5,7 @@ homepage = "https://github.com/angreal/angreal"
 license = "GPL-3.0-only"
 name = "angreal"
 repository = "https://github.com/angreal/angreal"
-version = "2.5.0"
+version = "2.5.1"
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

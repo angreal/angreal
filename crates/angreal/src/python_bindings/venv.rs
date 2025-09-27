@@ -275,7 +275,7 @@ impl VirtualEnv {
             let pip_exe = if cfg!(windows) {
                 self.path.join("Scripts").join("pip.exe")
             } else {
-                self.path.join("bin").join("pip3")
+                self.path.join("bin").join("pip")
             };
 
             // Check if packages is a string, list, or Path object
