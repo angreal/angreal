@@ -106,15 +106,30 @@ impl VirtualEnv {
             return Ok(());
         }
 
-        let output = Command::new("python")
-            .args(["-m", "venv", &self.path.to_string_lossy()])
-            .output()
-            .map_err(|e| {
-                PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
-                    "Failed to create virtual environment: {}",
-                    e
-                ))
-            })?;
+        // Try to create venv with pip support
+        let output = if Command::new("uv").arg("--version").output().is_ok() {
+            // Use UV with --seed to ensure pip is available
+            Command::new("uv")
+                .args(["venv", "--seed", &self.path.to_string_lossy()])
+                .output()
+                .map_err(|e| {
+                    PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
+                        "Failed to create virtual environment with UV: {}",
+                        e
+                    ))
+                })?
+        } else {
+            // Fall back to standard Python venv
+            Command::new("python")
+                .args(["-m", "venv", &self.path.to_string_lossy()])
+                .output()
+                .map_err(|e| {
+                    PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
+                        "Failed to create virtual environment: {}",
+                        e
+                    ))
+                })?
+        };
 
         if !output.status.success() {
             return Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
