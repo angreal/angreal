@@ -549,29 +549,29 @@ def test_install_failure_scenarios():
     """
     # Test 1: Install on broken venv (missing bin directory)
     venv = VirtualEnv(path="test_broken_venv", now=True)
-    
+
     try:
         # Break the venv by removing bin directory
         bin_dir = venv.path / "bin"
         if bin_dir.exists():
             shutil.rmtree(bin_dir)
-        
+
         # Install should fail gracefully
         with pytest.raises(RuntimeError, match="Failed to install"):
             venv.install("six")
-    
+
     finally:
         if Path("test_broken_venv").exists():
             shutil.rmtree("test_broken_venv")
-    
+
     # Test 2: Install on nonexistent venv
     venv2 = VirtualEnv(path="test_nonexistent_venv", now=False)  # Don't create
-    
+
     try:
         # Install should fail gracefully
         with pytest.raises(RuntimeError, match="Failed to install"):
             venv2.install("six")
-    
+
     finally:
         if Path("test_nonexistent_venv").exists():
             shutil.rmtree("test_nonexistent_venv")

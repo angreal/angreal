@@ -76,7 +76,7 @@ def python_tests():
             [python_exe, "-m", "ensurepip"],
             check=True
         )
-        
+
         print("Installing test dependencies (maturin, pytest)...")
         subprocess.run(
             [pip_exe, "install", "maturin", "pytest"],
