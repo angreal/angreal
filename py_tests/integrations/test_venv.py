@@ -551,8 +551,12 @@ def test_install_failure_scenarios():
     venv = VirtualEnv(path="test_broken_venv", now=True)
 
     try:
-        # Break the venv by removing bin directory
-        bin_dir = venv.path / "bin"
+        # Break the venv by removing bin/Scripts directory
+        import os
+        if os.name == 'nt':  # Windows
+            bin_dir = venv.path / "Scripts"
+        else:  # Unix
+            bin_dir = venv.path / "bin"
         if bin_dir.exists():
             shutil.rmtree(bin_dir)
 
