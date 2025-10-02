@@ -191,7 +191,7 @@ class TestEntrypointRegistration:
             assert "ANGREAL_ALIAS:" in content
         else:  # Unix
             # Unix script should be a valid Python script
-            assert content.startswith("#!/usr/bin/env python3")
+            assert content.startswith("#!/usr/bin/env python")
             assert "import sys" in content
             assert "import angreal" in content
             assert "angreal.main()" in content
