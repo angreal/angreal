@@ -7,8 +7,6 @@ on:  # yamllint disable-line rule:truthy
       - main
       - master
       - dev
-      - 'feat/**'  # Feature branches
-      - 'fix/**'   # Bugfix branches
       - 'cicd-*'   # Special trigger for CI/CD testing branches
       - 'cicd/**'  # Alternative pattern for nested cicd branches
   pull_request:
