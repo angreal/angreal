@@ -29,7 +29,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: x86_64
-          args: --release --out dist --sdist -i 3.9 3.10 3.11 3.12 3.13 --manifest-path crates/angreal/Cargo.toml
+          args: --release --out dist --sdist -i 3.10 3.11 3.12 3.13 3.14 --manifest-path crates/angreal/Cargo.toml
       - name: Install built wheel - x86_64
         continue-on-error: true
         run: |
@@ -57,7 +57,7 @@ jobs:
       - name: Build wheels - universal2
         uses: PyO3/maturin-action@v1
         with:
-          args: --release --target universal2-apple-darwin --out dist -i 3.9 3.10 3.11 3.12 3.13 --manifest-path crates/angreal/Cargo.toml
+          args: --release --target universal2-apple-darwin --out dist -i 3.10 3.11 3.12 3.13 3.14 --manifest-path crates/angreal/Cargo.toml
       - name: Install built wheel - universal2
         continue-on-error: true
         run: |
@@ -78,7 +78,7 @@ jobs:
       matrix:
         platform:
           - target: x64
-            interpreter: 3.9 3.10 3.11 3.12 3.13
+            interpreter: 3.10 3.11 3.12 3.13 3.14
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
@@ -132,7 +132,7 @@ jobs:
             else
               apt-get update -y && apt-get install -y libipc-cmd-perl
             fi
-          args: --release --out dist -i 3.9 3.10 3.11 3.12 3.13 --manifest-path crates/angreal/Cargo.toml
+          args: --release --out dist -i 3.10 3.11 3.12 3.13 3.14 --manifest-path crates/angreal/Cargo.toml
       - name: Install built wheel
         continue-on-error: true
         run: |
