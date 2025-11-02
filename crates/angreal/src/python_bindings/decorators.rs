@@ -52,7 +52,7 @@ pub fn required_version(specifier: &str) -> PyResult<()> {
 }
 
 /// Register decorator functions to a Python module
-pub fn register_decorators(_py: Python, m: &PyModule) -> PyResult<()> {
+pub fn register_decorators(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(required_version, m)?)?;
     m.add_function(wrap_pyfunction!(group, m)?)?;
     m.add_function(wrap_pyfunction!(command_group, m)?)?;
@@ -75,8 +75,8 @@ pub struct GroupDecorator {
 #[pymethods]
 impl GroupDecorator {
     #[pyo3(signature = (func = None,))]
-    fn __call__(&self, func: Option<PyObject>) -> PyResult<PyObject> {
-        Python::with_gil(|py| {
+    fn __call__(&self, func: Option<Py<PyAny>>) -> PyResult<Py<PyAny>> {
+        Python::attach(|py| {
             match func {
                 Some(func) => {
                     // Called as a decorator on a function
@@ -102,7 +102,7 @@ impl GroupDecorator {
                 }
                 None => {
                     // Called as @test() - return self as the decorator
-                    Ok(self.clone().into_py(py))
+                    Ok(Py::new(py, self.clone())?.into_any())
                 }
             }
         })
@@ -115,16 +115,16 @@ impl GroupDecorator {
 /// It's equivalent to the Python @group decorator.
 #[pyfunction]
 #[pyo3(signature = (**kwargs))]
-pub fn group(kwargs: Option<&PyDict>) -> PyResult<GroupDecorator> {
+pub fn group(kwargs: Option<&Bound<'_, PyDict>>) -> PyResult<GroupDecorator> {
     // Extract name and about from kwargs
     let name = kwargs
-        .and_then(|d| d.get_item("name"))
+        .and_then(|d| d.get_item("name").ok().flatten())
         .map(|v| v.extract::<String>())
         .transpose()?
         .unwrap_or_else(|| "default".to_string());
 
     let about = kwargs
-        .and_then(|d| d.get_item("about"))
+        .and_then(|d| d.get_item("about").ok().flatten())
         .map(|v| v.extract::<String>())
         .transpose()?;
 
@@ -158,8 +158,8 @@ pub struct CommandDecorator {
 #[pymethods]
 impl CommandDecorator {
     #[pyo3(signature = (func,))]
-    fn __call__(&self, func: PyObject) -> PyResult<PyObject> {
-        Python::with_gil(|py| {
+    fn __call__(&self, func: Py<PyAny>) -> PyResult<Py<PyAny>> {
+        Python::attach(|py| {
             // Get or generate command name
             let name = match &self.name {
                 Some(name) => name.clone(),
@@ -178,12 +178,13 @@ impl CommandDecorator {
             }
 
             // Convert Option<Vec<String>> to Python objects
+            use pyo3::types::PyList;
             let when_to_use_py = match &self.when_to_use {
-                Some(vec) => vec.to_object(py),
+                Some(vec) => PyList::new(py, vec.iter())?.into_any().unbind(),
                 None => py.None(),
             };
             let when_not_to_use_py = match &self.when_not_to_use {
-                Some(vec) => vec.to_object(py),
+                Some(vec) => PyList::new(py, vec.iter())?.into_any().unbind(),
                 None => py.None(),
             };
 
@@ -191,7 +192,7 @@ impl CommandDecorator {
             let command_class = py.get_type::<crate::task::AngrealCommand>();
             let command = command_class.call1((
                 &name,
-                func.clone(),
+                func.clone_ref(py),
                 self.about.as_deref(),
                 self.long_about.as_deref(),
                 py.None(), // group (empty initially)
@@ -205,17 +206,19 @@ impl CommandDecorator {
             // Process any existing arguments stored by @argument decorators
             let arguments = func.getattr(py, "__arguments")?;
             if !arguments.is_none(py) {
-                if let Ok(args_list) = arguments.extract::<Vec<PyObject>>(py) {
+                if let Ok(args_list) = arguments.extract::<Vec<Py<PyAny>>>(py) {
                     for arg_kwargs_obj in args_list {
                         // Each item should be the kwargs dict from the @argument decorator
-                        if let Ok(kwargs_dict) = arg_kwargs_obj.downcast::<pyo3::types::PyDict>(py)
-                        {
+                        let bound_arg = arg_kwargs_obj.bind(py);
+                        if let Ok(kwargs_dict) = bound_arg.downcast::<pyo3::types::PyDict>() {
                             // Create AngrealArg using PyO3's class instantiation
                             let arg_class = py.get_type::<crate::task::AngrealArg>();
 
                             // Extract parameters from kwargs
                             let arg_name = kwargs_dict
                                 .get_item("name")
+                                .ok()
+                                .flatten()
                                 .map(|v| v.extract::<String>())
                                 .transpose()?
                                 .unwrap_or_else(|| "default".to_string());
@@ -312,7 +315,7 @@ impl CommandDecorator {
                             }
 
                             // Create the AngrealArg instance - this will register it in ANGREAL_ARGS
-                            let _arg = arg_class.call((), Some(arg_kwargs))?;
+                            let _arg = arg_class.call((), Some(&arg_kwargs))?;
                         }
                     }
                 }
@@ -329,30 +332,30 @@ impl CommandDecorator {
 /// It's equivalent to the Python @command decorator.
 #[pyfunction]
 #[pyo3(signature = (**kwargs))]
-pub fn command(kwargs: Option<&PyDict>) -> PyResult<CommandDecorator> {
+pub fn command(kwargs: Option<&Bound<'_, PyDict>>) -> PyResult<CommandDecorator> {
     // Extract parameters from kwargs
     let name = kwargs
-        .and_then(|d| d.get_item("name"))
+        .and_then(|d| d.get_item("name").ok().flatten())
         .map(|v| v.extract::<String>())
         .transpose()?;
 
     let about = kwargs
-        .and_then(|d| d.get_item("about"))
+        .and_then(|d| d.get_item("about").ok().flatten())
         .map(|v| v.extract::<String>())
         .transpose()?;
 
     let long_about = kwargs
-        .and_then(|d| d.get_item("long_about"))
+        .and_then(|d| d.get_item("long_about").ok().flatten())
         .map(|v| v.extract::<String>())
         .transpose()?;
 
     let when_to_use = kwargs
-        .and_then(|d| d.get_item("when_to_use"))
+        .and_then(|d| d.get_item("when_to_use").ok().flatten())
         .map(|v| v.extract::<Vec<String>>())
         .transpose()?;
 
     let when_not_to_use = kwargs
-        .and_then(|d| d.get_item("when_not_to_use"))
+        .and_then(|d| d.get_item("when_not_to_use").ok().flatten())
         .map(|v| v.extract::<Vec<String>>())
         .transpose()?;
 
@@ -371,40 +374,51 @@ pub fn command(kwargs: Option<&PyDict>) -> PyResult<CommandDecorator> {
 /// to add command-line arguments. It's equivalent to the Python @argument decorator.
 #[pyfunction]
 #[pyo3(signature = (**kwargs))]
-pub fn argument(kwargs: Option<&PyDict>) -> PyResult<ArgumentDecorator> {
+pub fn argument(kwargs: Option<&Bound<'_, PyDict>>) -> PyResult<ArgumentDecorator> {
     // Extract parameters from kwargs - just store them for now
     let name = kwargs
-        .and_then(|d| d.get_item("name"))
+        .and_then(|d| d.get_item("name").ok().flatten())
         .map(|v| v.extract::<String>())
         .transpose()?
         .unwrap_or_else(|| "default".to_string());
 
     Ok(ArgumentDecorator {
         name,
-        kwargs_dict: kwargs.map(|d| d.to_object(d.py())),
+        kwargs_dict: kwargs.map(|d| d.clone().into_any().unbind()),
     })
 }
 
 /// A Python callable that wraps the argument decorator logic
 #[pyclass]
-#[derive(Clone)]
 pub struct ArgumentDecorator {
     #[allow(dead_code)]
     name: String,
-    kwargs_dict: Option<PyObject>,
+    kwargs_dict: Option<Py<PyAny>>,
+}
+
+impl Clone for ArgumentDecorator {
+    fn clone(&self) -> Self {
+        Self {
+            name: self.name.clone(),
+            kwargs_dict: self
+                .kwargs_dict
+                .as_ref()
+                .map(|py_obj| Python::attach(|py| py_obj.clone_ref(py))),
+        }
+    }
 }
 
 #[pymethods]
 impl ArgumentDecorator {
     #[pyo3(signature = (func,))]
-    fn __call__(&self, func: PyObject) -> PyResult<PyObject> {
-        Python::with_gil(|py| {
+    fn __call__(&self, func: Py<PyAny>) -> PyResult<Py<PyAny>> {
+        Python::attach(|py| {
             // Initialize __arguments list if not present
             let mut arguments = if let Ok(args) = func.getattr(py, "__arguments") {
                 if args.is_none(py) {
                     Vec::new()
                 } else {
-                    args.extract::<Vec<PyObject>>(py)
+                    args.extract::<Vec<Py<PyAny>>>(py)
                         .unwrap_or_else(|_| Vec::new())
                 }
             } else {
@@ -413,11 +427,12 @@ impl ArgumentDecorator {
 
             // Just store the kwargs for later processing by the command decorator
             if let Some(kwargs_obj) = &self.kwargs_dict {
-                arguments.push(kwargs_obj.clone());
+                arguments.push(kwargs_obj.clone_ref(py));
             }
 
             // Set the updated __arguments list
-            func.setattr(py, "__arguments", arguments.to_object(py))?;
+            use pyo3::types::PyList;
+            func.setattr(py, "__arguments", PyList::new(py, &arguments)?)?;
 
             Ok(func)
         })

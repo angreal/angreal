@@ -29,14 +29,14 @@ pub mod venv;
 /// }
 /// ```
 pub fn initialize() -> PyResult<()> {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let sys = py.import("sys")?;
-        let modules: &PyDict = sys.getattr("modules")?.downcast()?;
+        let modules_attr = sys.getattr("modules")?;
+        let modules = modules_attr.downcast::<PyDict>()?;
 
         // Create and register the main angreal module
         let angreal_module = create_angreal_module(py)?;
-        modules.set_item("angreal", angreal_module)?;
+        modules.set_item("angreal", &angreal_module)?;
 
         Ok(())
     })
@@ -46,7 +46,7 @@ pub fn initialize() -> PyResult<()> {
 ///
 /// This assembles all the submodules and functions into the main angreal module
 /// that Python will import.
-pub(crate) fn create_angreal_module(py: Python) -> PyResult<&PyModule> {
+pub(crate) fn create_angreal_module(py: Python) -> PyResult<Bound<'_, PyModule>> {
     let m = PyModule::new(py, "angreal")?;
 
     // Add version info
@@ -59,7 +59,7 @@ pub(crate) fn create_angreal_module(py: Python) -> PyResult<&PyModule> {
     // ... etc
 
     // Register decorator functions
-    decorators::register_decorators(py, m)?;
+    decorators::register_decorators(py, &m)?;
 
     // Register submodules
     m.add_wrapped(wrap_pymodule!(integrations::integrations))?;

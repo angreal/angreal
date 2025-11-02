@@ -328,7 +328,7 @@ pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>> {
 }
 
 /// Registers the Command and Arg structs to the python api in the `angreal` module
-pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+pub fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_root, m)?)?;
     m.add_function(wrap_pyfunction!(render_template, m)?)?;
     m.add_function(wrap_pyfunction!(generate_context, m)?)?;
@@ -342,7 +342,7 @@ pub fn render_directory(
     src: &str,
     dst: &str,
     force: bool,
-    context: Option<&PyDict>,
+    context: Option<&Bound<'_, PyDict>>,
 ) -> PyResult<Py<PyAny>> {
     let mut ctx = Context::new();
     let src = Path::new(src);
@@ -350,7 +350,7 @@ pub fn render_directory(
 
     if let Some(context) = context {
         for key in context.keys() {
-            if let Some(value) = context.get_item(key) {
+            if let Ok(Some(value)) = context.get_item(&key) {
                 let v = value.to_string();
                 let k = key.to_string();
                 ctx.insert(&k, &v);
@@ -371,7 +371,7 @@ pub fn render_directory(
 /// import angreal
 /// angreal_root = angreal.generate_context('path/to/angreal.toml',take_input=False)
 /// ```
-fn generate_context(path: &str, take_input: bool) -> PyResult<PyObject> {
+fn generate_context(path: &str, take_input: bool) -> PyResult<Py<PyAny>> {
     let toml_path = Path::new(path).to_path_buf();
     let ctx = repl_context_from_toml(toml_path, take_input);
     let map = context_to_map(ctx);
@@ -397,7 +397,7 @@ fn get_root() -> PyResult<String> {
 }
 
 #[pyfunction]
-fn render_template(template: &str, context: &PyDict) -> PyResult<String> {
+fn render_template(template: &str, context: &Bound<'_, PyDict>) -> PyResult<String> {
     let mut tera = Tera::default();
     let mut ctx = tera::Context::new();
     tera.add_raw_template("template", template).unwrap();
@@ -417,7 +417,7 @@ fn render_template(template: &str, context: &PyDict) -> PyResult<String> {
 /// config = angreal.get_context()
 /// ```
 #[pyfunction]
-fn get_context() -> PyResult<PyObject> {
+fn get_context() -> PyResult<Py<PyAny>> {
     let angreal_root = match is_angreal_project() {
         Ok(root) => root,
         Err(_) => {
@@ -506,13 +506,19 @@ pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
     let dir = dir.to_str();
     let contents = fs::read_to_string(file.clone()).unwrap();
 
-    let r_value = Python::with_gil(|py| -> PyResult<()> {
+    let r_value = Python::attach(|py| -> PyResult<()> {
         // Allow the file to search for modules it might be importing
-        let syspath: &PyList = py.import("sys")?.getattr("path")?.downcast::<PyList>()?;
+        let sys = py.import("sys")?;
+        let path_attr = sys.getattr("path")?;
+        let syspath = path_attr.downcast::<PyList>()?;
         syspath.insert(0, dir)?;
 
         // Import the file.
-        let result = PyModule::from_code(py, &contents, "", "");
+        use std::ffi::CString;
+        let contents_cstr = CString::new(contents.as_str()).map_err(|e| {
+            PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Invalid C string: {}", e))
+        })?;
+        let result = PyModule::from_code(py, contents_cstr.as_c_str(), c"", c"");
 
         match result {
             Ok(_result) => {
@@ -1079,36 +1085,43 @@ array = [1, 2, 3]
         let config = get_context().unwrap();
 
         // Test the Python bindings
-        Python::with_gil(|py| {
-            let dict = config.downcast::<PyDict>(py).unwrap();
+        Python::attach(|py| {
+            let dict = config.downcast_bound::<PyDict>(py).unwrap();
 
             // Verify the contents
             assert_eq!(
-                dict.get_item("key_1").unwrap().extract::<String>().unwrap(),
+                dict.get_item("key_1")
+                    .unwrap()
+                    .unwrap()
+                    .extract::<String>()
+                    .unwrap(),
                 "value_1"
             );
             assert_eq!(
-                dict.get_item("key_2").unwrap().extract::<i64>().unwrap(),
+                dict.get_item("key_2")
+                    .unwrap()
+                    .unwrap()
+                    .extract::<i64>()
+                    .unwrap(),
                 42
             );
 
             // Test nested dictionary
-            let nested = dict
-                .get_item("nested")
-                .unwrap()
-                .downcast::<PyDict>()
-                .unwrap();
+            let nested_item = dict.get_item("nested").unwrap().unwrap();
+            let nested = nested_item.downcast::<PyDict>().unwrap();
             assert_eq!(
-                nested.get_item("key").unwrap().extract::<String>().unwrap(),
+                nested
+                    .get_item("key")
+                    .unwrap()
+                    .unwrap()
+                    .extract::<String>()
+                    .unwrap(),
                 "value"
             );
 
             // Test array
-            let array = dict
-                .get_item("array")
-                .unwrap()
-                .extract::<Vec<i64>>()
-                .unwrap();
+            let array_item = dict.get_item("array").unwrap().unwrap();
+            let array = array_item.extract::<Vec<i64>>().unwrap();
             assert_eq!(array, vec![1, 2, 3]);
         });
 
@@ -1137,35 +1150,37 @@ key_2 = 42
         write!(toml_file, "{}", toml_content).unwrap();
 
         // Test the Python bindings
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Create a new module
             let module = PyModule::new(py, "test_module").unwrap();
 
             // Add our function to the module
             module
-                .add_function(wrap_pyfunction!(get_context, module).unwrap())
+                .add_function(wrap_pyfunction!(get_context, &module).unwrap())
                 .unwrap();
 
             // Call the function through Python
-            let result: &PyDict = module
-                .getattr("get_context")
-                .unwrap()
-                .call0()
-                .unwrap()
-                .downcast()
-                .unwrap();
+            let attr = module.getattr("get_context").unwrap();
+            let call_result = attr.call0().unwrap();
+            let result = call_result.downcast::<PyDict>().unwrap();
 
             // Verify the contents
             assert_eq!(
                 result
                     .get_item("key_1")
                     .unwrap()
+                    .unwrap()
                     .extract::<String>()
                     .unwrap(),
                 "value_1"
             );
             assert_eq!(
-                result.get_item("key_2").unwrap().extract::<i64>().unwrap(),
+                result
+                    .get_item("key_2")
+                    .unwrap()
+                    .unwrap()
+                    .extract::<i64>()
+                    .unwrap(),
                 42
             );
         });

@@ -1,3 +1,4 @@
+use pyo3::types::PyTypeMethods;
 use pyo3::{PyErr, Python};
 use std::fmt;
 
@@ -15,9 +16,13 @@ impl PythonErrorFormatter {
     pub fn format(&self) -> String {
         let mut output = String::new();
 
-        let error_message = Python::with_gil(|py| {
+        let error_message = Python::attach(|py| {
             // Get the exception type and value
-            let type_name = self.error.get_type(py).name().unwrap_or("Unknown");
+            let type_obj = self.error.get_type(py);
+            let type_name = type_obj
+                .name()
+                .map(|n| n.to_string())
+                .unwrap_or_else(|_| "Unknown".to_string());
 
             // Extract the error message
             let value = self.error.value(py).to_string();
@@ -29,7 +34,7 @@ impl PythonErrorFormatter {
         output.push('\n');
 
         // Format traceback in a simplified way
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Some(traceback) = self.error.traceback(py) {
                 output.push_str("\nTraceback:\n");
 
@@ -58,9 +63,10 @@ mod tests {
 
     #[test]
     fn test_error_formatter() {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Create a Python error
-            let result: PyResult<()> = py.run("raise ValueError('Test error message')", None, None);
+            let result: PyResult<()> =
+                py.run(c"raise ValueError('Test error message')", None, None);
             let error = result.unwrap_err();
 
             // Format the error

@@ -7,8 +7,6 @@ on:  # yamllint disable-line rule:truthy
       - main
       - master
       - dev
-      - 'feat/**'  # Feature branches
-      - 'fix/**'   # Bugfix branches
       - 'cicd-*'   # Special trigger for CI/CD testing branches
       - 'cicd/**'  # Alternative pattern for nested cicd branches
   pull_request:
@@ -80,9 +78,13 @@ jobs:
       - run: cargo build --workspace
 
   linux-tests:
-    name: "Linux Tests"
+    name: "Linux Tests (Python ${{ matrix.python-version }})"
     runs-on: ubuntu-latest
     needs: [pre-commit, build-verification]
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -95,7 +97,7 @@ jobs:
           known_hosts: ${{ secrets.GH_KNOWN_HOSTS }}
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
       - name: Install UV manually
         run: curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH="$HOME/.local/bin:$PATH"
       - run: pip install maturin pytest
@@ -119,9 +121,13 @@ jobs:
 
 
   windows-tests:
-    name: "Windows Tests"
+    name: "Windows Tests (Python ${{ matrix.python-version }})"
     runs-on: windows-latest
     needs: [pre-commit, build-verification]
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -134,7 +140,7 @@ jobs:
           known_hosts: ${{ secrets.GH_KNOWN_HOSTS }}
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
       - name: Install UV manually
         run: |
           irm https://astral.sh/uv/install.ps1 | iex
@@ -160,9 +166,13 @@ jobs:
 
 
   macos-tests:
-    name: "OSX Tests"
+    name: "OSX Tests (Python ${{ matrix.python-version }})"
     runs-on: macos-13
     needs: [pre-commit, build-verification]
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -175,7 +185,7 @@ jobs:
           known_hosts: ${{ secrets.GH_KNOWN_HOSTS }}
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
       - name: Install UV manually
         run: curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH="$HOME/.local/bin:$PATH"
       - run: pip install maturin pytest

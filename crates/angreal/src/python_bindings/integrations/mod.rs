@@ -12,16 +12,16 @@ pub mod venv;
 ///
 /// This will be exposed as angreal.integrations in Python
 #[pymodule]
-pub fn integrations(py: Python, m: &PyModule) -> PyResult<()> {
+pub fn integrations(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(docker::docker_integration))?;
 
     // Create and register the git submodule
     let git_module = wrap_pymodule!(git::git_integration)(py);
-    m.add_submodule(git_module.as_ref(py))?;
+    m.add_submodule(git_module.bind(py))?;
 
     // Create and register the venv submodule
     let venv_module = wrap_pymodule!(venv::venv)(py);
-    m.add_submodule(venv_module.as_ref(py))?;
+    m.add_submodule(venv_module.bind(py))?;
 
     // Also register all modules in sys.modules for proper import support
     let sys = py.import("sys")?;

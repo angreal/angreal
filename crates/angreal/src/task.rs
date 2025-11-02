@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 /// Registers the Command and Arg structs to the python api in the `angreal` module
-pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+pub fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     debug!("Registering Angreal types to Python module");
     m.add_class::<AngrealCommand>()?;
     m.add_class::<AngrealArg>()?;
@@ -88,6 +88,7 @@ pub struct AngrealGroup {
 #[pymethods]
 impl AngrealGroup {
     #[new]
+    #[pyo3(signature = (name, about=None))]
     fn __new__(name: &str, about: Option<&str>) -> Self {
         let group = AngrealGroup {
             name: name.to_string(),
@@ -111,7 +112,7 @@ impl AngrealGroup {
 }
 
 /// A command describes a subcommand to be registered with the CLI
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 #[pyclass(name = "Command")]
 pub struct AngrealCommand {
     /// The name of the sub command
@@ -135,6 +136,20 @@ pub struct AngrealCommand {
     /// Scenarios when this command should not be used
     #[pyo3(get)]
     pub when_not_to_use: Option<Vec<String>>,
+}
+
+impl Clone for AngrealCommand {
+    fn clone(&self) -> Self {
+        Python::attach(|py| Self {
+            name: self.name.clone(),
+            about: self.about.clone(),
+            long_about: self.long_about.clone(),
+            func: self.func.clone_ref(py),
+            group: self.group.clone(),
+            when_to_use: self.when_to_use.clone(),
+            when_not_to_use: self.when_not_to_use.clone(),
+        })
+    }
 }
 
 /// Methods exposed to the python API
@@ -164,6 +179,7 @@ impl AngrealCommand {
     /// long_about='a much longer message`, func=test-message)
     /// ```
     #[new]
+    #[pyo3(signature = (name, func, about=None, long_about=None, group=None, when_to_use=None, when_not_to_use=None))]
     fn __new__(
         name: &str,
         func: Py<PyAny>,
@@ -340,6 +356,7 @@ impl AngrealArg {
     /// ```
     #[new]
     #[allow(clippy::too_many_arguments)]
+    #[pyo3(signature = (name, command_name, default_value=None, is_flag=None, require_equals=None, multiple_values=None, number_of_values=None, max_values=None, min_values=None, short=None, long=None, long_help=None, help=None, required=None, takes_value=None, python_type=None))]
     fn __new__(
         name: &str,
         command_name: &str,
@@ -412,7 +429,7 @@ mod tests {
 
     #[test]
     fn test_hierarchical_command_registration() {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Save and restore global state for test isolation
             let original_tasks = ANGREAL_TASKS.lock().unwrap().clone();
             let original_args = ANGREAL_ARGS.lock().unwrap().clone();
@@ -500,7 +517,7 @@ mod tests {
 
     #[test]
     fn test_argument_collision_resolution() {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Save and restore global state for test isolation
             let original_tasks = ANGREAL_TASKS.lock().unwrap().clone();
             let original_args = ANGREAL_ARGS.lock().unwrap().clone();

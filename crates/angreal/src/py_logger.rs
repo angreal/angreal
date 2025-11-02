@@ -4,7 +4,7 @@ use pyo3::prelude::*;
 
 /// registers the rust logging interface with the python logging interface.
 pub fn register() {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         // Extend the `logging` module to interact with log
         setup_logging(py)
     })
@@ -12,7 +12,7 @@ pub fn register() {
 }
 /// Consume a Python `logging.LogRecord` and emit a Rust `Log` instead.
 #[pyfunction]
-fn host_log(record: &PyAny) -> PyResult<()> {
+fn host_log(record: &Bound<'_, PyAny>) -> PyResult<()> {
     let level = record.getattr("levelno")?;
     let message = record.getattr("getMessage")?.call0()?.to_string();
     let pathname = record.getattr("pathname")?.to_string();
@@ -76,10 +76,10 @@ fn host_log(record: &PyAny) -> PyResult<()> {
 pub fn setup_logging(py: Python) -> PyResult<()> {
     let logging = py.import("logging")?;
 
-    logging.setattr("host_log", wrap_pyfunction!(host_log, logging)?)?;
+    logging.setattr("host_log", wrap_pyfunction!(host_log, &logging)?)?;
 
     py.run(
-        r#"
+        c"
 class HostHandler(Handler):
 	def __init__(self, level=0):
 		super().__init__(level=level)
@@ -89,12 +89,11 @@ class HostHandler(Handler):
 
 oldBasicConfig = basicConfig
 def basicConfig(*pargs, **kwargs):
-	if "handlers" not in kwargs:
-		kwargs["handlers"] = [HostHandler()]
+	if 'handlers' not in kwargs:
+		kwargs['handlers'] = [HostHandler()]
 	return oldBasicConfig(*pargs, **kwargs)
-
-"#,
-        Some(logging.dict()),
+",
+        Some(&logging.dict()),
         None,
     )?;
 
