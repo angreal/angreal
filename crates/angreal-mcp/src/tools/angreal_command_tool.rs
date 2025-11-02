@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::types::IntoPyDict;
+use pyo3::IntoPyObjectExt;
 use rust_mcp_sdk::{
     macros::{mcp_tool, JsonSchema},
     schema::{schema_utils::CallToolError, CallToolResult, TextContent},
@@ -70,7 +71,7 @@ impl AngrealCommandTool {
             .unwrap_or_default();
 
         // Execute the command with Python, capturing stdout/stderr
-        let result = Python::with_gil(|py| -> PyResult<(String, String, String)> {
+        let result = Python::attach(|py| -> PyResult<(String, String, String)> {
             debug!("Starting Python execution for command: {}", command.name);
 
             // Import necessary modules for capturing output
@@ -89,7 +90,7 @@ impl AngrealCommandTool {
             sys.setattr("stdout", &stdout_capture)?;
             sys.setattr("stderr", &stderr_capture)?;
 
-            let mut kwargs: Vec<(&str, PyObject)> = Vec::new();
+            let mut kwargs: Vec<(&str, Py<PyAny>)> = Vec::new();
 
             // Process provided arguments
             if let Some(provided_args) = &self.args {
@@ -102,39 +103,39 @@ impl AngrealCommandTool {
                         let py_value = match python_type {
                             "str" => {
                                 if let Some(s) = value.as_str() {
-                                    s.to_object(py)
+                                    s.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
                                 } else {
-                                    value.to_string().to_object(py)
+                                    value.to_string().into_bound_py_any(py).expect("Failed to convert to Python").unbind()
                                 }
                             }
                             "int" => {
                                 if let Some(i) = value.as_i64() {
-                                    i.to_object(py)
+                                    i.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
                                 } else if let Some(s) = value.as_str() {
-                                    s.parse::<i64>().unwrap_or(0).to_object(py)
+                                    s.parse::<i64>().unwrap_or(0).into_bound_py_any(py).expect("Failed to convert to Python").unbind()
                                 } else {
-                                    0.to_object(py)
+                                    0.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
                                 }
                             }
                             "float" => {
                                 if let Some(f) = value.as_f64() {
-                                    f.to_object(py)
+                                    f.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
                                 } else if let Some(s) = value.as_str() {
-                                    s.parse::<f64>().unwrap_or(0.0).to_object(py)
+                                    s.parse::<f64>().unwrap_or(0.0).into_bound_py_any(py).expect("Failed to convert to Python").unbind()
                                 } else {
-                                    0.0.to_object(py)
+                                    0.0.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
                                 }
                             }
                             "bool" => {
                                 if let Some(b) = value.as_bool() {
-                                    b.to_object(py)
+                                    b.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
                                 } else if let Some(s) = value.as_str() {
-                                    s.parse::<bool>().unwrap_or(false).to_object(py)
+                                    s.parse::<bool>().unwrap_or(false).into_bound_py_any(py).expect("Failed to convert to Python").unbind()
                                 } else {
-                                    false.to_object(py)
+                                    false.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
                                 }
                             }
-                            _ => value.to_string().to_object(py),
+                            _ => value.to_string().into_bound_py_any(py).expect("Failed to convert to Python").unbind(),
                         };
 
                         kwargs.push((Box::leak(Box::new(arg_name.clone())).as_str(), py_value));
@@ -142,7 +143,7 @@ impl AngrealCommandTool {
                         // Default false for missing flags
                         kwargs.push((
                             Box::leak(Box::new(arg_name.clone())).as_str(),
-                            false.to_object(py),
+                            false.into_bound_py_any(py).expect("Failed to convert to Python").unbind(),
                         ));
                     }
                 }
@@ -151,7 +152,8 @@ impl AngrealCommandTool {
             debug!("Calling Python function with {} arguments", kwargs.len());
 
             // Call the command function
-            let result = command.func.call(py, (), Some(kwargs.into_py_dict(py)));
+            let kwargs_dict = kwargs.into_py_dict(py)?;
+            let result = command.func.call(py, (), Some(&kwargs_dict));
 
             // Restore original stdout/stderr
             sys.setattr("stdout", original_stdout)?;
