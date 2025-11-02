@@ -239,7 +239,12 @@ impl VirtualEnv {
         Ok(slf)
     }
 
-    fn __exit__(&mut self, _exc_type: &Bound<'_, PyAny>, _exc_val: &Bound<'_, PyAny>, _exc_tb: &Bound<'_, PyAny>) -> PyResult<()> {
+    fn __exit__(
+        &mut self,
+        _exc_type: &Bound<'_, PyAny>,
+        _exc_val: &Bound<'_, PyAny>,
+        _exc_tb: &Bound<'_, PyAny>,
+    ) -> PyResult<()> {
         self.deactivate()?;
         Ok(())
     }
@@ -513,12 +518,10 @@ struct VenvRequiredWrapper {
 
 impl Clone for VenvRequiredWrapper {
     fn clone(&self) -> Self {
-        Python::attach(|py| {
-            Self {
-                original_func: self.original_func.clone_ref(py),
-                path: self.path.clone(),
-                requirements: self.requirements.as_ref().map(|r| r.clone_ref(py)),
-            }
+        Python::attach(|py| Self {
+            original_func: self.original_func.clone_ref(py),
+            path: self.path.clone(),
+            requirements: self.requirements.as_ref().map(|r| r.clone_ref(py)),
         })
     }
 }

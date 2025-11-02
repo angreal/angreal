@@ -103,39 +103,74 @@ impl AngrealCommandTool {
                         let py_value = match python_type {
                             "str" => {
                                 if let Some(s) = value.as_str() {
-                                    s.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
+                                    s.into_bound_py_any(py)
+                                        .expect("Failed to convert to Python")
+                                        .unbind()
                                 } else {
-                                    value.to_string().into_bound_py_any(py).expect("Failed to convert to Python").unbind()
+                                    value
+                                        .to_string()
+                                        .into_bound_py_any(py)
+                                        .expect("Failed to convert to Python")
+                                        .unbind()
                                 }
                             }
                             "int" => {
                                 if let Some(i) = value.as_i64() {
-                                    i.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
+                                    i.into_bound_py_any(py)
+                                        .expect("Failed to convert to Python")
+                                        .unbind()
                                 } else if let Some(s) = value.as_str() {
-                                    s.parse::<i64>().unwrap_or(0).into_bound_py_any(py).expect("Failed to convert to Python").unbind()
+                                    s.parse::<i64>()
+                                        .unwrap_or(0)
+                                        .into_bound_py_any(py)
+                                        .expect("Failed to convert to Python")
+                                        .unbind()
                                 } else {
-                                    0.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
+                                    0.into_bound_py_any(py)
+                                        .expect("Failed to convert to Python")
+                                        .unbind()
                                 }
                             }
                             "float" => {
                                 if let Some(f) = value.as_f64() {
-                                    f.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
+                                    f.into_bound_py_any(py)
+                                        .expect("Failed to convert to Python")
+                                        .unbind()
                                 } else if let Some(s) = value.as_str() {
-                                    s.parse::<f64>().unwrap_or(0.0).into_bound_py_any(py).expect("Failed to convert to Python").unbind()
+                                    s.parse::<f64>()
+                                        .unwrap_or(0.0)
+                                        .into_bound_py_any(py)
+                                        .expect("Failed to convert to Python")
+                                        .unbind()
                                 } else {
-                                    0.0.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
+                                    0.0.into_bound_py_any(py)
+                                        .expect("Failed to convert to Python")
+                                        .unbind()
                                 }
                             }
                             "bool" => {
                                 if let Some(b) = value.as_bool() {
-                                    b.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
+                                    b.into_bound_py_any(py)
+                                        .expect("Failed to convert to Python")
+                                        .unbind()
                                 } else if let Some(s) = value.as_str() {
-                                    s.parse::<bool>().unwrap_or(false).into_bound_py_any(py).expect("Failed to convert to Python").unbind()
+                                    s.parse::<bool>()
+                                        .unwrap_or(false)
+                                        .into_bound_py_any(py)
+                                        .expect("Failed to convert to Python")
+                                        .unbind()
                                 } else {
-                                    false.into_bound_py_any(py).expect("Failed to convert to Python").unbind()
+                                    false
+                                        .into_bound_py_any(py)
+                                        .expect("Failed to convert to Python")
+                                        .unbind()
                                 }
                             }
-                            _ => value.to_string().into_bound_py_any(py).expect("Failed to convert to Python").unbind(),
+                            _ => value
+                                .to_string()
+                                .into_bound_py_any(py)
+                                .expect("Failed to convert to Python")
+                                .unbind(),
                         };
 
                         kwargs.push((Box::leak(Box::new(arg_name.clone())).as_str(), py_value));
@@ -143,7 +178,10 @@ impl AngrealCommandTool {
                         // Default false for missing flags
                         kwargs.push((
                             Box::leak(Box::new(arg_name.clone())).as_str(),
-                            false.into_bound_py_any(py).expect("Failed to convert to Python").unbind(),
+                            false
+                                .into_bound_py_any(py)
+                                .expect("Failed to convert to Python")
+                                .unbind(),
                         ));
                     }
                 }

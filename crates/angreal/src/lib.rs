@@ -142,7 +142,8 @@ impl PyGit {
                 };
                 options_owned.insert(key_str, value_str);
             }
-            let options: HashMap<&str, &str> = options_owned.iter()
+            let options: HashMap<&str, &str> = options_owned
+                .iter()
                 .map(|(k, v)| (k.as_str(), v.as_str()))
                 .collect();
             self.inner.execute_with_options(command, options, &arg_refs)
@@ -715,22 +716,54 @@ fn main() -> PyResult<()> {
 
                     if arg.is_flag.unwrap() {
                         let v = arg_matches.get_flag(&n.clone());
-                        kwargs.push((n.as_str(), v.into_bound_py_any(py).expect("Failed to convert to Python object").unbind()));
+                        kwargs.push((
+                            n.as_str(),
+                            v.into_bound_py_any(py)
+                                .expect("Failed to convert to Python object")
+                                .unbind(),
+                        ));
                     } else {
                         let v = arg_matches.value_of(n.clone());
                         match v {
                             None => {
                                 // We need to handle "boolean flags" that are present w/o a value
                                 // should probably test that the name is a "boolean type also"
-                                kwargs.push((n.as_str(), v.into_bound_py_any(py).expect("Failed to convert to Python object").unbind()));
+                                kwargs.push((
+                                    n.as_str(),
+                                    v.into_bound_py_any(py)
+                                        .expect("Failed to convert to Python object")
+                                        .unbind(),
+                                ));
                             }
                             Some(v) => match arg.python_type.unwrap().as_str() {
-                                "str" => kwargs.push((n.as_str(), v.into_bound_py_any(py).expect("Failed to convert to Python object").unbind())),
-                                "int" => kwargs
-                                    .push((n.as_str(), v.parse::<i32>().unwrap().into_bound_py_any(py).expect("Failed to convert to Python object").unbind())),
-                                "float" => kwargs
-                                    .push((n.as_str(), v.parse::<f32>().unwrap().into_bound_py_any(py).expect("Failed to convert to Python object").unbind())),
-                                _ => kwargs.push((n.as_str(), v.into_bound_py_any(py).expect("Failed to convert to Python object").unbind())),
+                                "str" => kwargs.push((
+                                    n.as_str(),
+                                    v.into_bound_py_any(py)
+                                        .expect("Failed to convert to Python object")
+                                        .unbind(),
+                                )),
+                                "int" => kwargs.push((
+                                    n.as_str(),
+                                    v.parse::<i32>()
+                                        .unwrap()
+                                        .into_bound_py_any(py)
+                                        .expect("Failed to convert to Python object")
+                                        .unbind(),
+                                )),
+                                "float" => kwargs.push((
+                                    n.as_str(),
+                                    v.parse::<f32>()
+                                        .unwrap()
+                                        .into_bound_py_any(py)
+                                        .expect("Failed to convert to Python object")
+                                        .unbind(),
+                                )),
+                                _ => kwargs.push((
+                                    n.as_str(),
+                                    v.into_bound_py_any(py)
+                                        .expect("Failed to convert to Python object")
+                                        .unbind(),
+                                )),
                             },
                         }
                     }

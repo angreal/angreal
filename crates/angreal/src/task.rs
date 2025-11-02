@@ -140,16 +140,14 @@ pub struct AngrealCommand {
 
 impl Clone for AngrealCommand {
     fn clone(&self) -> Self {
-        Python::attach(|py| {
-            Self {
-                name: self.name.clone(),
-                about: self.about.clone(),
-                long_about: self.long_about.clone(),
-                func: self.func.clone_ref(py),
-                group: self.group.clone(),
-                when_to_use: self.when_to_use.clone(),
-                when_not_to_use: self.when_not_to_use.clone(),
-            }
+        Python::attach(|py| Self {
+            name: self.name.clone(),
+            about: self.about.clone(),
+            long_about: self.long_about.clone(),
+            func: self.func.clone_ref(py),
+            group: self.group.clone(),
+            when_to_use: self.when_to_use.clone(),
+            when_not_to_use: self.when_not_to_use.clone(),
         })
     }
 }

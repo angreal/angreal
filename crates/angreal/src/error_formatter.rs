@@ -1,5 +1,5 @@
-use pyo3::{PyErr, Python};
 use pyo3::types::PyTypeMethods;
+use pyo3::{PyErr, Python};
 use std::fmt;
 
 /// Formats Python exception information in a more readable way
@@ -19,7 +19,8 @@ impl PythonErrorFormatter {
         let error_message = Python::attach(|py| {
             // Get the exception type and value
             let type_obj = self.error.get_type(py);
-            let type_name = type_obj.name()
+            let type_name = type_obj
+                .name()
                 .map(|n| n.to_string())
                 .unwrap_or_else(|_| "Unknown".to_string());
 
@@ -64,7 +65,8 @@ mod tests {
     fn test_error_formatter() {
         Python::attach(|py| {
             // Create a Python error
-            let result: PyResult<()> = py.run(c"raise ValueError('Test error message')", None, None);
+            let result: PyResult<()> =
+                py.run(c"raise ValueError('Test error message')", None, None);
             let error = result.unwrap_err();
 
             // Format the error

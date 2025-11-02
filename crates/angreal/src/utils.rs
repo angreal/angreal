@@ -1090,11 +1090,19 @@ array = [1, 2, 3]
 
             // Verify the contents
             assert_eq!(
-                dict.get_item("key_1").unwrap().unwrap().extract::<String>().unwrap(),
+                dict.get_item("key_1")
+                    .unwrap()
+                    .unwrap()
+                    .extract::<String>()
+                    .unwrap(),
                 "value_1"
             );
             assert_eq!(
-                dict.get_item("key_2").unwrap().unwrap().extract::<i64>().unwrap(),
+                dict.get_item("key_2")
+                    .unwrap()
+                    .unwrap()
+                    .extract::<i64>()
+                    .unwrap(),
                 42
             );
 
@@ -1102,7 +1110,12 @@ array = [1, 2, 3]
             let nested_item = dict.get_item("nested").unwrap().unwrap();
             let nested = nested_item.downcast::<PyDict>().unwrap();
             assert_eq!(
-                nested.get_item("key").unwrap().unwrap().extract::<String>().unwrap(),
+                nested
+                    .get_item("key")
+                    .unwrap()
+                    .unwrap()
+                    .extract::<String>()
+                    .unwrap(),
                 "value"
             );
 
@@ -1162,7 +1175,12 @@ key_2 = 42
                 "value_1"
             );
             assert_eq!(
-                result.get_item("key_2").unwrap().unwrap().extract::<i64>().unwrap(),
+                result
+                    .get_item("key_2")
+                    .unwrap()
+                    .unwrap()
+                    .extract::<i64>()
+                    .unwrap(),
                 42
             );
         });

@@ -210,14 +210,15 @@ impl CommandDecorator {
                     for arg_kwargs_obj in args_list {
                         // Each item should be the kwargs dict from the @argument decorator
                         let bound_arg = arg_kwargs_obj.bind(py);
-                        if let Ok(kwargs_dict) = bound_arg.downcast::<pyo3::types::PyDict>()
-                        {
+                        if let Ok(kwargs_dict) = bound_arg.downcast::<pyo3::types::PyDict>() {
                             // Create AngrealArg using PyO3's class instantiation
                             let arg_class = py.get_type::<crate::task::AngrealArg>();
 
                             // Extract parameters from kwargs
                             let arg_name = kwargs_dict
-                                .get_item("name").ok().flatten()
+                                .get_item("name")
+                                .ok()
+                                .flatten()
                                 .map(|v| v.extract::<String>())
                                 .transpose()?
                                 .unwrap_or_else(|| "default".to_string());
@@ -399,9 +400,10 @@ impl Clone for ArgumentDecorator {
     fn clone(&self) -> Self {
         Self {
             name: self.name.clone(),
-            kwargs_dict: self.kwargs_dict.as_ref().map(|py_obj| {
-                Python::attach(|py| py_obj.clone_ref(py))
-            }),
+            kwargs_dict: self
+                .kwargs_dict
+                .as_ref()
+                .map(|py_obj| Python::attach(|py| py_obj.clone_ref(py))),
         }
     }
 }

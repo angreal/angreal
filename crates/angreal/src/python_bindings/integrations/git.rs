@@ -42,7 +42,11 @@ impl PyGit {
         Ok(Self { inner: git })
     }
 
-    fn execute(&self, subcommand: &str, args: Vec<String>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
+    fn execute(
+        &self,
+        subcommand: &str,
+        args: Vec<String>,
+    ) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::attach(|py| {
             let arg_refs: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
             let output = self
@@ -75,7 +79,10 @@ impl PyGit {
     }
 
     #[pyo3(signature = (*paths))]
-    fn add(&self, paths: &Bound<'_, pyo3::types::PyTuple>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
+    fn add(
+        &self,
+        paths: &Bound<'_, pyo3::types::PyTuple>,
+    ) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::attach(|py| {
             let path_strs: Vec<String> = paths
                 .iter()
@@ -213,7 +220,11 @@ impl PyGit {
     }
 
     #[pyo3(signature = (branch, create=None))]
-    fn checkout(&self, branch: &str, create: Option<bool>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
+    fn checkout(
+        &self,
+        branch: &str,
+        create: Option<bool>,
+    ) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::attach(|py| {
             let args = if create.unwrap_or(false) {
                 vec!["-b", branch]
@@ -280,7 +291,8 @@ impl PyGit {
                     options_owned.insert(key_str, value_str);
                 }
                 // Convert to HashMap<&str, &str> for execute_with_options
-                let options: HashMap<&str, &str> = options_owned.iter()
+                let options: HashMap<&str, &str> = options_owned
+                    .iter()
                     .map(|(k, v)| (k.as_str(), v.as_str()))
                     .collect();
                 self.inner.execute_with_options(command, options, &arg_refs)
