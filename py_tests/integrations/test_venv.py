@@ -579,3 +579,201 @@ def test_install_failure_scenarios():
     finally:
         if Path("test_nonexistent_venv").exists():
             shutil.rmtree("test_nonexistent_venv")
+
+
+@pytest.mark.xfail(sys.platform == 'win32',
+                   reason="Virtual environment activation fails on Windows")
+def test_environment_variables_set():
+    """
+    Test that activation sets PATH and VIRTUAL_ENV environment variables
+    """
+    original_path = os.environ.get("PATH", "")
+    original_virtual_env = os.environ.get("VIRTUAL_ENV")
+
+    venv_path = "test_env_vars_venv"
+    venv = VirtualEnv(path=venv_path, now=True)
+
+    try:
+        # Activate the venv
+        venv.activate()
+
+        # Check that PATH was modified
+        new_path = os.environ.get("PATH", "")
+        assert new_path != original_path
+
+        # Check that venv's bin directory is in PATH
+        if sys.platform == "win32":
+            bin_dir = str(venv.path / "Scripts")
+        else:
+            bin_dir = str(venv.path / "bin")
+        assert bin_dir in new_path
+
+        # Check that bin dir is at the beginning of PATH
+        assert new_path.startswith(bin_dir)
+
+        # Check that VIRTUAL_ENV was set
+        assert os.environ.get("VIRTUAL_ENV") == str(venv.path)
+
+        # Deactivate
+        venv.deactivate()
+
+        # Check that PATH was restored
+        assert os.environ.get("PATH") == original_path
+
+        # Check that VIRTUAL_ENV was restored/removed
+        assert os.environ.get("VIRTUAL_ENV") == original_virtual_env
+
+    finally:
+        # Cleanup
+        shutil.rmtree(venv_path)
+
+
+@pytest.mark.xfail(sys.platform == 'win32',
+                   reason="Virtual environment activation fails on Windows")
+def test_subprocess_uses_venv_python():
+    """
+    Test that subprocess calls to 'python' use the venv's Python, not system Python
+    """
+    import subprocess
+
+    # Get system Python path
+    system_python = sys.executable
+
+    venv_path = "test_subprocess_venv"
+    venv = VirtualEnv(path=venv_path, now=True)
+
+    try:
+        # Before activation, subprocess should use system Python
+        result = subprocess.run(
+            ["python", "-c", "import sys; print(sys.executable)"],
+            capture_output=True,
+            text=True
+        )
+        before_python = result.stdout.strip()
+
+        # Activate the venv
+        venv.activate()
+
+        # After activation, subprocess should use venv's Python
+        result = subprocess.run(
+            ["python", "-c", "import sys; print(sys.executable)"],
+            capture_output=True,
+            text=True
+        )
+        after_python = result.stdout.strip()
+
+        # The venv Python should be different from system Python
+        assert after_python != system_python
+        assert after_python != before_python
+
+        # The venv Python should be in the venv directory
+        assert str(venv.path) in after_python
+
+        # Deactivate
+        venv.deactivate()
+
+        # After deactivation, should go back to system Python
+        result = subprocess.run(
+            ["python", "-c", "import sys; print(sys.executable)"],
+            capture_output=True,
+            text=True
+        )
+        restored_python = result.stdout.strip()
+        assert restored_python == before_python
+
+    finally:
+        # Cleanup
+        shutil.rmtree(venv_path)
+
+
+@pytest.mark.xfail(sys.platform == 'win32',
+                   reason="Virtual environment activation fails on Windows")
+def test_venv_required_decorator_subprocess():
+    """
+    Test that the venv_required decorator allows subprocess to use venv's Python
+    """
+    import subprocess
+
+    test_venv_path = "test_decorator_subprocess_venv"
+    system_python = sys.executable
+
+    @venv_required(test_venv_path, requirements="six")
+    def test_function():
+        # Inside the decorated function, subprocess should use venv Python
+        result = subprocess.run(
+            ["python", "-c", "import sys; print(sys.executable)"],
+            capture_output=True,
+            text=True
+        )
+        venv_python = result.stdout.strip()
+
+        # Should not be system Python
+        assert venv_python != system_python
+
+        # Should be in the venv directory
+        assert test_venv_path in venv_python
+
+        # Verify we can import the installed package via subprocess
+        result = subprocess.run(
+            ["python", "-c", "import six; print(six.__version__)"],
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 0
+        assert result.stdout.strip()  # Should print version
+
+        return venv_python
+
+    try:
+        # Call the decorated function
+        venv_python = test_function()
+        assert venv_python is not None
+
+        # After the function, subprocess should use system Python again
+        result = subprocess.run(
+            ["python", "-c", "import sys; print(sys.executable)"],
+            capture_output=True,
+            text=True
+        )
+        restored_python = result.stdout.strip()
+
+        # Should be back to something that's not the venv
+        assert test_venv_path not in restored_python
+
+    finally:
+        # Cleanup
+        shutil.rmtree(test_venv_path)
+
+
+def test_virtual_env_already_set():
+    """
+    Test that activation handles existing VIRTUAL_ENV correctly
+    """
+    # Set a fake VIRTUAL_ENV
+    original_venv = os.environ.get("VIRTUAL_ENV")
+    os.environ["VIRTUAL_ENV"] = "/fake/venv/path"
+
+    venv_path = "test_existing_venv_var"
+    venv = VirtualEnv(path=venv_path, now=True)
+
+    try:
+        # Activate
+        venv.activate()
+
+        # Should be set to our venv
+        assert os.environ.get("VIRTUAL_ENV") == str(venv.path)
+
+        # Deactivate
+        venv.deactivate()
+
+        # Should be restored to the fake path
+        assert os.environ.get("VIRTUAL_ENV") == "/fake/venv/path"
+
+    finally:
+        # Cleanup
+        shutil.rmtree(venv_path)
+        # Restore original state
+        if original_venv is None:
+            os.environ.pop("VIRTUAL_ENV", None)
+        else:
+            os.environ["VIRTUAL_ENV"] = original_venv

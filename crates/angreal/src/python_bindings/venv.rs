@@ -20,6 +20,8 @@ pub struct VirtualEnv {
     pub _is_activated: bool,
     pub _original_prefix: Option<String>,
     pub _original_path: Option<Vec<String>>,
+    pub _original_env_path: Option<String>,
+    pub _original_virtual_env: Option<Option<String>>,
 }
 
 #[pymethods]
@@ -91,6 +93,8 @@ impl VirtualEnv {
                 _is_activated: false,
                 _original_prefix: None,
                 _original_path: None,
+                _original_env_path: None,
+                _original_virtual_env: None,
             };
 
             if now {
@@ -162,6 +166,22 @@ impl VirtualEnv {
             self._original_prefix = Some(current_prefix);
             self._original_path = Some(current_path.clone());
 
+            // Save current environment variables
+            let os = py.import("os")?;
+            let environ = os.getattr("environ")?;
+
+            // Save current PATH
+            let current_env_path = environ.get_item("PATH")?.extract::<String>()?;
+            self._original_env_path = Some(current_env_path.clone());
+
+            // Save current VIRTUAL_ENV (may not exist)
+            let current_virtual_env = if let Ok(venv) = environ.get_item("VIRTUAL_ENV") {
+                Some(venv.extract::<String>()?)
+            } else {
+                None
+            };
+            self._original_virtual_env = Some(current_virtual_env);
+
             // Set new prefix
             sys.setattr("prefix", self.path.to_str().unwrap())?;
 
@@ -181,6 +201,20 @@ impl VirtualEnv {
 
             let path_list = sys.getattr("path")?;
             path_list.call_method1("insert", (0, site_packages.to_str().unwrap()))?;
+
+            // Update environment variables for subprocess calls
+            // Prepend venv's bin directory to PATH
+            let bin_dir = if cfg!(windows) {
+                self.path.join("Scripts")
+            } else {
+                self.path.join("bin")
+            };
+
+            let new_path = format!("{}:{}", bin_dir.to_string_lossy(), current_env_path);
+            environ.set_item("PATH", new_path)?;
+
+            // Set VIRTUAL_ENV
+            environ.set_item("VIRTUAL_ENV", self.path.to_str().unwrap())?;
 
             self._is_activated = true;
             Ok(())
@@ -254,9 +288,28 @@ impl VirtualEnv {
                 }
             }
 
+            // Restore environment variables
+            if let Some(original_env_path) = &self._original_env_path {
+                let os = py.import("os")?;
+                let environ = os.getattr("environ")?;
+
+                // Restore PATH
+                environ.set_item("PATH", original_env_path)?;
+
+                // Restore or remove VIRTUAL_ENV
+                if let Some(Some(original_venv)) = &self._original_virtual_env {
+                    environ.set_item("VIRTUAL_ENV", original_venv)?;
+                } else {
+                    // VIRTUAL_ENV didn't exist before, so remove it
+                    let _ = environ.call_method1("pop", ("VIRTUAL_ENV", py.None()));
+                }
+            }
+
             self._is_activated = false;
             self._original_prefix = None;
             self._original_path = None;
+            self._original_env_path = None;
+            self._original_virtual_env = None;
             Ok(())
         })
     }
