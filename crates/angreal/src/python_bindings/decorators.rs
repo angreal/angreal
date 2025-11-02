@@ -76,7 +76,7 @@ pub struct GroupDecorator {
 impl GroupDecorator {
     #[pyo3(signature = (func = None,))]
     fn __call__(&self, func: Option<Py<PyAny>>) -> PyResult<Py<PyAny>> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             match func {
                 Some(func) => {
                     // Called as a decorator on a function
@@ -159,7 +159,7 @@ pub struct CommandDecorator {
 impl CommandDecorator {
     #[pyo3(signature = (func,))]
     fn __call__(&self, func: Py<PyAny>) -> PyResult<Py<PyAny>> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Get or generate command name
             let name = match &self.name {
                 Some(name) => name.clone(),
@@ -400,7 +400,7 @@ impl Clone for ArgumentDecorator {
         Self {
             name: self.name.clone(),
             kwargs_dict: self.kwargs_dict.as_ref().map(|py_obj| {
-                Python::with_gil(|py| py_obj.clone_ref(py))
+                Python::attach(|py| py_obj.clone_ref(py))
             }),
         }
     }
@@ -410,7 +410,7 @@ impl Clone for ArgumentDecorator {
 impl ArgumentDecorator {
     #[pyo3(signature = (func,))]
     fn __call__(&self, func: Py<PyAny>) -> PyResult<Py<PyAny>> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Initialize __arguments list if not present
             let mut arguments = if let Ok(args) = func.getattr(py, "__arguments") {
                 if args.is_none(py) {

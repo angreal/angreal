@@ -88,6 +88,7 @@ pub struct AngrealGroup {
 #[pymethods]
 impl AngrealGroup {
     #[new]
+    #[pyo3(signature = (name, about=None))]
     fn __new__(name: &str, about: Option<&str>) -> Self {
         let group = AngrealGroup {
             name: name.to_string(),
@@ -139,7 +140,7 @@ pub struct AngrealCommand {
 
 impl Clone for AngrealCommand {
     fn clone(&self) -> Self {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             Self {
                 name: self.name.clone(),
                 about: self.about.clone(),
@@ -180,6 +181,7 @@ impl AngrealCommand {
     /// long_about='a much longer message`, func=test-message)
     /// ```
     #[new]
+    #[pyo3(signature = (name, func, about=None, long_about=None, group=None, when_to_use=None, when_not_to_use=None))]
     fn __new__(
         name: &str,
         func: Py<PyAny>,
@@ -356,6 +358,7 @@ impl AngrealArg {
     /// ```
     #[new]
     #[allow(clippy::too_many_arguments)]
+    #[pyo3(signature = (name, command_name, default_value=None, is_flag=None, require_equals=None, multiple_values=None, number_of_values=None, max_values=None, min_values=None, short=None, long=None, long_help=None, help=None, required=None, takes_value=None, python_type=None))]
     fn __new__(
         name: &str,
         command_name: &str,
@@ -428,7 +431,7 @@ mod tests {
 
     #[test]
     fn test_hierarchical_command_registration() {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Save and restore global state for test isolation
             let original_tasks = ANGREAL_TASKS.lock().unwrap().clone();
             let original_args = ANGREAL_ARGS.lock().unwrap().clone();
@@ -516,7 +519,7 @@ mod tests {
 
     #[test]
     fn test_argument_collision_resolution() {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Save and restore global state for test isolation
             let original_tasks = ANGREAL_TASKS.lock().unwrap().clone();
             let original_args = ANGREAL_ARGS.lock().unwrap().clone();

@@ -4,7 +4,7 @@ use pyo3::prelude::*;
 
 /// registers the rust logging interface with the python logging interface.
 pub fn register() {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         // Extend the `logging` module to interact with log
         setup_logging(py)
     })

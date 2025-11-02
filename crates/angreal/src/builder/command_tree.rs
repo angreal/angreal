@@ -212,7 +212,7 @@ mod tests {
 
     #[test]
     fn test_new_command() {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let name = "test_cmd".to_string();
             let about = Some("Test command".to_string());
             let func = py.None();
@@ -239,7 +239,7 @@ mod tests {
 
     #[test]
     fn test_add_command_top_level() {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let mut root = CommandNode::new_group("root".to_string(), None);
             let command_name = "test".to_string();
             let command_about = Some("Test command".to_string());
@@ -267,7 +267,7 @@ mod tests {
 
     #[test]
     fn test_add_command_nested() {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let mut root = CommandNode::new_group("root".to_string(), None);
 
             let group1 = AngrealGroup {
@@ -311,7 +311,7 @@ mod tests {
 
     #[test]
     fn test_to_project_schema() {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let mut root = CommandNode::new_group("angreal".to_string(), None);
 
             // Create a command

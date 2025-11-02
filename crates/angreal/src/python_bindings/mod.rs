@@ -29,8 +29,7 @@ pub mod venv;
 /// }
 /// ```
 pub fn initialize() -> PyResult<()> {
-    pyo3::prepare_freethreaded_python();
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let sys = py.import("sys")?;
         let modules_attr = sys.getattr("modules")?;
         let modules = modules_attr.downcast::<PyDict>()?;

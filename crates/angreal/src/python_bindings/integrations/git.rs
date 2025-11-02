@@ -43,7 +43,7 @@ impl PyGit {
     }
 
     fn execute(&self, subcommand: &str, args: Vec<String>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let arg_refs: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
             let output = self
                 .inner
@@ -59,7 +59,7 @@ impl PyGit {
 
     #[pyo3(signature = (bare=None))]
     fn init(&self, bare: Option<bool>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let output = if bare.unwrap_or(false) {
                 self.inner.execute("init", &["--bare"])
             } else {
@@ -76,7 +76,7 @@ impl PyGit {
 
     #[pyo3(signature = (*paths))]
     fn add(&self, paths: &Bound<'_, pyo3::types::PyTuple>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let path_strs: Vec<String> = paths
                 .iter()
                 .map(|p| p.extract::<String>())
@@ -96,7 +96,7 @@ impl PyGit {
 
     #[pyo3(signature = (message, all=None))]
     fn commit(&self, message: &str, all: Option<bool>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let args = if all.unwrap_or(false) {
                 vec!["-m", message, "-a"]
             } else {
@@ -120,7 +120,7 @@ impl PyGit {
         remote: Option<&str>,
         branch: Option<&str>,
     ) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let mut args = vec![];
             if let Some(r) = remote {
                 args.push(r);
@@ -146,7 +146,7 @@ impl PyGit {
         remote: Option<&str>,
         branch: Option<&str>,
     ) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let mut args = vec![];
             if let Some(r) = remote {
                 args.push(r);
@@ -168,7 +168,7 @@ impl PyGit {
 
     #[pyo3(signature = (short=None))]
     fn status(&self, short: Option<bool>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let args = if short.unwrap_or(false) {
                 vec!["--short"]
             } else {
@@ -192,7 +192,7 @@ impl PyGit {
         name: Option<&str>,
         delete: Option<bool>,
     ) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let mut args = vec![];
             if delete.unwrap_or(false) {
                 args.push("-d");
@@ -214,7 +214,7 @@ impl PyGit {
 
     #[pyo3(signature = (branch, create=None))]
     fn checkout(&self, branch: &str, create: Option<bool>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let args = if create.unwrap_or(false) {
                 vec!["-b", branch]
             } else {
@@ -234,7 +234,7 @@ impl PyGit {
 
     #[pyo3(signature = (name, message=None))]
     fn tag(&self, name: &str, message: Option<&str>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let args = if let Some(msg) = message {
                 vec!["-m", msg, name]
             } else {
@@ -259,7 +259,7 @@ impl PyGit {
         args: &Bound<'_, pyo3::types::PyTuple>,
         kwargs: Option<&Bound<'_, PyDict>>,
     ) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Convert args to Vec<String>
             let arg_strs: Vec<String> = args
                 .iter()

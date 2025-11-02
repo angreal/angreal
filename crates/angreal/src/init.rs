@@ -57,7 +57,7 @@ pub fn init(template: &str, force: bool, take_inputs: bool, values_file: Option<
     if rendered_angreal_init.is_file() {
         let init_contents = fs::read_to_string(rendered_angreal_init).unwrap();
         // Get our init function
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Change to the rendered directory before executing Python code
             let current_dir = env::current_dir().unwrap();
             if let Err(e) = env::set_current_dir(&rendered_dot_angreal_path) {

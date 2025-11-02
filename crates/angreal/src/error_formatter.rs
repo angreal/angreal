@@ -16,7 +16,7 @@ impl PythonErrorFormatter {
     pub fn format(&self) -> String {
         let mut output = String::new();
 
-        let error_message = Python::with_gil(|py| {
+        let error_message = Python::attach(|py| {
             // Get the exception type and value
             let type_obj = self.error.get_type(py);
             let type_name = type_obj.name()
@@ -33,7 +33,7 @@ impl PythonErrorFormatter {
         output.push('\n');
 
         // Format traceback in a simplified way
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Some(traceback) = self.error.traceback(py) {
                 output.push_str("\nTraceback:\n");
 
@@ -62,9 +62,9 @@ mod tests {
 
     #[test]
     fn test_error_formatter() {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Create a Python error
-            let result: PyResult<()> = py.run("raise ValueError('Test error message')", None, None);
+            let result: PyResult<()> = py.run(c"raise ValueError('Test error message')", None, None);
             let error = result.unwrap_err();
 
             // Format the error

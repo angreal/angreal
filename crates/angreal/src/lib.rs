@@ -585,7 +585,7 @@ fn main() -> PyResult<()> {
             match sub_matches.subcommand() {
                 Some(("create", create_matches)) => {
                     let name = create_matches.value_of("name").unwrap();
-                    Python::with_gil(|_py| {
+                    Python::attach(|_py| {
                         if let Err(e) = register_entrypoint(name) {
                             error!("Failed to create alias: {}", e);
                             exit(1);
@@ -594,7 +594,7 @@ fn main() -> PyResult<()> {
                 }
                 Some(("remove", remove_matches)) => {
                     let name = remove_matches.value_of("name").unwrap();
-                    Python::with_gil(|_py| {
+                    Python::attach(|_py| {
                         if let Err(e) = unregister_entrypoint(name) {
                             error!("Failed to remove alias: {}", e);
                             exit(1);
@@ -602,7 +602,7 @@ fn main() -> PyResult<()> {
                     });
                 }
                 Some(("list", _)) => {
-                    Python::with_gil(|_py| match list_entrypoints() {
+                    Python::attach(|_py| match list_entrypoints() {
                         Ok(aliases) => {
                             if aliases.is_empty() {
                                 println!("No aliases registered.");
@@ -704,7 +704,7 @@ fn main() -> PyResult<()> {
             debug!("Executing command: {}", task);
 
             let args = builder::select_args(&command_path);
-            Python::with_gil(|py| {
+            Python::attach(|py| {
                 debug!("Starting Python execution for command: {}", task);
                 let mut kwargs: Vec<(&str, Py<PyAny>)> = Vec::new();
 
@@ -775,7 +775,7 @@ pub fn initialize_python_tasks() -> Result<(), Box<dyn std::error::Error>> {
     debug!("Initializing Python bindings for angreal tasks");
 
     // First, ensure the angreal module is registered in Python
-    Python::with_gil(|py| -> PyResult<()> {
+    Python::attach(|py| -> PyResult<()> {
         // Get sys.modules
         let sys = PyModule::import(py, "sys")?;
         let modules_attr = sys.getattr("modules")?;

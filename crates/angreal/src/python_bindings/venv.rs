@@ -32,7 +32,7 @@ impl VirtualEnv {
         requirements: Option<Py<PyAny>>,
         now: bool,
     ) -> PyResult<Self> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Convert path to string - handle both str and Path objects, with default
             let path_str = if let Some(path_obj) = path {
                 if let Ok(s) = path_obj.extract::<String>(py) {
@@ -146,7 +146,7 @@ impl VirtualEnv {
             return Ok(()); // Already activated
         }
 
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if !self.exists(py)? {
                 return Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
                     "Virtual environment at {} does not exist",
@@ -240,7 +240,7 @@ impl VirtualEnv {
             return Ok(()); // Not activated
         }
 
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Restore original state
             if let (Some(prefix), Some(path)) = (&self._original_prefix, &self._original_path) {
                 let sys = py.import("sys")?;
@@ -265,7 +265,7 @@ impl VirtualEnv {
     fn install_requirements(&self) -> PyResult<()> {
         if let Some(reqs) = &self.requirements {
             // Validate requirements format first
-            Python::with_gil(|py| {
+            Python::attach(|py| {
                 // Check if it's a string, list, or something else
                 if reqs.extract::<String>(py).is_ok() || reqs.extract::<Vec<String>>(py).is_ok() {
                     self.install(reqs.clone_ref(py))
@@ -286,7 +286,7 @@ impl VirtualEnv {
 
     // Install packages using pip
     fn install(&self, packages: Py<PyAny>) -> PyResult<()> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let pip_exe = if cfg!(windows) {
                 self.path.join("Scripts").join("pip.exe")
             } else {
@@ -460,7 +460,7 @@ struct VenvRequiredWrapper {
 
 impl Clone for VenvRequiredWrapper {
     fn clone(&self) -> Self {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             Self {
                 original_func: self.original_func.clone_ref(py),
                 path: self.path.clone(),
@@ -478,7 +478,7 @@ impl VenvRequiredWrapper {
         args: &Bound<'_, pyo3::types::PyTuple>,
         kwargs: Option<&Bound<'_, pyo3::types::PyDict>>,
     ) -> PyResult<Py<PyAny>> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             // Create VirtualEnv with now=True
             let venv_class = py.get_type::<VirtualEnv>();
             let venv_kwargs = pyo3::types::PyDict::new(py);
