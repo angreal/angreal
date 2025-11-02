@@ -1,6 +1,6 @@
 [package]
 name = "angreal_mcp"
-version = "2.5.1"
+version = "2.6.0"
 edition = "2021"
 description = "MCP server for angreal projects"
 license = "GPL-3.0-only"
