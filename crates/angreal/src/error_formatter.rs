@@ -1,4 +1,5 @@
 use pyo3::{PyErr, Python};
+use pyo3::types::PyTypeMethods;
 use std::fmt;
 
 /// Formats Python exception information in a more readable way
@@ -17,7 +18,10 @@ impl PythonErrorFormatter {
 
         let error_message = Python::with_gil(|py| {
             // Get the exception type and value
-            let type_name = self.error.get_type(py).name().unwrap_or("Unknown");
+            let type_obj = self.error.get_type(py);
+            let type_name = type_obj.name()
+                .map(|n| n.to_string())
+                .unwrap_or_else(|_| "Unknown".to_string());
 
             // Extract the error message
             let value = self.error.value(py).to_string();

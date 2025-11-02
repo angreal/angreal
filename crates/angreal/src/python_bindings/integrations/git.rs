@@ -42,11 +42,12 @@ impl PyGit {
         Ok(Self { inner: git })
     }
 
-    fn execute(&self, subcommand: &str, args: Vec<&str>) -> PyResult<(i32, PyObject, PyObject)> {
+    fn execute(&self, subcommand: &str, args: Vec<String>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::with_gil(|py| {
+            let arg_refs: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
             let output = self
                 .inner
-                .execute(subcommand, &args)
+                .execute(subcommand, &arg_refs)
                 .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
             Ok((
                 output.exit_code,
@@ -57,7 +58,7 @@ impl PyGit {
     }
 
     #[pyo3(signature = (bare=None))]
-    fn init(&self, bare: Option<bool>) -> PyResult<(i32, PyObject, PyObject)> {
+    fn init(&self, bare: Option<bool>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::with_gil(|py| {
             let output = if bare.unwrap_or(false) {
                 self.inner.execute("init", &["--bare"])
@@ -74,7 +75,7 @@ impl PyGit {
     }
 
     #[pyo3(signature = (*paths))]
-    fn add(&self, paths: &pyo3::types::PyTuple) -> PyResult<(i32, PyObject, PyObject)> {
+    fn add(&self, paths: &Bound<'_, pyo3::types::PyTuple>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::with_gil(|py| {
             let path_strs: Vec<String> = paths
                 .iter()
@@ -94,7 +95,7 @@ impl PyGit {
     }
 
     #[pyo3(signature = (message, all=None))]
-    fn commit(&self, message: &str, all: Option<bool>) -> PyResult<(i32, PyObject, PyObject)> {
+    fn commit(&self, message: &str, all: Option<bool>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::with_gil(|py| {
             let args = if all.unwrap_or(false) {
                 vec!["-m", message, "-a"]
@@ -118,7 +119,7 @@ impl PyGit {
         &self,
         remote: Option<&str>,
         branch: Option<&str>,
-    ) -> PyResult<(i32, PyObject, PyObject)> {
+    ) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::with_gil(|py| {
             let mut args = vec![];
             if let Some(r) = remote {
@@ -144,7 +145,7 @@ impl PyGit {
         &self,
         remote: Option<&str>,
         branch: Option<&str>,
-    ) -> PyResult<(i32, PyObject, PyObject)> {
+    ) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::with_gil(|py| {
             let mut args = vec![];
             if let Some(r) = remote {
@@ -166,7 +167,7 @@ impl PyGit {
     }
 
     #[pyo3(signature = (short=None))]
-    fn status(&self, short: Option<bool>) -> PyResult<(i32, PyObject, PyObject)> {
+    fn status(&self, short: Option<bool>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::with_gil(|py| {
             let args = if short.unwrap_or(false) {
                 vec!["--short"]
@@ -190,7 +191,7 @@ impl PyGit {
         &self,
         name: Option<&str>,
         delete: Option<bool>,
-    ) -> PyResult<(i32, PyObject, PyObject)> {
+    ) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::with_gil(|py| {
             let mut args = vec![];
             if delete.unwrap_or(false) {
@@ -212,7 +213,7 @@ impl PyGit {
     }
 
     #[pyo3(signature = (branch, create=None))]
-    fn checkout(&self, branch: &str, create: Option<bool>) -> PyResult<(i32, PyObject, PyObject)> {
+    fn checkout(&self, branch: &str, create: Option<bool>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::with_gil(|py| {
             let args = if create.unwrap_or(false) {
                 vec!["-b", branch]
@@ -232,7 +233,7 @@ impl PyGit {
     }
 
     #[pyo3(signature = (name, message=None))]
-    fn tag(&self, name: &str, message: Option<&str>) -> PyResult<(i32, PyObject, PyObject)> {
+    fn tag(&self, name: &str, message: Option<&str>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::with_gil(|py| {
             let args = if let Some(msg) = message {
                 vec!["-m", msg, name]
@@ -255,9 +256,9 @@ impl PyGit {
     fn __call__(
         &self,
         command: &str,
-        args: &pyo3::types::PyTuple,
-        kwargs: Option<&PyDict>,
-    ) -> PyResult<(i32, PyObject, PyObject)> {
+        args: &Bound<'_, pyo3::types::PyTuple>,
+        kwargs: Option<&Bound<'_, PyDict>>,
+    ) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)> {
         Python::with_gil(|py| {
             // Convert args to Vec<String>
             let arg_strs: Vec<String> = args
@@ -267,17 +268,21 @@ impl PyGit {
             let arg_refs: Vec<&str> = arg_strs.iter().map(|s| s.as_str()).collect();
 
             let output = if let Some(dict) = kwargs {
-                // Convert PyDict to HashMap<&str, &str>
-                let mut options = HashMap::new();
+                // Convert PyDict to HashMap<String, String>
+                let mut options_owned = HashMap::new();
                 for (key, value) in dict.iter() {
-                    let key_str = key.extract::<&str>()?;
-                    let value_str = if value.is_true()? {
-                        "" // For boolean flags like --bare
+                    let key_str = key.extract::<String>()?;
+                    let value_str = if value.is_truthy()? {
+                        "".to_string() // For boolean flags like --bare
                     } else {
-                        value.extract::<&str>()?
+                        value.extract::<String>()?
                     };
-                    options.insert(key_str, value_str);
+                    options_owned.insert(key_str, value_str);
                 }
+                // Convert to HashMap<&str, &str> for execute_with_options
+                let options: HashMap<&str, &str> = options_owned.iter()
+                    .map(|(k, v)| (k.as_str(), v.as_str()))
+                    .collect();
                 self.inner.execute_with_options(command, options, &arg_refs)
             } else {
                 self.inner.execute(command, &arg_refs)
@@ -304,7 +309,7 @@ impl PyGit {
         self.inner.working_dir().display().to_string()
     }
 
-    fn __getattr__(&self, _py: Python, name: &str) -> PyResult<PyObject> {
+    fn __getattr__(&self, _py: Python, name: &str) -> PyResult<Py<PyAny>> {
         // For any unknown method, raise GitException
         Err(PyErr::new::<GitException, _>(format!(
             "Git command '{}' not found",
@@ -325,7 +330,7 @@ pub fn git_clone(remote: &str, destination: Option<&str>) -> PyResult<String> {
 ///
 /// This will be exposed as angreal.integrations.git in Python
 #[pymodule]
-pub fn git_integration(_py: Python, m: &PyModule) -> PyResult<()> {
+pub fn git_integration(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<GitException>()?;
     // Export PyGit as "Git" to match the expected interface
     m.add("Git", _py.get_type::<PyGit>())?;

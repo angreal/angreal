@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 /// Registers the Command and Arg structs to the python api in the `angreal` module
-pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+pub fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     debug!("Registering Angreal types to Python module");
     m.add_class::<AngrealCommand>()?;
     m.add_class::<AngrealArg>()?;
@@ -111,7 +111,7 @@ impl AngrealGroup {
 }
 
 /// A command describes a subcommand to be registered with the CLI
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 #[pyclass(name = "Command")]
 pub struct AngrealCommand {
     /// The name of the sub command
@@ -135,6 +135,22 @@ pub struct AngrealCommand {
     /// Scenarios when this command should not be used
     #[pyo3(get)]
     pub when_not_to_use: Option<Vec<String>>,
+}
+
+impl Clone for AngrealCommand {
+    fn clone(&self) -> Self {
+        Python::with_gil(|py| {
+            Self {
+                name: self.name.clone(),
+                about: self.about.clone(),
+                long_about: self.long_about.clone(),
+                func: self.func.clone_ref(py),
+                group: self.group.clone(),
+                when_to_use: self.when_to_use.clone(),
+                when_not_to_use: self.when_not_to_use.clone(),
+            }
+        })
+    }
 }
 
 /// Methods exposed to the python API

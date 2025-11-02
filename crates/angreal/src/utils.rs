@@ -328,7 +328,7 @@ pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>> {
 }
 
 /// Registers the Command and Arg structs to the python api in the `angreal` module
-pub fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+pub fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_root, m)?)?;
     m.add_function(wrap_pyfunction!(render_template, m)?)?;
     m.add_function(wrap_pyfunction!(generate_context, m)?)?;
@@ -342,7 +342,7 @@ pub fn render_directory(
     src: &str,
     dst: &str,
     force: bool,
-    context: Option<&PyDict>,
+    context: Option<&Bound<'_, PyDict>>,
 ) -> PyResult<Py<PyAny>> {
     let mut ctx = Context::new();
     let src = Path::new(src);
@@ -350,7 +350,7 @@ pub fn render_directory(
 
     if let Some(context) = context {
         for key in context.keys() {
-            if let Some(value) = context.get_item(key) {
+            if let Ok(Some(value)) = context.get_item(&key) {
                 let v = value.to_string();
                 let k = key.to_string();
                 ctx.insert(&k, &v);
@@ -397,7 +397,7 @@ fn get_root() -> PyResult<String> {
 }
 
 #[pyfunction]
-fn render_template(template: &str, context: &PyDict) -> PyResult<String> {
+fn render_template(template: &str, context: &Bound<'_, PyDict>) -> PyResult<String> {
     let mut tera = Tera::default();
     let mut ctx = tera::Context::new();
     tera.add_raw_template("template", template).unwrap();
@@ -508,11 +508,17 @@ pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
 
     let r_value = Python::with_gil(|py| -> PyResult<()> {
         // Allow the file to search for modules it might be importing
-        let syspath: &PyList = py.import("sys")?.getattr("path")?.downcast::<PyList>()?;
+        let sys = py.import("sys")?;
+        let path_attr = sys.getattr("path")?;
+        let syspath = path_attr.downcast::<PyList>()?;
         syspath.insert(0, dir)?;
 
         // Import the file.
-        let result = PyModule::from_code(py, &contents, "", "");
+        use std::ffi::CString;
+        let contents_cstr = CString::new(contents.as_str()).map_err(|e| {
+            PyErr::new::<pyo3::exceptions::PyValueError, _>(format!("Invalid C string: {}", e))
+        })?;
+        let result = PyModule::from_code(py, contents_cstr.as_c_str(), c"", c"");
 
         match result {
             Ok(_result) => {

@@ -336,7 +336,7 @@ pub fn compose(file: &str, project_name: Option<&str>) -> PyResult<PyDockerCompo
 
 /// Compose integration module
 #[pymodule]
-pub fn compose_integration(_py: Python, m: &PyModule) -> PyResult<()> {
+pub fn compose_integration(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyDockerCompose>()?;
     m.add_class::<PyComposeOutput>()?;
     m.add_function(wrap_pyfunction!(compose, m)?)?;

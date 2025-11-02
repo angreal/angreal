@@ -1,7 +1,7 @@
 /// Pythonize a rust object with pythonize
 macro_rules! pythonize_this {
     ($o:ident) => {{
-        Python::with_gil(|py| -> Py<PyAny> { pythonize(py, &$o).unwrap() })
+        Python::with_gil(|py| -> Py<PyAny> { pythonize(py, &$o).unwrap().unbind() })
     }};
 }
 

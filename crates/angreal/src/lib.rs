@@ -35,7 +35,7 @@ use std::vec::Vec;
 
 use std::process::exit;
 
-use pyo3::{prelude::*, wrap_pymodule};
+use pyo3::{prelude::*, wrap_pymodule, IntoPyObjectExt};
 use std::collections::HashMap;
 use std::fs;
 
@@ -59,10 +59,11 @@ impl PyGit {
         Ok(Self { inner: git })
     }
 
-    fn execute(&self, subcommand: &str, args: Vec<&str>) -> PyResult<(i32, String, String)> {
+    fn execute(&self, subcommand: &str, args: Vec<String>) -> PyResult<(i32, String, String)> {
+        let arg_refs: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
         let output = self
             .inner
-            .execute(subcommand, &args)
+            .execute(subcommand, &arg_refs)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
         Ok((output.exit_code, output.stderr, output.stdout))
     }
@@ -73,9 +74,10 @@ impl PyGit {
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
     }
 
-    fn add(&self, paths: Vec<&str>) -> PyResult<()> {
+    fn add(&self, paths: Vec<String>) -> PyResult<()> {
+        let path_refs: Vec<&str> = paths.iter().map(|s| s.as_str()).collect();
         self.inner
-            .add(&paths)
+            .add(&path_refs)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
     }
 
@@ -124,24 +126,28 @@ impl PyGit {
     fn __call__(
         &self,
         command: &str,
-        args: Vec<&str>,
-        kwargs: Option<&pyo3::types::PyDict>,
+        args: Vec<String>,
+        kwargs: Option<&Bound<'_, pyo3::types::PyDict>>,
     ) -> PyResult<(i32, String, String)> {
+        let arg_refs: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
         let output = if let Some(dict) = kwargs {
-            // Convert PyDict to HashMap<&str, &str>
-            let mut options = HashMap::new();
+            // Convert PyDict to HashMap<String, String> then to HashMap<&str, &str>
+            let mut options_owned = HashMap::new();
             for (key, value) in dict.iter() {
-                let key_str = key.extract::<&str>()?;
-                let value_str = if value.is_true()? {
-                    "" // For boolean flags like --bare
+                let key_str = key.extract::<String>()?;
+                let value_str = if value.is_truthy()? {
+                    "".to_string() // For boolean flags like --bare
                 } else {
-                    value.extract::<&str>()?
+                    value.extract::<String>()?
                 };
-                options.insert(key_str, value_str);
+                options_owned.insert(key_str, value_str);
             }
-            self.inner.execute_with_options(command, options, &args)
+            let options: HashMap<&str, &str> = options_owned.iter()
+                .map(|(k, v)| (k.as_str(), v.as_str()))
+                .collect();
+            self.inner.execute_with_options(command, options, &arg_refs)
         } else {
-            self.inner.execute(command, &args)
+            self.inner.execute(command, &arg_refs)
         }
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
 
@@ -700,7 +706,7 @@ fn main() -> PyResult<()> {
             let args = builder::select_args(&command_path);
             Python::with_gil(|py| {
                 debug!("Starting Python execution for command: {}", task);
-                let mut kwargs: Vec<(&str, PyObject)> = Vec::new();
+                let mut kwargs: Vec<(&str, Py<PyAny>)> = Vec::new();
 
                 for arg in args.into_iter() {
                     let n = Box::leak(Box::new(arg.name));
@@ -709,28 +715,37 @@ fn main() -> PyResult<()> {
 
                     if arg.is_flag.unwrap() {
                         let v = arg_matches.get_flag(&n.clone());
-                        kwargs.push((n.as_str(), v.to_object(py)));
+                        kwargs.push((n.as_str(), v.into_bound_py_any(py).expect("Failed to convert to Python object").unbind()));
                     } else {
                         let v = arg_matches.value_of(n.clone());
                         match v {
                             None => {
                                 // We need to handle "boolean flags" that are present w/o a value
                                 // should probably test that the name is a "boolean type also"
-                                kwargs.push((n.as_str(), v.to_object(py)));
+                                kwargs.push((n.as_str(), v.into_bound_py_any(py).expect("Failed to convert to Python object").unbind()));
                             }
                             Some(v) => match arg.python_type.unwrap().as_str() {
-                                "str" => kwargs.push((n.as_str(), v.to_object(py))),
+                                "str" => kwargs.push((n.as_str(), v.into_bound_py_any(py).expect("Failed to convert to Python object").unbind())),
                                 "int" => kwargs
-                                    .push((n.as_str(), v.parse::<i32>().unwrap().to_object(py))),
+                                    .push((n.as_str(), v.parse::<i32>().unwrap().into_bound_py_any(py).expect("Failed to convert to Python object").unbind())),
                                 "float" => kwargs
-                                    .push((n.as_str(), v.parse::<f32>().unwrap().to_object(py))),
-                                _ => kwargs.push((n.as_str(), v.to_object(py))),
+                                    .push((n.as_str(), v.parse::<f32>().unwrap().into_bound_py_any(py).expect("Failed to convert to Python object").unbind())),
+                                _ => kwargs.push((n.as_str(), v.into_bound_py_any(py).expect("Failed to convert to Python object").unbind())),
                             },
                         }
                     }
                 }
 
-                let r_value = command.func.call(py, (), Some(kwargs.into_py_dict(py)));
+                let kwargs_dict = match kwargs.into_py_dict(py) {
+                    Ok(dict) => dict,
+                    Err(err) => {
+                        error!("Failed to convert kwargs to dict");
+                        let formatter = PythonErrorFormatter::new(err);
+                        println!("{}", formatter);
+                        exit(1);
+                    }
+                };
+                let r_value = command.func.call(py, (), Some(&kwargs_dict));
 
                 match r_value {
                     Ok(_r_value) => debug!("Successfully executed Python command: {}", task),
@@ -763,7 +778,8 @@ pub fn initialize_python_tasks() -> Result<(), Box<dyn std::error::Error>> {
     Python::with_gil(|py| -> PyResult<()> {
         // Get sys.modules
         let sys = PyModule::import(py, "sys")?;
-        let modules: &PyDict = sys.getattr("modules")?.downcast()?;
+        let modules_attr = sys.getattr("modules")?;
+        let modules = modules_attr.downcast::<PyDict>()?;
 
         // Check if angreal module is already available
         if !modules.contains("angreal")? {
@@ -779,9 +795,9 @@ pub fn initialize_python_tasks() -> Result<(), Box<dyn std::error::Error>> {
             py_logger::register();
 
             // Register core components
-            task::register(py, angreal_module)?;
-            utils::register(py, angreal_module)?;
-            python_bindings::decorators::register_decorators(py, angreal_module)?;
+            task::register(py, &angreal_module)?;
+            utils::register(py, &angreal_module)?;
+            python_bindings::decorators::register_decorators(py, &angreal_module)?;
 
             // Register integrations submodule (from the full pymodule function)
             angreal_module
@@ -848,16 +864,16 @@ pub fn initialize_python_tasks() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[pymodule]
-fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
+fn angreal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
 
     py_logger::register();
     m.add_function(wrap_pyfunction!(main, m)?)?;
-    task::register(_py, m)?;
-    utils::register(_py, m)?;
+    task::register(m.py(), m)?;
+    utils::register(m.py(), m)?;
 
     // Register decorators from our new python_bindings module
-    python_bindings::decorators::register_decorators(_py, m)?;
+    python_bindings::decorators::register_decorators(m.py(), m)?;
 
     // UV integration functions
     m.add_function(wrap_pyfunction!(ensure_uv_installed, m)?)?;
@@ -876,10 +892,13 @@ fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(unregister_entrypoint, m)?)?;
     m.add_function(wrap_pyfunction!(cleanup_entrypoints, m)?)?;
 
-    m.add_wrapped(wrap_pymodule!(python_bindings::integrations::integrations))?;
+    let integrations_module = PyModule::new(m.py(), "integrations")?;
+    python_bindings::integrations::integrations(m.py(), &integrations_module)?;
+    m.add_submodule(&integrations_module)?;
 
-    let sys = PyModule::import(_py, "sys")?;
-    let sys_modules: &PyDict = sys.getattr("modules")?.downcast()?;
+    let sys = PyModule::import(m.py(), "sys")?;
+    let modules_attr = sys.getattr("modules")?;
+    let sys_modules = modules_attr.downcast::<PyDict>()?;
     sys_modules.set_item("angreal.integrations", m.getattr("integrations")?)?;
     sys_modules.set_item(
         "angreal.integrations.docker",
@@ -920,24 +939,38 @@ fn angreal(_py: Python, m: &PyModule) -> PyResult<()> {
 }
 
 #[pymodule]
-fn _integrations(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_wrapped(wrap_pymodule!(docker))?;
-    m.add_wrapped(wrap_pymodule!(git_module))?;
+fn _integrations(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    let docker_module = pyo3::wrap_pymodule!(docker)(m.py());
+    m.add_submodule(docker_module.bind(m.py()))?;
+    let git = pyo3::wrap_pymodule!(git_module)(m.py());
+    m.add_submodule(git.bind(m.py()))?;
     Ok(())
 }
 
 #[pymodule]
-fn docker(_py: Python, m: &PyModule) -> PyResult<()> {
+fn docker(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<docker_pyo3::Pyo3Docker>()?;
-    m.add_wrapped(wrap_pymodule!(docker_pyo3::image::image))?;
-    m.add_wrapped(wrap_pymodule!(docker_pyo3::container::container))?;
-    m.add_wrapped(wrap_pymodule!(docker_pyo3::network::network))?;
-    m.add_wrapped(wrap_pymodule!(docker_pyo3::volume::volume))?;
+
+    let image_module = PyModule::new(m.py(), "image")?;
+    docker_pyo3::image::image(m.py(), &image_module)?;
+    m.add_submodule(&image_module)?;
+
+    let container_module = PyModule::new(m.py(), "container")?;
+    docker_pyo3::container::container(m.py(), &container_module)?;
+    m.add_submodule(&container_module)?;
+
+    let network_module = PyModule::new(m.py(), "network")?;
+    docker_pyo3::network::network(m.py(), &network_module)?;
+    m.add_submodule(&network_module)?;
+
+    let volume_module = PyModule::new(m.py(), "volume")?;
+    docker_pyo3::volume::volume(m.py(), &volume_module)?;
+    m.add_submodule(&volume_module)?;
     Ok(())
 }
 
 #[pymodule]
-fn git_module(_py: Python, m: &PyModule) -> PyResult<()> {
+fn git_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyGit>()?;
     m.add_function(wrap_pyfunction!(git_clone, m)?)?;
     Ok(())
