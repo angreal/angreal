@@ -167,7 +167,7 @@ jobs:
 
   macos-tests:
     name: "OSX Tests (Python ${{ matrix.python-version }})"
-    runs-on: macos-13
+    runs-on: macos-14
     needs: [pre-commit, build-verification]
     strategy:
       fail-fast: false
