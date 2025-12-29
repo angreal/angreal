@@ -26,9 +26,11 @@ def flag_test2(test):
         open("nested_group.txt","w").close()
 
 
-@angreal.command(name="verbose-test", about="test that task can use --verbose flag")
-@angreal.argument(name="verbose", long="verbose", short="v", takes_value=False, is_flag=True)
+@angreal.command(name="verbose-test", about="test task can use --verbose flag")
+@angreal.argument(
+    name="verbose", long="verbose", short="v", takes_value=False, is_flag=True
+)
 def verbose_test(verbose):
-    """Test that tasks can define their own --verbose without conflicting with angreal's global -v"""
+    """Test that tasks can define their own --verbose flag."""
     if verbose:
         open("verbose_test.txt", "w").close()

@@ -49,7 +49,7 @@ def test_group_2():
 
 
 def test_task_verbose_flag():
-    """test that a task can define --verbose / -v without conflicting with angreal's global verbose"""
+    """test that a task can define --verbose / -v flags"""
     # Test with --verbose
     rv = subprocess.run([
         "angreal",
