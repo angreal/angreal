@@ -1,0 +1,15 @@
+{
+  "name": "angreal-angreal",
+  "owner": {
+    "name": "angreal",
+    "email": "support@angreal.dev"
+  },
+  "plugins": [
+    {
+      "name": "angreal",
+      "source": "./skill",
+      "description": "Task automation skill for angreal projects. Teaches when and how to use angreal tasks, plus how to author effective task definitions with rich MCP tool descriptions.",
+      "version": "2.7.0"
+    }
+  ]
+}

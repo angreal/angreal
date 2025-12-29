@@ -29,9 +29,14 @@ pub struct SerializableCommand {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub group: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub when_to_use: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub when_not_to_use: Option<Vec<String>>,
+    pub tool: Option<SerializableToolDescription>,
+}
+
+/// Serializable version of ToolDescription for JSON output
+#[derive(Debug, Clone, Serialize)]
+pub struct SerializableToolDescription {
+    pub description: String,
+    pub risk_level: String,
 }
 
 /// Tree schema for MCP consumption
@@ -47,9 +52,7 @@ pub struct CommandSchema {
     pub command: String,
     pub description: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub when_to_use: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub when_not_to_use: Option<Vec<String>>,
+    pub tool: Option<SerializableToolDescription>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub parameters: Vec<ParameterSchema>,
 }
@@ -87,8 +90,10 @@ impl CommandNode {
                 .group
                 .as_ref()
                 .map(|groups| groups.iter().map(|g| g.name.clone()).collect()),
-            when_to_use: command.when_to_use.clone(),
-            when_not_to_use: command.when_not_to_use.clone(),
+            tool: command.tool.as_ref().map(|t| SerializableToolDescription {
+                description: t.description.clone(),
+                risk_level: t.risk_level.clone(),
+            }),
         };
 
         CommandNode {
@@ -158,8 +163,7 @@ impl CommandNode {
             commands.push(CommandSchema {
                 command: full_command,
                 description: command.about.clone().unwrap_or_default(),
-                when_to_use: command.when_to_use.clone(),
-                when_not_to_use: command.when_not_to_use.clone(),
+                tool: command.tool.clone(),
                 parameters: vec![], // Will be populated by caller
             });
         }
@@ -223,8 +227,7 @@ mod tests {
                 long_about: None,
                 group: None,
                 func,
-                when_to_use: None,
-                when_not_to_use: None,
+                tool: None,
             };
 
             let node = CommandNode::new_command(name.clone(), command);
@@ -250,8 +253,7 @@ mod tests {
                 long_about: None,
                 group: None,
                 func: py.None(),
-                when_to_use: None,
-                when_not_to_use: None,
+                tool: None,
             };
 
             root.add_command(command);
@@ -286,8 +288,7 @@ mod tests {
                 long_about: None,
                 group: Some(vec![group1.clone(), group2.clone()]),
                 func: py.None(),
-                when_to_use: None,
-                when_not_to_use: None,
+                tool: None,
             };
 
             root.add_command(command);
@@ -324,8 +325,7 @@ mod tests {
                     about: Some("Test group".to_string()),
                 }]),
                 func: py.None(),
-                when_to_use: None,
-                when_not_to_use: None,
+                tool: None,
             };
 
             root.add_command(command);

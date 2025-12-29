@@ -2,11 +2,12 @@ use async_trait::async_trait;
 use rust_mcp_sdk::{
     mcp_server::ServerHandler,
     schema::{
-        schema_utils::CallToolError, CallToolRequest, CallToolResult, ListToolsRequest,
-        ListToolsResult, TextContent,
+        schema_utils::CallToolError, CallToolRequestParams, CallToolResult, ListToolsResult,
+        PaginatedRequestParams, RpcError, TextContent,
     },
     McpServer,
 };
+use std::sync::Arc;
 use tracing::{debug, info};
 
 use crate::tools::{angreal_command_tool::AngrealCommandTool, ToolRegistry};
@@ -31,9 +32,9 @@ impl AngrealMcpHandler {
 impl ServerHandler for AngrealMcpHandler {
     async fn handle_list_tools_request(
         &self,
-        _request: ListToolsRequest,
-        _server: &dyn McpServer,
-    ) -> Result<ListToolsResult, rust_mcp_sdk::schema::RpcError> {
+        _params: Option<PaginatedRequestParams>,
+        _runtime: Arc<dyn McpServer>,
+    ) -> Result<ListToolsResult, RpcError> {
         debug!("Listing available tools");
 
         let tools = self.tools.list_tools();
@@ -49,10 +50,10 @@ impl ServerHandler for AngrealMcpHandler {
 
     async fn handle_call_tool_request(
         &self,
-        request: CallToolRequest,
-        _server: &dyn McpServer,
+        params: CallToolRequestParams,
+        _runtime: Arc<dyn McpServer>,
     ) -> Result<CallToolResult, CallToolError> {
-        debug!("Tool call requested: {}", request.params.name);
+        debug!("Tool call requested: {}", params.name);
 
         if !self.is_angreal_project {
             return Ok(CallToolResult::text_content(vec![TextContent::from(
@@ -60,15 +61,15 @@ impl ServerHandler for AngrealMcpHandler {
             )]));
         }
 
-        let args = serde_json::Value::Object(request.params.arguments.unwrap_or_default());
+        let args = serde_json::Value::Object(params.arguments.unwrap_or_default());
 
-        match request.params.name.as_str() {
+        match params.name.as_str() {
             tool_name if tool_name.starts_with("angreal_") => {
                 // Handle dynamically discovered angreal commands
                 self.handle_dynamic_angreal_tool(tool_name, args).await
             }
             _ => Ok(CallToolResult::text_content(vec![TextContent::from(
-                format!("Unknown tool: {}", request.params.name),
+                format!("Unknown tool: {}", params.name),
             )])),
         }
     }

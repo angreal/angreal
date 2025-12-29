@@ -151,8 +151,7 @@ pub struct CommandDecorator {
     name: Option<String>,
     about: Option<String>,
     long_about: Option<String>,
-    when_to_use: Option<Vec<String>>,
-    when_not_to_use: Option<Vec<String>>,
+    tool: Option<crate::task::ToolDescription>,
 }
 
 #[pymethods]
@@ -177,14 +176,18 @@ impl CommandDecorator {
                 func.setattr(py, "__arguments", py.None())?;
             }
 
-            // Convert Option<Vec<String>> to Python objects
-            use pyo3::types::PyList;
-            let when_to_use_py = match &self.when_to_use {
-                Some(vec) => PyList::new(py, vec.iter())?.into_any().unbind(),
-                None => py.None(),
-            };
-            let when_not_to_use_py = match &self.when_not_to_use {
-                Some(vec) => PyList::new(py, vec.iter())?.into_any().unbind(),
+            // Convert Option<ToolDescription> to Python object
+            let tool_py = match &self.tool {
+                Some(tool) => {
+                    let tool_class = py.get_type::<crate::task::ToolDescription>();
+                    // risk_level is keyword-only in Python signature, so use call() with kwargs
+                    let kwargs = pyo3::types::PyDict::new(py);
+                    kwargs.set_item("risk_level", tool.risk_level.as_str())?;
+                    tool_class
+                        .call((&tool.description,), Some(&kwargs))?
+                        .into_any()
+                        .unbind()
+                }
                 None => py.None(),
             };
 
@@ -196,8 +199,7 @@ impl CommandDecorator {
                 self.about.as_deref(),
                 self.long_about.as_deref(),
                 py.None(), // group (empty initially)
-                when_to_use_py,
-                when_not_to_use_py,
+                tool_py,
             ))?;
 
             // Set the __command attribute on the function
@@ -349,22 +351,16 @@ pub fn command(kwargs: Option<&Bound<'_, PyDict>>) -> PyResult<CommandDecorator>
         .map(|v| v.extract::<String>())
         .transpose()?;
 
-    let when_to_use = kwargs
-        .and_then(|d| d.get_item("when_to_use").ok().flatten())
-        .map(|v| v.extract::<Vec<String>>())
-        .transpose()?;
-
-    let when_not_to_use = kwargs
-        .and_then(|d| d.get_item("when_not_to_use").ok().flatten())
-        .map(|v| v.extract::<Vec<String>>())
+    let tool = kwargs
+        .and_then(|d| d.get_item("tool").ok().flatten())
+        .map(|v| v.extract::<crate::task::ToolDescription>())
         .transpose()?;
 
     Ok(CommandDecorator {
         name,
         about,
         long_about,
-        when_to_use,
-        when_not_to_use,
+        tool,
     })
 }
 

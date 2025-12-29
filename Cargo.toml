@@ -7,7 +7,7 @@ members = [
 default-members = ["crates/angreal"]
 
 [workspace.package]
-version = "2.6.0"
+version = "2.7.0"
 edition = "2021"
 license = "GPL-3.0-only"
 homepage = "https://github.com/angreal/angreal"

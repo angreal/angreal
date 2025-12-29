@@ -15,6 +15,7 @@ pub fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<AngrealCommand>()?;
     m.add_class::<AngrealArg>()?;
     m.add_class::<AngrealGroup>()?;
+    m.add_class::<ToolDescription>()?;
     debug!("Successfully registered all Angreal types");
     Ok(())
 }
@@ -84,6 +85,87 @@ pub struct AngrealGroup {
     #[pyo3(get)]
     pub about: Option<String>,
 }
+
+/// Rich description for exposing a command as an MCP tool
+///
+/// This class allows task authors to provide detailed, prose-based descriptions
+/// that help AI agents understand when and how to use a command effectively.
+/// The description is essentially a mini-prompt that teaches the agent about the tool.
+///
+/// # Example
+/// ```python
+/// import angreal
+///
+/// @angreal.command(
+///     name="build",
+///     about="Build the project",
+///     tool=angreal.ToolDescription("""
+/// Compiles all Rust crates and creates the Python wheel for distribution.
+///
+/// ## When to use
+/// - Before releasing a new version
+/// - Testing production builds locally
+///
+/// ## When NOT to use
+/// - During iterative development (use `cargo build` directly)
+///
+/// ## Examples
+/// ```
+/// angreal build
+/// angreal build --release
+/// ```
+///
+/// ## Preconditions
+/// - Rust toolchain installed
+/// - Run `angreal dev check-deps` first if unsure
+/// """)
+/// )
+/// def build():
+///     pass
+/// ```
+#[derive(Clone, Debug)]
+#[pyclass(name = "ToolDescription")]
+pub struct ToolDescription {
+    /// The full prose description of the tool (markdown supported)
+    #[pyo3(get)]
+    pub description: String,
+    /// Risk level: "safe", "read_only", or "destructive"
+    #[pyo3(get)]
+    pub risk_level: String,
+}
+
+#[pymethods]
+impl ToolDescription {
+    #[new]
+    #[pyo3(signature = (description, *, risk_level = None))]
+    fn __new__(description: &str, risk_level: Option<&str>) -> Self {
+        let risk = risk_level.unwrap_or("safe");
+        // Validate risk_level
+        let validated_risk = match risk {
+            "safe" | "read_only" | "destructive" => risk.to_string(),
+            _ => {
+                log::warn!(
+                    "Invalid risk_level '{}', defaulting to 'safe'. Valid values: safe, read_only, destructive",
+                    risk
+                );
+                "safe".to_string()
+            }
+        };
+
+        ToolDescription {
+            description: description.to_string(),
+            risk_level: validated_risk,
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "ToolDescription(description=<{} chars>, risk_level='{}')",
+            self.description.len(),
+            self.risk_level
+        )
+    }
+}
 /// Methods exposed in the python API
 #[pymethods]
 impl AngrealGroup {
@@ -130,12 +212,9 @@ pub struct AngrealCommand {
     /// The group this command belongs to
     #[pyo3(get)]
     pub group: Option<Vec<AngrealGroup>>,
-    /// Scenarios when this command should be used
+    /// Rich tool description for MCP integration
     #[pyo3(get)]
-    pub when_to_use: Option<Vec<String>>,
-    /// Scenarios when this command should not be used
-    #[pyo3(get)]
-    pub when_not_to_use: Option<Vec<String>>,
+    pub tool: Option<ToolDescription>,
 }
 
 impl Clone for AngrealCommand {
@@ -146,8 +225,7 @@ impl Clone for AngrealCommand {
             long_about: self.long_about.clone(),
             func: self.func.clone_ref(py),
             group: self.group.clone(),
-            when_to_use: self.when_to_use.clone(),
-            when_not_to_use: self.when_not_to_use.clone(),
+            tool: self.tool.clone(),
         })
     }
 }
@@ -179,15 +257,14 @@ impl AngrealCommand {
     /// long_about='a much longer message`, func=test-message)
     /// ```
     #[new]
-    #[pyo3(signature = (name, func, about=None, long_about=None, group=None, when_to_use=None, when_not_to_use=None))]
+    #[pyo3(signature = (name, func, about=None, long_about=None, group=None, tool=None))]
     fn __new__(
         name: &str,
         func: Py<PyAny>,
         about: Option<&str>,
         long_about: Option<&str>,
         group: Option<Vec<AngrealGroup>>,
-        when_to_use: Option<Vec<String>>,
-        when_not_to_use: Option<Vec<String>>,
+        tool: Option<ToolDescription>,
     ) -> Self {
         debug!("Creating new AngrealCommand with name: {}", name);
         let cmd = AngrealCommand {
@@ -196,8 +273,7 @@ impl AngrealCommand {
             long_about: long_about.map(|i| i.to_string()),
             group,
             func,
-            when_to_use,
-            when_not_to_use,
+            tool,
         };
 
         let path_key = generate_command_path_key(&cmd);
@@ -456,8 +532,7 @@ mod tests {
                 long_about: None,
                 group: Some(vec![group1.clone()]),
                 func: py.None(),
-                when_to_use: None,
-                when_not_to_use: None,
+                tool: None,
             };
 
             let cmd2 = AngrealCommand {
@@ -466,8 +541,7 @@ mod tests {
                 long_about: None,
                 group: Some(vec![group2.clone()]),
                 func: py.None(),
-                when_to_use: None,
-                when_not_to_use: None,
+                tool: None,
             };
 
             // Register both commands
@@ -543,8 +617,7 @@ mod tests {
                 long_about: None,
                 group: Some(vec![group1]),
                 func: py.None(),
-                when_to_use: None,
-                when_not_to_use: None,
+                tool: None,
             };
 
             let cmd2 = AngrealCommand {
@@ -553,8 +626,7 @@ mod tests {
                 long_about: None,
                 group: Some(vec![group2]),
                 func: py.None(),
-                when_to_use: None,
-                when_not_to_use: None,
+                tool: None,
             };
 
             let path1 = generate_command_path_key(&cmd1);

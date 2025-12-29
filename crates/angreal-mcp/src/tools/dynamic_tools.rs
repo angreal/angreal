@@ -1,4 +1,4 @@
-use rust_mcp_sdk::schema::{Tool, ToolInputSchema};
+use rust_mcp_sdk::schema::{Tool, ToolAnnotations, ToolInputSchema};
 use serde_json::json;
 use tracing::{debug, warn};
 
@@ -50,10 +50,12 @@ fn try_discover_from_registry() -> Result<Vec<Tool>, Box<dyn std::error::Error>>
             name: tool_name.clone(),
             description: Some(generate_enhanced_description(command)),
             input_schema: generate_command_schema(command, path)?,
-            annotations: None,
+            annotations: Some(generate_tool_annotations(command)),
             meta: None,
             output_schema: None,
             title: None,
+            execution: None,
+            icons: vec![],
         };
 
         debug!("Created MCP tool: {}", tool_name);
@@ -112,6 +114,8 @@ fn discover_from_filesystem() -> Vec<Tool> {
                                 meta: None,
                                 output_schema: None,
                                 title: None,
+                                execution: None,
+                                icons: vec![],
                             }
                         })
                         .collect()
@@ -129,34 +133,46 @@ fn discover_from_filesystem() -> Vec<Tool> {
     }
 }
 
-/// Generate enhanced description including when_to_use and when_not_to_use information
+/// Generate enhanced description using ToolDescription if available, otherwise fall back to about
 fn generate_enhanced_description(command: &angreal::task::AngrealCommand) -> String {
-    let mut description = command
-        .about
-        .clone()
-        .unwrap_or_else(|| "Angreal command".to_string());
+    // If a ToolDescription is provided, use it as the primary description
+    if let Some(tool) = &command.tool {
+        let base = command
+            .about
+            .clone()
+            .unwrap_or_else(|| "Angreal command".to_string());
 
-    // Add when_to_use section if available
-    if let Some(when_to_use) = &command.when_to_use {
-        if !when_to_use.is_empty() {
-            description.push_str("\n\nWhen to use:");
-            for item in when_to_use {
-                description.push_str(&format!("\n• {}", item));
-            }
-        }
+        // Combine the short about with the full tool description
+        format!("{}\n\n{}", base, tool.description.trim())
+    } else {
+        // Fall back to just the about text
+        command
+            .about
+            .clone()
+            .unwrap_or_else(|| "Angreal command".to_string())
     }
+}
 
-    // Add when_not_to_use section if available
-    if let Some(when_not_to_use) = &command.when_not_to_use {
-        if !when_not_to_use.is_empty() {
-            description.push_str("\n\nWhen NOT to use:");
-            for item in when_not_to_use {
-                description.push_str(&format!("\n• {}", item));
-            }
+/// Generate MCP tool annotations based on ToolDescription risk_level
+fn generate_tool_annotations(command: &angreal::task::AngrealCommand) -> ToolAnnotations {
+    let (destructive, read_only) = if let Some(tool) = &command.tool {
+        match tool.risk_level.as_str() {
+            "destructive" => (Some(true), Some(false)),
+            "read_only" => (Some(false), Some(true)),
+            "safe" | _ => (Some(false), Some(false)),
         }
-    }
+    } else {
+        // Default to safe if no tool description
+        (Some(false), Some(false))
+    };
 
-    description
+    ToolAnnotations {
+        destructive_hint: destructive,
+        idempotent_hint: None, // Could be extended later
+        open_world_hint: Some(false),
+        read_only_hint: read_only,
+        title: None,
+    }
 }
 
 /// Generate schema for a command based on its arguments

@@ -5,7 +5,7 @@ use rust_mcp_sdk::{
         Implementation, InitializeResult, ServerCapabilities, ServerCapabilitiesTools,
         LATEST_PROTOCOL_VERSION,
     },
-    McpServer, StdioTransport, TransportOptions,
+    McpServer, StdioTransport, ToMcpServerHandler, TransportOptions,
 };
 use tracing::{info, warn};
 
@@ -40,6 +40,11 @@ async fn main() -> Result<()> {
             name: "Angreal MCP Server".to_string(),
             version: env!("CARGO_PKG_VERSION").to_string(),
             title: Some("Angreal MCP Server".to_string()),
+            description: Some(
+                "MCP server for angreal project task automation and execution".to_string(),
+            ),
+            icons: vec![],
+            website_url: Some("https://github.com/angreal/angreal".to_string()),
         },
         capabilities: ServerCapabilities {
             tools: Some(ServerCapabilitiesTools { list_changed: None }),
@@ -72,8 +77,8 @@ Tools accept arguments as defined by each command. Check tool descriptions for s
     let transport = StdioTransport::new(transport_options)
         .map_err(|e| anyhow::anyhow!("Failed to create transport: {}", e))?;
 
-    // Create handler
-    let handler = AngrealMcpHandler::new(is_angreal_project);
+    // Create handler and convert to MCP server handler
+    let handler = AngrealMcpHandler::new(is_angreal_project).to_mcp_server_handler();
 
     // Create and start server
     let server = server_runtime::create_server(server_details, transport, handler);

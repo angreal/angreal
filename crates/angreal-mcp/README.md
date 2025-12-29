@@ -42,6 +42,25 @@ Add to your Claude Desktop configuration:
 }
 ```
 
+### With Claude Code
+
+```bash
+claude mcp add --scope user --transport stdio angreal -- angreal-mcp
+```
+
+**Optional: Install the Angreal Skill**
+
+The Angreal skill teaches Claude *when* and *why* to use angreal tools (task discovery, authoring patterns, best practices):
+
+```bash
+/plugin marketplace add angreal/angreal
+/plugin install angreal@angreal-angreal
+```
+
+The skill provides guidance on:
+- **Using tasks**: Discovering available tasks, invoking them correctly, interpreting output
+- **Authoring tasks**: Creating task files, command groups, arguments, and effective ToolDescriptions
+
 ### With Cline (VS Code)
 
 Add to your Cline configuration:

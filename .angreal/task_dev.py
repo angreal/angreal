@@ -13,15 +13,27 @@ def is_program_available(program_name):
 @angreal.command(
     name="check-deps",
     about="Verify required development tools are installed",
-    when_to_use=[
-        "Setting up development environment",
-        "Troubleshooting build issues",
-        "Before running documentation or build tasks"
-    ],
-    when_not_to_use=[
-        "During normal development workflow",
-        "When all dependencies are known to be installed"
-    ]
+    tool=angreal.ToolDescription("""
+Checks for system-level dependencies required for angreal development.
+
+## When to use
+- Setting up a new development environment
+- Troubleshooting build failures
+- Before running documentation or build tasks for the first time
+
+## When NOT to use
+- During normal development workflow when deps are known to be installed
+- In CI/CD pipelines (use explicit dependency installation instead)
+
+## Examples
+```
+angreal dev check-deps
+```
+
+## Output
+Shows a checklist of required tools (hugo, cargo) with installation
+instructions for any that are missing.
+""", risk_level="read_only")
 )
 def check_system_dependencies():
     """

@@ -26,7 +26,6 @@ fn base_app_setup() -> App<'static> {
                 .short('v')
                 .long("verbose")
                 .action(ArgAction::Count)
-                .global(true)
                 .help("verbose level, (may be used multiple times for more verbosity)"),
         )
         .version(version!())
