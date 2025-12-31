@@ -106,7 +106,8 @@ The `tree` command is designed for integration with Model Context Protocol (MCP)
 
 - Project context (root directory, Angreal version)
 - Complete command hierarchy with full command paths
-- Usage guidance (`when_to_use` and `when_not_to_use` fields)
+- Rich tool descriptions from `ToolDescription` objects
+- Risk level annotations (safe, read_only, destructive)
 - Parameter information with types and requirements
 
 This enables AI agents to understand available commands and make informed decisions about when and how to use them. The JSON output is optimized for MCP consumption and automated tooling integration.

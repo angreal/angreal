@@ -1,5 +1,6 @@
 ---
 id: angreal
+short_code: "ANG-V-0001"
 level: vision
 title: "angreal"
 created_at: 2025-07-11T15:27:51.585193+00:00

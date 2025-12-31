@@ -1,9 +1,10 @@
-import angreal
+"""Core test commands for angreal."""
 import os
 import subprocess
 import tempfile
 from pathlib import Path
 
+import angreal
 from angreal.integrations.venv import VirtualEnv
 
 project_root = Path(angreal.get_root()).parent
@@ -11,58 +12,97 @@ project_root = Path(angreal.get_root()).parent
 test = angreal.command_group(name="test", about="commands for testing the"
                              " application and library")
 
+
 @test()
 @angreal.command(
     name="all",
     about="Run complete test suite (Python, Rust, completion)",
-    when_to_use=[
-        "Before major releases",
-        "After significant changes",
-        "For comprehensive validation"
-    ],
-    when_not_to_use=[
-        "During rapid development cycles",
-        "When running specific test types"
-    ]
+    tool=angreal.ToolDescription("""
+Run the complete test suite including Python, Rust, completion, and MCP tests.
+
+## When to use
+- Before major releases
+- After significant changes across multiple components
+- For comprehensive validation
+
+## When NOT to use
+- During rapid development cycles (use specific test commands)
+- When only one component changed
+
+## Examples
+```
+angreal test all
+```
+""", risk_level="safe")
 )
 def all_tests():
     """
-    Run all tests: Python, Rust (unit + integration), and completion tests
+    Run all tests: Python, Rust (unit + integration), completion, and MCP tests
     """
+    # Import MCP tests here to avoid circular imports
+    from task_test_mcp import test_mcp_all
+
     print("=== Running All Tests ===\n")
+    failures = []
 
     print("1. Running Python tests...")
-    python_tests()
+    result = python_tests()
+    if result:
+        failures.append("Python tests")
 
     print("\n2. Running Rust tests...")
-    rust_tests_combined()
+    result = rust_tests_combined()
+    if result:
+        failures.append("Rust tests")
 
     print("\n3. Running completion tests...")
-    test_completion_all()
+    result = test_completion_all()
+    if result:
+        failures.append("Completion tests")
 
-    print("\n🎉 All test suites completed!")
+    print("\n4. Running MCP tests...")
+    result = test_mcp_all()
+    if result:
+        failures.append("MCP tests")
+
+    if failures:
+        print(f"\nFAIL: The following test suites failed: {', '.join(failures)}")
+        return 1
+
+    print("\nAll test suites completed!")
 
 
 @test()
 @angreal.command(
     name="python",
     about="Run Python unit tests with pytest in isolated environment",
-    when_to_use=[
-        "After Python code changes",
-        "Before committing Python changes",
-        "To verify Python functionality"
-    ],
-    when_not_to_use=["When only Rust code changed", "During Rust development cycles"]
+    tool=angreal.ToolDescription("""
+Run Python unit tests with pytest in an isolated virtual environment.
+
+## When to use
+- After Python code changes
+- Before committing Python changes
+- To verify Python bindings work correctly
+
+## When NOT to use
+- When only Rust code changed
+- During Rust-only development cycles
+
+## Examples
+```
+angreal test python
+```
+""", risk_level="safe")
 )
 def python_tests():
     """
     Run the Python unit tests in isolated environment
     """
+    import sys
 
     print("Creating isolated test environment...")
     with VirtualEnv("angreal-pytest-venv", now=True) as venv:
         # Ensure pip is available (platform-specific paths)
-        import sys
         if sys.platform == "win32":
             python_exe = os.path.join(venv.path, "Scripts", "python.exe")
             pip_exe = os.path.join(venv.path, "Scripts", "pip.exe")
@@ -97,21 +137,32 @@ def python_tests():
             cwd=str(project_root)
         )
         if result.returncode != 0:
-            exit(result.returncode)
+            return result.returncode
+
 
 @test()
 @angreal.command(
     name="rust",
     about="Run Rust unit and integration tests with cargo",
-    when_to_use=[
-        "After Rust code changes",
-        "Before committing Rust changes",
-        "To verify core functionality"
-    ],
-    when_not_to_use=[
-        "When only Python code changed",
-        "During Python development cycles"
-    ]
+    tool=angreal.ToolDescription("""
+Run Rust unit and integration tests using cargo.
+
+## When to use
+- After Rust code changes
+- Before committing Rust changes
+- To verify core functionality
+
+## When NOT to use
+- When only Python code changed
+- During Python-only development cycles
+
+## Examples
+```
+angreal test rust              # Run all Rust tests
+angreal test rust --unit-only  # Run unit tests only
+angreal test rust --integration-only  # Run integration tests only
+```
+""", risk_level="safe")
 )
 @angreal.argument(
     name="unit_only",
@@ -139,51 +190,69 @@ def rust_tests_combined(unit_only: bool = False, integration_only: bool = False)
 
     if integration_only:
         print("Running Rust integration tests only...")
-        integration_rust_tests()
+        return integration_rust_tests()
     elif unit_only:
         print("Running Rust unit tests only...")
-        unit_rust_tests()
+        return unit_rust_tests()
     else:
         print("Running all Rust tests...")
-        unit_rust_tests()
-        integration_rust_tests()
+        result = unit_rust_tests()
+        if result:
+            return result
+        return integration_rust_tests()
+
 
 def integration_rust_tests():
     """
     Run the Rust integration tests
     """
     result = subprocess.run(
-        "cargo test --workspace --test integration -v -- --nocapture --test-threads=1",
-        cwd=str(project_root), shell=True
+        ["cargo", "test", "--workspace", "--test", "integration", "-v",
+         "--", "--nocapture", "--test-threads=1"],
+        cwd=str(project_root)
     )
     if result.returncode != 0:
-        exit(result.returncode)
+        return result.returncode
+    return 0
+
 
 def unit_rust_tests():
     """
     Run the Rust unit tests
     """
     result = subprocess.run(
-        "cargo test --workspace --lib -v -- --nocapture --test-threads=1",
-        cwd=str(project_root), shell=True
+        ["cargo", "test", "--workspace", "--lib", "-v",
+         "--", "--nocapture", "--test-threads=1"],
+        cwd=str(project_root)
     )
     if result.returncode != 0:
-        exit(result.returncode)
+        return result.returncode
+    return 0
 
 
 @test()
 @angreal.command(
     name="completion",
     about="Run shell completion tests for bash and zsh",
-    when_to_use=[
-        "After modifying completion logic",
-        "Before releases",
-        "When testing shell integration"
-    ],
-    when_not_to_use=[
-        "During core functionality development",
-        "When completion is not affected"
-    ]
+    tool=angreal.ToolDescription("""
+Run shell completion tests for bash and zsh.
+
+## When to use
+- After modifying completion logic
+- Before releases
+- When testing shell integration
+
+## When NOT to use
+- During core functionality development
+- When completion is not affected
+
+## Examples
+```
+angreal test completion           # Run all completion tests
+angreal test completion --shell=bash  # Bash only
+angreal test completion --shell=zsh   # Zsh only
+```
+""", risk_level="safe")
 )
 @angreal.argument(
     name="shell",
@@ -212,7 +281,8 @@ def test_completion_all(shell: str = None):
         test_zsh_completion()
         test_completion_generation()
         test_template_discovery()
-        print("🎉 All completion tests passed!")
+        print("PASS: All completion tests")
+
 
 def test_bash_completion():
     """
@@ -240,13 +310,14 @@ def test_bash_completion():
     # Verify script content
     script = result.stdout
     if "_angreal_completion" not in script:
-        print(f"❌ Bash completion function not found in script: {script[:200]}...")
+        print(f"FAIL: Bash completion function not found in script: {script[:200]}...")
         return
     if "complete -F _angreal_completion angreal" not in script:
-        print(f"❌ Completion registration not found in script: {script[:200]}...")
+        print(f"FAIL: Completion registration not found in script: {script[:200]}...")
         return
 
-    print("✅ Bash completion script generation: PASSED")
+    print("OK: Bash completion script generation")
+
 
 def test_zsh_completion():
     """
@@ -274,13 +345,14 @@ def test_zsh_completion():
     # Verify script content
     script = result.stdout
     if "#compdef angreal" not in script:
-        print(f"❌ Zsh compdef not found in script: {script[:200]}...")
+        print(f"FAIL: Zsh compdef not found in script: {script[:200]}...")
         return
     if "_angreal" not in script:
-        print(f"❌ Zsh completion function not found in script: {script[:200]}...")
+        print(f"FAIL: Zsh completion function not found in script: {script[:200]}...")
         return
 
-    print("✅ Zsh completion script generation: PASSED")
+    print("OK: Zsh completion script generation")
+
 
 def test_completion_generation():
     """
@@ -304,7 +376,7 @@ def test_completion_generation():
         completions = result.stdout.strip().split('\n')
         print(f"Init completions: {completions}")
         # Note: We can't guarantee template suggestions due to network dependency
-        print("✅ Init completion generation: PASSED")
+        print("OK: Init completion generation")
     else:
         print(f"Init completion failed: {result.stderr}")
 
@@ -323,11 +395,12 @@ def test_completion_generation():
 
         # Should include our test commands
         if not any("test" in comp for comp in completions):
-            print(f"❌ Test command not found in completions: {completions}")
+            print(f"FAIL: Test command not found in completions: {completions}")
             return
-        print("✅ Project task completion generation: PASSED")
+        print("OK: Project task completion generation")
     else:
         print(f"Project completion failed: {result.stderr}")
+
 
 def test_template_discovery():
     """
@@ -373,10 +446,10 @@ def test_template_discovery():
                 )
 
                 if has_local_templates:
-                    print("✅ Local template discovery: PASSED")
+                    print("OK: Local template discovery")
                 else:
                     print(
-                        "⚠️  Local template discovery: No local templates found "
+                        "WARN: Local template discovery: No local templates found "
                         "(may include GitHub templates)"
                     )
 

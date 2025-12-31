@@ -48,15 +48,15 @@ def check_system_dependencies():
     missing_deps = False
     for dep in dependencies_required:
         if is_program_available(dep[0]):
-            print(f"✅ {dep[0]} is available")
+            print(f"OK: {dep[0]} is available")
         else:
-            print(f"❌ {dep[0]} is not available - install via: {dep[1]}")
+            print(f"MISSING: {dep[0]} - install via: {dep[1]}")
             missing_deps = True
 
     if missing_deps:
-        print("\n⚠️  Some system dependencies are missing. "
+        print("\nWARN: Some system dependencies are missing. "
               "Install them to use all features.")
         return 1
     else:
-        print("\n🎉 All system dependencies are available!")
+        print("\nAll system dependencies are available!")
         return 0

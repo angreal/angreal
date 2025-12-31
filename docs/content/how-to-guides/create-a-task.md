@@ -18,19 +18,38 @@ import angreal
 
 @angreal.command(
     name='command-name',
-    about='text-to-display',
-    when_to_use=['During development', 'For testing features'],
-    when_not_to_use=['In production deployments', 'When debugging']
+    about='Short description for --help',
+    tool=angreal.ToolDescription("""
+Detailed description of what the command does.
+
+## When to use
+- During development
+- For testing features
+
+## When NOT to use
+- In production deployments
+- When debugging
+
+## Examples
+```
+angreal command-name
+angreal command-name --flag
+```
+""", risk_level="safe")
 )
 def command_function():
     return
 ```
 
-## MCP Integration Fields
+## MCP Integration with ToolDescription
 
-The `when_to_use` and `when_not_to_use` fields provide guidance for AI agents and tools about appropriate usage contexts:
+The `tool` parameter accepts a `ToolDescription` object that provides rich guidance for AI agents via MCP:
 
-- **when_to_use**: List scenarios where this command is appropriate
-- **when_not_to_use**: List scenarios where this command should be avoided
+```python
+angreal.ToolDescription(description, risk_level="safe")
+```
 
-These fields enhance the machine-readable command tree output and improve AI agent decision-making.
+- **description**: Prose description with markdown. Include "When to use", "When NOT to use", and "Examples" sections.
+- **risk_level**: One of `"safe"`, `"read_only"`, or `"destructive"`. Maps to MCP tool annotations.
+
+This enables AI agents to understand when and how to use your commands appropriately.
