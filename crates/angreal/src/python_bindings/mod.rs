@@ -46,7 +46,7 @@ pub fn initialize() -> PyResult<()> {
 ///
 /// This assembles all the submodules and functions into the main angreal module
 /// that Python will import.
-pub(crate) fn create_angreal_module(py: Python) -> PyResult<Bound<'_, PyModule>> {
+pub(crate) fn create_angreal_module(py: Python<'_>) -> PyResult<Bound<'_, PyModule>> {
     let m = PyModule::new(py, "angreal")?;
 
     // Add version info

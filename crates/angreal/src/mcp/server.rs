@@ -10,7 +10,7 @@ use rust_mcp_sdk::{
 use std::sync::Arc;
 use tracing::{debug, info};
 
-use crate::tools::{angreal_command_tool::AngrealCommandTool, ToolRegistry};
+use crate::mcp::tools::{angreal_command_tool::AngrealCommandTool, ToolRegistry};
 
 pub struct AngrealMcpHandler {
     tools: ToolRegistry,
@@ -110,19 +110,19 @@ impl AngrealMcpHandler {
         debug!("Mapping tool name '{}' to command path", tool_name);
 
         // Initialize angreal tasks to ensure registry is populated
-        angreal::initialize_python_tasks().map_err(|e| {
-            CallToolError::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("Failed to initialize angreal tasks: {}", e),
-            ))
+        crate::initialize_python_tasks().map_err(|e| {
+            CallToolError::new(std::io::Error::other(format!(
+                "Failed to initialize angreal tasks: {}",
+                e
+            )))
         })?;
 
         // Search through registered commands to find matching tool name
-        let tasks = angreal::task::ANGREAL_TASKS.lock().map_err(|e| {
-            CallToolError::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("Failed to lock ANGREAL_TASKS: {}", e),
-            ))
+        let tasks = crate::task::ANGREAL_TASKS.lock().map_err(|e| {
+            CallToolError::new(std::io::Error::other(format!(
+                "Failed to lock ANGREAL_TASKS: {}",
+                e
+            )))
         })?;
 
         for (command_path, _command) in tasks.iter() {

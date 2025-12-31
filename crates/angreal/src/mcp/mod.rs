@@ -1,3 +1,11 @@
+//! MCP (Model Context Protocol) server for angreal
+//!
+//! This module provides an MCP server that exposes angreal tasks as tools
+//! for AI assistants to use.
+
+pub mod server;
+pub mod tools;
+
 use anyhow::Result;
 use rust_mcp_sdk::{
     mcp_server::server_runtime,
@@ -7,15 +15,21 @@ use rust_mcp_sdk::{
     },
     McpServer, StdioTransport, ToMcpServerHandler, TransportOptions,
 };
-use tracing::{info, warn};
-
-mod server;
-mod tools;
+use tracing::info;
 
 use server::AngrealMcpHandler;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+/// Run the MCP server
+///
+/// This function starts the MCP server and listens for requests on stdio.
+/// It should be called when the `angreal mcp` subcommand is invoked.
+pub fn run_server() -> Result<()> {
+    // Create a tokio runtime for the async server
+    let rt = tokio::runtime::Runtime::new()?;
+    rt.block_on(run_server_async())
+}
+
+async fn run_server_async() -> Result<()> {
     // Initialize basic logging to stderr
     tracing_subscriber::fmt()
         .with_writer(std::io::stderr)
@@ -26,10 +40,10 @@ async fn main() -> Result<()> {
     info!("Starting angreal MCP server");
 
     // Check if we're in an angreal project
-    let is_angreal_project = angreal::utils::is_angreal_project().is_ok();
+    let is_angreal_project = crate::utils::is_angreal_project().is_ok();
 
     if !is_angreal_project {
-        warn!("Not in an angreal project, running with zero tools");
+        tracing::warn!("Not in an angreal project, running with zero tools");
     } else {
         info!("Detected angreal project, initializing tools");
     }
@@ -72,7 +86,6 @@ Tools accept arguments as defined by each command. Check tool descriptions for s
     // Create transport with extended timeout for long-running angreal commands
     let transport_options = TransportOptions {
         timeout: std::time::Duration::from_secs(600), // 10 minutes timeout
-        ..Default::default()
     };
     let transport = StdioTransport::new(transport_options)
         .map_err(|e| anyhow::anyhow!("Failed to create transport: {}", e))?;

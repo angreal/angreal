@@ -30,19 +30,19 @@ impl AngrealCommandTool {
         debug!("Executing angreal command: {}", self.command_path);
 
         // Ensure Python tasks are initialized
-        angreal::initialize_python_tasks().map_err(|e| {
-            CallToolError::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("Failed to initialize angreal tasks: {}", e),
-            ))
+        crate::initialize_python_tasks().map_err(|e| {
+            CallToolError::new(std::io::Error::other(format!(
+                "Failed to initialize angreal tasks: {}",
+                e
+            )))
         })?;
 
         // Get the command from the registry
-        let tasks = angreal::task::ANGREAL_TASKS.lock().map_err(|e| {
-            CallToolError::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("Failed to lock ANGREAL_TASKS: {}", e),
-            ))
+        let tasks = crate::task::ANGREAL_TASKS.lock().map_err(|e| {
+            CallToolError::new(std::io::Error::other(format!(
+                "Failed to lock ANGREAL_TASKS: {}",
+                e
+            )))
         })?;
 
         let command = tasks.get(&self.command_path).ok_or_else(|| {
@@ -58,11 +58,11 @@ impl AngrealCommandTool {
         );
 
         // Get command arguments definition
-        let args_registry = angreal::task::ANGREAL_ARGS.lock().map_err(|e| {
-            CallToolError::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("Failed to lock ANGREAL_ARGS: {}", e),
-            ))
+        let args_registry = crate::task::ANGREAL_ARGS.lock().map_err(|e| {
+            CallToolError::new(std::io::Error::other(format!(
+                "Failed to lock ANGREAL_ARGS: {}",
+                e
+            )))
         })?;
 
         let command_args = args_registry

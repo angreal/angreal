@@ -142,6 +142,14 @@ fn add_completion_subcommand(app: App<'static>) -> App<'static> {
     )
 }
 
+fn add_mcp_subcommand(app: App<'static>) -> App<'static> {
+    app.subcommand(
+        Command::new("mcp")
+            .about("Start the MCP server for AI assistant integration")
+            .hide(true),
+    )
+}
+
 fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
     // Build the command tree
     let mut root = CommandNode::new_group("angreal".to_string(), None);
@@ -219,10 +227,11 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
     // Build the initial App with angreal sub commands
     let mut app = base_app_setup();
 
-    // Always add completion subcommands (hidden), alias management, and completion management
+    // Always add completion subcommands (hidden), alias management, completion management, and MCP
     app = add_completion_subcommands(app);
     app = add_alias_subcommand(app);
     app = add_completion_subcommand(app);
+    app = add_mcp_subcommand(app);
 
     if in_angreal_project {
         app = add_project_subcommands(app);

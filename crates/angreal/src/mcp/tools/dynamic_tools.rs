@@ -26,10 +26,10 @@ pub fn discover_angreal_commands() -> Vec<Tool> {
 /// Try to discover commands from the ANGREAL_TASKS registry
 fn try_discover_from_registry() -> Result<Vec<Tool>, Box<dyn std::error::Error>> {
     // Initialize Python tasks using angreal's function
-    angreal::initialize_python_tasks()?;
+    crate::initialize_python_tasks()?;
 
     // Access the ANGREAL_TASKS from the angreal crate
-    let tasks = angreal::task::ANGREAL_TASKS
+    let tasks = crate::task::ANGREAL_TASKS
         .lock()
         .map_err(|e| format!("Failed to lock ANGREAL_TASKS: {}", e))?;
 
@@ -82,11 +82,11 @@ fn discover_from_filesystem() -> Vec<Tool> {
     debug!("Falling back to filesystem discovery");
 
     // Try to find and parse task files directly
-    match angreal::utils::is_angreal_project() {
+    match crate::utils::is_angreal_project() {
         Ok(project_path) => {
             debug!("Found angreal project at: {}", project_path.display());
 
-            match angreal::utils::get_task_files(project_path.join(".angreal")) {
+            match crate::utils::get_task_files(project_path.join(".angreal")) {
                 Ok(task_files) => {
                     debug!("Found {} task files", task_files.len());
 
@@ -134,7 +134,7 @@ fn discover_from_filesystem() -> Vec<Tool> {
 }
 
 /// Generate enhanced description using ToolDescription if available, otherwise fall back to about
-fn generate_enhanced_description(command: &angreal::task::AngrealCommand) -> String {
+fn generate_enhanced_description(command: &crate::task::AngrealCommand) -> String {
     // If a ToolDescription is provided, use it as the primary description
     if let Some(tool) = &command.tool {
         let base = command
@@ -154,12 +154,13 @@ fn generate_enhanced_description(command: &angreal::task::AngrealCommand) -> Str
 }
 
 /// Generate MCP tool annotations based on ToolDescription risk_level
-fn generate_tool_annotations(command: &angreal::task::AngrealCommand) -> ToolAnnotations {
+fn generate_tool_annotations(command: &crate::task::AngrealCommand) -> ToolAnnotations {
     let (destructive, read_only) = if let Some(tool) = &command.tool {
         match tool.risk_level.as_str() {
             "destructive" => (Some(true), Some(false)),
             "read_only" => (Some(false), Some(true)),
-            "safe" | _ => (Some(false), Some(false)),
+            "safe" => (Some(false), Some(false)),
+            _ => (Some(false), Some(false)), // Unknown defaults to safe
         }
     } else {
         // Default to safe if no tool description
@@ -177,11 +178,11 @@ fn generate_tool_annotations(command: &angreal::task::AngrealCommand) -> ToolAnn
 
 /// Generate schema for a command based on its arguments
 fn generate_command_schema(
-    _command: &angreal::task::AngrealCommand,
+    _command: &crate::task::AngrealCommand,
     command_path: &str,
 ) -> Result<ToolInputSchema, Box<dyn std::error::Error>> {
     // Access ANGREAL_ARGS to get the actual arguments for this command
-    let args_registry = angreal::task::ANGREAL_ARGS
+    let args_registry = crate::task::ANGREAL_ARGS
         .lock()
         .map_err(|e| format!("Failed to lock ANGREAL_ARGS: {}", e))?;
 

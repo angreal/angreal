@@ -47,7 +47,7 @@ impl Git {
     }
 
     /// Get default signature for commits
-    fn get_signature(&self) -> Result<Signature> {
+    fn get_signature(&self) -> Result<Signature<'_>> {
         // Try to get from git config, fallback to defaults
         let repo = self.get_repo()?;
         let config = repo.config()?;

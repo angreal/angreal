@@ -17,6 +17,7 @@ pub mod git;
 pub mod init;
 pub mod integrations;
 pub mod logger;
+pub mod mcp;
 pub mod py_logger;
 pub mod python_bindings;
 pub mod task;
@@ -663,6 +664,14 @@ fn main() -> PyResult<()> {
                     );
                     exit(1);
                 }
+            }
+            return Ok(());
+        }
+        Some(("mcp", _)) => {
+            // Start the MCP server
+            if let Err(e) = crate::mcp::run_server() {
+                error!("MCP server failed: {}", e);
+                exit(1);
             }
             return Ok(());
         }

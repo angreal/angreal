@@ -43,9 +43,11 @@ dependencies = [
 
 [[package]]
 name = "angreal"
-version = "2.7.0"
+version = "2.7.1"
 dependencies = [
  "anyhow",
+ "async-trait",
+ "chrono",
  "clap",
  "docker-pyo3",
  "git-url-parse",
@@ -53,6 +55,7 @@ dependencies = [
  "git2_credentials",
  "glob",
  "home",
+ "hyper-util",
  "log",
  "log4rs",
  "once_cell",
@@ -62,35 +65,21 @@ dependencies = [
  "rand",
  "regex",
  "reqwest",
+ "rust-mcp-sdk",
  "same-file",
+ "schemars",
  "serde",
  "serde_json",
  "tempfile",
  "tera",
  "text_io",
+ "tokio",
  "toml",
+ "tracing",
+ "tracing-subscriber",
  "version",
  "version-compare",
  "walkdir",
-]
-
-[[package]]
-name = "angreal_mcp"
-version = "2.7.0"
-dependencies = [
- "angreal",
- "anyhow",
- "async-trait",
- "chrono",
- "hyper-util",
- "pyo3",
- "rust-mcp-sdk",
- "schemars",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]

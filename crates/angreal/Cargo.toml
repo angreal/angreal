@@ -5,7 +5,7 @@ homepage = "https://github.com/angreal/angreal"
 license = "GPL-3.0-only"
 name = "angreal"
 repository = "https://github.com/angreal/angreal"
-version = "2.7.0"
+version = "2.7.1"
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -45,6 +45,19 @@ version = { version = "3.0.0" }
 version-compare = { version = "0.1.1" }
 walkdir = { version = "2.3.2" }
 
+# MCP server dependencies
+rust-mcp-sdk = { version = "0.7.4", git = "https://github.com/rust-mcp-stack/rust-mcp-sdk", rev = "54d0237f04befce3ce21c9d8ffe19cb567c1ffad", default-features = false, features = [
+    "server",
+    "macros",
+    "stdio",
+] }
+hyper-util = "=0.1.17"
+schemars = "0.8"
+chrono = { version = "0.4", features = ["serde"] }
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+async-trait = "0.1"
 
 [dev-dependencies]
 rand = { version="0.8.5" }

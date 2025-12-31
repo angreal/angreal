@@ -371,3 +371,6 @@ pyvenv.cfg
 pip-selfcheck.json
 
 /doit-db.json
+
+# Test virtual environment
+angreal-pytest-venv/
