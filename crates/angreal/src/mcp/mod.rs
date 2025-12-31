@@ -30,12 +30,12 @@ pub fn run_server() -> Result<()> {
 }
 
 async fn run_server_async() -> Result<()> {
-    // Initialize basic logging to stderr
-    tracing_subscriber::fmt()
+    // Initialize basic logging to stderr (ignore if already initialized)
+    let _ = tracing_subscriber::fmt()
         .with_writer(std::io::stderr)
         .with_ansi(false)
         .with_max_level(tracing::Level::DEBUG)
-        .init();
+        .try_init();
 
     info!("Starting angreal MCP server");
 

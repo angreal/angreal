@@ -25,8 +25,22 @@ import angreal
 @angreal.command(
     name="hello",
     about="Say hello to someone",
-    when_to_use=["For greeting users", "During initial setup"],
-    when_not_to_use=["In automated scripts", "During production deployment"]
+    tool=angreal.ToolDescription("""
+Greet someone by name.
+
+## When to use
+- For greeting users
+- During initial setup
+
+## When NOT to use
+- In automated scripts
+- During production deployment
+
+## Examples
+```
+angreal hello --name=John
+```
+""", risk_level="safe")
 )
 @angreal.argument(name="name", long="name", takes_value=True, help="Name to greet")
 def hello_command(name="World"):
@@ -59,8 +73,18 @@ dev = angreal.command_group(name="dev", about="Development commands")
 @angreal.command(
     name="build",
     about="Build the project",
-    when_to_use=["After code changes", "Before testing", "During development"],
-    when_not_to_use=["In production environments", "Without code changes"]
+    tool=angreal.ToolDescription("""
+Build the project for development.
+
+## When to use
+- After code changes
+- Before testing
+- During development
+
+## When NOT to use
+- In production environments
+- Without code changes
+""", risk_level="safe")
 )
 def build_command():
     """

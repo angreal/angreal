@@ -83,15 +83,23 @@ def _integrate_rustdoc():
 @angreal.command(
     name="clean",
     about="Clean documentation build artifacts and cache",
-    when_to_use=[
-        "Before fresh documentation builds",
-        "When build artifacts are corrupted",
-        "During documentation troubleshooting"
-    ],
-    when_not_to_use=[
-        "During normal development",
-        "When incremental builds are sufficient"
-    ]
+    tool=angreal.ToolDescription("""
+Clean the documentation build directory (docs/public).
+
+## When to use
+- Before fresh documentation builds
+- When build artifacts are corrupted
+- During documentation troubleshooting
+
+## When NOT to use
+- During normal development
+- When incremental builds are sufficient
+
+## Examples
+```
+angreal docs clean
+```
+""", risk_level="destructive")
 )
 def clean():
     """Clean the documentation build directory."""
@@ -102,15 +110,24 @@ def clean():
 @angreal.command(
     name="serve",
     about="Start local documentation server with live reload",
-    when_to_use=[
-        "During documentation writing",
-        "For previewing documentation changes",
-        "When reviewing documentation locally"
-    ],
-    when_not_to_use=[
-        "In production environments",
-        "For final documentation builds"
-    ]
+    tool=angreal.ToolDescription("""
+Start local Hugo server with live reload for documentation development.
+
+## When to use
+- During documentation writing
+- For previewing documentation changes
+- When reviewing documentation locally
+
+## When NOT to use
+- In production environments
+- For final documentation builds
+
+## Examples
+```
+angreal docs serve         # Include drafts
+angreal docs serve --prod  # Exclude drafts
+```
+""", risk_level="safe")
 )
 @angreal.argument(
     name="prod",
@@ -168,12 +185,24 @@ def serve(prod: bool = False):
 @angreal.command(
     name="build",
     about="Build production documentation site with Rust API docs",
-    when_to_use=[
-        "For production deployments",
-        "Before releasing documentation",
-        "For final documentation review"
-    ],
-    when_not_to_use=["During active documentation writing", "For quick local previews"]
+    tool=angreal.ToolDescription("""
+Build the Hugo documentation site with integrated Rust API docs.
+
+## When to use
+- For production deployments
+- Before releasing documentation
+- For final documentation review
+
+## When NOT to use
+- During active documentation writing (use serve instead)
+- For quick local previews
+
+## Examples
+```
+angreal docs build          # Production build (no drafts)
+angreal docs build --draft  # Include draft content
+```
+""", risk_level="safe")
 )
 @angreal.argument(
     name="draft",
