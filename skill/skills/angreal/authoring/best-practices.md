@@ -350,9 +350,9 @@ def cmd(verbose=False):
 # Bad
 config = open("/Users/me/project/config.yaml")
 
-# Good
-root = angreal.get_root()
-config = open(os.path.join(root, "config.yaml"))
+# Good - get project root (parent of .angreal/)
+project_root = angreal.get_root().parent
+config = open(os.path.join(project_root, "config.yaml"))
 ```
 
 ### Don't Assume Environment

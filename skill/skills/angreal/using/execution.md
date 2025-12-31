@@ -190,7 +190,7 @@ Angreal MCP server has a 10-minute timeout for long-running tasks. For tasks tha
 
 ## Working Directory
 
-Tasks run in the project root (where `.angreal/` is located). Tasks should use `angreal.get_root()` to find the project root if they need absolute paths.
+Tasks run in the project root (where `.angreal/` is located). Tasks should use `angreal.get_root().parent` to find the project root if they need absolute paths. Note that `angreal.get_root()` returns the path to the `.angreal/` directory, not the project root.
 
 ## Capturing Output
 

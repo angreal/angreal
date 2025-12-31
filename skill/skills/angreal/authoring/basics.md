@@ -113,7 +113,7 @@ def status():
 
 ## Getting Project Root
 
-Use `angreal.get_root()` to find the project root:
+Use `angreal.get_root()` to find the `.angreal` directory, then get its parent for the project root:
 
 ```python
 import angreal
@@ -121,12 +121,47 @@ import os
 
 @angreal.command(name="list-files", about="List project files")
 def list_files():
-    root = angreal.get_root()
-    for item in os.listdir(root):
+    angreal_dir = angreal.get_root()        # Returns path to .angreal/
+    project_root = angreal_dir.parent       # Get the actual project root
+    for item in os.listdir(project_root):
         print(item)
 ```
 
-**Important**: Always use `get_root()` instead of hardcoding paths or using relative paths.
+**Important**:
+- `angreal.get_root()` returns the path to the `.angreal/` directory, NOT the project root
+- Use `.parent` to get the project root directory
+- Always use `get_root()` instead of hardcoding paths or using relative paths
+
+## Shared Modules
+
+You can create shared utility modules in `.angreal/` and import them from task files:
+
+```python
+# .angreal/utils.py
+import angreal
+
+def get_project_root():
+    """Return the project root directory."""
+    return angreal.get_root().parent
+
+def run_in_project(cmd):
+    """Run a command in the project root."""
+    import subprocess
+    return subprocess.run(cmd, cwd=get_project_root(), capture_output=True, text=True)
+```
+
+```python
+# .angreal/task_build.py
+import angreal
+from utils import run_in_project
+
+@angreal.command(name="build", about="Build the project")
+def build():
+    result = run_in_project(["cargo", "build"])
+    print(result.stdout)
+```
+
+This keeps task files focused while sharing common functionality.
 
 ## Error Handling
 
@@ -189,19 +224,19 @@ import subprocess
 )
 def build():
     """Build the project for distribution."""
-    root = angreal.get_root()
+    project_root = angreal.get_root().parent  # .angreal dir -> project root
 
     print("Starting build...")
 
     # Check prerequisites
-    if not os.path.exists(os.path.join(root, "Cargo.toml")):
+    if not os.path.exists(os.path.join(project_root, "Cargo.toml")):
         print("Error: Cargo.toml not found. Is this a Rust project?")
         return 1
 
     # Run build
     result = subprocess.run(
         ["cargo", "build", "--release"],
-        cwd=root,
+        cwd=project_root,
         capture_output=True,
         text=True
     )

@@ -9,6 +9,16 @@ Angreal is a task automation and project templating system that combines:
 - **Python tasks** for flexibility and ease of authoring
 - **MCP integration** for AI agent access
 
+### Focus: Development Tasks
+
+Angreal is focused on **development tasks within software projects**:
+- Building and testing code
+- Running linters and formatters
+- Generating documentation
+- Managing development workflows
+
+Angreal is **NOT** for installing or maintaining software distributions, system-level package management, or production deployment infrastructure.
+
 ## Agent Capabilities
 
 ### Using Tasks
@@ -46,6 +56,7 @@ When creating or modifying tasks, this agent understands:
 3. Provide `ToolDescription` with examples and guidance
 4. Group related commands logically
 5. Include proper error handling and feedback
+6. Create shared modules (e.g., `utils.py`) for common functionality
 
 ### Task Selection
 
@@ -62,7 +73,7 @@ When creating or modifying tasks, this agent understands:
 - Creating tasks without `about` descriptions
 - Missing error handling in task implementations
 - Mixing unrelated functionality in single tasks
-- Hardcoding paths instead of using `angreal.get_root()`
+- Hardcoding paths instead of using `angreal.get_root().parent` (note: `get_root()` returns `.angreal/` path, use `.parent` for project root)
 
 ## Reference Documentation
 

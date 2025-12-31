@@ -7,6 +7,23 @@ description: Task automation and project templating with angreal. Use when runni
 
 This skill teaches angreal task automation - both using existing tasks as an AI agent and authoring new tasks as a developer.
 
+## What Angreal Is For
+
+Angreal is focused on **development tasks within software projects**:
+- Building and testing code
+- Running linters and formatters
+- Generating documentation
+- Managing development workflows
+- Project-specific automation
+
+**Angreal is NOT for**:
+- Installing or maintaining software distributions
+- System-level package management
+- Deployment pipelines to production (though it can trigger them)
+- CI/CD infrastructure setup
+
+Think of angreal as your project's `make` or `npm run` - development-time task automation.
+
 ## Prerequisites
 
 - Angreal MCP server connected and available
@@ -79,11 +96,14 @@ See [patterns/development.md](patterns/development.md) for dev workflow patterns
 ```
 project/
 └── .angreal/
+    ├── utils.py         # Shared utilities across tasks
     ├── task_dev.py      # Development tasks
     ├── task_test.py     # Testing tasks
     ├── task_docs.py     # Documentation tasks
     └── task_deploy.py   # Deployment tasks
 ```
+
+You can create shared modules (like `utils.py`) and import them across task files.
 
 ### Basic Task Structure
 ```python

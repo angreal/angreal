@@ -8,15 +8,24 @@ Best practices for developing angreal tasks.
 
 ```
 .angreal/
+├── utils.py           # Shared utilities (optional)
 ├── task_dev.py        # Development utilities
 ├── task_test.py       # Testing commands
 ├── task_build.py      # Build commands
 ├── task_docs.py       # Documentation commands
-├── task_deploy.py     # Deployment commands
-└── utils/             # Shared utilities (optional)
-    ├── __init__.py
-    ├── config.py
-    └── shell.py
+└── task_deploy.py     # Deployment commands
+```
+
+For larger projects, you can use subdirectories:
+
+```
+.angreal/
+├── utils/
+│   ├── __init__.py
+│   ├── config.py
+│   └── shell.py
+├── task_dev.py
+└── ...
 ```
 
 ### Naming Conventions
@@ -30,19 +39,21 @@ Best practices for developing angreal tasks.
 
 ## Shared Utilities
 
-### Creating Reusable Helpers
+Create shared modules in `.angreal/` and import them from task files.
+
+### Simple Shared Module
 
 ```python
-# .angreal/utils/shell.py
+# .angreal/utils.py
 import subprocess
 import angreal
 
 def run_command(cmd, check=True, capture=True):
     """Run a shell command in the project root."""
-    root = angreal.get_root()
+    project_root = angreal.get_root().parent  # .angreal dir -> project root
     result = subprocess.run(
         cmd,
-        cwd=root,
+        cwd=project_root,
         shell=isinstance(cmd, str),
         capture_output=capture,
         text=True
@@ -50,46 +61,28 @@ def run_command(cmd, check=True, capture=True):
     if check and result.returncode != 0:
         raise subprocess.CalledProcessError(result.returncode, cmd, result.stdout, result.stderr)
     return result
+
+def get_config():
+    """Load project configuration."""
+    import json
+    import os
+    angreal_dir = angreal.get_root()
+    config_path = os.path.join(angreal_dir, "config.json")
+    if os.path.exists(config_path):
+        with open(config_path) as f:
+            return json.load(f)
+    return {}
 ```
 
 ```python
 # .angreal/task_build.py
 import angreal
-from utils.shell import run_command
+from utils import run_command, get_config
 
 @angreal.command(name="build", about="Build the project")
 def build():
     result = run_command(["cargo", "build", "--release"])
     print(result.stdout)
-```
-
-### Configuration Helpers
-
-```python
-# .angreal/utils/config.py
-import os
-import json
-import angreal
-
-def get_config():
-    """Load project configuration."""
-    root = angreal.get_root()
-    config_path = os.path.join(root, ".angreal", "config.json")
-
-    if os.path.exists(config_path):
-        with open(config_path) as f:
-            return json.load(f)
-
-    return {}  # Default empty config
-
-def get_project_name():
-    """Get project name from config or directory."""
-    config = get_config()
-    if "name" in config:
-        return config["name"]
-
-    root = angreal.get_root()
-    return os.path.basename(root)
 ```
 
 ## Error Handling Patterns
@@ -102,10 +95,10 @@ import os
 
 @angreal.command(name="build", about="Build the project")
 def build():
-    root = angreal.get_root()
+    project_root = angreal.get_root().parent  # .angreal dir -> project root
 
     # Check prerequisites
-    cargo_toml = os.path.join(root, "Cargo.toml")
+    cargo_toml = os.path.join(project_root, "Cargo.toml")
     if not os.path.exists(cargo_toml):
         print("Error: Cargo.toml not found")
         print("This command requires a Rust project")
@@ -216,9 +209,9 @@ import angreal
 
 def run_in_project(cmd, **kwargs):
     """Run command in project root with standard options."""
-    root = angreal.get_root()
+    project_root = angreal.get_root().parent  # .angreal dir -> project root
     defaults = {
-        "cwd": root,
+        "cwd": project_root,
         "capture_output": True,
         "text": True
     }
@@ -234,12 +227,12 @@ import angreal
 
 @angreal.command(name="test", about="Run tests")
 def test():
-    root = angreal.get_root()
+    project_root = angreal.get_root().parent  # .angreal dir -> project root
 
     # Stream output in real-time
     process = subprocess.Popen(
         ["pytest", "-v"],
-        cwd=root,
+        cwd=project_root,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True
@@ -277,11 +270,11 @@ import angreal
 @angreal.command(name="clean", about="Clean build artifacts")
 @angreal.argument(name="dry_run", long="dry-run", short="n", is_flag=True, takes_value=False)
 def clean(dry_run=False):
-    root = angreal.get_root()
+    project_root = angreal.get_root().parent  # .angreal dir -> project root
     targets = ["dist/", "build/", ".cache/"]
 
     for target in targets:
-        path = os.path.join(root, target)
+        path = os.path.join(project_root, target)
         if os.path.exists(path):
             if dry_run:
                 print(f"Would remove: {path}")
@@ -372,8 +365,8 @@ import os
 @angreal.command(name="build", about="Build if needed")
 @angreal.argument(name="force", long="force", short="f", is_flag=True, takes_value=False)
 def build(force=False):
-    root = angreal.get_root()
-    output = os.path.join(root, "dist", "app")
+    project_root = angreal.get_root().parent  # .angreal dir -> project root
+    output = os.path.join(project_root, "dist", "app")
 
     if not force and os.path.exists(output):
         src_mtime = get_latest_src_mtime()
@@ -395,8 +388,13 @@ def build(force=False):
 # Bad
 config_path = "/Users/me/project/.angreal/config.json"
 
-# Good
-config_path = os.path.join(angreal.get_root(), ".angreal", "config.json")
+# Good - for files in .angreal/
+angreal_dir = angreal.get_root()  # Returns .angreal/ path
+config_path = os.path.join(angreal_dir, "config.json")
+
+# Good - for files in project root
+project_root = angreal.get_root().parent
+src_path = os.path.join(project_root, "src")
 ```
 
 ### Don't Ignore Return Codes
