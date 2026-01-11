@@ -1,6 +1,7 @@
 //! The angreal app builder
 //!
 pub mod command_tree;
+pub mod tree_output;
 
 use crate::task::{generate_path_key_from_parts, AngrealArg, ANGREAL_ARGS, ANGREAL_TASKS};
 use clap::{App, AppSettings, Arg, ArgAction, Command};
@@ -142,11 +143,17 @@ fn add_completion_subcommand(app: App<'static>) -> App<'static> {
     )
 }
 
-fn add_mcp_subcommand(app: App<'static>) -> App<'static> {
+fn add_tree_subcommand(app: App<'static>) -> App<'static> {
     app.subcommand(
-        Command::new("mcp")
-            .about("Start the MCP server for AI assistant integration")
-            .hide(true),
+        Command::new("tree")
+            .about("Display available commands and their arguments")
+            .arg(
+                Arg::new("long")
+                    .long("long")
+                    .short('l')
+                    .action(ArgAction::SetTrue)
+                    .help("Include full tool descriptions for AI guidance"),
+            ),
     )
 }
 
@@ -227,13 +234,13 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
     // Build the initial App with angreal sub commands
     let mut app = base_app_setup();
 
-    // Always add completion subcommands (hidden), alias management, completion management, and MCP
+    // Always add completion subcommands (hidden), alias management, and completion management
     app = add_completion_subcommands(app);
     app = add_alias_subcommand(app);
     app = add_completion_subcommand(app);
-    app = add_mcp_subcommand(app);
 
     if in_angreal_project {
+        app = add_tree_subcommand(app);
         app = add_project_subcommands(app);
     } else {
         app = add_init_subcommand(app);

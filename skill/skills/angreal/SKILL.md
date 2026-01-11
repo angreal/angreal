@@ -1,6 +1,6 @@
 ---
 name: angreal
-description: Task automation and project templating with angreal. Use when running project tasks, creating new tasks, or setting up project automation. Teaches both using existing tasks and authoring new ones.
+description: Task automation with angreal. Auto-activates for projects with .angreal/ directory. Covers running tasks (angreal <command>), discovering tasks (angreal tree), and authoring new tasks with @angreal.command decorators.
 ---
 
 # Angreal Task Automation Skill
@@ -26,12 +26,12 @@ Think of angreal as your project's `make` or `npm run` - development-time task a
 
 ## Prerequisites
 
-- Angreal MCP server connected and available
 - Working within an angreal project (has `.angreal/` directory)
+- `angreal` CLI installed and available
 
 ## What This Skill Provides
 
-The Angreal MCP server teaches **how** to call tools (parameters, syntax). This skill teaches **when** and **why**.
+This skill teaches **when** and **why** to use tasks, plus how to author new ones.
 
 - When to use which task
 - How to discover and understand available tasks
@@ -134,8 +134,8 @@ def build(release=False):
 
 ### Key Principles
 
-- **Tasks are discoverable** - MCP exposes all tasks automatically
-- **Descriptions are prompts** - Write `ToolDescription` as guidance for AI
-- **Groups organize** - Related commands should share a group
+- **Tasks are discoverable** - Use `angreal tree` to see all commands and arguments
+- **Descriptions guide AI** - Use `angreal tree --long` for full ToolDescription prose
+- **Groups organize** - Related commands share a group (e.g., `angreal test all`)
 - **Arguments are typed** - Specify `python_type` for proper conversion
 - **Errors are informative** - Return meaningful messages on failure

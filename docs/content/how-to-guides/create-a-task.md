@@ -41,15 +41,15 @@ def command_function():
     return
 ```
 
-## MCP Integration with ToolDescription
+## AI Agent Integration with ToolDescription
 
-The `tool` parameter accepts a `ToolDescription` object that provides rich guidance for AI agents via MCP:
+The `tool` parameter accepts a `ToolDescription` object that provides rich guidance for AI agents:
 
 ```python
 angreal.ToolDescription(description, risk_level="safe")
 ```
 
 - **description**: Prose description with markdown. Include "When to use", "When NOT to use", and "Examples" sections.
-- **risk_level**: One of `"safe"`, `"read_only"`, or `"destructive"`. Maps to MCP tool annotations.
+- **risk_level**: One of `"safe"`, `"read_only"`, or `"destructive"`. Indicates the command's safety level.
 
-This enables AI agents to understand when and how to use your commands appropriately.
+This enables AI agents to understand when and how to use your commands appropriately. Tool descriptions are displayed with `angreal tree --long`.

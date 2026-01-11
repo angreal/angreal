@@ -108,8 +108,6 @@ jobs:
           angreal test rust --unit-only
           angreal test python
           angreal --version
-      - name: MCP Tests
-        run: angreal test mcp all
       - name: Integration Tests
         continue-on-error: true
         run: angreal test rust --integration-only
@@ -155,7 +153,6 @@ jobs:
           angreal test rust --unit-only
           angreal test python
           angreal --version
-      # MCP tests skipped on Windows - select() doesn't work on pipes
       - name: Integration Tests
         continue-on-error: true
         run: angreal test rust --integration-only
@@ -199,8 +196,6 @@ jobs:
           angreal test rust --unit-only
           angreal test python
           angreal --version
-      - name: MCP Tests
-        run: angreal test mcp all
       - name: Integration Tests
         continue-on-error: true
         run: angreal test rust --integration-only

@@ -140,25 +140,6 @@ def test_test_command():
     assert "tests passed" in result.stdout.lower() or result.returncode == 0
 ```
 
-### Testing MCP Tool Execution
-
-```python
-# tests/test_mcp.py
-import json
-
-def test_mcp_tool_invocation():
-    """Test task execution via MCP protocol."""
-    # This tests the MCP server integration
-    request = {
-        "command_path": "build",
-        "args": {"release": True}
-    }
-
-    # Send to MCP server and verify response
-    response = invoke_mcp_tool("angreal_build", request)
-    assert response["result"] == "success"
-```
-
 ## Testing Patterns
 
 ### Test Task Arguments
@@ -222,8 +203,7 @@ my-project/
 │   ├── test_test.py         # Unit tests for test task
 │   ├── test_deploy.py       # Unit tests for deploy task
 │   └── integration/
-│       ├── test_cli.py      # CLI integration tests
-│       └── test_mcp.py      # MCP integration tests
+│       └── test_cli.py      # CLI integration tests
 └── pytest.ini
 ```
 

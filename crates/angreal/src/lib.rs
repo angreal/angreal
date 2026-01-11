@@ -17,14 +17,13 @@ pub mod git;
 pub mod init;
 pub mod integrations;
 pub mod logger;
-pub mod mcp;
 pub mod py_logger;
 pub mod python_bindings;
 pub mod task;
 pub mod utils;
 pub mod validation;
 
-use builder::build_app;
+use builder::{build_app, command_tree, tree_output};
 use error_formatter::PythonErrorFormatter;
 use integrations::uv::{UvIntegration, UvVirtualEnv};
 use task::ANGREAL_TASKS;
@@ -667,12 +666,21 @@ fn main() -> PyResult<()> {
             }
             return Ok(());
         }
-        Some(("mcp", _)) => {
-            // Start the MCP server
-            if let Err(e) = crate::mcp::run_server() {
-                error!("MCP server failed: {}", e);
+        Some(("tree", sub_matches)) => {
+            if !in_angreal_project {
+                error!("This doesn't appear to be an angreal project.");
                 exit(1);
             }
+
+            // Build command tree from registry
+            let mut root = command_tree::CommandNode::new_group("angreal".to_string(), None);
+            for (_, cmd) in ANGREAL_TASKS.lock().unwrap().iter() {
+                root.add_command(cmd.clone());
+            }
+
+            let long = sub_matches.get_flag("long");
+            tree_output::print_tree(&root, long);
+
             return Ok(());
         }
         Some((task, sub_m)) => {

@@ -126,24 +126,4 @@ def smoke_install():
             return 1
         print("   OK: Help displays correctly")
 
-        # Test mcp doesn't crash immediately (run outside angreal project)
-        print("7. Testing MCP server startup (outside project)...")
-        # Run from temp dir, not project root
-        try:
-            result = subprocess.run(
-                [str(angreal_bin), "mcp"],
-                capture_output=True, text=True,
-                timeout=3,
-                cwd=str(tmpdir)
-            )
-        except subprocess.TimeoutExpired:
-            # This is actually expected - server kept running
-            print("   OK: MCP server started (killed after timeout)")
-        else:
-            # Server exited - check it wasn't a panic
-            if "panic" in result.stderr.lower():
-                print(f"FAIL: MCP server panicked: {result.stderr}")
-                return 1
-            print("   OK: MCP server exited cleanly")
-
         print("\nPASS: Installation smoke test")

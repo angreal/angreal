@@ -93,7 +93,7 @@ def check():
         return 1  # Failure
 ```
 
-Return values appear in MCP response as `return_value`.
+Return values can be used by wrapper scripts or for composition with other tasks.
 
 ## Imports and Dependencies
 

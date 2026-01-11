@@ -1,5 +1,5 @@
 {
   "name": "angreal",
-  "version": "2.7.2",
-  "description": "Task automation and project templating with angreal. Use when running project tasks, creating new tasks, or setting up project automation. Teaches both using existing tasks and authoring new ones."
+  "version": "2.8.0",
+  "description": "Task automation with angreal. Auto-activates for projects with .angreal/ directory. Covers running tasks (angreal <command>), discovering tasks (angreal tree), and authoring new tasks with @angreal.command decorators."
 }

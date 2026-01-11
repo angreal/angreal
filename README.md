@@ -43,37 +43,20 @@ level of flexibility in how a task functions between projects.
 
 ### AI Assistant Integration
 
-Angreal includes an MCP (Model Context Protocol) server that enables AI assistants like Claude to discover and execute your project's tasks.
+Angreal provides a Claude Code skill plugin that teaches Claude how to discover and work with your project's tasks.
 
 #### Setup with Claude Code
 
 ```bash
-# Add the MCP server
-claude mcp add --scope user --transport stdio angreal -- angreal-mcp
-
-# Optional: Install the Angreal skill for better task guidance
+# Install the Angreal skill plugin
 /plugin marketplace add angreal/angreal
 /plugin install angreal@angreal-angreal
 ```
 
-#### Setup with Claude Desktop
-
-Add to your `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "angreal": {
-      "command": "angreal-mcp",
-      "args": []
-    }
-  }
-}
-```
-
-The MCP server exposes your project's tasks as tools, while the optional skill teaches Claude *when* and *why* to use them effectively.
-
-See [angreal-mcp README](crates/angreal-mcp/README.md) for detailed setup instructions.
+The skill auto-activates in angreal projects and teaches Claude:
+- How to discover tasks with `angreal tree`
+- When and why to use each task (via `angreal tree --long`)
+- How to author new tasks with `@angreal.command` decorators
 
 ### Why 2.0 ?
 

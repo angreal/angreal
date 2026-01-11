@@ -4,30 +4,14 @@ How to properly invoke angreal tasks and handle their output.
 
 ## Basic Invocation
 
-### Via MCP
-
-MCP tools accept a JSON object with:
-- `command_path` - The task to run (e.g., "test.all")
-- `args` - Object containing argument values
-
-```json
-{
-  "command_path": "test.all",
-  "args": {
-    "verbose": true
-  }
-}
-```
-
-### Via CLI
-
 ```bash
 angreal <group> <command> [arguments]
 
 # Examples
 angreal test all
-angreal test all --verbose
+angreal test rust --unit-only
 angreal build --release
+angreal docs serve --prod
 ```
 
 ## Arguments
@@ -37,11 +21,8 @@ angreal build --release
 Flags are boolean switches, typically defaulting to `false`:
 
 ```bash
-# CLI
 angreal build --release
-
-# MCP
-{"args": {"release": true}}
+angreal test rust --unit-only
 ```
 
 ### Value Arguments
@@ -49,64 +30,35 @@ angreal build --release
 Arguments that take a value:
 
 ```bash
-# CLI
 angreal deploy --version v1.2.3
-
-# MCP
-{"args": {"version": "v1.2.3"}}
+angreal test completion --shell=bash
 ```
 
 ### Required Arguments
 
-Some arguments are required. The task will fail if not provided:
-
-```bash
-# This will fail - name is required
-angreal init
-
-# This works
-angreal init --name my-project
-```
+Some arguments are required. The task will fail if not provided. Check `angreal tree` to see which arguments are available.
 
 ## Output Interpretation
 
-### Success Output
+### Success
 
-Tasks return structured JSON via MCP:
+Tasks print output to stdout/stderr. A zero exit code indicates success:
 
-```json
-{
-  "command": "test.all",
-  "result": "success",
-  "return_value": "0",
-  "stdout": "...",
-  "stderr": "...",
-  "timestamp": "2024-01-15T10:30:00Z"
-}
+```bash
+angreal test all
+# ... test output ...
+# Exit code 0 = success
 ```
 
-Key fields:
-- `result`: "success" or "error"
-- `return_value`: The function's return value (if any)
-- `stdout`: Captured standard output
-- `stderr`: Captured standard error
+### Failure
 
-### Error Output
+Non-zero exit codes indicate failure. Error messages appear in output:
 
-When tasks fail:
-
-```json
-{
-  "command": "test.all",
-  "result": "error",
-  "error": "Tests failed: 3 failures",
-  "stdout": "...",
-  "stderr": "...",
-  "timestamp": "2024-01-15T10:30:00Z"
-}
+```bash
+angreal test all
+# FAIL: The following test suites failed: Python tests
+# Exit code 1 = failure
 ```
-
-The `error` field contains the error message. Check `stdout` and `stderr` for details.
 
 ## Handling Failures
 
@@ -141,61 +93,40 @@ Problems with the execution environment:
 
 ### Run and Check
 
-Always check the result:
+Always check the exit code before proceeding:
 
-```python
-# Good: Check result
-result = run_angreal_task("test.all")
-if result["result"] != "success":
-    # Handle failure
-    pass
-
-# Bad: Assume success
-run_angreal_task("test.all")
-proceed_to_deploy()  # Dangerous!
+```bash
+angreal build --release && angreal test all && angreal deploy
 ```
 
 ### Sequential Tasks
 
-When tasks depend on each other, run sequentially and check each:
+When tasks depend on each other, run sequentially and verify each succeeds:
 
 ```
 1. angreal build --release
-   → Check success before continuing
+   → Check exit code before continuing
 
 2. angreal test all
-   → Check success before continuing
+   → Check exit code before continuing
 
 3. angreal deploy --version v1.2.3
 ```
 
 ### Independent Tasks
 
-When tasks don't depend on each other, they can run in parallel:
-
-```
-# These can run in parallel
-- angreal test unit
-- angreal test integration
-- angreal lint check
-```
-
-## Timeouts
-
-Angreal MCP server has a 10-minute timeout for long-running tasks. For tasks that might exceed this:
-
-1. Check if the task has a `--quick` or similar option
-2. Consider running via CLI instead of MCP
-3. Break into smaller sub-tasks
+When tasks don't depend on each other, they can run in parallel.
 
 ## Working Directory
 
-Tasks run in the project root (where `.angreal/` is located). Tasks should use `angreal.get_root().parent` to find the project root if they need absolute paths. Note that `angreal.get_root()` returns the path to the `.angreal/` directory, not the project root.
+Tasks run in the project root (where `.angreal/` is located). Tasks should use `angreal.get_root().parent` to find the project root if they need absolute paths.
+
+**Note**: `angreal.get_root()` returns the path to the `.angreal/` directory, not the project root. Use `.parent` to get the actual project root.
 
 ## Capturing Output
 
 For tasks that produce important output:
 
-1. Check `stdout` in the result
+1. Read stdout/stderr from the command
 2. Look for file paths or artifacts mentioned
 3. Some tasks write to specific locations (e.g., `dist/`, `docs/build/`)

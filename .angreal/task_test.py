@@ -18,7 +18,7 @@ test = angreal.command_group(name="test", about="commands for testing the"
     name="all",
     about="Run complete test suite (Python, Rust, completion)",
     tool=angreal.ToolDescription("""
-Run the complete test suite including Python, Rust, completion, and MCP tests.
+Run the complete test suite including Python, Rust, and completion tests.
 
 ## When to use
 - Before major releases
@@ -37,11 +37,8 @@ angreal test all
 )
 def all_tests():
     """
-    Run all tests: Python, Rust (unit + integration), completion, and MCP tests
+    Run all tests: Python, Rust (unit + integration), and completion tests
     """
-    # Import MCP tests here to avoid circular imports
-    from task_test_mcp import test_mcp_all
-
     print("=== Running All Tests ===\n")
     failures = []
 
@@ -59,11 +56,6 @@ def all_tests():
     result = test_completion_all()
     if result:
         failures.append("Completion tests")
-
-    print("\n4. Running MCP tests...")
-    result = test_mcp_all()
-    if result:
-        failures.append("MCP tests")
 
     if failures:
         print(f"\nFAIL: The following test suites failed: {', '.join(failures)}")

@@ -7,7 +7,7 @@ created_at: 2025-12-31T14:48:16.803282+00:00
 updated_at: 2025-12-31T14:48:16.803282+00:00
 parent: ANG-V-0001
 blocked_by: []
-archived: false
+archived: true
 
 tags:
   - "#initiative"

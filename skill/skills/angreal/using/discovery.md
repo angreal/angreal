@@ -6,96 +6,90 @@ How to find and understand available tasks in an angreal project.
 
 Before using tasks, verify you're in an angreal project:
 
-```
-# Look for .angreal/ directory
+```bash
 ls .angreal/
 ```
 
-If `.angreal/` doesn't exist, you're not in an angreal project. Either:
-- Navigate to a project root
-- Initialize a new project with a template
+If `.angreal/` doesn't exist, you're not in an angreal project.
 
 ## Discovering Available Tasks
 
-### Via MCP Tools
+### Quick Discovery
 
-The angreal MCP server exposes all tasks as tools. Tool names follow the pattern:
+```bash
+angreal tree
 ```
-angreal_<group>_<command>
+
+Shows all commands with arguments and short descriptions:
+
+```
+dev: development utilities
+  check-deps - Verify required development tools are installed
+test: commands for testing the application and library
+  all - Run complete test suite (Python, Rust, completion)
+  rust [--unit-only] [--integration-only] - Run Rust tests
+  python - Run Python unit tests
+docs: commands for documentation tasks
+  build [--draft] - Build documentation site
+  serve [--prod] - Start local documentation server
 ```
 
-Examples:
-- `angreal_test_all` - Run all tests
-- `angreal_docs_build` - Build documentation
-- `angreal_dev_check_deps` - Check dependencies
+### Detailed Discovery (AI Guidance)
 
-### Via CLI
+```bash
+angreal tree --long
+```
+
+Includes full ToolDescription prose for each command:
+- **When to use** - Appropriate scenarios
+- **When NOT to use** - Situations to avoid
+- **Examples** - Concrete invocations
+- **Risk level** - safe, read_only, or destructive
+
+### Traditional Help
 
 ```bash
 # List all commands
 angreal --help
 
-# List commands in a group
-angreal test --help
-
 # Get help for a specific command
-angreal test all --help
+angreal test rust --help
 ```
 
-## Understanding Task Descriptions
+## Understanding Task Output
 
-Each task has metadata that helps you understand when to use it:
+### Short Format (`angreal tree`)
 
-### About (Short Description)
-One-line summary shown in help output. Tells you WHAT the task does.
+Each line shows:
+- Command name
+- Arguments in brackets: `[--flag]` or `[--option=<type>]`
+- Short description from `about`
 
-### Tool Description (Rich Guidance)
-Detailed prose that tells you:
-- **When to use** - Scenarios where this task is appropriate
-- **When NOT to use** - Situations to avoid
-- **Examples** - Concrete invocation examples
-- **Preconditions** - What needs to be true before running
-- **Output** - What to expect from the task
+### Long Format (`angreal tree --long`)
 
-### Risk Level
-Tasks declare their risk level:
-- `safe` - No destructive effects, safe to run anytime
-- `read_only` - Only reads/reports, makes no changes
-- `destructive` - May modify or delete data
-
-## Reading Tool Descriptions
-
-When an MCP tool has a `ToolDescription`, read it carefully before invoking:
+Adds the full `ToolDescription` content that task authors write to guide AI usage:
 
 ```
-Tool: angreal_deploy_production
+test: commands for testing
+  all - Run complete test suite
 
-Description: Deploy to production environment
+    Run the complete test suite including Python, Rust, completion tests.
 
-Deploys the current build to the production environment.
+    ## When to use
+    - Before major releases
+    - After significant changes
 
-## When to use
-- After all tests pass on staging
-- When release is approved
+    ## When NOT to use
+    - During rapid development cycles
 
-## When NOT to use
-- Directly from feature branches
-- Without staging validation
-
-## Examples
-```
-angreal deploy production --version v1.2.3
-```
-
-## Preconditions
-- Build artifacts exist
-- Staging tests passed
-- Release approval obtained
-
-Risk: destructive
+    ## Examples
+    ```
+    angreal test all
+    ```
+    Risk level: safe
 ```
 
-**Key insight**: Tool descriptions are written by task authors to guide you. Trust them.
+**Key insight**: ToolDescriptions are written by task authors specifically to guide AI agents. Trust them.
 
 ## Task Groups
 
@@ -109,42 +103,26 @@ Tasks are organized into groups by function:
 | `build` | Build and compilation |
 | `deploy` | Deployment and release |
 
-Groups can be nested: `docker.compose.up` means the `up` command in the `compose` subgroup of `docker`.
+Groups can be nested: `docker compose up` means the `up` command in the `compose` subgroup of `docker`.
 
 ## Choosing the Right Task
 
 ### For Testing
-1. Look for `test` group
-2. Check for `all`, `unit`, `integration` variants
-3. Read descriptions to understand coverage
+1. Run `angreal tree` to see available test commands
+2. Look for `all`, `unit`, `integration` variants
+3. Use `angreal tree --long` to understand coverage
 
 ### For Building
-1. Look for `build` or `dev` group
-2. Check for `release` vs `debug` options
+1. Look for `build` or `dev` groups
+2. Check for `--release` or `--draft` flags
 3. Note any prerequisites (like `check-deps`)
 
 ### For Documentation
 1. Look for `docs` group
-2. Typically `build` and `preview` commands
+2. Typically `build` and `serve` commands
 3. May require external tools (hugo, mkdocs)
 
 ### When Unsure
-1. Start with `angreal --help` to see all groups
-2. Drill into promising groups
-3. Read tool descriptions before executing
-4. Start with read-only tasks to explore safely
-
-## Task Arguments
-
-Discover arguments for a task:
-
-```bash
-angreal test all --help
-```
-
-Or check the MCP tool schema, which lists:
-- Argument names
-- Types (string, bool, int)
-- Whether required
-- Default values
-- Help text
+1. Run `angreal tree` first to see all available commands
+2. Use `angreal tree --long` for detailed guidance
+3. Start with read-only tasks to explore safely

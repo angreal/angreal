@@ -11,7 +11,7 @@ Angreal tasks have multiple documentation touchpoints:
 | `about` | CLI users | `--help` output |
 | `long_about` | CLI users | `--help` detailed output |
 | `help` (args) | CLI users | Argument help text |
-| `ToolDescription` | AI agents | MCP tool discovery |
+| `ToolDescription` | AI agents | `angreal tree --long` output |
 | Code comments | Developers | Source code |
 | External docs | All users | README, docs site |
 
@@ -100,7 +100,7 @@ Document each argument clearly:
 )
 ```
 
-## MCP/AI Documentation
+## AI Agent Documentation
 
 ### ToolDescription for Agents
 

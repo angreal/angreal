@@ -1,12 +1,12 @@
 # Tool Descriptions
 
-How to write effective ToolDescription prose for MCP tool discovery.
+How to write effective ToolDescription prose for AI agent guidance.
 
 ## Why Tool Descriptions Matter
 
-When angreal exposes tasks as MCP tools, AI agents see:
+When AI agents discover tasks via `angreal tree --long`, they see:
 - The command name
-- Argument schema
+- Argument signatures
 - **Your ToolDescription**
 
 The ToolDescription is the primary guidance agents use to decide whether to call your task and how to use it correctly. Think of it as a mini-prompt that teaches agents when and how to use your tool.
@@ -71,7 +71,7 @@ angreal.ToolDescription(
 | `read_only` | Only reads/reports | Status checks, info gathering |
 | `destructive` | May modify or delete | Deploy, clean, database migrations |
 
-Risk levels map to MCP tool annotations, helping agents make informed decisions about tool use.
+Risk levels help agents make informed decisions about tool use.
 
 ## Writing Effective Descriptions
 

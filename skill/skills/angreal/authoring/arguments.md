@@ -27,7 +27,7 @@ def greet(name="World"):
     default_value=None,     # Default value (must be a string)
     takes_value=None,       # Whether argument takes a value (default True)
     is_flag=None,           # Whether this is a boolean flag
-    python_type=None,       # Type for MCP schema: "str", "int", "float", "bool"
+    python_type=None,       # Type hint: "str", "int", "float", "bool"
     multiple_values=None,   # Whether argument can be repeated
     number_of_values=None,  # Exact number of values expected
     min_values=None,        # Minimum number of values
@@ -72,7 +72,7 @@ CLI: `angreal echo --message "Hello"`
 
 ### Integer Arguments
 
-For MCP schema generation, specify `python_type`:
+For proper type conversion, specify `python_type`:
 
 ```python
 import angreal
@@ -301,33 +301,6 @@ Write clear, informative help text:
     default_value="4",
     help="Number of worker processes (1-16, default: 4)"
 )
-```
-
-## MCP Schema Generation
-
-When exposed via MCP, arguments become tool input schema. Use `python_type` to specify the JSON schema type:
-
-```python
-@angreal.argument(name="target", long="target", python_type="str", required=True, help="Deploy target")
-@angreal.argument(name="dry_run", long="dry-run", is_flag=True, takes_value=False, help="Dry run mode")
-```
-
-Generates MCP schema:
-```json
-{
-  "type": "object",
-  "properties": {
-    "target": {
-      "type": "string",
-      "description": "Deploy target"
-    },
-    "dry_run": {
-      "type": "boolean",
-      "description": "Dry run mode"
-    }
-  },
-  "required": ["target"]
-}
 ```
 
 ## Common Patterns

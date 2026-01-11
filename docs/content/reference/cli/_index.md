@@ -88,29 +88,33 @@ angreal tree [OPTIONS]
 ```
 
 **Options:**
-- `--json` - Output command structure in JSON format for machine processing
+- `-l, --long` - Include full tool descriptions for AI agent guidance
 
 **Examples:**
 
 ```bash
-# Human-readable tree view
+# Short format: commands with arguments and descriptions
 angreal tree
 
-# JSON output for tooling integration
-angreal tree --json
+# Long format: includes full ToolDescription prose
+angreal tree --long
 ```
 
-**MCP Integration:**
+**Output Formats:**
 
-The `tree` command is designed for integration with Model Context Protocol (MCP) servers and AI agents. It provides a machine-readable JSON schema that includes:
+The short format (default) shows commands with their argument signatures and short descriptions:
+```
+test:
+  all                                      - Run complete test suite
+  rust [--unit-only] [--integration-only]  - Run Rust tests
+```
 
-- Project context (root directory, Angreal version)
-- Complete command hierarchy with full command paths
-- Rich tool descriptions from `ToolDescription` objects
+The long format (`--long`) adds the full `ToolDescription` prose for each command, including:
+- When to use / when NOT to use guidance
+- Example invocations
 - Risk level annotations (safe, read_only, destructive)
-- Parameter information with types and requirements
 
-This enables AI agents to understand available commands and make informed decisions about when and how to use them. The JSON output is optimized for MCP consumption and automated tooling integration.
+This enables AI agents to understand available commands and make informed decisions about when and how to use them.
 
 ### alias
 

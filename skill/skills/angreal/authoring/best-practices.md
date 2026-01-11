@@ -220,7 +220,7 @@ Every command needs a short description:
 @angreal.command(name="build")  # No description
 ```
 
-### Write ToolDescriptions for MCP
+### Write ToolDescriptions for AI Agents
 
 If your task will be used by AI agents, add rich guidance:
 
@@ -368,7 +368,7 @@ webbrowser.open(url)
 
 ### Don't Require Interactive Input
 
-Tasks should work non-interactively for MCP/CI usage:
+Tasks should work non-interactively for CI and automation:
 
 ```python
 # Bad

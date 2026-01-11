@@ -39,7 +39,7 @@ pub struct SerializableToolDescription {
     pub risk_level: String,
 }
 
-/// Tree schema for MCP consumption
+/// Tree schema for AI agent consumption
 #[derive(Debug, Clone, Serialize)]
 pub struct ProjectSchema {
     pub angreal_root: String,

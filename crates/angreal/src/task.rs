@@ -86,7 +86,7 @@ pub struct AngrealGroup {
     pub about: Option<String>,
 }
 
-/// Rich description for exposing a command as an MCP tool
+/// Rich description for exposing a command to AI agents
 ///
 /// This class allows task authors to provide detailed, prose-based descriptions
 /// that help AI agents understand when and how to use a command effectively.
@@ -212,7 +212,7 @@ pub struct AngrealCommand {
     /// The group this command belongs to
     #[pyo3(get)]
     pub group: Option<Vec<AngrealGroup>>,
-    /// Rich tool description for MCP integration
+    /// Rich tool description for AI agent integration
     #[pyo3(get)]
     pub tool: Option<ToolDescription>,
 }

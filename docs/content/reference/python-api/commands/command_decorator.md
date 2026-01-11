@@ -51,11 +51,11 @@ def command_function():
 - **name** (str, optional): The name to be used to invoke a command. Defaults to the function name.
 - **about** (str, optional): A short description of what the command does. Defaults to "".
 - **long_about** (str, optional): A longer description of what the command does. Defaults to the docstring on the decorated function.
-- **tool** (ToolDescription, optional): Rich description for MCP/AI agent integration. Includes prose guidance and risk level annotation. See [ToolDescription](#tooldescription) below.
+- **tool** (ToolDescription, optional): Rich description for AI agent integration. Includes prose guidance and risk level annotation. See [ToolDescription](#tooldescription) below.
 
 ## ToolDescription
 
-The `ToolDescription` class provides rich metadata for AI agent integration via MCP:
+The `ToolDescription` class provides rich metadata for AI agent integration:
 
 ```python
 angreal.ToolDescription(description, risk_level="safe")
@@ -63,7 +63,9 @@ angreal.ToolDescription(description, risk_level="safe")
 
 **Parameters:**
 - **description** (str): Prose description with markdown formatting. Include "When to use", "When NOT to use", and "Examples" sections.
-- **risk_level** (str): One of "safe", "read_only", or "destructive". Maps to MCP tool annotations.
+- **risk_level** (str): One of "safe", "read_only", or "destructive". Indicates the command's safety level.
+
+Tool descriptions are displayed with `angreal tree --long`.
 
 **Risk Levels:**
 | Level | Meaning | Use For |
