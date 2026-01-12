@@ -1,11 +1,12 @@
 //! Virtual environment integration
 //!
 //! This module provides Python bindings for virtual environment operations
+//! using UV for fast venv creation and package installation.
 
+use crate::integrations::uv::{UvIntegration, UvVirtualEnv};
 use pyo3::prelude::*;
 use pyo3::types::PyType;
 use std::path::PathBuf;
-use std::process::Command;
 
 /// Virtual environment manager
 #[pyclass(name = "VirtualEnv")]
@@ -110,37 +111,13 @@ impl VirtualEnv {
             return Ok(());
         }
 
-        // Try to create venv with pip support
-        let output = if Command::new("uv").arg("--version").output().is_ok() {
-            // Use UV with --seed to ensure pip is available
-            Command::new("uv")
-                .args(["venv", "--seed", &self.path.to_string_lossy()])
-                .output()
-                .map_err(|e| {
-                    PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
-                        "Failed to create virtual environment with UV: {}",
-                        e
-                    ))
-                })?
-        } else {
-            // Fall back to standard Python venv
-            Command::new("python")
-                .args(["-m", "venv", &self.path.to_string_lossy()])
-                .output()
-                .map_err(|e| {
-                    PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
-                        "Failed to create virtual environment: {}",
-                        e
-                    ))
-                })?
-        };
-
-        if !output.status.success() {
-            return Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
-                "Virtual environment creation failed: {}",
-                String::from_utf8_lossy(&output.stderr)
-            )));
-        }
+        // Use UvVirtualEnv for creation - it handles UV installation and fallback
+        UvVirtualEnv::create(&self.path, self.python_version.as_deref()).map_err(|e| {
+            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
+                "Failed to create virtual environment: {}",
+                e
+            ))
+        })?;
 
         Ok(())
     }
@@ -210,7 +187,14 @@ impl VirtualEnv {
                 self.path.join("bin")
             };
 
-            let new_path = format!("{}:{}", bin_dir.to_string_lossy(), current_env_path);
+            // Use platform-specific PATH separator
+            let path_sep = if cfg!(windows) { ";" } else { ":" };
+            let new_path = format!(
+                "{}{}{}",
+                bin_dir.to_string_lossy(),
+                path_sep,
+                current_env_path
+            );
             environ.set_item("PATH", new_path)?;
 
             // Set VIRTUAL_ENV
@@ -342,132 +326,104 @@ impl VirtualEnv {
         }
     }
 
-    // Install packages using pip
+    // Install packages using UV (50x faster than pip)
     fn install(&self, packages: Py<PyAny>) -> PyResult<()> {
-        Python::attach(|py| {
-            let pip_exe = if cfg!(windows) {
-                self.path.join("Scripts").join("pip.exe")
-            } else {
-                self.path.join("bin").join("pip")
-            };
+        // Create UvVirtualEnv instance for this venv
+        let uv_venv = UvVirtualEnv {
+            path: self.path.clone(),
+        };
 
+        Python::attach(|py| {
             // Check if packages is a string, list, or Path object
             if let Ok(package_str) = packages.extract::<String>(py) {
                 // Single package or requirements file
                 if package_str.ends_with(".txt") {
-                    // Requirements file
-                    let output = Command::new(&pip_exe)
-                        .arg("install")
-                        .args(["-r", &package_str])
-                        .output()
+                    // Requirements file - use UV's install_requirements
+                    uv_venv
+                        .install_requirements(std::path::Path::new(&package_str))
                         .map_err(|e| {
                             PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
                                 "Failed to install requirements: {}",
                                 e
                             ))
                         })?;
-
-                    if !output.status.success() {
-                        return Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
-                            "pip install failed: {}",
-                            String::from_utf8_lossy(&output.stderr)
-                        )));
-                    }
                 } else {
-                    // Single package
-                    let output = Command::new(&pip_exe)
-                        .arg("install")
-                        .arg(&package_str)
-                        .output()
-                        .map_err(|e| {
-                            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
-                                "Failed to install package: {}",
-                                e
-                            ))
-                        })?;
-
-                    if !output.status.success() {
-                        return Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
-                            "pip install failed: {}",
-                            String::from_utf8_lossy(&output.stderr)
-                        )));
-                    }
-                }
-            } else if let Ok(package_list) = packages.extract::<Vec<String>>(py) {
-                // List of packages
-                let output = Command::new(&pip_exe)
-                    .arg("install")
-                    .args(&package_list)
-                    .output()
-                    .map_err(|e| {
+                    // Single package - use UV's install_packages
+                    uv_venv.install_packages(&[package_str]).map_err(|e| {
                         PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
-                            "Failed to install packages: {}",
+                            "Failed to install package: {}",
                             e
                         ))
                     })?;
-
-                if !output.status.success() {
-                    return Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
-                        "pip install failed: {}",
-                        String::from_utf8_lossy(&output.stderr)
-                    )));
                 }
+            } else if let Ok(package_list) = packages.extract::<Vec<String>>(py) {
+                // List of packages - use UV's install_packages
+                uv_venv.install_packages(&package_list).map_err(|e| {
+                    PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
+                        "Failed to install packages: {}",
+                        e
+                    ))
+                })?;
             } else {
-                // Try to convert to string (for Path objects)
+                // Try to convert to string (for Path objects) - treat as requirements file
                 let package_str = packages
                     .call_method0(py, "__str__")?
                     .extract::<String>(py)?;
-                let output = Command::new(&pip_exe)
-                    .arg("install")
-                    .args(["-r", &package_str])
-                    .output()
+                uv_venv
+                    .install_requirements(std::path::Path::new(&package_str))
                     .map_err(|e| {
                         PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
                             "Failed to install requirements: {}",
                             e
                         ))
                     })?;
-
-                if !output.status.success() {
-                    return Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
-                        "pip install failed: {}",
-                        String::from_utf8_lossy(&output.stderr)
-                    )));
-                }
             }
 
             Ok(())
         })
     }
 
-    // Class methods for UV compatibility
+    // Class methods for UV integration
     #[classmethod]
     fn discover_available_pythons(_cls: &Bound<'_, PyType>) -> PyResult<Vec<(String, String)>> {
-        // Return some basic Python info for compatibility
-        // In practice, this would use UV to discover installations
-        Ok(vec![
-            (
-                "cpython-3.11.10".to_string(),
-                "/usr/bin/python3.11".to_string(),
-            ),
-            (
-                "cpython-3.12.9".to_string(),
-                "/usr/bin/python3.12".to_string(),
-            ),
-        ])
+        // Use UV to discover available Python installations
+        UvVirtualEnv::discover_pythons()
+            .map(|pythons| {
+                pythons
+                    .into_iter()
+                    .map(|(version, path)| (version, path.display().to_string()))
+                    .collect()
+            })
+            .map_err(|e| {
+                PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
+                    "Failed to discover Python installations: {}",
+                    e
+                ))
+            })
     }
 
     #[classmethod]
     fn ensure_python(_cls: &Bound<'_, PyType>, version: &str) -> PyResult<String> {
-        // This is a stub for UV compatibility
-        // In a full implementation, this would ensure Python version is available
-        Ok(format!("/usr/bin/python{}", version))
+        // Use UV to install/ensure Python version is available
+        UvVirtualEnv::install_python(version)
+            .map(|path| path.display().to_string())
+            .map_err(|e| {
+                PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
+                    "Failed to ensure Python {}: {}",
+                    version, e
+                ))
+            })
     }
 
     #[classmethod]
     fn version(_cls: &Bound<'_, PyType>) -> PyResult<String> {
-        // Return a version string for compatibility
-        Ok("uv 0.1.0 (stub)".to_string())
+        // Return the actual UV version
+        UvIntegration::version().map_err(|e| {
+            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
+                "Failed to get UV version: {}",
+                e
+            ))
+        })
     }
 }
 
@@ -563,6 +519,40 @@ impl VenvRequiredWrapper {
 
             call_result
         })
+    }
+
+    // Proxy attributes from the wrapped function to support angreal's introspection
+    // Note: angreal uses __arguments (single underscore), not __arguments__ (dunder)
+    #[getter(__arguments)]
+    fn get_arguments(&self) -> PyResult<Py<PyAny>> {
+        Python::attach(|py| {
+            self.original_func
+                .getattr(py, "__arguments")
+                .or_else(|_| Ok(py.None()))
+        })
+    }
+
+    #[getter]
+    fn __name__(&self) -> PyResult<Py<PyAny>> {
+        Python::attach(|py| {
+            self.original_func
+                .getattr(py, "__name__")
+                .or_else(|_| Ok(py.None()))
+        })
+    }
+
+    #[getter]
+    fn __doc__(&self) -> PyResult<Py<PyAny>> {
+        Python::attach(|py| {
+            self.original_func
+                .getattr(py, "__doc__")
+                .or_else(|_| Ok(py.None()))
+        })
+    }
+
+    // Generic attribute access for any other attributes that might be needed
+    fn __getattr__(&self, name: &str) -> PyResult<Py<PyAny>> {
+        Python::attach(|py| self.original_func.getattr(py, name))
     }
 }
 

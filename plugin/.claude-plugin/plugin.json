@@ -1,0 +1,13 @@
+{
+  "name": "angreal",
+  "version": "2.8.1",
+  "description": "Task automation skills for angreal projects. Focused skills for running tasks, authoring tasks, arguments, ToolDescriptions, project setup, creating templates, and development patterns.",
+  "author": {
+    "name": "angreal",
+    "email": "support@angreal.dev"
+  },
+  "repository": "https://github.com/angreal/angreal",
+  "license": "MIT",
+  "keywords": ["angreal", "task-automation", "cli", "developer-tools"],
+  "hooks": "./hooks/hooks.json"
+}

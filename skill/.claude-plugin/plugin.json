@@ -1,5 +1,0 @@
-{
-  "name": "angreal",
-  "version": "2.8.0",
-  "description": "Task automation with angreal. Auto-activates for projects with .angreal/ directory. Covers running tasks (angreal <command>), discovering tasks (angreal tree), and authoring new tasks with @angreal.command decorators."
-}

@@ -777,3 +777,334 @@ def test_virtual_env_already_set():
             os.environ.pop("VIRTUAL_ENV", None)
         else:
             os.environ["VIRTUAL_ENV"] = original_venv
+
+
+# ==================== Functional/Integration Tests ====================
+# These tests exercise the venv integration through actual angreal task execution
+
+
+class TestVenvFunctionalIntegration:
+    """
+    Functional tests that exercise venv through the angreal CLI.
+
+    These tests create temporary angreal projects with venv-dependent tasks
+    and verify the complete workflow works end-to-end.
+    """
+
+    @pytest.fixture
+    def angreal_project(self, tmp_path):
+        """Create a temporary angreal project structure."""
+        # Create .angreal directory
+        angreal_dir = tmp_path / ".angreal"
+        angreal_dir.mkdir()
+
+        # Create minimal angreal.toml
+        angreal_toml = tmp_path / "angreal.toml"
+        angreal_toml.write_text('project_name = "venv_test_project"\n')
+
+        # Create __init__.py
+        init_file = angreal_dir / "__init__.py"
+        init_file.write_text("")
+
+        return tmp_path
+
+    @pytest.mark.skipif(
+        sys.platform == "win32",
+        reason="Windows functional tests need different handling",
+    )
+    def test_venv_required_decorator_functional(self, angreal_project):
+        """
+        Functional test: Task with @venv_required decorator creates venv.
+
+        This test verifies the complete workflow:
+        1. Create an angreal task with @venv_required decorator
+        2. Run the task via CLI
+        3. Verify venv was created
+        4. Verify package was installed and importable
+        5. Verify task output is correct
+        """
+        import subprocess
+
+        # Create a task file that uses @venv_required
+        task_file = angreal_project / ".angreal" / "task_venv_functional.py"
+        task_content = '''
+import angreal
+from angreal.integrations.venv import venv_required
+
+@angreal.command(name="venv-test", about="Test venv_required decorator")
+@venv_required(".functional_test_venv", requirements="six")
+def venv_test_task():
+    """Task that runs inside a virtual environment."""
+    import six
+    # Write proof that we ran in the venv with the package available
+    from pathlib import Path
+    proof_file = Path(".venv_test_proof.txt")
+    proof_file.write_text(f"six_version={six.__version__}")
+    print(f"SUCCESS: six version {six.__version__}")
+'''
+        task_file.write_text(task_content)
+
+        # Run the angreal task
+        result = subprocess.run(
+            ["angreal", "venv-test"],
+            cwd=angreal_project,
+            capture_output=True,
+            text=True,
+            timeout=120  # Allow time for venv creation and package install
+        )
+
+        # Verify task succeeded
+        assert result.returncode == 0, f"Task failed with stderr: {result.stderr}"
+        assert "SUCCESS" in result.stdout or "six version" in result.stdout
+
+        # Verify venv was created
+        venv_path = angreal_project / ".functional_test_venv"
+        assert venv_path.exists(), "Virtual environment directory should be created"
+        assert (venv_path / "pyvenv.cfg").exists(), "pyvenv.cfg should exist"
+
+        # Verify proof file was written (proves task executed in venv context)
+        proof_file = angreal_project / ".venv_test_proof.txt"
+        assert proof_file.exists(), "Proof file should be written by task"
+        proof_content = proof_file.read_text()
+        assert "six_version=" in proof_content, "Proof should contain six version"
+
+        # Cleanup
+        shutil.rmtree(venv_path)
+
+    @pytest.mark.skipif(
+        sys.platform == "win32",
+        reason="Windows functional tests need different handling",
+    )
+    def test_venv_required_with_requirements_file_functional(self, angreal_project):
+        """
+        Functional test: @venv_required with a requirements.txt file.
+        """
+        import subprocess
+
+        # Create a requirements.txt file
+        req_file = angreal_project / "test_requirements.txt"
+        req_file.write_text("toml\n")
+
+        # Create a task file that uses @venv_required with requirements file
+        task_file = angreal_project / ".angreal" / "task_venv_reqfile.py"
+        task_content = '''
+import angreal
+from angreal.integrations.venv import venv_required
+
+@angreal.command(name="venv-reqfile-test", about="Test with requirements file")
+@venv_required(".reqfile_test_venv", requirements="test_requirements.txt")
+def venv_reqfile_task():
+    """Task that installs from requirements file."""
+    import toml
+    from pathlib import Path
+    proof_file = Path(".reqfile_test_proof.txt")
+    proof_file.write_text(f"toml_version={toml.__version__}")
+    print(f"SUCCESS: toml version {toml.__version__}")
+'''
+        task_file.write_text(task_content)
+
+        # Run the angreal task
+        result = subprocess.run(
+            ["angreal", "venv-reqfile-test"],
+            cwd=angreal_project,
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+
+        # Verify task succeeded
+        assert result.returncode == 0, f"Task failed with stderr: {result.stderr}"
+
+        # Verify venv was created
+        venv_path = angreal_project / ".reqfile_test_venv"
+        assert venv_path.exists(), "Virtual environment should be created"
+
+        # Verify proof file
+        proof_file = angreal_project / ".reqfile_test_proof.txt"
+        assert proof_file.exists(), "Proof file should be written"
+        assert "toml_version=" in proof_file.read_text()
+
+        # Cleanup
+        shutil.rmtree(venv_path)
+
+    @pytest.mark.skipif(
+        sys.platform == "win32",
+        reason="Windows functional tests need different handling",
+    )
+    def test_venv_required_with_multiple_packages_functional(self, angreal_project):
+        """
+        Functional test: @venv_required with a list of packages.
+        """
+        import subprocess
+
+        # Create a task file that uses @venv_required with multiple packages
+        task_file = angreal_project / ".angreal" / "task_venv_multi.py"
+        task_content = '''
+import angreal
+from angreal.integrations.venv import venv_required
+
+@angreal.command(name="venv-multi-test", about="Test with multiple packages")
+@venv_required(".multi_pkg_venv", requirements=["six", "toml"])
+def venv_multi_task():
+    """Task that installs multiple packages."""
+    import six
+    import toml
+    from pathlib import Path
+    proof_file = Path(".multi_pkg_proof.txt")
+    proof_file.write_text(f"six={six.__version__},toml={toml.__version__}")
+    print(f"SUCCESS: six={six.__version__}, toml={toml.__version__}")
+'''
+        task_file.write_text(task_content)
+
+        # Run the angreal task
+        result = subprocess.run(
+            ["angreal", "venv-multi-test"],
+            cwd=angreal_project,
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+
+        # Verify task succeeded
+        assert result.returncode == 0, f"Task failed with stderr: {result.stderr}"
+
+        # Verify venv was created
+        venv_path = angreal_project / ".multi_pkg_venv"
+        assert venv_path.exists(), "Virtual environment should be created"
+
+        # Verify proof file has both packages
+        proof_file = angreal_project / ".multi_pkg_proof.txt"
+        assert proof_file.exists(), "Proof file should be written"
+        content = proof_file.read_text()
+        assert "six=" in content and "toml=" in content
+
+        # Cleanup
+        shutil.rmtree(venv_path)
+
+    @pytest.mark.skipif(
+        sys.platform == "win32",
+        reason="Windows functional tests need different handling",
+    )
+    def test_virtualenv_context_manager_in_task_functional(self, angreal_project):
+        """
+        Functional test: Using VirtualEnv as context manager within a task.
+        """
+        import subprocess
+
+        # Create a task file that uses VirtualEnv directly as context manager
+        task_file = angreal_project / ".angreal" / "task_venv_context.py"
+        task_content = '''
+import angreal
+from angreal.integrations.venv import VirtualEnv
+import subprocess
+import sys
+
+@angreal.command(name="venv-context-test", about="Test VirtualEnv context manager")
+def venv_context_task():
+    """Task that uses VirtualEnv as context manager."""
+    from pathlib import Path
+
+    with VirtualEnv(".context_test_venv", requirements="six", now=True) as venv:
+        # Run a subprocess that uses the venv's Python
+        result = subprocess.run(
+            ["python", "-c", "import six; print(six.__version__)"],
+            capture_output=True,
+            text=True
+        )
+        six_version = result.stdout.strip()
+
+        # Write proof
+        proof_file = Path(".context_test_proof.txt")
+        proof_file.write_text(f"six_version={six_version}")
+        print(f"SUCCESS: six version from subprocess: {six_version}")
+'''
+        task_file.write_text(task_content)
+
+        # Run the angreal task
+        result = subprocess.run(
+            ["angreal", "venv-context-test"],
+            cwd=angreal_project,
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+
+        # Verify task succeeded
+        assert result.returncode == 0, f"Task failed with stderr: {result.stderr}"
+        assert "SUCCESS" in result.stdout
+
+        # Verify venv was created
+        venv_path = angreal_project / ".context_test_venv"
+        assert venv_path.exists(), "Virtual environment should be created"
+
+        # Verify proof file
+        proof_file = angreal_project / ".context_test_proof.txt"
+        assert proof_file.exists(), "Proof file should be written"
+        assert "six_version=" in proof_file.read_text()
+
+        # Cleanup
+        shutil.rmtree(venv_path)
+
+    @pytest.mark.skipif(
+        sys.platform == "win32",
+        reason="Windows functional tests need different handling",
+    )
+    def test_venv_reuse_across_invocations_functional(self, angreal_project):
+        """
+        Functional test: Verify venv is reused (not recreated) on subsequent runs.
+        """
+        import subprocess
+
+        # Create a task file
+        task_file = angreal_project / ".angreal" / "task_venv_reuse.py"
+        task_content = '''
+import angreal
+from angreal.integrations.venv import venv_required
+import time
+
+@angreal.command(name="venv-reuse-test", about="Test venv reuse")
+@venv_required(".reuse_test_venv", requirements="six")
+def venv_reuse_task():
+    """Task for testing venv reuse."""
+    import six
+    print(f"SUCCESS: six version {six.__version__}")
+'''
+        task_file.write_text(task_content)
+
+        venv_path = angreal_project / ".reuse_test_venv"
+
+        # First run - creates venv
+        result1 = subprocess.run(
+            ["angreal", "venv-reuse-test"],
+            cwd=angreal_project,
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+        assert result1.returncode == 0, f"First run failed: {result1.stderr}"
+        assert venv_path.exists()
+
+        # Record creation time of pyvenv.cfg
+        pyvenv_cfg = venv_path / "pyvenv.cfg"
+        first_mtime = pyvenv_cfg.stat().st_mtime
+
+        # Small delay to ensure mtime would change if recreated
+        import time
+        time.sleep(0.1)
+
+        # Second run - should reuse existing venv
+        result2 = subprocess.run(
+            ["angreal", "venv-reuse-test"],
+            cwd=angreal_project,
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+        assert result2.returncode == 0, f"Second run failed: {result2.stderr}"
+
+        # Verify venv was NOT recreated (mtime unchanged)
+        second_mtime = pyvenv_cfg.stat().st_mtime
+        assert first_mtime == second_mtime, "Venv should be reused, not recreated"
+
+        # Cleanup
+        shutil.rmtree(venv_path)
