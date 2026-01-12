@@ -7,9 +7,9 @@
   "plugins": [
     {
       "name": "angreal",
-      "source": "./skill",
+      "source": "./plugin",
       "description": "Task automation skills for angreal projects. Focused skills for running tasks, authoring tasks, arguments, ToolDescriptions, project setup, creating templates, and development patterns.",
-      "version": "2.8.0"
+      "version": "2.8.1"
     }
   ]
 }
