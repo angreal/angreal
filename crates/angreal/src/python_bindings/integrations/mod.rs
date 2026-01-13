@@ -5,6 +5,7 @@ use pyo3::wrap_pymodule;
 
 pub mod compose;
 pub mod docker;
+pub mod flox;
 pub mod git;
 pub mod venv;
 
@@ -23,11 +24,16 @@ pub fn integrations(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     let venv_module = wrap_pymodule!(venv::venv)(py);
     m.add_submodule(venv_module.bind(py))?;
 
+    // Create and register the flox submodule
+    let flox_module = wrap_pymodule!(flox::flox)(py);
+    m.add_submodule(flox_module.bind(py))?;
+
     // Also register all modules in sys.modules for proper import support
     let sys = py.import("sys")?;
     let modules = sys.getattr("modules")?;
     modules.set_item("angreal.integrations.git", git_module)?;
     modules.set_item("angreal.integrations.venv", venv_module)?;
+    modules.set_item("angreal.integrations.flox", flox_module)?;
 
     Ok(())
 }
