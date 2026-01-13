@@ -15,6 +15,6 @@ raises `EnvironmentError` if angreal binary doesn't fit within boundary conditio
 import angreal
 
 angreal.required_version(">2.0.0")
-angreal.required_version("2.0.6")
-angreal.required_version("=2.0.4")
+angreal.required_version("2.0.6")      # exact match (no operator)
+angreal.required_version("==2.0.4")    # explicit equality
 ```

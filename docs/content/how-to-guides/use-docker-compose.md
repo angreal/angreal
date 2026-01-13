@@ -184,7 +184,7 @@ import angreal
 from angreal.integrations.docker import compose
 
 @angreal.command(name="dev-up", about="Start development stack")
-@angreal.option("--build", is_flag=True, help="Rebuild images")
+@angreal.argument(name="build", long="build", is_flag=True, help="Rebuild images")
 def start_dev(build=False):
     """Start development services"""
     stack = compose("docker-compose.dev.yml")

@@ -2,7 +2,7 @@
 title: Generate Context
 ---
 
-##### generate_context((**path**: str, **take_input**: bool) -> dict[strin,Any]
+##### generate_context(**path**: str, **take_input**: bool) -> dict[str, Any]
 > function that generates a context from a given toml document
 
 ```python
