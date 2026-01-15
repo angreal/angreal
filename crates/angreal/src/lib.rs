@@ -829,7 +829,7 @@ pub fn initialize_python_tasks() -> Result<(), Box<dyn std::error::Error>> {
         // Get sys.modules
         let sys = PyModule::import(py, "sys")?;
         let modules_attr = sys.getattr("modules")?;
-        let modules = modules_attr.downcast::<PyDict>()?;
+        let modules = modules_attr.cast::<PyDict>()?;
 
         // Check if angreal module is already available
         if !modules.contains("angreal")? {
@@ -948,7 +948,7 @@ fn angreal(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     let sys = PyModule::import(m.py(), "sys")?;
     let modules_attr = sys.getattr("modules")?;
-    let sys_modules = modules_attr.downcast::<PyDict>()?;
+    let sys_modules = modules_attr.cast::<PyDict>()?;
     sys_modules.set_item("angreal.integrations", m.getattr("integrations")?)?;
     sys_modules.set_item(
         "angreal.integrations.docker",

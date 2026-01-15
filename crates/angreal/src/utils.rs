@@ -510,7 +510,7 @@ pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
         // Allow the file to search for modules it might be importing
         let sys = py.import("sys")?;
         let path_attr = sys.getattr("path")?;
-        let syspath = path_attr.downcast::<PyList>()?;
+        let syspath = path_attr.cast::<PyList>()?;
         syspath.insert(0, dir)?;
 
         // Import the file.
@@ -1086,7 +1086,7 @@ array = [1, 2, 3]
 
         // Test the Python bindings
         Python::attach(|py| {
-            let dict = config.downcast_bound::<PyDict>(py).unwrap();
+            let dict = config.cast_bound::<PyDict>(py).unwrap();
 
             // Verify the contents
             assert_eq!(
@@ -1108,7 +1108,7 @@ array = [1, 2, 3]
 
             // Test nested dictionary
             let nested_item = dict.get_item("nested").unwrap().unwrap();
-            let nested = nested_item.downcast::<PyDict>().unwrap();
+            let nested = nested_item.cast::<PyDict>().unwrap();
             assert_eq!(
                 nested
                     .get_item("key")
@@ -1162,7 +1162,7 @@ key_2 = 42
             // Call the function through Python
             let attr = module.getattr("get_context").unwrap();
             let call_result = attr.call0().unwrap();
-            let result = call_result.downcast::<PyDict>().unwrap();
+            let result = call_result.cast::<PyDict>().unwrap();
 
             // Verify the contents
             assert_eq!(

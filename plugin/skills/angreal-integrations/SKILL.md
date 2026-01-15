@@ -1,12 +1,12 @@
 ---
 name: angreal-integrations
-description: This skill should be used when the user asks to "use Git in a task", "manage virtual environments", "use Docker Compose", "clone a repository", "create a venv", "run docker-compose", "use angreal.integrations", "render a template", "scaffold files", "generate files from template", "use render_template", "use render_directory", or needs guidance on the built-in Git, VirtualEnv, Docker, or Tera templating integrations available in angreal tasks.
-version: 2.8.0
+description: This skill should be used when the user asks to "use Git in a task", "manage virtual environments", "use Docker Compose", "clone a repository", "create a venv", "run docker-compose", "use angreal.integrations", "render a template", "scaffold files", "generate files from template", "use render_template", "use render_directory", "use Flox", "flox environment", "cross-language environment", "flox services", "@flox_required", or needs guidance on the built-in Git, VirtualEnv, Docker, Flox, or Tera templating integrations available in angreal tasks.
+version: 2.8.1
 ---
 
 # Angreal Integrations
 
-Angreal provides built-in integrations for common development tools: Git, virtual environments, Docker Compose, and Tera templating.
+Angreal provides built-in integrations for common development tools: Git, virtual environments, Docker Compose, Flox environments, and Tera templating.
 
 ## Tera Templating
 
@@ -568,6 +568,151 @@ def logs(service=None, follow=False):
     result = dc.logs(services=services, follow=follow, tail="100")
     print(result.stdout)
     return 0
+```
+
+## Flox Integration
+
+Cross-language development environment and services management using Flox (Nix-based).
+
+### When to Use Flox vs VirtualEnv vs Docker
+
+| Use Case | Best Integration |
+|----------|------------------|
+| Python-only project | VirtualEnv (simplest) |
+| Multi-language project | **Flox** (cross-language) |
+| Need containerized services | Docker Compose |
+| Need lightweight services | **Flox** (process-based) |
+| Team-wide consistency | **Flox** (manifest.toml) |
+
+### Import
+
+```python
+from angreal.integrations.flox import Flox, FloxServices, flox_required
+```
+
+### The @flox_required Decorator
+
+Automatically manage Flox environment and services for a task:
+
+```python
+import angreal
+from angreal.integrations.flox import flox_required
+
+@angreal.command(name="test", about="Run tests with database")
+@flox_required(".", services=["postgres"])
+def run_tests():
+    import subprocess
+    subprocess.run(["pytest", "-v"])
+
+# Without services
+@angreal.command(name="build", about="Build in Flox environment")
+@flox_required(".")
+def build():
+    import subprocess
+    subprocess.run(["npm", "run", "build"])
+```
+
+### Flox Class
+
+```python
+from angreal.integrations.flox import Flox
+
+# Create instance
+flox = Flox(".")
+
+# Check availability
+if not Flox.is_available():
+    print("Install Flox: curl -fsSL https://flox.dev/install | bash")
+
+# Check environment
+print(f"Exists: {flox.exists}")
+print(f"Has manifest: {flox.has_manifest}")
+print(f"Version: {Flox.version()}")
+```
+
+### Flox Methods
+
+| Method | Description |
+|--------|-------------|
+| `activate()` | Activate environment in current process |
+| `deactivate()` | Restore original environment |
+| `run(cmd, args)` | Execute command in Flox environment |
+
+### Context Manager Usage
+
+```python
+from angreal.integrations.flox import Flox
+
+with Flox(".") as flox:
+    # Environment is activated
+    exit_code, stdout, stderr = flox.run("node", ["--version"])
+    print(f"Node version: {stdout}")
+# Environment is automatically deactivated
+```
+
+### Flox Services
+
+```python
+from angreal.integrations.flox import Flox
+
+flox = Flox(".")
+
+# Start services
+handle = flox.services.start("postgres", "redis")
+
+# Check status
+for svc in flox.services.status():
+    print(f"{svc.name}: {svc.status} (PID: {svc.pid})")
+
+# View logs
+logs = flox.services.logs("postgres", tail=50)
+
+# Stop services
+handle.stop()
+```
+
+### Cross-Session Service Management
+
+```python
+import angreal
+from angreal.integrations.flox import Flox, FloxServiceHandle
+
+@angreal.command(name="dev-start", about="Start dev services")
+def start_dev():
+    flox = Flox(".")
+    handle = flox.services.start("postgres", "redis")
+    handle.save()  # Persists to .flox-services.json
+    print("Development services started")
+
+@angreal.command(name="dev-stop", about="Stop dev services")
+def stop_dev():
+    handle = FloxServiceHandle.load()
+    handle.stop()
+    print("Development services stopped")
+```
+
+### Complete Flox Example
+
+```python
+import angreal
+from angreal.integrations.flox import Flox, flox_required
+
+@angreal.command(name="status", about="Show environment status")
+def status():
+    flox = Flox(".")
+    print(f"Flox version: {Flox.version()}")
+    print(f"Environment: {flox.path}")
+    print(f"Exists: {flox.exists}")
+    print("\nServices:")
+    for svc in flox.services.status():
+        pid_info = f"PID {svc.pid}" if svc.pid else "stopped"
+        print(f"  {svc.name}: {svc.status} ({pid_info})")
+
+@angreal.command(name="test", about="Run tests")
+@flox_required(".", services=["postgres"])
+def test():
+    import subprocess
+    return subprocess.run(["pytest", "-v"]).returncode
 ```
 
 ## Combining Integrations

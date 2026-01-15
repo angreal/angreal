@@ -577,7 +577,7 @@ impl FloxServiceHandle {
             // Read from file
             let builtins = py.import("builtins")?;
             let file = builtins.call_method1("open", (file_path, "r"))?;
-            let data: Bound<PyDict> = json.call_method1("load", (&file,))?.downcast_into()?;
+            let data: Bound<PyDict> = json.call_method1("load", (&file,))?.cast_into()?;
             file.call_method0("close")?;
 
             // Extract fields
@@ -597,11 +597,11 @@ impl FloxServiceHandle {
             let services_list: Bound<PyList> = data
                 .get_item("services")?
                 .ok_or_else(|| PyErr::new::<pyo3::exceptions::PyKeyError, _>("missing services"))?
-                .downcast_into()?;
+                .cast_into()?;
 
             let mut services = Vec::new();
             for item in services_list.iter() {
-                let svc_dict: Bound<PyDict> = item.downcast_into()?;
+                let svc_dict: Bound<PyDict> = item.cast_into()?;
                 let name = svc_dict
                     .get_item("name")?
                     .ok_or_else(|| {
