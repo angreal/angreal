@@ -24,7 +24,7 @@ env:
   CARGO_NET_RETRY: 10
   RUSTUP_MAX_RETRIES: 10
   RUST_BACKTRACE: full
-  RUST_VERSION: "1.85.1"  # Latest stable Rust version
+  RUST_VERSION: "1.92.0"  # Required for home crate v0.5.12
   # Control production uploads based on branch
   IS_CICD_BRANCH: ${{ startsWith(github.ref, 'refs/heads/cicd') }}
   # Use test repositories for cicd branches

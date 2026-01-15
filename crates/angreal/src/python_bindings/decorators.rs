@@ -212,7 +212,7 @@ impl CommandDecorator {
                     for arg_kwargs_obj in args_list {
                         // Each item should be the kwargs dict from the @argument decorator
                         let bound_arg = arg_kwargs_obj.bind(py);
-                        if let Ok(kwargs_dict) = bound_arg.downcast::<pyo3::types::PyDict>() {
+                        if let Ok(kwargs_dict) = bound_arg.cast::<pyo3::types::PyDict>() {
                             // Create AngrealArg using PyO3's class instantiation
                             let arg_class = py.get_type::<crate::task::AngrealArg>();
 
@@ -353,7 +353,11 @@ pub fn command(kwargs: Option<&Bound<'_, PyDict>>) -> PyResult<CommandDecorator>
 
     let tool = kwargs
         .and_then(|d| d.get_item("tool").ok().flatten())
-        .map(|v| v.extract::<crate::task::ToolDescription>())
+        .map(|v| {
+            v.cast::<crate::task::ToolDescription>()
+                .map(|bound| bound.borrow().clone())
+                .map_err(pyo3::PyErr::from)
+        })
         .transpose()?;
 
     Ok(CommandDecorator {

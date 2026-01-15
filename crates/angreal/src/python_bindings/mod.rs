@@ -32,7 +32,7 @@ pub fn initialize() -> PyResult<()> {
     Python::attach(|py| {
         let sys = py.import("sys")?;
         let modules_attr = sys.getattr("modules")?;
-        let modules = modules_attr.downcast::<PyDict>()?;
+        let modules = modules_attr.cast::<PyDict>()?;
 
         // Create and register the main angreal module
         let angreal_module = create_angreal_module(py)?;
