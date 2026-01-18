@@ -1,6 +1,6 @@
 #!/bin/bash
 # SessionStart hook for angreal projects
-# Detects .angreal directory and provides project context
+# Detects .angreal directory and provides project context with available commands
 
 # Exit silently if not in an angreal project
 if [ ! -d "$CLAUDE_PROJECT_DIR/.angreal" ]; then
@@ -20,29 +20,43 @@ ENDJSON
     exit 0
 fi
 
-# Build context message for active angreal project
-read -r -d '' CONTEXT << 'EOF'
-This is an **angreal project** (detected `.angreal` directory).
+# Get the command tree (run from project directory)
+cd "$CLAUDE_PROJECT_DIR" || exit 0
+TREE_OUTPUT=$(angreal tree 2>/dev/null)
 
-## Quick Reference
-- Run `angreal` to see available tasks
-- Run `angreal <task>` to execute a task
-- Run `angreal tree` to see command structure
+# Build context message for active angreal project
+read -r -d '' CONTEXT << EOF
+This is an **angreal project** (detected \`.angreal\` directory).
+
+## Available Commands
+
+Run these with \`angreal <command>\`:
+
+\`\`\`
+${TREE_OUTPUT}
+\`\`\`
+
+## Important
+
+**USE THESE COMMANDS** instead of manually running build/test/docs operations. The project has predefined tasks that handle the correct configuration.
 
 ## Available Skills
 When authoring or working with this project:
-- `/angreal-authoring` - Creating tasks and commands
-- `/angreal-arguments` - Adding arguments to tasks
-- `/angreal-integrations` - Using VirtualEnv, Git, Docker integrations
-- `/angreal-patterns` - Development best practices
+- \`/angreal-authoring\` - Creating tasks and commands
+- \`/angreal-arguments\` - Adding arguments to tasks
+- \`/angreal-integrations\` - Using VirtualEnv, Git, Docker integrations
+- \`/angreal-patterns\` - Development best practices
 EOF
+
+# Escape the context for JSON (handle newlines and quotes)
+ESCAPED_CONTEXT=$(printf '%s' "$CONTEXT" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
 
 # Output JSON for Claude
 cat << ENDJSON
 {
     "hookSpecificOutput": {
         "hookEventName": "SessionStart",
-        "additionalContext": "$(echo "$CONTEXT" | sed 's/"/\\"/g' | tr '\n' ' ')"
+        "additionalContext": ${ESCAPED_CONTEXT}
     }
 }
 ENDJSON
