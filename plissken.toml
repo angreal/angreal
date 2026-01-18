@@ -1,0 +1,15 @@
+[project]
+name = "angreal"
+version_from = "cargo"
+
+[output]
+format = "markdown"
+path = "docs/api"
+template = "mkdocs-material"
+
+[rust]
+crates = ["crates/angreal"]
+
+# Python API is generated from Rust via PyO3 - no Python source
+# [python]
+# package = "angreal"

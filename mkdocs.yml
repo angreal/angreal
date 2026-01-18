@@ -1,0 +1,120 @@
+# yamllint disable rule:indentation rule:line-length
+---
+site_name: Angreal Documentation
+site_url: https://angreal.github.io/angreal/
+repo_url: https://github.com/angreal/angreal
+repo_name: angreal/angreal
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.path
+    - navigation.indexes
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - attr_list
+  - md_in_html
+
+plugins:
+  - search
+
+docs_dir: docs
+
+nav:
+  - Home: index.md
+  - Quick Start: quick-start/index.md
+  - Tutorials:
+    - tutorials/index.md
+    - Your First Angreal: tutorials/your_first_angreal.md
+  - How-to Guides:
+    - how-to-guides/index.md
+    - Add Arguments: how-to-guides/add-arguments.md
+    - Create Prompts: how-to-guides/create-prompts.md
+    - Create Task Groups: how-to-guides/create-task-group.md
+    - Create Templates: how-to-guides/create-templates.md
+    - Include Jinja Templates: how-to-guides/include-jinja-templates.md
+    - Use Shell Completion: how-to-guides/use-shell-completion.md
+    - Use Validation Rules: how-to-guides/use-validation-rules.md
+    - Work with Virtual Environments: how-to-guides/work-with-virtual-environments.md
+    - Configuration:
+      - reference/configuration/index.md
+      - UV Installation: reference/configuration/uv-installation.md
+    - Templates:
+      - reference/python-api/templates/index.md
+      - angreal.toml Format: reference/python-api/templates/angreal_toml_format.md
+      - Template Guide: reference/python-api/templates/template_guide.md
+  - Reference:
+    - Python API:
+      - angreal: api/angreal.md
+      - angreal.task: api/angreal/task.md
+      - angreal.decorators: api/angreal/python_bindings/decorators.md
+      - Integrations:
+        - angreal.integrations.compose: api/angreal/python_bindings/integrations/compose.md
+        - angreal.integrations.flox: api/angreal/python_bindings/integrations/flox.md
+        - angreal.integrations.git: api/angreal/python_bindings/integrations/git.md
+        - angreal.integrations.venv: api/angreal/python_bindings/venv.md
+        - angreal.integrations.uv: api/angreal/integrations/uv.md
+      - angreal.utils: api/angreal/utils.md
+    - Rust API:
+      - angreal: api/rust/angreal.md
+      - Core:
+        - angreal::task: api/rust/angreal/task.md
+        - angreal::builder: api/rust/angreal/builder.md
+        - angreal::init: api/rust/angreal/init.md
+        - angreal::utils: api/rust/angreal/utils.md
+      - Integrations:
+        - angreal::integrations: api/rust/angreal/integrations.md
+        - angreal::integrations::git: api/rust/angreal/integrations/git.md
+        - angreal::integrations::docker_compose: api/rust/angreal/integrations/docker_compose.md
+        - angreal::integrations::flox: api/rust/angreal/integrations/flox.md
+        - angreal::integrations::uv: api/rust/angreal/integrations/uv.md
+      - angreal::validation: api/rust/angreal/validation.md
+      - Shell Completion:
+        - angreal::completion: api/rust/angreal/completion.md
+        - angreal::completion::bash: api/rust/angreal/completion/bash.md
+        - angreal::completion::zsh: api/rust/angreal/completion/zsh.md
+  - Explanation:
+    - explanation/index.md
+    - Why Angreal: explanation/why_angreal.md
+    - Aliasing System: explanation/aliasing_system.md
+    - angreal init Behavior: explanation/angreal_init_behaviour.md
+    - Rust-Python Interface: explanation/rust_python_interface.md
+    - UV Integration Architecture: explanation/uv_integration_architecture.md
+  - Contributing:
+    - contributing/index.md
+    - Code of Conduct: contributing/code_of_conduct.md

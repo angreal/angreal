@@ -1,0 +1,61 @@
+# yamllint disable rule:indentation rule:document-start
+---
+# Recommended: add to markdown_extensions in mkdocs.yml
+# to hide method-level entries from the table of contents:
+#
+# markdown_extensions:
+#   - toc:
+#       toc_depth: 2
+
+nav:
+  - Python:
+    - angreal: angreal.md
+    - angreal.integrations.uv: angreal/integrations/uv.md
+    - angreal.py_logger: angreal/py_logger.md
+    - angreal.python_bindings.decorators: angreal/python_bindings/decorators.md
+    - angreal.python_bindings.integrations.compose: angreal/python_bindings/integrations/compose.md
+    - angreal.python_bindings.integrations.flox: angreal/python_bindings/integrations/flox.md
+    - angreal.python_bindings.integrations.git: angreal/python_bindings/integrations/git.md
+    - angreal.python_bindings.venv: angreal/python_bindings/venv.md
+    - angreal.task: angreal/task.md
+    - angreal.utils: angreal/utils.md
+  - Rust:
+    - angreal: rust/angreal.md
+    - angreal::builder: rust/angreal/builder.md
+    - angreal::builder::command_tree: rust/angreal/builder/command_tree.md
+    - angreal::builder::tree_output: rust/angreal/builder/tree_output.md
+    - angreal::completion: rust/angreal/completion.md
+    - angreal::completion::bash: rust/angreal/completion/bash.md
+    - angreal::completion::templates: rust/angreal/completion/templates.md
+    - angreal::completion::zsh: rust/angreal/completion/zsh.md
+    - angreal::error_formatter: rust/angreal/error_formatter.md
+    - angreal::git: rust/angreal/git.md
+    - angreal::init: rust/angreal/init.md
+    - angreal::integrations: rust/angreal/integrations.md
+    - angreal::integrations::docker_compose: rust/angreal/integrations/docker_compose.md
+    - angreal::integrations::flox: rust/angreal/integrations/flox.md
+    - angreal::integrations::git: rust/angreal/integrations/git.md
+    - angreal::integrations::uv: rust/angreal/integrations/uv.md
+    - angreal::logger: rust/angreal/logger.md
+    - angreal::macros: rust/angreal/macros.md
+    - angreal::py_logger: rust/angreal/py_logger.md
+    - angreal::python_bindings: rust/angreal/python_bindings.md
+    - angreal::python_bindings::decorators: rust/angreal/python_bindings/decorators.md
+    - angreal::python_bindings::integrations: rust/angreal/python_bindings/integrations.md
+    - angreal::python_bindings::integrations::compose: rust/angreal/python_bindings/integrations/compose.md
+    - angreal::python_bindings::integrations::docker: rust/angreal/python_bindings/integrations/docker.md
+    - angreal::python_bindings::integrations::flox: rust/angreal/python_bindings/integrations/flox.md
+    - angreal::python_bindings::integrations::git: rust/angreal/python_bindings/integrations/git.md
+    - angreal::python_bindings::integrations::venv: rust/angreal/python_bindings/integrations/venv.md
+    - angreal::python_bindings::utils: rust/angreal/python_bindings/utils.md
+    - angreal::python_bindings::venv: rust/angreal/python_bindings/venv.md
+    - angreal::task: rust/angreal/task.md
+    - angreal::utils: rust/angreal/utils.md
+    - angreal::validation: rust/angreal/validation.md
+    - angreal::validation::allowed_values: rust/angreal/validation/allowed_values.md
+    - angreal::validation::length: rust/angreal/validation/length.md
+    - angreal::validation::max: rust/angreal/validation/max.md
+    - angreal::validation::min: rust/angreal/validation/min.md
+    - angreal::validation::not_empty: rust/angreal/validation/not_empty.md
+    - angreal::validation::regex_match: rust/angreal/validation/regex_match.md
+    - angreal::validation::type_check: rust/angreal/validation/type_check.md
