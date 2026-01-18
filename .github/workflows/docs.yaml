@@ -32,7 +32,9 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install Plissken
-        run: cargo install plissken || curl -fsSL https://raw.githubusercontent.com/colliery-io/plissken/main/install.sh | bash
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/colliery-io/plissken/main/install.sh | bash || true
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Generate API Documentation
         run: plissken render
