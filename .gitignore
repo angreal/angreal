@@ -374,3 +374,4 @@ pip-selfcheck.json
 
 # Test virtual environment
 angreal-pytest-venv/
+.metis/metis.db

@@ -1,18 +1,20 @@
 ---
 id: angreal
-short_code: "ANG-V-0001"
 level: vision
 title: "angreal"
+short_code: "ANG-V-0001"
 created_at: 2025-07-11T15:27:51.585193+00:00
-updated_at: 2025-07-11T15:27:51.585193+00:00
+updated_at: 2026-01-12T22:29:56.710538+00:00
 archived: false
 
 tags:
   - "#vision"
-  - "#phase/draft"
+  - "#phase/published"
 
 
 exit_criteria_met: false
+strategy_id: NULL
+initiative_id: NULL
 ---
 
 # angreal Vision
