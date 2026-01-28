@@ -1,6 +1,6 @@
 #!/bin/bash
 # SessionStart hook for angreal projects
-# Detects .angreal directory and provides project context with available commands
+# Detects .angreal directory and provides authoritative guidance on using angreal
 
 # Exit silently if not in an angreal project
 if [ ! -d "$CLAUDE_PROJECT_DIR/.angreal" ]; then
@@ -22,30 +22,37 @@ fi
 
 # Get the command tree (run from project directory)
 cd "$CLAUDE_PROJECT_DIR" || exit 0
-TREE_OUTPUT=$(angreal tree 2>/dev/null)
+TREE_OUTPUT=$(angreal tree --long 2>/dev/null)
 
-# Build context message for active angreal project
+# Build authoritative context message
 read -r -d '' CONTEXT << EOF
 This is an **angreal project** (detected \`.angreal\` directory).
 
-## Available Commands
+## Critical Rule: Use Angreal Tasks
 
-Run these with \`angreal <command>\`:
+**ALWAYS prefer \`angreal <task>\` over manual equivalents.** Angreal tasks encode project-specific knowledge:
+- Correct flags, paths, and environment setup
+- Proper sequencing of dependent operations
+- Project conventions and best practices
+
+**Examples:**
+- Use \`angreal test\` instead of running pytest/cargo test directly
+- Use \`angreal build\` instead of manual build commands
+- Use \`angreal docs\` instead of manual documentation builds
+
+## Available Commands (with ToolDescriptions)
 
 \`\`\`
 ${TREE_OUTPUT}
 \`\`\`
 
-## Important
-
-**USE THESE COMMANDS** instead of manually running build/test/docs operations. The project has predefined tasks that handle the correct configuration.
-
 ## Available Skills
-When authoring or working with this project:
+When authoring or working with angreal tasks:
 - \`/angreal-authoring\` - Creating tasks and commands
 - \`/angreal-arguments\` - Adding arguments to tasks
-- \`/angreal-integrations\` - Using VirtualEnv, Git, Docker integrations
+- \`/angreal-integrations\` - Using VirtualEnv, Git, Docker, Flox integrations
 - \`/angreal-patterns\` - Development best practices
+- \`/angreal-usage\` - Running and discovering tasks
 EOF
 
 # Escape the context for JSON (handle newlines and quotes)

@@ -1,6 +1,6 @@
 #!/bin/bash
 # PreCompact hook for angreal projects
-# Re-injects essential context before compaction to ensure it persists
+# Re-injects essential context before compaction to ensure authoritative guidance persists
 
 # Exit silently if not in an angreal project
 if [ ! -d "$CLAUDE_PROJECT_DIR/.angreal" ]; then
@@ -14,19 +14,43 @@ fi
 
 # Get the command tree (run from project directory)
 cd "$CLAUDE_PROJECT_DIR" || exit 0
-TREE_OUTPUT=$(angreal tree 2>/dev/null)
+TREE_OUTPUT=$(angreal tree --long 2>/dev/null)
 
-# Build concise context to preserve through compaction
+# Build comprehensive context to preserve through compaction
 read -r -d '' CONTEXT << EOF
-## Angreal Project Context (preserve this)
+## Angreal Project Context (PRESERVE THIS)
 
-This is an angreal project. **Use these predefined commands** instead of manual operations:
+This is an angreal project with predefined automation tasks.
+
+### Critical Rule: ALWAYS Use Angreal Tasks
+
+**NEVER run manual equivalents when an angreal task exists.** Use \`angreal <task>\` because tasks encode:
+- Project-specific configuration and flags
+- Correct environment setup and dependencies
+- Proper sequencing of operations
+- Tested, reliable workflows
+
+**Decision Framework:**
+1. Before running ANY build/test/docs/deploy command, check available tasks below
+2. If an angreal task exists for the operation, USE IT
+3. Only use manual commands when no angreal task covers the need
+4. Pay attention to risk levels: safe, read_only, or destructive
+
+### Available Commands (with ToolDescriptions)
 
 \`\`\`
 ${TREE_OUTPUT}
 \`\`\`
 
-Run with: \`angreal <command>\`
+### Quick Reference
+- \`angreal tree\` - List all commands (short form)
+- \`angreal <command> --help\` - Help for specific command
+
+### Skills for Angreal Development
+- \`/angreal-authoring\` - Creating tasks
+- \`/angreal-arguments\` - Adding arguments
+- \`/angreal-integrations\` - VirtualEnv, Git, Docker, Flox
+- \`/angreal-patterns\` - Best practices
 EOF
 
 # Escape the context for JSON
