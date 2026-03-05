@@ -174,15 +174,19 @@ impl FloxEnvironment {
         Ok(())
     }
 
-    /// Stop all Flox services
-    pub fn services_stop(&self) -> Result<()> {
-        let output = Command::new("flox")
-            .arg("services")
-            .arg("stop")
-            .arg("-d")
-            .arg(&self.path)
-            .output()
-            .context("Failed to stop Flox services")?;
+    /// Stop Flox services
+    ///
+    /// If `services` is empty, stops all services.
+    /// Otherwise, stops only the specified services.
+    pub fn services_stop(&self, services: &[&str]) -> Result<()> {
+        let mut cmd = Command::new("flox");
+        cmd.arg("services").arg("stop").arg("-d").arg(&self.path);
+
+        for service in services {
+            cmd.arg(service);
+        }
+
+        let output = cmd.output().context("Failed to stop Flox services")?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);

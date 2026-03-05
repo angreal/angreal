@@ -21,20 +21,21 @@ pub struct Flox {
     pub _original_env: Option<HashMap<String, String>>,
     /// Keys that were added during activation (to remove on deactivate)
     pub _added_keys: Option<Vec<String>>,
+    /// Services to start/stop with context manager
+    pub _services: Option<Vec<String>>,
 }
 
 #[pymethods]
 impl Flox {
     #[new]
-    #[pyo3(signature = (path=None))]
-    fn __new__(path: Option<Py<PyAny>>) -> PyResult<Self> {
+    #[pyo3(signature = (path=None, services=None))]
+    fn __new__(path: Option<Py<PyAny>>, services: Option<Vec<String>>) -> PyResult<Self> {
         Python::attach(|py| {
-            // Convert path to string - handle both str and Path objects, with default
+            // Convert path to string - handle both str and Path objects
             let path_str = if let Some(path_obj) = path {
                 if let Ok(s) = path_obj.extract::<String>(py) {
                     s
                 } else {
-                    // Try to convert Path object to string
                     path_obj
                         .call_method0(py, "__str__")?
                         .extract::<String>(py)?
@@ -43,8 +44,19 @@ impl Flox {
                 ".".to_string()
             };
 
-            // Convert to Path and resolve to absolute path
-            let path_buf = if path_str.starts_with('/') || path_str.starts_with('~') {
+            // Expand tilde to home directory
+            let path_str = if path_str.starts_with('~') {
+                let pathlib = py.import("pathlib")?;
+                let path_class = pathlib.getattr("Path")?;
+                let py_path = path_class.call1((&path_str,))?;
+                let expanded = py_path.call_method0("expanduser")?;
+                expanded.call_method0("__str__")?.extract::<String>()?
+            } else {
+                path_str
+            };
+
+            // Convert to absolute path
+            let path_buf = if path_str.starts_with('/') {
                 PathBuf::from(&path_str)
             } else {
                 std::env::current_dir()
@@ -57,7 +69,7 @@ impl Flox {
                     .join(&path_str)
             };
 
-            // Resolve path using Python's pathlib for consistency
+            // Resolve path using Python's pathlib
             let resolved_path = {
                 let pathlib = py.import("pathlib")?;
                 let path_class = pathlib.getattr("Path")?;
@@ -74,6 +86,7 @@ impl Flox {
                 _is_activated: false,
                 _original_env: None,
                 _added_keys: None,
+                _services: services,
             })
         })
     }
@@ -148,9 +161,12 @@ impl Flox {
             self._original_env = Some(original_env);
             self._added_keys = Some(added_keys);
 
-            // Apply Flox environment variables
+            // Apply Flox environment variables to both Python and Rust
             for (key, value) in &activation_env {
                 environ.set_item(key, value)?;
+                // Also set in std::env so Rust-spawned subprocesses
+                // (like flox services start) inherit the environment
+                std::env::set_var(key, value);
             }
 
             self._is_activated = true;
@@ -170,10 +186,11 @@ impl Flox {
             let os = py.import("os")?;
             let environ = os.getattr("environ")?;
 
-            // Restore original values
+            // Restore original values in both Python and Rust env
             if let Some(ref original_env) = self._original_env {
                 for (key, value) in original_env {
                     environ.set_item(key, value)?;
+                    std::env::set_var(key, value);
                 }
             }
 
@@ -181,6 +198,7 @@ impl Flox {
             if let Some(ref added_keys) = self._added_keys {
                 for key in added_keys {
                     let _ = environ.call_method1("pop", (key, py.None()));
+                    std::env::remove_var(key);
                 }
             }
 
@@ -191,19 +209,43 @@ impl Flox {
         })
     }
 
-    /// Context manager entry - activates the environment
+    /// Context manager entry - activates environment and starts services
     fn __enter__(mut slf: PyRefMut<Self>) -> PyResult<PyRefMut<Self>> {
         slf.activate()?;
+
+        // Start services if specified
+        if let Some(ref services) = slf._services {
+            if !services.is_empty() {
+                let flox_env = FloxEnvironment::new(&slf.path);
+                let service_refs: Vec<&str> = services.iter().map(|s| s.as_str()).collect();
+                flox_env.services_start(&service_refs).map_err(|e| {
+                    PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
+                        "Failed to start services: {}",
+                        e
+                    ))
+                })?;
+            }
+        }
+
         Ok(slf)
     }
 
-    /// Context manager exit - deactivates the environment
+    /// Context manager exit - stops services and deactivates environment
     fn __exit__(
         &mut self,
         _exc_type: &Bound<'_, PyAny>,
         _exc_val: &Bound<'_, PyAny>,
         _exc_tb: &Bound<'_, PyAny>,
     ) -> PyResult<()> {
+        // Stop services if they were started
+        if let Some(ref services) = self._services {
+            if !services.is_empty() {
+                let flox_env = FloxEnvironment::new(&self.path);
+                let service_refs: Vec<&str> = services.iter().map(|s| s.as_str()).collect();
+                let _ = flox_env.services_stop(&service_refs);
+            }
+        }
+
         self.deactivate()?;
         Ok(())
     }
@@ -273,6 +315,12 @@ pub struct ServiceInfo {
 
 #[pymethods]
 impl ServiceInfo {
+    #[new]
+    #[pyo3(signature = (name, status, pid=None))]
+    fn __new__(name: String, status: String, pid: Option<u32>) -> Self {
+        ServiceInfo { name, status, pid }
+    }
+
     fn __repr__(&self) -> String {
         match self.pid {
             Some(pid) => format!(
@@ -310,12 +358,22 @@ impl FloxServices {
             let path_str = if let Ok(s) = path.extract::<String>(py) {
                 s
             } else {
-                // Try to convert Path object to string
                 path.call_method0(py, "__str__")?.extract::<String>(py)?
             };
 
+            // Expand tilde to home directory
+            let path_str = if path_str.starts_with('~') {
+                let pathlib = py.import("pathlib")?;
+                let path_class = pathlib.getattr("Path")?;
+                let py_path = path_class.call1((&path_str,))?;
+                let expanded = py_path.call_method0("expanduser")?;
+                expanded.call_method0("__str__")?.extract::<String>()?
+            } else {
+                path_str
+            };
+
             // Convert to Path and resolve
-            let path_buf = if path_str.starts_with('/') || path_str.starts_with('~') {
+            let path_buf = if path_str.starts_with('/') {
                 PathBuf::from(&path_str)
             } else {
                 std::env::current_dir()
@@ -407,10 +465,22 @@ impl FloxServices {
         })
     }
 
-    /// Stop all services
-    fn stop(&self) -> PyResult<()> {
+    /// Stop services
+    ///
+    /// If no service names are provided, stops all services.
+    #[pyo3(signature = (*services))]
+    fn stop(&self, services: &Bound<'_, PyAny>) -> PyResult<()> {
         let flox_env = FloxEnvironment::new(&self.path);
-        flox_env.services_stop().map_err(|e| {
+
+        let service_names: Vec<String> = if services.len()? > 0 {
+            services.extract()?
+        } else {
+            Vec::new()
+        };
+
+        let service_refs: Vec<&str> = service_names.iter().map(|s| s.as_str()).collect();
+
+        flox_env.services_stop(&service_refs).map_err(|e| {
             PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
                 "Failed to stop services: {}",
                 e
@@ -443,8 +513,14 @@ impl FloxServices {
     /// Get logs for a specific service
     #[pyo3(signature = (service, follow=false, tail=None))]
     fn logs(&self, service: &str, follow: bool, tail: Option<u32>) -> PyResult<String> {
+        if follow {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+                "follow=True is not supported: it would block \
+                 indefinitely. Use tail=N to get recent logs.",
+            ));
+        }
         let flox_env = FloxEnvironment::new(&self.path);
-        flox_env.services_logs(service, follow, tail).map_err(|e| {
+        flox_env.services_logs(service, false, tail).map_err(|e| {
             PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
                 "Failed to get logs for service '{}': {}",
                 service, e
@@ -490,11 +566,66 @@ pub struct FloxServiceHandle {
 
 /// Get current timestamp as ISO 8601 string
 fn chrono_now() -> String {
-    use std::time::SystemTime;
-    let now = SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap();
-    format!("{}Z", now.as_secs())
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    let secs = now.as_secs();
+    // Convert to ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+    let days = secs / 86400;
+    let time_secs = secs % 86400;
+    let hours = time_secs / 3600;
+    let minutes = (time_secs % 3600) / 60;
+    let seconds = time_secs % 60;
+
+    // Calculate date from days since epoch (1970-01-01)
+    let mut y = 1970i64;
+    let mut remaining_days = days as i64;
+
+    loop {
+        let days_in_year = if is_leap_year(y) { 366 } else { 365 };
+        if remaining_days < days_in_year {
+            break;
+        }
+        remaining_days -= days_in_year;
+        y += 1;
+    }
+
+    let leap = is_leap_year(y);
+    let month_days = [
+        31,
+        if leap { 29 } else { 28 },
+        31,
+        30,
+        31,
+        30,
+        31,
+        31,
+        30,
+        31,
+        30,
+        31,
+    ];
+    let mut m = 0usize;
+    for (i, &md) in month_days.iter().enumerate() {
+        if remaining_days < md as i64 {
+            m = i;
+            break;
+        }
+        remaining_days -= md as i64;
+    }
+
+    format!(
+        "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z",
+        y,
+        m + 1,
+        remaining_days + 1,
+        hours,
+        minutes,
+        seconds
+    )
+}
+
+fn is_leap_year(y: i64) -> bool {
+    (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)
 }
 
 #[pymethods]
@@ -520,10 +651,11 @@ impl FloxServiceHandle {
         self.started_at.clone()
     }
 
-    /// Stop the services tracked by this handle
+    /// Stop only the services tracked by this handle
     fn stop(&self) -> PyResult<()> {
         let flox_env = FloxEnvironment::new(&self.flox_env_path);
-        flox_env.services_stop().map_err(|e| {
+        let service_names: Vec<&str> = self.services.iter().map(|s| s.name.as_str()).collect();
+        flox_env.services_stop(&service_names).map_err(|e| {
             PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
                 "Failed to stop services: {}",
                 e
@@ -679,7 +811,6 @@ impl FloxRequiredDecorator {
     }
 }
 
-/// The actual wrapper function that handles Flox lifecycle
 #[pyclass]
 struct FloxRequiredWrapper {
     original_func: Py<PyAny>,
