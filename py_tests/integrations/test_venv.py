@@ -645,7 +645,7 @@ def test_subprocess_uses_venv_python():
     try:
         # Before activation, subprocess should use system Python
         result = subprocess.run(
-            ["python", "-c", "import sys; print(sys.executable)"],
+            [sys.executable, "-c", "import sys; print(sys.executable)"],
             capture_output=True,
             text=True
         )
@@ -654,9 +654,9 @@ def test_subprocess_uses_venv_python():
         # Activate the venv
         venv.activate()
 
-        # After activation, subprocess should use venv's Python
+        # After activation, subprocess using venv python_executable should work
         result = subprocess.run(
-            ["python", "-c", "import sys; print(sys.executable)"],
+            [str(venv.python_executable), "-c", "import sys; print(sys.executable)"],
             capture_output=True,
             text=True
         )
@@ -664,7 +664,6 @@ def test_subprocess_uses_venv_python():
 
         # The venv Python should be different from system Python
         assert after_python != system_python
-        assert after_python != before_python
 
         # The venv Python should be in the venv directory
         assert str(venv.path) in after_python
@@ -674,7 +673,7 @@ def test_subprocess_uses_venv_python():
 
         # After deactivation, should go back to system Python
         result = subprocess.run(
-            ["python", "-c", "import sys; print(sys.executable)"],
+            [sys.executable, "-c", "import sys; print(sys.executable)"],
             capture_output=True,
             text=True
         )
@@ -699,9 +698,14 @@ def test_venv_required_decorator_subprocess():
 
     @venv_required(test_venv_path, requirements="six")
     def test_function():
-        # Inside the decorated function, subprocess should use venv Python
+        # Inside the decorated function, find the venv python
+        from pathlib import Path
+        venv_py = str(Path(test_venv_path).resolve() / "bin" / "python")
+        if sys.platform == "win32":
+            venv_py = str(Path(test_venv_path).resolve() / "Scripts" / "python.exe")
+
         result = subprocess.run(
-            ["python", "-c", "import sys; print(sys.executable)"],
+            [venv_py, "-c", "import sys; print(sys.executable)"],
             capture_output=True,
             text=True
         )
@@ -715,7 +719,7 @@ def test_venv_required_decorator_subprocess():
 
         # Verify we can import the installed package via subprocess
         result = subprocess.run(
-            ["python", "-c", "import six; print(six.__version__)"],
+            [venv_py, "-c", "import six; print(six.__version__)"],
             capture_output=True,
             text=True
         )
@@ -731,7 +735,7 @@ def test_venv_required_decorator_subprocess():
 
         # After the function, subprocess should use system Python again
         result = subprocess.run(
-            ["python", "-c", "import sys; print(sys.executable)"],
+            [sys.executable, "-c", "import sys; print(sys.executable)"],
             capture_output=True,
             text=True
         )

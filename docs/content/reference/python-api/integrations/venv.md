@@ -271,11 +271,11 @@ Unlike shell-based virtual environment activation (which modifies environment va
 
 ### Activation Notes
 
-- **Process-Only**: Activation only affects the current Python process, not subprocesses or the shell
+- **Process and Subprocess**: Activation modifies both Python internals (`sys.prefix`, `sys.exec_prefix`, `sys.path`) and environment variables (`PATH`, `VIRTUAL_ENV`). Subprocesses inherit the environment variable changes, so `subprocess.run(["python", ...])` will use the venv's Python
 - **Import Availability**: After activation, packages installed in the venv become importable
 - **Multiple Activations**: Only one virtual environment can be active at a time. Activating a second venv will override the first
 - **Thread Safety**: Activation modifies global Python state (`sys.prefix`, `sys.path`) and is not thread-safe
-- **Subprocess Behavior**: Subprocesses will not inherit the activation - use the venv's Python executable directly for subprocesses
+- **No Shell Integration**: This activation does not affect your shell environment or terminal prompt
 
 ### Limitations
 
@@ -367,7 +367,7 @@ venv = VirtualEnv("/path/to/env", now=False)
 
 # Check and create if needed manually
 if not venv.exists:
-    venv._create()
+    venv.create()
 
 # Install specific packages
 venv.install(["flask", "sqlalchemy", "pytest"])

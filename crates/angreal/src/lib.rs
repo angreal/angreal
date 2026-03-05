@@ -870,6 +870,14 @@ pub fn initialize_python_tasks() -> Result<(), Box<dyn std::error::Error>> {
                     .getattr("integrations")?
                     .getattr("git_integration")?,
             )?;
+            modules.set_item(
+                "angreal.integrations.venv",
+                angreal_module.getattr("integrations")?.getattr("venv")?,
+            )?;
+            modules.set_item(
+                "angreal.integrations.flox",
+                angreal_module.getattr("integrations")?.getattr("flox")?,
+            )?;
 
             // Register the main module in sys.modules
             modules.set_item("angreal", angreal_module)?;
@@ -983,6 +991,16 @@ fn angreal(m: &Bound<'_, PyModule>) -> PyResult<()> {
     sys_modules.set_item(
         "angreal.integrations.git",
         m.getattr("integrations")?.getattr("git_integration")?,
+    )?;
+
+    sys_modules.set_item(
+        "angreal.integrations.venv",
+        m.getattr("integrations")?.getattr("venv")?,
+    )?;
+
+    sys_modules.set_item(
+        "angreal.integrations.flox",
+        m.getattr("integrations")?.getattr("flox")?,
     )?;
 
     Ok(())

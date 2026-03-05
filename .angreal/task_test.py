@@ -90,37 +90,16 @@ def python_tests():
     """
     Run the Python unit tests in isolated environment
     """
-    import sys
 
     print("Creating isolated test environment...")
     with VirtualEnv("angreal-pytest-venv", now=True) as venv:
-        # Ensure pip is available (platform-specific paths)
-        if sys.platform == "win32":
-            python_exe = os.path.join(venv.path, "Scripts", "python.exe")
-            pip_exe = os.path.join(venv.path, "Scripts", "pip.exe")
-        else:
-            python_exe = os.path.join(venv.path, "bin", "python")
-            pip_exe = os.path.join(venv.path, "bin", "pip3")
-
-        # Install pip and dependencies with streaming output
-        print("Ensuring pip is available...")
-        subprocess.run(
-            [python_exe, "-m", "ensurepip"],
-            check=True
-        )
-
+        # Install dependencies via UV (already used by VirtualEnv under the hood)
         print("Installing test dependencies (maturin, pytest)...")
-        subprocess.run(
-            [pip_exe, "install", "maturin", "pytest"],
-            check=True
-        )
+        venv.install(["maturin", "pytest"])
 
-        # Build and install angreal with streaming output
+        # Build and install angreal from source
         print("Building and installing angreal from source...")
-        subprocess.run(
-            [pip_exe, "install", str(project_root / "crates" / "angreal")],
-            check=True
-        )
+        venv.install(str(project_root / "crates" / "angreal"))
 
         # Run pytest with streaming output
         print("Running Python tests with pytest...")

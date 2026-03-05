@@ -20,6 +20,7 @@ pub struct VirtualEnv {
     #[pyo3(get)]
     pub _is_activated: bool,
     pub _original_prefix: Option<String>,
+    pub _original_exec_prefix: Option<String>,
     pub _original_path: Option<Vec<String>>,
     pub _original_env_path: Option<String>,
     pub _original_virtual_env: Option<Option<String>>,
@@ -50,9 +51,20 @@ impl VirtualEnv {
                 ".venv".to_string()
             };
 
+            // Expand tilde to home directory using Python's Path.expanduser()
+            let path_str = if path_str.starts_with('~') {
+                let pathlib = py.import("pathlib")?;
+                let path_class = pathlib.getattr("Path")?;
+                let py_path = path_class.call1((&path_str,))?;
+                let expanded = py_path.call_method0("expanduser")?;
+                expanded.call_method0("__str__")?.extract::<String>()?
+            } else {
+                path_str
+            };
+
             // Convert to Path and resolve to absolute path
-            let path_buf = if path_str.starts_with('/') || path_str.starts_with('~') {
-                // Absolute path or home-relative path
+            let path_buf = if path_str.starts_with('/') {
+                // Absolute path
                 PathBuf::from(&path_str)
             } else {
                 // Relative path - resolve from current directory
@@ -93,6 +105,7 @@ impl VirtualEnv {
                 requirements,
                 _is_activated: false,
                 _original_prefix: None,
+                _original_exec_prefix: None,
                 _original_path: None,
                 _original_env_path: None,
                 _original_virtual_env: None,
@@ -138,9 +151,11 @@ impl VirtualEnv {
             // Save current state
             let sys = py.import("sys")?;
             let current_prefix = sys.getattr("prefix")?.extract::<String>()?;
+            let current_exec_prefix = sys.getattr("exec_prefix")?.extract::<String>()?;
             let current_path = sys.getattr("path")?.extract::<Vec<String>>()?;
 
             self._original_prefix = Some(current_prefix);
+            self._original_exec_prefix = Some(current_exec_prefix);
             self._original_path = Some(current_path.clone());
 
             // Save current environment variables
@@ -159,8 +174,9 @@ impl VirtualEnv {
             };
             self._original_virtual_env = Some(current_virtual_env);
 
-            // Set new prefix
+            // Set new prefix and exec_prefix
             sys.setattr("prefix", self.path.to_str().unwrap())?;
+            sys.setattr("exec_prefix", self.path.to_str().unwrap())?;
 
             // Update sys.path to include venv's site-packages
             let site_packages = if cfg!(windows) {
@@ -219,6 +235,7 @@ impl VirtualEnv {
 
     fn __enter__(mut slf: PyRefMut<Self>) -> PyResult<PyRefMut<Self>> {
         slf.create()?;
+        slf.install_requirements()?;
         slf.activate()?;
         Ok(slf)
     }
@@ -268,6 +285,9 @@ impl VirtualEnv {
             if let (Some(prefix), Some(path)) = (&self._original_prefix, &self._original_path) {
                 let sys = py.import("sys")?;
                 sys.setattr("prefix", prefix)?;
+                if let Some(exec_prefix) = &self._original_exec_prefix {
+                    sys.setattr("exec_prefix", exec_prefix)?;
+                }
 
                 // Clear sys.path and restore original
                 let path_list = sys.getattr("path")?;
@@ -296,6 +316,7 @@ impl VirtualEnv {
 
             self._is_activated = false;
             self._original_prefix = None;
+            self._original_exec_prefix = None;
             self._original_path = None;
             self._original_env_path = None;
             self._original_virtual_env = None;
@@ -464,7 +485,6 @@ impl VenvRequiredDecorator {
     }
 }
 
-/// The actual wrapper function that handles venv lifecycle
 #[pyclass]
 struct VenvRequiredWrapper {
     original_func: Py<PyAny>,
