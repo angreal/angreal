@@ -157,6 +157,14 @@ fn add_tree_subcommand(app: App<'static>) -> App<'static> {
     )
 }
 
+fn add_mcp_subcommand(app: App<'static>) -> App<'static> {
+    app.subcommand(
+        Command::new("mcp")
+            .about("Start MCP server for AI agent context injection")
+            .hide(true),
+    )
+}
+
 fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
     // Build the command tree
     let mut root = CommandNode::new_group("angreal".to_string(), None);
@@ -241,6 +249,7 @@ pub fn build_app(in_angreal_project: bool) -> App<'static> {
 
     if in_angreal_project {
         app = add_tree_subcommand(app);
+        app = add_mcp_subcommand(app);
         app = add_project_subcommands(app);
     } else {
         app = add_init_subcommand(app);

@@ -17,6 +17,7 @@ pub mod git;
 pub mod init;
 pub mod integrations;
 pub mod logger;
+pub mod mcp;
 pub mod py_logger;
 pub mod python_bindings;
 pub mod task;
@@ -681,6 +682,15 @@ fn main() -> PyResult<()> {
             let long = sub_matches.get_flag("long");
             tree_output::print_tree(&root, long);
 
+            return Ok(());
+        }
+        Some(("mcp", _)) => {
+            if !in_angreal_project {
+                error!("This doesn't appear to be an angreal project.");
+                exit(1);
+            }
+
+            mcp::serve();
             return Ok(());
         }
         Some((task, sub_m)) => {

@@ -8,6 +8,10 @@ use crate::builder::command_tree::CommandNode;
 use crate::task::{AngrealArg, ANGREAL_ARGS};
 
 /// Format argument signature for display: [--flag] [--option=<type>]
+pub fn format_arg_signature_pub(args: &[AngrealArg]) -> String {
+    format_arg_signature(args)
+}
+
 fn format_arg_signature(args: &[AngrealArg]) -> String {
     args.iter()
         .filter_map(|arg| {
