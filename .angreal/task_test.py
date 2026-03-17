@@ -9,35 +9,6 @@ from angreal.integrations.venv import VirtualEnv
 
 project_root = Path(angreal.get_root()).parent
 
-
-def _rust_test_env():
-    """Build environment for cargo test with Python library linking.
-
-    When maturin builds with extension-module, pyo3 omits Python link
-    directives from the cargo cache. We use CARGO_ENCODED_RUSTFLAGS
-    (which only applies to the top-level crate, not dependencies) to
-    add the Python library search path and library name for linking
-    the test binary.
-    """
-    import sysconfig
-    env = os.environ.copy()
-    libdir = sysconfig.get_config_var("LIBDIR")
-    ldlib = sysconfig.get_config_var("LDLIBRARY") or ""
-    if libdir:
-        lib_name = ldlib.replace("lib", "", 1).rsplit(".", 1)[0] if ldlib else ""
-        # CARGO_ENCODED_RUSTFLAGS uses 0x1f separator and only applies
-        # to the workspace crate, not dependencies
-        flags = [f"-Lnative={libdir}"]
-        if lib_name:
-            flags.append(f"-l{lib_name}")
-        existing = env.get("CARGO_ENCODED_RUSTFLAGS", "")
-        sep = "\x1f"
-        if existing:
-            env["CARGO_ENCODED_RUSTFLAGS"] = existing + sep + sep.join(flags)
-        else:
-            env["CARGO_ENCODED_RUSTFLAGS"] = sep.join(flags)
-    return env
-
 test = angreal.command_group(name="test", about="commands for testing the"
                              " application and library")
 
@@ -209,8 +180,7 @@ def integration_rust_tests():
     result = subprocess.run(
         ["cargo", "test", "--workspace", "--test", "integration", "-v",
          "--", "--nocapture", "--test-threads=1"],
-        cwd=str(project_root),
-        env=_rust_test_env()
+        cwd=str(project_root)
     )
     if result.returncode != 0:
         return result.returncode
@@ -224,8 +194,7 @@ def unit_rust_tests():
     result = subprocess.run(
         ["cargo", "test", "--workspace", "--lib", "-v",
          "--", "--nocapture", "--test-threads=1"],
-        cwd=str(project_root),
-        env=_rust_test_env()
+        cwd=str(project_root)
     )
     if result.returncode != 0:
         return result.returncode
