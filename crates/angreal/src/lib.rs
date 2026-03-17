@@ -824,8 +824,14 @@ fn main() -> PyResult<()> {
                         debug!("Successfully executed Python command: {}", task);
                     }
                     Err(err) => {
-                        // SystemExit → re-raise so the process exits with the correct code
-                        if err.is_instance_of::<pyo3::exceptions::PySystemExit>(py) {
+                        // SystemExit → exit with the original code
+                        let is_sys_exit = err
+                            .value(py)
+                            .get_type()
+                            .name()
+                            .map(|n| n == "SystemExit")
+                            .unwrap_or(false);
+                        if is_sys_exit {
                             let code = err
                                 .value(py)
                                 .getattr("code")

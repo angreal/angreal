@@ -1,6 +1,7 @@
 """Core test commands for angreal."""
 import os
 import subprocess
+import sysconfig
 import tempfile
 from pathlib import Path
 
@@ -8,6 +9,27 @@ import angreal
 from angreal.integrations.venv import VirtualEnv
 
 project_root = Path(angreal.get_root()).parent
+
+
+def _rust_test_env():
+    """Build environment for cargo test with Python library linking.
+
+    When maturin builds with extension-module, the cargo cache may lack
+    Python link directives. We pass both the library search path and the
+    library name so the linker can find and link libpython.
+    """
+    env = os.environ.copy()
+    libdir = sysconfig.get_config_var("LIBDIR")
+    ldlib = sysconfig.get_config_var("LDLIBRARY") or ""
+    if libdir:
+        # Extract library name: libpython3.12.dylib -> python3.12
+        lib_name = ldlib.replace("lib", "", 1).rsplit(".", 1)[0] if ldlib else ""
+        flags = f"-L native={libdir}"
+        if lib_name:
+            flags += f" -l {lib_name}"
+        existing = env.get("RUSTFLAGS", "")
+        env["RUSTFLAGS"] = f"{existing} {flags}".strip()
+    return env
 
 test = angreal.command_group(name="test", about="commands for testing the"
                              " application and library")
@@ -180,7 +202,8 @@ def integration_rust_tests():
     result = subprocess.run(
         ["cargo", "test", "--workspace", "--test", "integration", "-v",
          "--", "--nocapture", "--test-threads=1"],
-        cwd=str(project_root)
+        cwd=str(project_root),
+        env=_rust_test_env()
     )
     if result.returncode != 0:
         return result.returncode
@@ -194,7 +217,8 @@ def unit_rust_tests():
     result = subprocess.run(
         ["cargo", "test", "--workspace", "--lib", "-v",
          "--", "--nocapture", "--test-threads=1"],
-        cwd=str(project_root)
+        cwd=str(project_root),
+        env=_rust_test_env()
     )
     if result.returncode != 0:
         return result.returncode
