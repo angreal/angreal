@@ -808,12 +808,35 @@ fn main() -> PyResult<()> {
                 let r_value = command.func.call(py, (), Some(&kwargs_dict));
 
                 match r_value {
-                    Ok(_r_value) => debug!("Successfully executed Python command: {}", task),
+                    Ok(r_value) => {
+                        // Check bool before int — in Python, bool is a subtype of int
+                        // (True == 1, False == 0), so extract::<i32> would match bools
+                        if let Ok(val) = r_value.extract::<bool>(py) {
+                            if !val {
+                                exit(1);
+                            }
+                        } else if let Ok(code) = r_value.extract::<i32>(py) {
+                            if code != 0 {
+                                exit(code);
+                            }
+                        }
+                        // None, True, or other → success
+                        debug!("Successfully executed Python command: {}", task);
+                    }
                     Err(err) => {
+                        // SystemExit → re-raise so the process exits with the correct code
+                        if err.is_instance_of::<pyo3::exceptions::PySystemExit>(py) {
+                            let code = err
+                                .value(py)
+                                .getattr("code")
+                                .and_then(|c| c.extract::<i32>())
+                                .unwrap_or(1);
+                            exit(code);
+                        }
                         error!("Failed to execute Python command: {}", task);
                         let formatter = PythonErrorFormatter::new(err);
                         println!("{}", formatter);
-                        exit(1);
+                        exit(56);
                     }
                 }
             });
