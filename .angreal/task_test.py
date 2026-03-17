@@ -1,7 +1,6 @@
 """Core test commands for angreal."""
 import os
 import subprocess
-import sysconfig
 import tempfile
 from pathlib import Path
 
@@ -14,21 +13,29 @@ project_root = Path(angreal.get_root()).parent
 def _rust_test_env():
     """Build environment for cargo test with Python library linking.
 
-    When maturin builds with extension-module, the cargo cache may lack
-    Python link directives. We pass both the library search path and the
-    library name so the linker can find and link libpython.
+    When maturin builds with extension-module, pyo3 omits Python link
+    directives from the cargo cache. We use CARGO_ENCODED_RUSTFLAGS
+    (which only applies to the top-level crate, not dependencies) to
+    add the Python library search path and library name for linking
+    the test binary.
     """
+    import sysconfig
     env = os.environ.copy()
     libdir = sysconfig.get_config_var("LIBDIR")
     ldlib = sysconfig.get_config_var("LDLIBRARY") or ""
     if libdir:
-        # Extract library name: libpython3.12.dylib -> python3.12
         lib_name = ldlib.replace("lib", "", 1).rsplit(".", 1)[0] if ldlib else ""
-        flags = f"-L native={libdir}"
+        # CARGO_ENCODED_RUSTFLAGS uses 0x1f separator and only applies
+        # to the workspace crate, not dependencies
+        flags = [f"-Lnative={libdir}"]
         if lib_name:
-            flags += f" -l {lib_name}"
-        existing = env.get("RUSTFLAGS", "")
-        env["RUSTFLAGS"] = f"{existing} {flags}".strip()
+            flags.append(f"-l{lib_name}")
+        existing = env.get("CARGO_ENCODED_RUSTFLAGS", "")
+        sep = "\x1f"
+        if existing:
+            env["CARGO_ENCODED_RUSTFLAGS"] = existing + sep + sep.join(flags)
+        else:
+            env["CARGO_ENCODED_RUSTFLAGS"] = sep.join(flags)
     return env
 
 test = angreal.command_group(name="test", about="commands for testing the"
