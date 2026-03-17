@@ -28,19 +28,21 @@ TREE_OUTPUT=$(angreal tree --long 2>/dev/null)
 read -r -d '' CONTEXT << EOF
 This is an **angreal project** (detected \`.angreal\` directory).
 
-## Critical Rule: Use Angreal Tasks
+## CRITICAL: Angreal IS the Operational Task Orchestration System for This Project
 
-**ALWAYS prefer \`angreal <task>\` over manual equivalents.** Angreal tasks encode project-specific knowledge:
-- Correct flags, paths, and environment setup
-- Proper sequencing of dependent operations
-- Project conventions and best practices
+**Angreal tasks are the authoritative way to run operations** in this project — build, test, lint, deploy, docs, and any other automated workflow. They encode project-specific knowledge: correct flags, paths, environment setup, dependency sequencing, and conventions that manual commands will get wrong.
 
-**Examples:**
-- Use \`angreal test\` instead of running pytest/cargo test directly
-- Use \`angreal build\` instead of manual build commands
-- Use \`angreal docs\` instead of manual documentation builds
+**When an angreal task exists for an operation, running the underlying command directly via Bash is WRONG.** Before running ANY build, test, lint, docs, or deploy command:
+1. Check the task list below
+2. If an angreal task covers the operation, **USE IT** — do not run the underlying tool directly
+3. Only use manual commands when no angreal task covers the need
 
-## Available Commands (with ToolDescriptions)
+**How to discover tasks:**
+- \`angreal tree\` — list all available tasks (short form)
+- \`angreal tree --long\` — list with full descriptions
+- \`angreal <command> --help\` — help for a specific task
+
+## Available Tasks (with ToolDescriptions)
 
 \`\`\`
 ${TREE_OUTPUT}

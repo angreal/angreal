@@ -104,23 +104,18 @@ fn build_instructions() -> String {
     let tree = capture_tree_output();
 
     format!(
-        r#"# Angreal Project Task Runner
+        r#"# Angreal — Operational Task Orchestration
 
-**ALWAYS use `angreal <task>` instead of manual equivalents.** Angreal tasks encode project-specific knowledge — correct flags, paths, environment setup, and proper sequencing.
+**Angreal IS the operational task orchestration system for this project.** Angreal tasks are the authoritative way to run operations — build, test, lint, deploy, docs, and any other automated workflow. They encode project-specific knowledge: correct flags, paths, environment setup, dependency sequencing, and conventions that manual commands will get wrong.
+
+**When an angreal task exists for an operation, running the underlying command directly via Bash is WRONG.**
 
 ## Decision Rule
 
 Before running ANY build, test, lint, docs, or deploy command:
 1. Check the task list below
-2. If an angreal task exists for the operation, **USE IT**
+2. If an angreal task covers the operation, **USE IT** — do not run the underlying tool directly
 3. Only use manual commands when no angreal task covers the need
-
-## Examples of What NOT To Do
-
-- Do NOT run `pytest` directly → use `angreal test python`
-- Do NOT run `cargo test` directly → use `angreal test rust`
-- Do NOT run `hugo` directly → use `angreal docs build` or `angreal docs serve`
-- Do NOT run `pip install` / `maturin develop` directly → `angreal test python` handles the build
 
 ## Available Tasks
 

@@ -18,33 +18,26 @@ TREE_OUTPUT=$(angreal tree --long 2>/dev/null)
 
 # Build comprehensive context to preserve through compaction
 read -r -d '' CONTEXT << EOF
-## Angreal Project Context (PRESERVE THIS)
+## CONTEXT RESTORED: Angreal Project
 
-This is an angreal project with predefined automation tasks.
+### CRITICAL: Angreal IS the Operational Task Orchestration System
 
-### Critical Rule: ALWAYS Use Angreal Tasks
+**Angreal tasks are the authoritative way to run operations** in this project. They encode project-specific knowledge — correct flags, paths, environment setup, and sequencing that manual commands will get wrong.
 
-**NEVER run manual equivalents when an angreal task exists.** Use \`angreal <task>\` because tasks encode:
-- Project-specific configuration and flags
-- Correct environment setup and dependencies
-- Proper sequencing of operations
-- Tested, reliable workflows
-
-**Decision Framework:**
-1. Before running ANY build/test/docs/deploy command, check available tasks below
-2. If an angreal task exists for the operation, USE IT
+**When an angreal task exists for an operation, running the underlying command directly via Bash is WRONG.** Before running ANY build, test, lint, docs, or deploy command:
+1. Check the task list below
+2. If an angreal task covers the operation, **USE IT**
 3. Only use manual commands when no angreal task covers the need
-4. Pay attention to risk levels: safe, read_only, or destructive
 
-### Available Commands (with ToolDescriptions)
+### Available Tasks (with ToolDescriptions)
 
 \`\`\`
 ${TREE_OUTPUT}
 \`\`\`
 
 ### Quick Reference
-- \`angreal tree\` - List all commands (short form)
-- \`angreal <command> --help\` - Help for specific command
+- \`angreal tree\` — list all tasks
+- \`angreal <command> --help\` — help for specific task
 
 ### Skills for Angreal Development
 - \`/angreal-authoring\` - Creating tasks
@@ -56,13 +49,10 @@ EOF
 # Escape the context for JSON
 ESCAPED_CONTEXT=$(printf '%s' "$CONTEXT" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
 
-# Output JSON for Claude
+# Output JSON for Claude - PreCompact uses systemContext for higher precedence
 cat << ENDJSON
 {
-    "hookSpecificOutput": {
-        "hookEventName": "PreCompact",
-        "additionalContext": ${ESCAPED_CONTEXT}
-    }
+    "systemContext": ${ESCAPED_CONTEXT}
 }
 ENDJSON
 
