@@ -766,4 +766,168 @@ mod tests {
             generate_path_key_from_parts(&["docker".to_string(), "compose".to_string()], "up");
         assert_eq!(key, "docker.compose.up");
     }
+
+    #[test]
+    fn test_unique_registry_keys_prevent_collision() {
+        // Reproduces the bug: two commands named "build" (top-level and grouped)
+        // registered via __new__() should NOT overwrite each other.
+        Python::attach(|py| {
+            let original_tasks = ANGREAL_TASKS.lock().unwrap().clone();
+            let original_args = ANGREAL_ARGS.lock().unwrap().clone();
+            ANGREAL_TASKS.lock().unwrap().clear();
+            ANGREAL_ARGS.lock().unwrap().clear();
+
+            // 1. Create top-level "build" (simulates @angreal.command(name="build"))
+            let top_build = AngrealCommand::__new__(
+                "build",
+                py.None(),
+                Some("compile the project"),
+                None,
+                None,
+                None,
+            );
+            let top_key = top_build.registry_key.clone().unwrap();
+
+            // 2. Create grouped "build" (simulates @angreal.command(name="build")
+            //    followed by @docs_group() which calls add_group)
+            let mut docs_build = AngrealCommand::__new__(
+                "build",
+                py.None(),
+                Some("build the docs"),
+                None,
+                None,
+                None,
+            );
+            // Simulate the group decorator running
+            let docs_group = AngrealGroup {
+                name: "docs".to_string(),
+                about: Some("documentation commands".to_string()),
+            };
+            docs_build.add_group(docs_group).unwrap();
+            let docs_key = docs_build.registry_key.clone().unwrap();
+
+            // Keys must be unique
+            assert_ne!(top_key, docs_key, "registry keys must differ");
+
+            // Both commands must exist in the registry
+            let tasks = ANGREAL_TASKS.lock().unwrap();
+            assert!(
+                tasks.get(&top_key).is_some(),
+                "top-level build must be in registry"
+            );
+            assert!(
+                tasks.get(&docs_key).is_some(),
+                "docs build must be in registry"
+            );
+
+            // Logical paths must resolve correctly
+            let top_cmd = tasks.get(&top_key).unwrap();
+            let docs_cmd = tasks.get(&docs_key).unwrap();
+            assert_eq!(generate_command_path_key(top_cmd), "build");
+            assert_eq!(generate_command_path_key(docs_cmd), "docs.build");
+
+            // Verify about text survived (not overwritten)
+            assert_eq!(top_cmd.about, Some("compile the project".to_string()));
+            assert_eq!(docs_cmd.about, Some("build the docs".to_string()));
+
+            drop(tasks);
+            *ANGREAL_TASKS.lock().unwrap() = original_tasks;
+            *ANGREAL_ARGS.lock().unwrap() = original_args;
+        });
+    }
+
+    #[test]
+    fn test_registry_key_args_isolation() {
+        // Verify that arguments registered under unique registry keys
+        // don't cross-contaminate between commands with the same base name.
+        Python::attach(|py| {
+            let original_tasks = ANGREAL_TASKS.lock().unwrap().clone();
+            let original_args = ANGREAL_ARGS.lock().unwrap().clone();
+            ANGREAL_TASKS.lock().unwrap().clear();
+            ANGREAL_ARGS.lock().unwrap().clear();
+
+            // Create top-level "build" with --release arg
+            let top_build =
+                AngrealCommand::__new__("build", py.None(), Some("compile"), None, None, None);
+            let top_key = top_build.registry_key.clone().unwrap();
+            // Manually register an arg under the top_key
+            let release_arg = AngrealArg {
+                name: "release".to_string(),
+                command_name: "build".to_string(),
+                command_path: top_key.clone(),
+                takes_value: Some(false),
+                default_value: None,
+                is_flag: Some(true),
+                require_equals: None,
+                multiple_values: None,
+                number_of_values: None,
+                max_values: None,
+                min_values: None,
+                python_type: Some("bool".to_string()),
+                short: Some('r'),
+                long: Some("release".to_string()),
+                long_help: None,
+                help: None,
+                required: Some(false),
+            };
+            ANGREAL_ARGS
+                .lock()
+                .unwrap()
+                .entry(top_key.clone())
+                .or_default()
+                .push(release_arg);
+
+            // Create grouped "docs build" with --format arg
+            let mut docs_build =
+                AngrealCommand::__new__("build", py.None(), Some("build docs"), None, None, None);
+            let pre_group_key = docs_build.registry_key.clone().unwrap();
+            let format_arg = AngrealArg {
+                name: "format".to_string(),
+                command_name: "build".to_string(),
+                command_path: pre_group_key.clone(),
+                takes_value: Some(true),
+                default_value: Some("html".to_string()),
+                is_flag: Some(false),
+                require_equals: None,
+                multiple_values: None,
+                number_of_values: None,
+                max_values: None,
+                min_values: None,
+                python_type: Some("str".to_string()),
+                short: Some('f'),
+                long: Some("format".to_string()),
+                long_help: None,
+                help: None,
+                required: Some(false),
+            };
+            ANGREAL_ARGS
+                .lock()
+                .unwrap()
+                .entry(pre_group_key.clone())
+                .or_default()
+                .push(format_arg);
+
+            // Now apply group decorator — this re-keys in both TASKS and ARGS
+            docs_build
+                .add_group(AngrealGroup {
+                    name: "docs".to_string(),
+                    about: None,
+                })
+                .unwrap();
+            let docs_key = docs_build.registry_key.clone().unwrap();
+
+            // Verify args are isolated
+            let top_args = crate::builder::select_args(&top_key);
+            let docs_args = crate::builder::select_args(&docs_key);
+
+            assert_eq!(top_args.len(), 1);
+            assert_eq!(top_args[0].name, "release");
+
+            assert_eq!(docs_args.len(), 1);
+            assert_eq!(docs_args[0].name, "format");
+
+            *ANGREAL_TASKS.lock().unwrap() = original_tasks;
+            *ANGREAL_ARGS.lock().unwrap() = original_args;
+        });
+    }
 }
