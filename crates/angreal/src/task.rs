@@ -7,7 +7,13 @@ use pyo3::prelude::*;
 use pyo3::types::PyModule;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
+
+/// Monotonic counter for generating unique temporary registry keys.
+/// This prevents collisions when two commands share the same base name
+/// during transient registration (before group decorators run).
+static COMMAND_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 /// Registers the Command and Arg structs to the python api in the `angreal` module
 pub fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -48,15 +54,23 @@ pub fn get_current_command_path() -> Option<String> {
 
 /// Generate a full path key for a command based on its group hierarchy
 pub fn generate_command_path_key(command: &AngrealCommand) -> String {
-    let path = match &command.group {
-        None => command.name.clone(),
+    generate_command_path_key_from_parts(command.group.as_deref(), &command.name)
+}
+
+/// Generate a path key from group list and command name
+pub fn generate_command_path_key_from_parts(
+    groups: Option<&[AngrealGroup]>,
+    name: &str,
+) -> String {
+    let path = match groups {
+        None | Some([]) => name.to_string(),
         Some(groups) => {
             let group_path = groups
                 .iter()
                 .map(|g| g.name.clone())
                 .collect::<Vec<_>>()
                 .join(".");
-            format!("{}.{}", group_path, command.name)
+            format!("{}.{}", group_path, name)
         }
     };
     // Strip any leading dots that might have been introduced
@@ -215,6 +229,10 @@ pub struct AngrealCommand {
     /// Rich tool description for AI agent integration
     #[pyo3(get)]
     pub tool: Option<ToolDescription>,
+    /// Internal unique key used for registry tracking during decoration.
+    /// This prevents collisions when two commands share the same base name
+    /// before group decorators have run (e.g. top-level "build" vs "docs build").
+    pub registry_key: Option<String>,
 }
 
 impl Clone for AngrealCommand {
@@ -226,6 +244,7 @@ impl Clone for AngrealCommand {
             func: self.func.clone_ref(py),
             group: self.group.clone(),
             tool: self.tool.clone(),
+            registry_key: self.registry_key.clone(),
         })
     }
 }
@@ -267,6 +286,16 @@ impl AngrealCommand {
         tool: Option<ToolDescription>,
     ) -> Self {
         debug!("Creating new AngrealCommand with name: {}", name);
+
+        // Generate a unique registry key to prevent collisions when two commands
+        // share the same base name during transient registration (before group
+        // decorators run). For example, a top-level "build" and a grouped
+        // "docs build" both initially register as "build" — without a unique key,
+        // the second silently overwrites the first.
+        let id = COMMAND_COUNTER.fetch_add(1, Ordering::Relaxed);
+        let path_key = generate_command_path_key_from_parts(group.as_deref(), name);
+        let registry_key = format!("{}.__reg_{}", path_key, id);
+
         let cmd = AngrealCommand {
             name: name.to_string(),
             about: about.map(|i| i.to_string()),
@@ -274,20 +303,20 @@ impl AngrealCommand {
             group,
             func,
             tool,
+            registry_key: Some(registry_key.clone()),
         };
 
-        let path_key = generate_command_path_key(&cmd);
         ANGREAL_TASKS
             .lock()
             .unwrap()
-            .insert(path_key.clone(), cmd.clone());
+            .insert(registry_key.clone(), cmd.clone());
 
         // Set current command path for argument registration
-        set_current_command_path(path_key.clone());
+        set_current_command_path(registry_key.clone());
 
         debug!(
-            "Registered new command '{}' with path key: {}",
-            name, path_key
+            "Registered new command '{}' with registry key: {}",
+            name, registry_key
         );
         debug!(
             "Updated ANGREAL_TASKS registry size: {}",
@@ -299,8 +328,12 @@ impl AngrealCommand {
     pub fn add_group(&mut self, group: AngrealGroup) -> PyResult<()> {
         debug!("Adding group '{}' to command '{}'", group.name, self.name);
 
-        // Get the current path key for this command
-        let old_path_key = generate_command_path_key(self);
+        // Use the unique registry key to find our entry (avoids collisions
+        // with other commands that share the same base name).
+        let old_registry_key = self
+            .registry_key
+            .clone()
+            .unwrap_or_else(|| generate_command_path_key(self));
 
         if self.group.is_none() {
             debug!(
@@ -316,33 +349,40 @@ impl AngrealCommand {
         g.insert(0, group);
         self.group = Some(g.clone());
 
-        // Generate new path key and update registry
+        // Generate a new unique registry key for the updated command
+        let id = COMMAND_COUNTER.fetch_add(1, Ordering::Relaxed);
         let new_path_key = generate_command_path_key(self);
+        let new_registry_key = format!("{}.__reg_{}", new_path_key, id);
+        self.registry_key = Some(new_registry_key.clone());
+
         let mut tasks = ANGREAL_TASKS.lock().unwrap();
 
-        // Remove old entry and insert with new key
-        if let Some(_cmd) = tasks.remove(&old_path_key) {
-            tasks.insert(new_path_key.clone(), self.clone());
+        // Remove old entry by its unique registry key and insert with new key
+        if let Some(_cmd) = tasks.remove(&old_registry_key) {
+            tasks.insert(new_registry_key.clone(), self.clone());
             debug!(
-                "Updated command path from '{}' to '{}'",
-                old_path_key, new_path_key
+                "Updated command registry key from '{}' to '{}'",
+                old_registry_key, new_registry_key
             );
         } else {
             // Fallback: just insert with new key
-            tasks.insert(new_path_key.clone(), self.clone());
-            debug!("Inserted command with new path: '{}'", new_path_key);
+            tasks.insert(new_registry_key.clone(), self.clone());
+            debug!(
+                "Inserted command with new registry key: '{}'",
+                new_registry_key
+            );
         }
 
         debug!("Current ANGREAL_TASKS registry size: {}", tasks.len());
         drop(tasks);
 
-        // Also update arguments registry with new path key
+        // Also update arguments registry with new key
         let mut args_registry = ANGREAL_ARGS.lock().unwrap();
-        if let Some(args) = args_registry.remove(&old_path_key) {
-            args_registry.insert(new_path_key.clone(), args);
+        if let Some(args) = args_registry.remove(&old_registry_key) {
+            args_registry.insert(new_registry_key.clone(), args);
             debug!(
                 "Moved arguments from '{}' to '{}'",
-                old_path_key, new_path_key
+                old_registry_key, new_registry_key
             );
         }
 
@@ -533,6 +573,7 @@ mod tests {
                 group: Some(vec![group1.clone()]),
                 func: py.None(),
                 tool: None,
+                registry_key: None,
             };
 
             let cmd2 = AngrealCommand {
@@ -542,6 +583,7 @@ mod tests {
                 group: Some(vec![group2.clone()]),
                 func: py.None(),
                 tool: None,
+                registry_key: None,
             };
 
             // Register both commands
@@ -618,6 +660,7 @@ mod tests {
                 group: Some(vec![group1]),
                 func: py.None(),
                 tool: None,
+                registry_key: None,
             };
 
             let cmd2 = AngrealCommand {
@@ -627,6 +670,7 @@ mod tests {
                 group: Some(vec![group2]),
                 func: py.None(),
                 tool: None,
+                registry_key: None,
             };
 
             let path1 = generate_command_path_key(&cmd1);

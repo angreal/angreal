@@ -185,13 +185,16 @@ fn add_project_subcommands(mut app: App<'static>) -> App<'static> {
 
         // If this is a command node (has command data), add its arguments
         if let Some(command) = &node.command {
-            // Generate the full command path for argument lookup
-            let command_path = if let Some(ref groups) = command.group {
-                generate_path_key_from_parts(groups, &command.name)
-            } else {
-                command.name.clone()
-            };
-            let args = select_args(&command_path);
+            // Use the unique registry key for argument lookup (avoids
+            // collisions between commands that share the same base name).
+            let lookup_key = command.registry_key.clone().unwrap_or_else(|| {
+                if let Some(ref groups) = command.group {
+                    generate_path_key_from_parts(groups, &command.name)
+                } else {
+                    command.name.clone()
+                }
+            });
+            let args = select_args(&lookup_key);
             for arg in args {
                 let name_static: &'static str =
                     Box::leak(Box::new(arg.name.clone()).into_boxed_str());

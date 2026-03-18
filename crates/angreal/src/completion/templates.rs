@@ -153,6 +153,8 @@ mod tests {
         // Should not crash and should return some suggestions
         let suggestions = get_template_suggestions().unwrap_or_default();
         // Even if network fails, should have local templates or empty list
-        assert!(suggestions.len() >= 0);
+        // Not a very useful check, len() on a Vec is always >= 0
+        #[allow(unused_comparisons)]
+        { assert!(suggestions.len() >= 0); }
     }
 }

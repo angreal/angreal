@@ -30,6 +30,9 @@ pub struct SerializableCommand {
     pub group: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool: Option<SerializableToolDescription>,
+    /// Internal unique registry key for argument lookup
+    #[serde(skip)]
+    pub registry_key: Option<String>,
 }
 
 /// Serializable version of ToolDescription for JSON output
@@ -94,6 +97,7 @@ impl CommandNode {
                 description: t.description.clone(),
                 risk_level: t.risk_level.clone(),
             }),
+            registry_key: command.registry_key.clone(),
         };
 
         CommandNode {
@@ -228,6 +232,7 @@ mod tests {
                 group: None,
                 func,
                 tool: None,
+                registry_key: None,
             };
 
             let node = CommandNode::new_command(name.clone(), command);
@@ -254,6 +259,7 @@ mod tests {
                 group: None,
                 func: py.None(),
                 tool: None,
+                registry_key: None,
             };
 
             root.add_command(command);
@@ -289,6 +295,7 @@ mod tests {
                 group: Some(vec![group1.clone(), group2.clone()]),
                 func: py.None(),
                 tool: None,
+                registry_key: None,
             };
 
             root.add_command(command);
@@ -326,6 +333,7 @@ mod tests {
                 }]),
                 func: py.None(),
                 tool: None,
+                registry_key: None,
             };
 
             root.add_command(command);
