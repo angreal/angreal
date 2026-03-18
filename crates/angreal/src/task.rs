@@ -58,10 +58,7 @@ pub fn generate_command_path_key(command: &AngrealCommand) -> String {
 }
 
 /// Generate a path key from group list and command name
-pub fn generate_command_path_key_from_parts(
-    groups: Option<&[AngrealGroup]>,
-    name: &str,
-) -> String {
+pub fn generate_command_path_key_from_parts(groups: Option<&[AngrealGroup]>, name: &str) -> String {
     let path = match groups {
         None | Some([]) => name.to_string(),
         Some(groups) => {

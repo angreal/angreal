@@ -155,6 +155,8 @@ mod tests {
         // Even if network fails, should have local templates or empty list
         // Not a very useful check, len() on a Vec is always >= 0
         #[allow(unused_comparisons)]
-        { assert!(suggestions.len() >= 0); }
+        {
+            assert!(suggestions.len() >= 0);
+        }
     }
 }
