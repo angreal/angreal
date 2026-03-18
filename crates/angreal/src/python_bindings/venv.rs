@@ -478,6 +478,8 @@ impl VenvRequiredDecorator {
             original_func: func,
             path: self.path.clone(),
             requirements: self.requirements.as_ref().map(|r| r.clone_ref(py)),
+            command: None,
+            arguments: None,
         };
 
         // Convert the Rust wrapper to a Python callable
@@ -490,6 +492,10 @@ struct VenvRequiredWrapper {
     original_func: Py<PyAny>,
     path: String,
     requirements: Option<Py<PyAny>>,
+    /// Storage for __command attribute set by @angreal.command decorator
+    command: Option<Py<PyAny>>,
+    /// Storage for __arguments attribute set by @angreal.argument decorator
+    arguments: Option<Py<PyAny>>,
 }
 
 impl Clone for VenvRequiredWrapper {
@@ -498,6 +504,8 @@ impl Clone for VenvRequiredWrapper {
             original_func: self.original_func.clone_ref(py),
             path: self.path.clone(),
             requirements: self.requirements.as_ref().map(|r| r.clone_ref(py)),
+            command: self.command.as_ref().map(|c| c.clone_ref(py)),
+            arguments: self.arguments.as_ref().map(|a| a.clone_ref(py)),
         })
     }
 }
@@ -541,15 +549,41 @@ impl VenvRequiredWrapper {
         })
     }
 
-    // Proxy attributes from the wrapped function to support angreal's introspection
-    // Note: angreal uses __arguments (single underscore), not __arguments__ (dunder)
+    // Proxy __command for @angreal.command and @angreal.group decorators
+    #[getter(__command)]
+    fn get_command(&self) -> PyResult<Py<PyAny>> {
+        Python::attach(|py| {
+            self.command
+                .as_ref()
+                .map(|c| c.clone_ref(py))
+                .ok_or_else(|| {
+                    PyErr::new::<pyo3::exceptions::PyAttributeError, _>("__command not set")
+                })
+        })
+    }
+
+    #[setter(__command)]
+    fn set_command(&mut self, value: Py<PyAny>) {
+        self.command = Some(value);
+    }
+
+    // Proxy __arguments for @angreal.argument decorator
     #[getter(__arguments)]
     fn get_arguments(&self) -> PyResult<Py<PyAny>> {
         Python::attach(|py| {
-            self.original_func
-                .getattr(py, "__arguments")
-                .or_else(|_| Ok(py.None()))
+            if let Some(args) = &self.arguments {
+                Ok(args.clone_ref(py))
+            } else {
+                self.original_func
+                    .getattr(py, "__arguments")
+                    .or_else(|_| Ok(py.None()))
+            }
         })
+    }
+
+    #[setter(__arguments)]
+    fn set_arguments(&mut self, value: Py<PyAny>) {
+        self.arguments = Some(value);
     }
 
     #[getter]
