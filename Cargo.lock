@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "angreal"
-version = "2.8.4"
+version = "2.8.5"
 dependencies = [
  "anyhow",
  "clap",
