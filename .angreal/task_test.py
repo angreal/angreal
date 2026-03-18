@@ -173,10 +173,42 @@ def rust_tests_combined(unit_only: bool = False, integration_only: bool = False)
         return integration_rust_tests()
 
 
+def _maturin_develop():
+    """Run maturin develop in a venv to set up Python linking for cargo test.
+
+    Cleans pyo3/docker-pyo3 build artifacts first so cargo test rebuilds
+    them without extension-module (which maturin sets and which prevents
+    the test binary from linking libpython).
+    """
+    # Clean pyo3 artifacts that may have extension-module baked in
+    target_deps = project_root / "target" / "debug" / "deps"
+    target_build = project_root / "target" / "debug" / "build"
+    if target_deps.exists():
+        for f in target_deps.iterdir():
+            if any(name in f.name for name in ["pyo3", "docker_pyo3", "pythonize"]):
+                if f.is_dir():
+                    import shutil
+                    shutil.rmtree(f, ignore_errors=True)
+                else:
+                    f.unlink(missing_ok=True)
+    if target_build.exists():
+        for f in target_build.iterdir():
+            if any(name in f.name for name in ["pyo3", "docker-pyo3", "pythonize"]):
+                if f.is_dir():
+                    import shutil
+                    shutil.rmtree(f, ignore_errors=True)
+                else:
+                    f.unlink(missing_ok=True)
+    return 0
+
+
 def integration_rust_tests():
     """
     Run the Rust integration tests
     """
+    rc = _maturin_develop()
+    if rc != 0:
+        return rc
     result = subprocess.run(
         ["cargo", "test", "--workspace", "--test", "integration", "-v",
          "--", "--nocapture", "--test-threads=1"],
@@ -191,6 +223,9 @@ def unit_rust_tests():
     """
     Run the Rust unit tests
     """
+    rc = _maturin_develop()
+    if rc != 0:
+        return rc
     result = subprocess.run(
         ["cargo", "test", "--workspace", "--lib", "-v",
          "--", "--nocapture", "--test-threads=1"],

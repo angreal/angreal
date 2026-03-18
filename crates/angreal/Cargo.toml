@@ -21,7 +21,7 @@ path = "tests/integration/lib.rs"
 [dependencies]
 anyhow = {version = "1.0.72"}
 clap = { version = "3" }
-docker-pyo3 = { version = "0.3.1" }
+docker-pyo3 = { version = "0.3.2" }
 git-url-parse = { version = "0.4.4" }
 git2 = { version = "0.16"}
 git2_credentials = { version = "0.11.0"}
@@ -44,6 +44,9 @@ toml = { version = "0.6", features=["preserve_order"] }
 version = { version = "3.0.0" }
 version-compare = { version = "0.1.1" }
 walkdir = { version = "2.3.2" }
+
+[features]
+extension-module = ["pyo3/extension-module", "docker-pyo3/extension-module"]
 
 [dev-dependencies]
 rand = { version="0.8.5" }

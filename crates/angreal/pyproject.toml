@@ -30,5 +30,5 @@ dependencies = ["packaging"]
 angreal = "angreal:main"
 
 [tool.maturin]
-features = ["pyo3/extension-module"]
+features = ["extension-module"]
 exclude = ["Cargo.lock", "**/Cargo.lock"]
