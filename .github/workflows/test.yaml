@@ -96,9 +96,9 @@ jobs:
         with:
           key: py-${{ matrix.python-version }}
       - uses: webfactory/ssh-agent@v0.9.1
+        continue-on-error: true
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          known_hosts: ${{ secrets.GH_KNOWN_HOSTS }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -141,9 +141,9 @@ jobs:
         with:
           key: py-${{ matrix.python-version }}
       - uses: webfactory/ssh-agent@v0.9.1
+        continue-on-error: true
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          known_hosts: ${{ secrets.GH_KNOWN_HOSTS }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -188,9 +188,9 @@ jobs:
         with:
           key: py-${{ matrix.python-version }}
       - uses: webfactory/ssh-agent@v0.9.1
+        continue-on-error: true
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          known_hosts: ${{ secrets.GH_KNOWN_HOSTS }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
