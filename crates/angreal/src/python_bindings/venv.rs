@@ -178,18 +178,38 @@ impl VirtualEnv {
             sys.setattr("prefix", self.path.to_str().unwrap())?;
             sys.setattr("exec_prefix", self.path.to_str().unwrap())?;
 
-            // Update sys.path to include venv's site-packages
+            // Discover the actual site-packages directory from the venv.
+            // Don't assume the venv's Python version matches the host — UV may
+            // have created the venv with a different Python than the one running.
             let site_packages = if cfg!(windows) {
                 self.path.join("Lib").join("site-packages")
             } else {
-                self.path
-                    .join("lib")
-                    .join(format!(
-                        "python{}.{}",
-                        py.version_info().major,
-                        py.version_info().minor
-                    ))
-                    .join("site-packages")
+                // Find the actual python* directory under lib/
+                let lib_dir = self.path.join("lib");
+                let mut found = None;
+                if let Ok(entries) = std::fs::read_dir(&lib_dir) {
+                    for entry in entries.flatten() {
+                        let name = entry.file_name();
+                        let name_str = name.to_string_lossy();
+                        if name_str.starts_with("python") {
+                            let sp = entry.path().join("site-packages");
+                            if sp.exists() {
+                                found = Some(sp);
+                                break;
+                            }
+                        }
+                    }
+                }
+                found.unwrap_or_else(|| {
+                    // Fallback to host Python version if discovery fails
+                    lib_dir
+                        .join(format!(
+                            "python{}.{}",
+                            py.version_info().major,
+                            py.version_info().minor
+                        ))
+                        .join("site-packages")
+                })
             };
 
             let path_list = sys.getattr("path")?;
