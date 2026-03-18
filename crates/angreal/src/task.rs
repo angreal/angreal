@@ -7,7 +7,13 @@ use pyo3::prelude::*;
 use pyo3::types::PyModule;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
+
+/// Monotonic counter for generating unique temporary registry keys.
+/// This prevents collisions when two commands share the same base name
+/// during transient registration (before group decorators run).
+static COMMAND_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 /// Registers the Command and Arg structs to the python api in the `angreal` module
 pub fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -48,15 +54,20 @@ pub fn get_current_command_path() -> Option<String> {
 
 /// Generate a full path key for a command based on its group hierarchy
 pub fn generate_command_path_key(command: &AngrealCommand) -> String {
-    let path = match &command.group {
-        None => command.name.clone(),
+    generate_command_path_key_from_parts(command.group.as_deref(), &command.name)
+}
+
+/// Generate a path key from group list and command name
+pub fn generate_command_path_key_from_parts(groups: Option<&[AngrealGroup]>, name: &str) -> String {
+    let path = match groups {
+        None | Some([]) => name.to_string(),
         Some(groups) => {
             let group_path = groups
                 .iter()
                 .map(|g| g.name.clone())
                 .collect::<Vec<_>>()
                 .join(".");
-            format!("{}.{}", group_path, command.name)
+            format!("{}.{}", group_path, name)
         }
     };
     // Strip any leading dots that might have been introduced
@@ -215,6 +226,10 @@ pub struct AngrealCommand {
     /// Rich tool description for AI agent integration
     #[pyo3(get)]
     pub tool: Option<ToolDescription>,
+    /// Internal unique key used for registry tracking during decoration.
+    /// This prevents collisions when two commands share the same base name
+    /// before group decorators have run (e.g. top-level "build" vs "docs build").
+    pub registry_key: Option<String>,
 }
 
 impl Clone for AngrealCommand {
@@ -226,6 +241,7 @@ impl Clone for AngrealCommand {
             func: self.func.clone_ref(py),
             group: self.group.clone(),
             tool: self.tool.clone(),
+            registry_key: self.registry_key.clone(),
         })
     }
 }
@@ -267,6 +283,16 @@ impl AngrealCommand {
         tool: Option<ToolDescription>,
     ) -> Self {
         debug!("Creating new AngrealCommand with name: {}", name);
+
+        // Generate a unique registry key to prevent collisions when two commands
+        // share the same base name during transient registration (before group
+        // decorators run). For example, a top-level "build" and a grouped
+        // "docs build" both initially register as "build" — without a unique key,
+        // the second silently overwrites the first.
+        let id = COMMAND_COUNTER.fetch_add(1, Ordering::Relaxed);
+        let path_key = generate_command_path_key_from_parts(group.as_deref(), name);
+        let registry_key = format!("{}.__reg_{}", path_key, id);
+
         let cmd = AngrealCommand {
             name: name.to_string(),
             about: about.map(|i| i.to_string()),
@@ -274,20 +300,20 @@ impl AngrealCommand {
             group,
             func,
             tool,
+            registry_key: Some(registry_key.clone()),
         };
 
-        let path_key = generate_command_path_key(&cmd);
         ANGREAL_TASKS
             .lock()
             .unwrap()
-            .insert(path_key.clone(), cmd.clone());
+            .insert(registry_key.clone(), cmd.clone());
 
         // Set current command path for argument registration
-        set_current_command_path(path_key.clone());
+        set_current_command_path(registry_key.clone());
 
         debug!(
-            "Registered new command '{}' with path key: {}",
-            name, path_key
+            "Registered new command '{}' with registry key: {}",
+            name, registry_key
         );
         debug!(
             "Updated ANGREAL_TASKS registry size: {}",
@@ -299,8 +325,12 @@ impl AngrealCommand {
     pub fn add_group(&mut self, group: AngrealGroup) -> PyResult<()> {
         debug!("Adding group '{}' to command '{}'", group.name, self.name);
 
-        // Get the current path key for this command
-        let old_path_key = generate_command_path_key(self);
+        // Use the unique registry key to find our entry (avoids collisions
+        // with other commands that share the same base name).
+        let old_registry_key = self
+            .registry_key
+            .clone()
+            .unwrap_or_else(|| generate_command_path_key(self));
 
         if self.group.is_none() {
             debug!(
@@ -316,33 +346,40 @@ impl AngrealCommand {
         g.insert(0, group);
         self.group = Some(g.clone());
 
-        // Generate new path key and update registry
+        // Generate a new unique registry key for the updated command
+        let id = COMMAND_COUNTER.fetch_add(1, Ordering::Relaxed);
         let new_path_key = generate_command_path_key(self);
+        let new_registry_key = format!("{}.__reg_{}", new_path_key, id);
+        self.registry_key = Some(new_registry_key.clone());
+
         let mut tasks = ANGREAL_TASKS.lock().unwrap();
 
-        // Remove old entry and insert with new key
-        if let Some(_cmd) = tasks.remove(&old_path_key) {
-            tasks.insert(new_path_key.clone(), self.clone());
+        // Remove old entry by its unique registry key and insert with new key
+        if let Some(_cmd) = tasks.remove(&old_registry_key) {
+            tasks.insert(new_registry_key.clone(), self.clone());
             debug!(
-                "Updated command path from '{}' to '{}'",
-                old_path_key, new_path_key
+                "Updated command registry key from '{}' to '{}'",
+                old_registry_key, new_registry_key
             );
         } else {
             // Fallback: just insert with new key
-            tasks.insert(new_path_key.clone(), self.clone());
-            debug!("Inserted command with new path: '{}'", new_path_key);
+            tasks.insert(new_registry_key.clone(), self.clone());
+            debug!(
+                "Inserted command with new registry key: '{}'",
+                new_registry_key
+            );
         }
 
         debug!("Current ANGREAL_TASKS registry size: {}", tasks.len());
         drop(tasks);
 
-        // Also update arguments registry with new path key
+        // Also update arguments registry with new key
         let mut args_registry = ANGREAL_ARGS.lock().unwrap();
-        if let Some(args) = args_registry.remove(&old_path_key) {
-            args_registry.insert(new_path_key.clone(), args);
+        if let Some(args) = args_registry.remove(&old_registry_key) {
+            args_registry.insert(new_registry_key.clone(), args);
             debug!(
                 "Moved arguments from '{}' to '{}'",
-                old_path_key, new_path_key
+                old_registry_key, new_registry_key
             );
         }
 
@@ -533,6 +570,7 @@ mod tests {
                 group: Some(vec![group1.clone()]),
                 func: py.None(),
                 tool: None,
+                registry_key: None,
             };
 
             let cmd2 = AngrealCommand {
@@ -542,6 +580,7 @@ mod tests {
                 group: Some(vec![group2.clone()]),
                 func: py.None(),
                 tool: None,
+                registry_key: None,
             };
 
             // Register both commands
@@ -618,6 +657,7 @@ mod tests {
                 group: Some(vec![group1]),
                 func: py.None(),
                 tool: None,
+                registry_key: None,
             };
 
             let cmd2 = AngrealCommand {
@@ -627,6 +667,7 @@ mod tests {
                 group: Some(vec![group2]),
                 func: py.None(),
                 tool: None,
+                registry_key: None,
             };
 
             let path1 = generate_command_path_key(&cmd1);
@@ -724,5 +765,169 @@ mod tests {
         let key =
             generate_path_key_from_parts(&["docker".to_string(), "compose".to_string()], "up");
         assert_eq!(key, "docker.compose.up");
+    }
+
+    #[test]
+    fn test_unique_registry_keys_prevent_collision() {
+        // Reproduces the bug: two commands named "build" (top-level and grouped)
+        // registered via __new__() should NOT overwrite each other.
+        Python::attach(|py| {
+            let original_tasks = ANGREAL_TASKS.lock().unwrap().clone();
+            let original_args = ANGREAL_ARGS.lock().unwrap().clone();
+            ANGREAL_TASKS.lock().unwrap().clear();
+            ANGREAL_ARGS.lock().unwrap().clear();
+
+            // 1. Create top-level "build" (simulates @angreal.command(name="build"))
+            let top_build = AngrealCommand::__new__(
+                "build",
+                py.None(),
+                Some("compile the project"),
+                None,
+                None,
+                None,
+            );
+            let top_key = top_build.registry_key.clone().unwrap();
+
+            // 2. Create grouped "build" (simulates @angreal.command(name="build")
+            //    followed by @docs_group() which calls add_group)
+            let mut docs_build = AngrealCommand::__new__(
+                "build",
+                py.None(),
+                Some("build the docs"),
+                None,
+                None,
+                None,
+            );
+            // Simulate the group decorator running
+            let docs_group = AngrealGroup {
+                name: "docs".to_string(),
+                about: Some("documentation commands".to_string()),
+            };
+            docs_build.add_group(docs_group).unwrap();
+            let docs_key = docs_build.registry_key.clone().unwrap();
+
+            // Keys must be unique
+            assert_ne!(top_key, docs_key, "registry keys must differ");
+
+            // Both commands must exist in the registry
+            let tasks = ANGREAL_TASKS.lock().unwrap();
+            assert!(
+                tasks.get(&top_key).is_some(),
+                "top-level build must be in registry"
+            );
+            assert!(
+                tasks.get(&docs_key).is_some(),
+                "docs build must be in registry"
+            );
+
+            // Logical paths must resolve correctly
+            let top_cmd = tasks.get(&top_key).unwrap();
+            let docs_cmd = tasks.get(&docs_key).unwrap();
+            assert_eq!(generate_command_path_key(top_cmd), "build");
+            assert_eq!(generate_command_path_key(docs_cmd), "docs.build");
+
+            // Verify about text survived (not overwritten)
+            assert_eq!(top_cmd.about, Some("compile the project".to_string()));
+            assert_eq!(docs_cmd.about, Some("build the docs".to_string()));
+
+            drop(tasks);
+            *ANGREAL_TASKS.lock().unwrap() = original_tasks;
+            *ANGREAL_ARGS.lock().unwrap() = original_args;
+        });
+    }
+
+    #[test]
+    fn test_registry_key_args_isolation() {
+        // Verify that arguments registered under unique registry keys
+        // don't cross-contaminate between commands with the same base name.
+        Python::attach(|py| {
+            let original_tasks = ANGREAL_TASKS.lock().unwrap().clone();
+            let original_args = ANGREAL_ARGS.lock().unwrap().clone();
+            ANGREAL_TASKS.lock().unwrap().clear();
+            ANGREAL_ARGS.lock().unwrap().clear();
+
+            // Create top-level "build" with --release arg
+            let top_build =
+                AngrealCommand::__new__("build", py.None(), Some("compile"), None, None, None);
+            let top_key = top_build.registry_key.clone().unwrap();
+            // Manually register an arg under the top_key
+            let release_arg = AngrealArg {
+                name: "release".to_string(),
+                command_name: "build".to_string(),
+                command_path: top_key.clone(),
+                takes_value: Some(false),
+                default_value: None,
+                is_flag: Some(true),
+                require_equals: None,
+                multiple_values: None,
+                number_of_values: None,
+                max_values: None,
+                min_values: None,
+                python_type: Some("bool".to_string()),
+                short: Some('r'),
+                long: Some("release".to_string()),
+                long_help: None,
+                help: None,
+                required: Some(false),
+            };
+            ANGREAL_ARGS
+                .lock()
+                .unwrap()
+                .entry(top_key.clone())
+                .or_default()
+                .push(release_arg);
+
+            // Create grouped "docs build" with --format arg
+            let mut docs_build =
+                AngrealCommand::__new__("build", py.None(), Some("build docs"), None, None, None);
+            let pre_group_key = docs_build.registry_key.clone().unwrap();
+            let format_arg = AngrealArg {
+                name: "format".to_string(),
+                command_name: "build".to_string(),
+                command_path: pre_group_key.clone(),
+                takes_value: Some(true),
+                default_value: Some("html".to_string()),
+                is_flag: Some(false),
+                require_equals: None,
+                multiple_values: None,
+                number_of_values: None,
+                max_values: None,
+                min_values: None,
+                python_type: Some("str".to_string()),
+                short: Some('f'),
+                long: Some("format".to_string()),
+                long_help: None,
+                help: None,
+                required: Some(false),
+            };
+            ANGREAL_ARGS
+                .lock()
+                .unwrap()
+                .entry(pre_group_key.clone())
+                .or_default()
+                .push(format_arg);
+
+            // Now apply group decorator — this re-keys in both TASKS and ARGS
+            docs_build
+                .add_group(AngrealGroup {
+                    name: "docs".to_string(),
+                    about: None,
+                })
+                .unwrap();
+            let docs_key = docs_build.registry_key.clone().unwrap();
+
+            // Verify args are isolated
+            let top_args = crate::builder::select_args(&top_key);
+            let docs_args = crate::builder::select_args(&docs_key);
+
+            assert_eq!(top_args.len(), 1);
+            assert_eq!(top_args[0].name, "release");
+
+            assert_eq!(docs_args.len(), 1);
+            assert_eq!(docs_args[0].name, "format");
+
+            *ANGREAL_TASKS.lock().unwrap() = original_tasks;
+            *ANGREAL_ARGS.lock().unwrap() = original_args;
+        });
     }
 }

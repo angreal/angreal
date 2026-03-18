@@ -43,7 +43,7 @@ use std::fs;
 use log::{debug, error, warn};
 
 use crate::integrations::git::Git;
-use crate::task::generate_path_key_from_parts;
+use crate::task::{generate_command_path_key, generate_path_key_from_parts};
 
 #[pyclass]
 struct PyGit {
@@ -715,23 +715,31 @@ fn main() -> PyResult<()> {
 
             let task = command_groups.pop().unwrap();
 
-            // Generate the full path key for command lookup
+            // Generate the logical path key for command lookup
             let command_path = generate_path_key_from_parts(&command_groups, &task);
             let tasks_registry = ANGREAL_TASKS.lock().unwrap();
 
             debug!("Looking up command with path: {}", command_path);
-            let command = match tasks_registry.get(&command_path) {
+            // Find the command by its logical path (registry keys include a
+            // unique suffix to prevent collisions during decoration).
+            let (registry_key, command) = match tasks_registry
+                .iter()
+                .find(|(_, cmd)| generate_command_path_key(cmd) == command_path)
+            {
                 None => {
                     error!("Command '{}' not found.", task);
                     app_copy.print_help().unwrap_or(());
                     exit(1)
                 }
-                Some(found_command) => found_command,
+                Some((key, found_command)) => (key.clone(), found_command),
             };
 
-            debug!("Executing command: {}", task);
+            debug!(
+                "Executing command: {} (registry key: {})",
+                task, registry_key
+            );
 
-            let args = builder::select_args(&command_path);
+            let args = builder::select_args(&registry_key);
             Python::attach(|py| {
                 debug!("Starting Python execution for command: {}", task);
                 let mut kwargs: Vec<(&str, Py<PyAny>)> = Vec::new();
