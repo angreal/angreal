@@ -45,6 +45,7 @@ angreal init <TEMPLATE> [OPTIONS]
 **Options:**
 - `-f, --force` - Force the rendering of a template, even if paths/files already exist
 - `-d, --defaults` - Use default values provided in the angreal.toml
+- `-i, --in-place` - Render the template's contents into the current directory, stripping the template's top-level directory
 - `--values <FILE>` - Provide values to template, bypassing template toml
 
 **Template Sources & Examples:**
@@ -62,7 +63,20 @@ angreal init template
 # With options
 angreal init template/ --force --defaults
 angreal init template/ --values values.toml
+
+# Render into the current directory instead of creating a project root
+angreal init template/ --in-place
 ```
+
+!!! note "In-place rendering"
+    By default a template's single top-level directory (e.g. `{{ project_name }}/`)
+    becomes a new project root inside the current directory. With `--in-place`,
+    that top-level directory is stripped and its contents are rendered directly
+    into the current directory — useful for scaffolding into a folder you've
+    already created (for example an existing git repository). The template must
+    have exactly one top-level templated directory, and `--force` is required to
+    overwrite files that already exist. See
+    [Render a Template In Place](../../how-to-guides/render-template-in-place.md).
 
 {{< hint type=note >}}
 **Available Templates**: Browse the official Angreal templates at [github.com/angreal](https://github.com/angreal) to find pre-built templates for various project types.

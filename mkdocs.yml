@@ -68,6 +68,7 @@ nav:
     - Create Task Groups: how-to-guides/create-task-group.md
     - Create Templates: how-to-guides/create-templates.md
     - Include Jinja Templates: how-to-guides/include-jinja-templates.md
+    - Render a Template In Place: how-to-guides/render-template-in-place.md
     - Use Shell Completion: how-to-guides/use-shell-completion.md
     - Use Validation Rules: how-to-guides/use-validation-rules.md
     - Work with Virtual Environments: how-to-guides/work-with-virtual-environments.md
