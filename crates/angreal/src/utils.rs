@@ -6,6 +6,7 @@ use std::convert::TryInto;
 use std::env;
 use std::ops::Not;
 use std::path::{Path, PathBuf};
+use std::process::exit;
 use std::vec::Vec;
 use tera::Context;
 use toml::{map::Map, Table, Value};
@@ -153,8 +154,81 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
     context
 }
 
+/// Test whether a single path segment is a Tera-templated name (e.g. `{{ name }}`).
+fn is_templated_segment(segment: &str) -> bool {
+    segment.starts_with("{{") && segment.contains("}}")
+}
+
+/// Identify the single top-level templated directory of a template `src`.
+///
+/// In-place rendering strips this directory and renders its contents directly
+/// into the destination. Exactly one top-level templated directory is required;
+/// zero or more than one is a hard error (the template is ambiguous for
+/// in-place use).
+fn in_place_root(src: &Path) -> String {
+    let mut roots: Vec<String> = Vec::new();
+    let entries = fs::read_dir(src).unwrap_or_else(|e| {
+        error!("Failed to read template directory {}: {}", src.display(), e);
+        exit(1);
+    });
+    for entry in entries.flatten() {
+        if entry.path().is_dir() {
+            let name = entry.file_name().to_string_lossy().to_string();
+            if is_templated_segment(&name) {
+                roots.push(name);
+            }
+        }
+    }
+
+    match roots.len() {
+        1 => roots.pop().unwrap(),
+        0 => {
+            error!(
+                "--in-place requires the template to have exactly one top-level templated directory (e.g. `{{{{ project_name }}}}`), but none was found in {}.",
+                src.display()
+            );
+            exit(1);
+        }
+        n => {
+            error!(
+                "--in-place requires exactly one top-level templated directory, but found {} in {}: {}. In-place rendering cannot determine which directory to strip.",
+                n,
+                src.display(),
+                roots.join(", ")
+            );
+            exit(1);
+        }
+    }
+}
+
+/// Compute the destination-relative path for a rendered template path.
+///
+/// In normal rendering this is the rendered path unchanged. In in-place mode
+/// the leading (root) path component is stripped so contents land directly in
+/// `dst`; `None` means the path *is* the stripped root itself and should be
+/// skipped (we never create the root directory in-place).
+fn dest_rel_path(rendered: &str, in_place: bool) -> Option<PathBuf> {
+    if !in_place {
+        return Some(PathBuf::from(rendered));
+    }
+    let mut components = Path::new(rendered).components();
+    components.next(); // drop the root component
+    let rest = components.as_path();
+    if rest.as_os_str().is_empty() {
+        None
+    } else {
+        Some(rest.to_path_buf())
+    }
+}
+
 // Render a templated directory to a destination given a tera context
-pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<String> {
+pub fn render_dir(
+    src: &Path,
+    context: Context,
+    dst: &Path,
+    force: bool,
+    in_place: bool,
+) -> Vec<String> {
     let mut rendered_paths: Vec<String> = Vec::new();
     // we create a Tera instance for an empty directory so we can extend it with our template later
     let mut tmp_dir = env::temp_dir();
@@ -181,6 +255,12 @@ pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<
     // And build our full prefix
     let _template_name = <&std::path::Path>::clone(&src).file_name().unwrap();
 
+    // In-place mode strips the single top-level templated directory. Validate it
+    // up front so we fail fast on ambiguous templates before writing anything.
+    if in_place {
+        let _ = in_place_root(src);
+    }
+
     for file in glob(template_src.to_str().unwrap()).expect("Failed to read glob pattern") {
         let file_path = file.as_ref().unwrap();
         let rel_path = file_path.strip_prefix(src).unwrap().to_str().unwrap();
@@ -197,6 +277,47 @@ pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<
         }
     }
 
+    // In-place rendering has no single root directory whose existence guards
+    // collisions, so without --force we check every target up front and refuse
+    // to proceed if any already exists in the destination.
+    if in_place && force.not() {
+        let mut collisions: Vec<String> = Vec::new();
+        for entry in WalkDir::new(src)
+            .into_iter()
+            .filter_entry(|e| e.file_type().is_dir())
+        {
+            let entry = entry.unwrap();
+            let rel = entry.path().strip_prefix(src).unwrap().to_str().unwrap();
+            if is_templated_segment(rel) {
+                let real_path = Tera::one_off(rel, &context, false).unwrap();
+                if let Some(dest_rel) = dest_rel_path(&real_path, true) {
+                    if dst.join(&dest_rel).exists() {
+                        collisions.push(dest_rel.to_string_lossy().to_string());
+                    }
+                }
+            }
+        }
+        for template in tera.get_template_names() {
+            if template == "angreal.toml" || template.starts_with('.') {
+                continue;
+            }
+            let path = Tera::one_off(template, &context, false).unwrap();
+            if let Some(dest_rel) = dest_rel_path(&path, true) {
+                if dst.join(&dest_rel).exists() {
+                    collisions.push(dest_rel.to_string_lossy().to_string());
+                }
+            }
+        }
+        if collisions.is_empty().not() {
+            error!(
+                "{} already exist(s) in {}. Will not proceed unless `--force`/force=True is used.",
+                collisions.join(", "),
+                dst.display()
+            );
+            exit(1);
+        }
+    }
+
     // build our directory structure first
     let walker = WalkDir::new(src).into_iter();
     for entry in walker.filter_entry(|e| e.file_type().is_dir()) {
@@ -205,26 +326,36 @@ pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<
         let path_template = path_postfix.strip_prefix(src).unwrap().to_str().unwrap();
 
         // we only render directories that start with a templated path, this is usually a single "root" directory that forms the top level directory of a project.
-        if path_template.starts_with("{{") && path_template.contains("}}") {
+        if is_templated_segment(path_template) {
             let real_path = Tera::one_off(path_template, &context, false).unwrap();
 
-            if Path::new(real_path.as_str()).is_dir() & force.not() {
-                error!(
-                    "{} already exists. Will not proceed unless `--force`/force=True is used.",
-                    real_path.as_str()
-                )
-            }
+            // The dot-file skip applies to the rendered template path (e.g. a
+            // top-level dot directory), so evaluate it before stripping.
             if real_path.starts_with('.') {
                 //skip any sort of top level dot files - extend with an exclusion glob in the future
                 // todo: exclusion glob
                 continue;
             }
 
-            let destination = dst.join(Path::new(real_path.as_str()));
-            let destination = destination.to_str().unwrap();
+            // In-place mode strips the root component; `None` is the root itself.
+            let dest_rel = match dest_rel_path(&real_path, in_place) {
+                Some(p) => p,
+                None => continue,
+            };
+
+            if dst.join(&dest_rel).is_dir() & force.not() {
+                error!(
+                    "{} already exists. Will not proceed unless `--force`/force=True is used.",
+                    dest_rel.display()
+                )
+            }
+
+            let destination = dst.join(&dest_rel);
             debug!("Creating directory {:?}", destination);
-            fs::create_dir(destination).unwrap();
-            rendered_paths.push(destination.to_string());
+            // create_dir_all is idempotent: in-place renders into an existing
+            // directory and may re-create parents on a --force overwrite.
+            fs::create_dir_all(&destination).unwrap();
+            rendered_paths.push(destination.to_string_lossy().to_string());
         }
     }
 
@@ -245,12 +376,17 @@ pub fn render_dir(src: &Path, context: Context, dst: &Path, force: bool) -> Vec<
         let rendered = tera.render(template, &context).unwrap();
         let path = Tera::one_off(template, &context, false).unwrap();
 
-        let destination = dst.join(Path::new(path.as_str()));
-        let destination = destination.to_str().unwrap();
+        // In-place mode strips the root component; `None` is the root itself.
+        let dest_rel = match dest_rel_path(&path, in_place) {
+            Some(p) => p,
+            None => continue,
+        };
+
+        let destination = dst.join(&dest_rel);
         debug!("Rendering file at {:?}", destination);
-        let mut output = File::create(destination).unwrap();
+        let mut output = File::create(&destination).unwrap();
         write!(output, "{}", rendered.as_str()).unwrap();
-        rendered_paths.push(destination.to_string());
+        rendered_paths.push(destination.to_string_lossy().to_string());
     }
 
     rendered_paths
@@ -358,7 +494,7 @@ pub fn render_directory(
         }
     }
 
-    let x = render_dir(src, ctx, dst, force);
+    let x = render_dir(src, ctx, dst, force, false);
     Ok(pythonize_this!(x))
     // src: &Path, context: Context, dst: &Path, force: bool
 }
