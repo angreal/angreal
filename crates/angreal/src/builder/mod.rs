@@ -51,6 +51,16 @@ fn add_init_subcommand(app: App<'static>) -> App<'static> {
                     .help("Use default values provided in the angreal.toml."),
             )
             .arg(
+                Arg::new("in_place")
+                    .short('i')
+                    .long("--in-place")
+                    .takes_value(false)
+                    .help(
+                        "Render the template's contents into the current directory, \
+                         stripping the template's top-level directory.",
+                    ),
+            )
+            .arg(
                 Arg::new("values_file")
                     .long("--values")
                     .takes_value(true)

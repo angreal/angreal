@@ -548,6 +548,7 @@ fn main() -> PyResult<()> {
             } else {
                 None
             },
+            _sub_matches.is_present("in_place"),
         ),
         Some(("_complete", _sub_matches)) => {
             // Hidden command for shell completion

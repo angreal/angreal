@@ -24,7 +24,13 @@ use toml::Value;
 use log::{debug, error};
 
 /// Initialize a new project by rendering a template.
-pub fn init(template: &str, force: bool, take_inputs: bool, values_file: Option<&str>) {
+pub fn init(
+    template: &str,
+    force: bool,
+    take_inputs: bool,
+    values_file: Option<&str>,
+    in_place: bool,
+) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
 
@@ -48,8 +54,13 @@ pub fn init(template: &str, force: bool, take_inputs: bool, values_file: Option<
         }
     };
 
-    let rendered_dot_angreal_path =
-        render_template(Path::new(&template), take_inputs, force, values_file);
+    let rendered_dot_angreal_path = render_template(
+        Path::new(&template),
+        take_inputs,
+        force,
+        values_file,
+        in_place,
+    );
 
     let mut rendered_angreal_init = Path::new(&rendered_dot_angreal_path).to_path_buf();
     rendered_angreal_init.push("init.py");
@@ -246,6 +257,7 @@ pub fn render_template(
     take_input: bool,
     force: bool,
     values_file: Option<&str>,
+    in_place: bool,
 ) -> String {
     // Verify the provided template path is minimially compliant.
     let mut toml = path.to_path_buf();
@@ -270,7 +282,7 @@ pub fn render_template(
     let ctx = context.clone();
 
     // render the provided template directory
-    let rendered_files = render_dir(path, context, &env::current_dir().unwrap(), force);
+    let rendered_files = render_dir(path, context, &env::current_dir().unwrap(), force, in_place);
 
     let toml_values = context_to_map(ctx);
     let toml_string = toml::to_string(&Value::Table(toml_values)).unwrap();
