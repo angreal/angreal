@@ -1,7 +1,7 @@
 ---
 name: angreal-authoring
 description: This skill should be used when the user asks to "create an angreal task", "write a task file", "add a command to angreal", "make a new task", "organize tasks with groups", "use @angreal.command", "use command_group", or needs guidance on task file structure, the @command decorator, command groups, naming conventions, or task organization within an existing angreal project.
-version: 2.8.0
+version: 2.8.6
 ---
 
 # Authoring Angreal Tasks

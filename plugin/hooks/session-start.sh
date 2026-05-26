@@ -50,11 +50,14 @@ ${TREE_OUTPUT}
 
 ## Available Skills
 When authoring or working with angreal tasks:
+- \`/angreal-usage\` - Running and discovering tasks
 - \`/angreal-authoring\` - Creating tasks and commands
 - \`/angreal-arguments\` - Adding arguments to tasks
+- \`/angreal-tool-descriptions\` - Writing AI-friendly ToolDescriptions
 - \`/angreal-integrations\` - Using VirtualEnv, Git, Docker, Flox integrations
+- \`/angreal-init\` - Adding angreal to an existing project
+- \`/angreal-templates\` - Creating templates and using the official ones (\`angreal init python\`, \`--in-place\`)
 - \`/angreal-patterns\` - Development best practices
-- \`/angreal-usage\` - Running and discovering tasks
 EOF
 
 # Escape the context for JSON (handle newlines and quotes)

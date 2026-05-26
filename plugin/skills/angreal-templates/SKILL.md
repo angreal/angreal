@@ -1,7 +1,7 @@
 ---
 name: angreal-templates
-description: This skill should be used when the user asks to "create an angreal template", "make a project template", "build a reusable template", "share a template", "write angreal.toml", "use Tera templating", "template variables", "conditional templates", or needs guidance on creating templates that others can consume via `angreal init`, template configuration, Tera syntax, or publishing templates.
-version: 2.8.0
+description: This skill should be used when the user asks to "create an angreal template", "make a project template", "build a reusable template", "share a template", "write angreal.toml", "use Tera templating", "template variables", "conditional templates", "render a template in place", "use an official angreal template", "start a python/rust project with angreal", or needs guidance on creating templates that others can consume via `angreal init`, consuming the official angreal templates, in-place rendering, template configuration, Tera syntax, or publishing templates.
+version: 2.8.6
 ---
 
 # Creating Angreal Templates
@@ -18,6 +18,65 @@ angreal init /path/to/local/template
 ```
 
 This is different from `angreal-init` (adding angreal to existing projects) - templates create entirely new projects from scratch.
+
+## Official Templates
+
+The angreal team maintains a set of ready-to-use templates in the
+[github.com/angreal](https://github.com/angreal) organization. A **bare name**
+passed to `angreal init` resolves to `https://github.com/angreal/<name>`, so
+these can be used directly:
+
+```bash
+angreal init python      # Python project template
+angreal init rust        # Rust project template
+```
+
+| Template | `angreal init` | What it scaffolds |
+|----------|----------------|-------------------|
+| `python` | `angreal init python` | Standard Python project |
+| `python-gh` | `angreal init python-gh` | Python project wired for GitHub (Actions CI) |
+| `python-gl` | `angreal init python-gl` | Python project wired for GitLab (GitLab CI) |
+| `rust` | `angreal init rust` | Rust project: workspace layout, unified versioning, CI/CD, optional Tauri v2 desktop UI |
+| `data-science` | `angreal init data-science` | Modern data-science project with epoch-based notebook organization and scientific computing patterns |
+| `airflow` | `angreal init airflow` | Apache Airflow project scaffold |
+| `airflow-provider` | `angreal init airflow-provider` | Apache Airflow provider package |
+
+This list changes over time — browse [github.com/angreal](https://github.com/angreal)
+for the current, authoritative catalog (any non-fork repo containing an
+`angreal.toml` is a consumable template).
+
+Resolution order for `angreal init <name>`:
+1. A local path, if it exists
+2. A cached template in `~/.angrealrc/`, if present
+3. The GitHub repo `https://github.com/angreal/<name>`
+
+## Rendering In Place
+
+By default a template's single top-level templated directory (e.g.
+`{{ project_name }}/`) becomes a **new** project root inside the current
+directory. The `--in-place` / `-i` flag strips that top-level directory and
+renders its contents **directly into the current working directory** — useful
+for scaffolding into a folder you've already created (such as an existing git
+repository or a directory of planning notes):
+
+```bash
+mkdir my-project && cd my-project
+angreal init python --in-place        # contents land in ./, no extra root dir
+```
+
+In-place rendering requires the template to have **exactly one** top-level
+templated directory (it errors clearly on zero or multiple). Collisions with
+existing files reuse `--force` semantics: the command aborts unless `--force`
+is passed.
+
+### `angreal init` flags
+
+| Flag | Short | Effect |
+|------|-------|--------|
+| `--force` | `-f` | Render even if target paths/files already exist (overwrite) |
+| `--defaults` | `-d` | Use default values from `angreal.toml` without prompting |
+| `--in-place` | `-i` | Strip the template's top-level directory; render into the current directory |
+| `--values <FILE>` | | Supply values from a file, bypassing interactive prompts |
 
 ## Template Structure
 

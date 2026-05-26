@@ -1,7 +1,7 @@
 ---
 name: angreal-usage
 description: This skill should be used when the user asks to "run an angreal task", "execute angreal command", "discover angreal tasks", "list angreal commands", "use angreal tree", "find available tasks", "what tasks are available", or needs guidance on running tasks, interpreting task output, task workflows, or choosing the right task for a job.
-version: 2.8.0
+version: 2.8.6
 ---
 
 # Using Angreal Tasks

@@ -11,9 +11,9 @@ Task automation skills for angreal projects. Focused skills for each job to be d
 | `angreal-arguments` | "add arguments", "@angreal.argument", "add flags" | The @argument decorator |
 | `angreal-tool-descriptions` | "write ToolDescription", "AI guidance", "risk level" | Writing AI-friendly task descriptions |
 | `angreal-init` | "initialize angreal", "add angreal to project" | Adding angreal to existing projects |
-| `angreal-templates` | "create a template", "angreal.toml", "Tera templating" | Creating reusable templates for others |
+| `angreal-templates` | "create a template", "angreal.toml", "Tera templating", "in-place", "official templates" | Creating reusable templates for others (and consuming the official ones) |
 | `angreal-patterns` | "test tasks", "best practices", "error handling" | Testing, development, and documentation patterns |
-| `angreal-integrations` | "use Git in task", "create venv", "docker-compose", "render template" | Built-in Git, VirtualEnv, Docker, and Tera templating |
+| `angreal-integrations` | "use Git in task", "create venv", "docker-compose", "use Flox", "render template" | Built-in Git, VirtualEnv, Docker, Flox, and Tera templating |
 
 ## Auto-Activation
 
@@ -24,13 +24,15 @@ Skills automatically activate for projects containing a `.angreal/` directory.
 ### Via Claude Code Plugin System
 
 ```bash
-claude plugins add angreal
+# Add the angreal marketplace, then install the plugin
+/plugin marketplace add angreal/angreal
+/plugin install angreal@angreal-angreal
 ```
 
 ### Local Development
 
 ```bash
-claude --plugin-dir /path/to/angreal/skill
+claude --plugin-dir /path/to/angreal/plugin
 ```
 
 ## Skill Details
@@ -75,6 +77,8 @@ For creating reusable templates others can consume:
 - Template structure (`angreal.toml`, templated files)
 - Tera templating engine (variables, conditionals, loops)
 - Post-initialization scripts (`.angreal/init.py`)
+- In-place rendering (`angreal init <template> --in-place`)
+- The official angreal templates (`python`, `rust`, `data-science`, ...)
 - Publishing and sharing templates
 
 ### angreal-patterns
@@ -91,7 +95,8 @@ For built-in tool integrations:
 - `angreal.integrations.git.Git` - Repository operations
 - `angreal.integrations.venv.VirtualEnv` - Virtual environment management
 - `angreal.integrations.docker.DockerCompose` - Docker Compose operations
-- `@venv_required` decorator for automatic venv handling
+- `angreal.integrations.flox.Flox` - Cross-language environments and services
+- `@venv_required` / `@flox_required` decorators for automatic environment handling
 
 ## Quick Reference
 
@@ -115,9 +120,16 @@ angreal tree           # List all commands
 angreal tree --long    # Include ToolDescription prose
 ```
 
-## Version
+### Start a Project from an Official Template
 
-2.8.0
+```bash
+angreal init python          # github.com/angreal/python
+angreal init rust            # github.com/angreal/rust
+angreal init python --in-place   # render into the current directory
+```
+
+A bare name resolves to `https://github.com/angreal/<name>`. Browse the full,
+current catalog at [github.com/angreal](https://github.com/angreal).
 
 ## License
 
