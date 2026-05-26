@@ -1,7 +1,7 @@
 ---
 name: angreal-init
 description: This skill should be used when the user asks to "create an angreal project", "initialize angreal", "set up angreal", "add angreal to project", "start new angreal project", "create .angreal directory", or needs guidance on setting up angreal in a new or existing project, project templates, or initial task file structure.
-version: 2.8.0
+version: 2.8.6
 ---
 
 # Initializing Angreal Projects

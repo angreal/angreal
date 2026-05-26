@@ -1,7 +1,7 @@
 ---
 name: angreal-patterns
 description: This skill should be used when the user asks to "test angreal tasks", "mock angreal", "document tasks", "angreal best practices", "error handling in tasks", "subprocess patterns", "dry run mode", "verbose mode", or needs guidance on testing patterns, development workflows, documentation strategies, or common implementation patterns for angreal tasks.
-version: 2.8.0
+version: 2.8.6
 ---
 
 # Angreal Patterns

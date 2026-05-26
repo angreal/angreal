@@ -1,7 +1,7 @@
 ---
 name: angreal-tool-descriptions
 description: This skill should be used when the user asks to "write a ToolDescription", "add AI guidance to task", "document task for AI", "set risk level", "write tool description prose", "guide AI agents", or needs guidance on angreal.ToolDescription, risk_level, writing effective descriptions for AI agent consumption, or making tasks AI-friendly.
-version: 2.8.0
+version: 2.8.6
 ---
 
 # Angreal ToolDescriptions

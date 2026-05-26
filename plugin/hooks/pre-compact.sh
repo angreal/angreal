@@ -40,9 +40,13 @@ ${TREE_OUTPUT}
 - \`angreal <command> --help\` — help for specific task
 
 ### Skills for Angreal Development
+- \`/angreal-usage\` - Running and discovering tasks
 - \`/angreal-authoring\` - Creating tasks
 - \`/angreal-arguments\` - Adding arguments
+- \`/angreal-tool-descriptions\` - Writing AI-friendly ToolDescriptions
 - \`/angreal-integrations\` - VirtualEnv, Git, Docker, Flox
+- \`/angreal-init\` - Adding angreal to an existing project
+- \`/angreal-templates\` - Templates + official templates (\`angreal init python\`, \`--in-place\`)
 - \`/angreal-patterns\` - Best practices
 EOF
 

@@ -1,7 +1,7 @@
 ---
 name: angreal-arguments
 description: This skill should be used when the user asks to "add arguments to a task", "use @angreal.argument", "add flags to command", "make argument required", "add optional parameter", "use python_type", "handle multiple values", or needs guidance on the @argument decorator, argument types, flags, default values, or CLI argument handling in angreal tasks.
-version: 2.8.0
+version: 2.8.6
 ---
 
 # Angreal Arguments

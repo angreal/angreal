@@ -1,7 +1,7 @@
 ---
 name: angreal-integrations
 description: This skill should be used when the user asks to "use Git in a task", "manage virtual environments", "use Docker Compose", "clone a repository", "create a venv", "run docker-compose", "use angreal.integrations", "render a template", "scaffold files", "generate files from template", "use render_template", "use render_directory", "use Flox", "flox environment", "cross-language environment", "flox services", "@flox_required", or needs guidance on the built-in Git, VirtualEnv, Docker, Flox, or Tera templating integrations available in angreal tasks.
-version: 2.8.1
+version: 2.8.6
 ---
 
 # Angreal Integrations
