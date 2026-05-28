@@ -471,7 +471,7 @@ fn cleanup_entrypoints() -> PyResult<()> {
 
 /// The main function is just an entry point to be called from the core angreal library.
 #[pyfunction]
-fn main() -> PyResult<()> {
+fn main(py: Python<'_>) -> PyResult<()> {
     let handle = logger::init_logger();
     if std::env::var("ANGREAL_DEBUG").unwrap_or_default() == "true" {
         logger::update_verbosity(&handle, 2);
@@ -479,10 +479,17 @@ fn main() -> PyResult<()> {
     }
     debug!("Angreal application starting...");
 
-    // because we execute this from python main, we remove the first elements that
-    // IIRC its python and angreal
-    let mut argvs: Vec<String> = std::env::args().collect();
-    argvs = argvs.split_off(2);
+    // Pull argv from Python's sys.argv rather than std::env::args(). musl does
+    // not pass argc/argv to .init_array constructors in dlopened shared objects,
+    // so the Rust runtime never populates its ARGV static and std::env::args()
+    // returns empty — the historical split_off(2) then panicked with
+    // "2 > 0". sys.argv is owned by the Python interpreter and is always
+    // populated, regardless of libc. Drop sys.argv[0] (the script path); the
+    // remaining elements are the user args. clap's app has NoBinaryName set,
+    // so no synthetic argv[0] is needed.
+    let sys = py.import("sys")?;
+    let py_argv: Vec<String> = sys.getattr("argv")?.extract()?;
+    let argvs: Vec<String> = py_argv.into_iter().skip(1).collect();
 
     // Auto-install shell completion on first run (before other operations)
     if let Err(e) = completion::auto_install_completion() {
