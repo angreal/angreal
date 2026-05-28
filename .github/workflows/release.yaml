@@ -144,6 +144,37 @@ jobs:
           name: wheels-linux-x86_64
           path: dist
           overwrite: true
+  linux-musl:
+    runs-on: ubuntu-latest
+    name: linux-musl (${{ matrix.platform.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - target: x86_64-unknown-linux-musl
+            artifact: x86_64
+          - target: aarch64-unknown-linux-musl
+            artifact: aarch64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          rust-toolchain: stable
+          target: ${{ matrix.platform.target }}
+          manylinux: musllinux_1_2
+          args: --release --out dist -i 3.10 3.11 3.12 3.13 3.14 --manifest-path crates/angreal/Cargo.toml
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-musl-${{ matrix.platform.artifact }}
+          path: dist
+          overwrite: true
+
   release-pypi:
     name: Release to PyPI
     runs-on: ubuntu-latest
@@ -152,6 +183,7 @@ jobs:
       - macos-x86_64
       - windows
       - linux
+      - linux-musl
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
@@ -182,6 +214,7 @@ jobs:
       - macos-x86_64
       - windows
       - linux
+      - linux-musl
     if: |
       startsWith(github.ref, 'refs/heads/cicd/') ||
       startsWith(github.ref, 'refs/heads/build') ||
@@ -213,6 +246,7 @@ jobs:
       - macos-x86_64
       - windows
       - linux
+      - linux-musl
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
