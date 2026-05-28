@@ -50,6 +50,7 @@ ${TREE_OUTPUT}
 - \`/angreal-init\` - Adding angreal to an existing project
 - \`/angreal-templates\` - Templates + official templates (\`angreal init python\`, \`--in-place\`)
 - \`/angreal-mcp\` - Expose tasks to AI assistants via \`angreal mcp\` server
+- \`/angreal-pre-commit\` - Wire angreal tasks into pre-commit hooks (pre-commit/pre-push)
 - \`/angreal-patterns\` - Best practices
 EOF
 

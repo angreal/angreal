@@ -78,6 +78,7 @@ When authoring or working with angreal tasks:
 - \`/angreal-init\` - Adding angreal to an existing project
 - \`/angreal-templates\` - Creating templates and using the official ones (\`angreal init python\`, \`--in-place\`)
 - \`/angreal-mcp\` - Exposing tasks to AI assistants via the built-in \`angreal mcp\` server
+- \`/angreal-pre-commit\` - Wiring angreal tasks into pre-commit (pre-commit / pre-push) via \`angreal/pre-commit-angreal\`
 - \`/angreal-patterns\` - Development best practices
 EOF
 
