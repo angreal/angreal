@@ -1,7 +1,7 @@
 ---
 name: angreal-tool-descriptions
-description: This skill should be used when the user asks to "write a ToolDescription", "add AI guidance to task", "document task for AI", "set risk level", "write tool description prose", "guide AI agents", or needs guidance on angreal.ToolDescription, risk_level, writing effective descriptions for AI agent consumption, or making tasks AI-friendly.
-version: 2.8.6
+description: This skill should be used when the user asks to "write a ToolDescription", "add AI guidance to task", "document task for AI", "set risk level", "write tool description prose", "guide AI agents", "MCP tool description", "make tasks AI-friendly", "expose task to angreal mcp", or needs guidance on angreal.ToolDescription, risk_level, or writing prose that the MCP server and `angreal tree --long` will show to agents.
+version: 2.8.7
 ---
 
 # Angreal ToolDescriptions
@@ -10,11 +10,12 @@ Write effective ToolDescription prose to guide AI agents using your tasks.
 
 ## Why ToolDescriptions Matter
 
-When AI agents discover tasks via `angreal tree --long`, they see:
-- Command name and arguments
-- **Your ToolDescription**
+ToolDescriptions are the contract between your tasks and any AI agent that consumes them. They surface in two places:
 
-The ToolDescription is the primary guidance for AI agents deciding whether and how to use your task. Think of it as a mini-prompt that teaches agents when and how to use your tool.
+1. **`angreal mcp`** — the built-in MCP stdio server injects every task's ToolDescription into the `initialize` response sent to connected MCP clients (Claude Code, etc.). This is the *primary* reason to write good descriptions: it's how agents discover what your project's tasks do without trial and error.
+2. **`angreal tree --long`** — the same prose shows up in human-facing CLI output.
+
+Think of a ToolDescription as a mini-prompt that teaches agents when and how to use your tool. Without one, the MCP server only exposes the command name and `about` line — agents have to guess.
 
 ## Basic Usage
 
@@ -65,6 +66,8 @@ angreal.ToolDescription(
 | `safe` | No destructive effects | Default. Build, test, lint tasks |
 | `read_only` | Only reads/reports | Status checks, info gathering |
 | `destructive` | May modify or delete | Deploy, clean, database migrations |
+
+An invalid string (typo, anything outside the three values above) is **not** an error — Angreal logs a warning and silently falls back to `"safe"`. Watch for this when you intended `"destructive"` and got `"safe"` instead: check `angreal tree --long` to confirm the risk level rendered correctly.
 
 ## Structuring Descriptions
 

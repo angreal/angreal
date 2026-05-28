@@ -1,7 +1,7 @@
 ---
 name: angreal-init
-description: This skill should be used when the user asks to "create an angreal project", "initialize angreal", "set up angreal", "add angreal to project", "start new angreal project", "create .angreal directory", or needs guidance on setting up angreal in a new or existing project, project templates, or initial task file structure.
-version: 2.8.6
+description: This skill should be used when the user asks to "create an angreal project", "initialize angreal", "set up angreal", "add angreal to project", "start new angreal project", "create .angreal directory", "scaffold into existing project", "angreal init --in-place", "add angreal to existing repo", or needs guidance on setting up angreal in a new or existing project (hand-rolled `.angreal/` or via an official template), or the initial task file structure.
+version: 2.8.7
 ---
 
 # Initializing Angreal Projects
@@ -14,7 +14,24 @@ An angreal project is any directory containing a `.angreal/` subdirectory with t
 
 ## Quick Setup
 
-### 1. Create the .angreal Directory
+### Option A: Scaffold from an official template (recommended)
+
+For a fresh project or to add angreal to a directory you've already created, use one of the official templates:
+
+```bash
+# Fresh project (creates a new subdirectory)
+angreal init python
+
+# Add angreal into an existing project root (no extra subdir)
+cd my-existing-project
+angreal init python --in-place
+```
+
+`--in-place` / `-i` strips the template's top-level templated directory and renders directly into the current working directory — this is the canonical path for "add angreal to my existing repo." Add `--force` if existing files would be overwritten, `--defaults` to skip prompts, or `--values <file>` to supply variables non-interactively. See the `angreal-templates` skill for the full template catalog (`python`, `python-gh`, `python-gl`, `rust`, `data-science`, `airflow`, …).
+
+### Option B: Hand-roll the .angreal directory
+
+If no template matches or you want full control:
 
 ```bash
 mkdir .angreal

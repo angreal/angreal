@@ -1,7 +1,7 @@
 ---
 name: angreal-integrations
-description: This skill should be used when the user asks to "use Git in a task", "manage virtual environments", "use Docker Compose", "clone a repository", "create a venv", "run docker-compose", "use angreal.integrations", "render a template", "scaffold files", "generate files from template", "use render_template", "use render_directory", "use Flox", "flox environment", "cross-language environment", "flox services", "@flox_required", or needs guidance on the built-in Git, VirtualEnv, Docker, Flox, or Tera templating integrations available in angreal tasks.
-version: 2.8.6
+description: This skill should be used when the user asks to "use Git in a task", "manage virtual environments", "use Docker Compose", "use the Docker class", "run docker container from task", "list docker containers in angreal", "clone a repository", "create a venv", "run docker-compose", "use angreal.integrations", "render a template", "scaffold files", "generate files from template", "use render_template", "use render_directory", "use Flox", "flox environment", "cross-language environment", "flox services", "@flox_required", or needs guidance on the built-in Git, VirtualEnv, Docker (compose or low-level client), Flox, or Tera templating integrations available in angreal tasks.
+version: 2.8.7
 ---
 
 # Angreal Integrations
@@ -126,9 +126,12 @@ project_name = context.get("project_name", "unknown")
 {# Comments #}
 
 {{ variable }}                    {# Variable substitution #}
-{{ name | upper }}                {# Filters: upper, lower, title, trim #}
-{{ items | length }}              {# Get length #}
-{{ value | default("fallback") }} {# Default value #}
+{{ name | upper }}                {# Common filters: upper, lower, title, trim, capitalize #}
+{{ path | replace(from="-", to="_") }} {# replace #}
+{{ name | slugify }}              {# url-safe slug #}
+{{ text | truncate(length=80) }}  {# truncate to N chars #}
+{{ items | length }}              {# get length #}
+{{ value | default(value="fallback") }} {# default if undefined #}
 
 {% if condition %}                {# Conditionals #}
 {% elif other %}
@@ -390,6 +393,49 @@ def setup():
     return 0
 ```
 
+## Docker (Low-Level Client)
+
+For working with individual containers, images, networks, or volumes — not multi-service stacks — use the `Docker` class. It's a thin client over the Docker engine and the right choice when `docker-compose.yml` would be overkill (one-off container runs, image cleanup, network inspection, volume management).
+
+### Import
+
+```python
+from angreal.integrations.docker import Docker
+from angreal.integrations.docker.container import Container, Containers
+from angreal.integrations.docker.image     import Image, Images
+from angreal.integrations.docker.network   import Network, Networks
+from angreal.integrations.docker.volume    import Volume, Volumes
+```
+
+### Basic Usage
+
+```python
+from angreal.integrations.docker import Docker
+
+d = Docker()                  # connects to the local Docker daemon
+print(d.version())            # dict — server version info
+print(d.ping())               # dict — health check
+print(d.info())               # dict — engine info
+print(d.data_usage())         # dict — disk usage breakdown
+
+# Interface methods return collection objects
+containers = d.containers()   # Containers
+images     = d.images()       # Images
+networks   = d.networks()     # Networks
+volumes    = d.volumes()      # Volumes
+```
+
+### When to use `Docker` vs `DockerCompose`
+
+| Use case | Use |
+|----------|-----|
+| Start/stop a multi-service stack defined in a yml | `DockerCompose` |
+| Inspect or manage individual containers/images/volumes | `Docker` |
+| Pull/tag/push a single image | `Docker.images()` |
+| Run a one-off container | `Docker.containers()` |
+
+`Docker()` requires the Docker daemon to be running locally — tasks should typically check `d.ping()` and fail gracefully if the daemon is unreachable.
+
 ## Docker Compose Integration
 
 Manage Docker Compose services from tasks.
@@ -617,8 +663,10 @@ def build():
 ```python
 from angreal.integrations.flox import Flox
 
-# Create instance
-flox = Flox(".")
+# Create instance — path defaults to the current directory
+flox = Flox()
+flox = Flox(".")           # explicit, equivalent
+flox = Flox("/path/to/env") # other location
 
 # Check availability
 if not Flox.is_available():

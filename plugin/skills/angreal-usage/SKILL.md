@@ -1,139 +1,107 @@
 ---
 name: angreal-usage
-description: This skill should be used when the user asks to "run an angreal task", "execute angreal command", "discover angreal tasks", "list angreal commands", "use angreal tree", "find available tasks", "what tasks are available", or needs guidance on running tasks, interpreting task output, task workflows, or choosing the right task for a job.
-version: 2.8.6
+description: Consult before running ANY development operation in an angreal project — tests, build, lint, format, type-check, docs, deploy, clean, install, migrate, release. Also for "run an angreal task", "execute angreal command", "discover angreal tasks", "use angreal tree", "what tasks are available", "angreal mcp", "angreal init", "angreal alias", "angreal completion", "verbose angreal output", "ANGREAL_DEBUG", or when chaining tasks, picking the right task for a job, or interpreting an angreal exit code. The operational essentials (top-level CLI surface, exit codes, debug env vars) are already injected by the SessionStart/PreCompact hook — this skill is the deep dive on group nesting, workflow composition, and task selection heuristics.
+version: 2.8.7
 ---
 
-# Using Angreal Tasks
+# Using Angreal Tasks (Deep Dive)
 
-Learn to discover, run, and chain angreal tasks effectively.
+The session-start hook already injects the task tree, the "use angreal first" rule, the top-level CLI surface (`tree`, `mcp`, `init`, `alias`, `completion`, `-v`, `--help`), the exit-code table, and the debug env vars. This skill covers what doesn't fit in that always-present preamble: argument syntax, group nesting, workflow composition, and how to choose between tasks.
 
-## Prerequisites
+## Argument Syntax
 
-- Working within an angreal project (has `.angreal/` directory)
-- `angreal` CLI installed and available
+**Flags** (boolean switches — no value):
 
-## Discovering Tasks
-
-### Quick Discovery
-
-```bash
-angreal tree
-```
-
-Shows all commands with arguments and short descriptions:
-
-```
-dev: development utilities
-  check-deps - Verify required development tools are installed
-test: commands for testing the application
-  all - Run complete test suite
-  rust [--unit-only] - Run Rust tests
-docs: commands for documentation
-  build [--draft] - Build documentation site
-```
-
-### Detailed Discovery (AI Guidance)
-
-```bash
-angreal tree --long
-```
-
-Includes full ToolDescription prose for each command:
-- **When to use** - Appropriate scenarios
-- **When NOT to use** - Situations to avoid
-- **Examples** - Concrete invocations
-- **Risk level** - safe, read_only, or destructive
-
-### Traditional Help
-
-```bash
-angreal --help              # List all commands
-angreal test rust --help    # Help for specific command
-```
-
-## Running Tasks
-
-### Basic Invocation
-
-```bash
-angreal <group> <command> [arguments]
-
-# Examples
-angreal test all
-angreal test rust --unit-only
-angreal build --release
-angreal docs serve --prod
-```
-
-### Arguments
-
-**Flags** (boolean switches):
 ```bash
 angreal build --release
 angreal test rust --unit-only
 ```
 
-**Value arguments**:
+**Value arguments** (both forms work unless the task uses `require_equals`):
+
 ```bash
 angreal deploy --version v1.2.3
 angreal test completion --shell=bash
 ```
 
-## Output and Exit Codes
-
-- Exit code `0` = success
-- Non-zero exit code = failure
+**Multi-value arguments** (repeat the flag):
 
 ```bash
-angreal test all && angreal deploy  # Chain with &&
+angreal compile --file a.txt --file b.txt
 ```
 
-## Common Workflows
-
-### Before Committing
+**Short flags** chain with single-char names:
 
 ```bash
-angreal test unit      # Fast unit tests first
-angreal test all       # Full suite if units pass
-angreal lint check     # Check code style
+angreal build -vj 8        # if -v and -j are both single-char short flags
 ```
 
-### Release Process
+When in doubt, run `angreal <command> --help` — it always shows the exact accepted syntax.
+
+## Task Groups and Nesting
+
+Tasks are organized hierarchically. Two-level nesting is common; deeper nesting works but is rare.
 
 ```bash
-angreal test all           # Ensure tests pass
-angreal build --release    # Create release build
-angreal docs build         # Update documentation
-angreal deploy staging     # Deploy to staging
+angreal test rust              # single group
+angreal docker compose up      # nested groups
+angreal docs build --draft     # group + flag
 ```
 
-### Debugging
+Groups are namespaces, not tasks themselves — `angreal docker` with no subcommand will list the docker group's commands. Use `angreal tree` to see the full tree at a glance.
 
-```bash
-angreal test <specific-test> --verbose  # Verbose output
-# Check stdout/stderr for error details
-# Fix issue, re-run specific test
-angreal test all                        # Verify no regressions
-```
-
-## Task Groups
-
-Tasks are organized by function:
-
-| Group | Purpose |
-|-------|---------|
-| `dev` | Development utilities |
-| `test` | Testing commands |
-| `docs` | Documentation |
-| `build` | Build and compilation |
-| `deploy` | Deployment and release |
-
-Groups can nest: `angreal docker compose up`
+A single command name can legitimately appear under multiple groups (e.g. `angreal test all` and `angreal docs all`) — Angreal 2.8.5+ keys the registry by full path so this is collision-free.
 
 ## Choosing the Right Task
 
-1. Run `angreal tree` to see available commands
-2. Use `angreal tree --long` for detailed guidance
-3. Start with read-only tasks to explore safely
-4. Trust ToolDescriptions - they're written to guide you
+When `angreal tree --long` shows several candidates, the `ToolDescription` blocks include `risk_level` and "When to use / When NOT to use" guidance. Prefer:
+
+1. The task whose **"When to use"** lists the current scenario.
+2. **`read_only`** over `safe` over `destructive` when exploring or unsure.
+3. The **narrowest** task that does the job (e.g. `test rust --unit-only` over `test all` when you only changed Rust unit code).
+4. **Composite tasks** (`test all`, `ci`) when the user asks for "the full check" or before a release.
+
+If two tasks look equally appropriate, the one with the more detailed `ToolDescription` is usually the canonical entry point — task authors put effort into the one they want agents to pick.
+
+## Common Workflow Compositions
+
+### Pre-commit / pre-push
+
+```bash
+angreal lint check && angreal test all
+```
+
+Chain with `&&` so a failure halts the chain. Each task's non-zero exit propagates naturally.
+
+### Release cut
+
+```bash
+angreal test all \
+  && angreal build --release \
+  && angreal docs build \
+  && angreal deploy staging
+```
+
+Stop at the first failure. For destructive steps (`deploy`), confirm the user wants to proceed rather than chaining blindly.
+
+### Debugging a failing task
+
+```bash
+ANGREAL_DEBUG=true angreal test rust --unit-only -v
+```
+
+`ANGREAL_DEBUG=true` enables Angreal's own debug logging (task discovery, registration, argument parsing). The task-internal `-v` flag — if the task author wired one — controls the task's own verbosity. The two are independent.
+
+### Iterating on a single test
+
+If `angreal test python` runs the whole pytest suite but you want a single test, check whether the task accepts a pattern argument (`angreal test python --help`). If not, fall through to the underlying tool (`pytest tests/test_foo.py::test_bar`) — this is one of the rare cases where bypassing angreal is correct.
+
+## When to Bypass Angreal
+
+The "always use angreal" rule has a few legitimate exceptions:
+
+- **Single-file or filter-style invocations** the angreal task doesn't expose (e.g. running one pytest node).
+- **Inspection commands** that exist outside the project's automation contract (`git log`, `ls`, `cat`).
+- **One-off exploration** the user explicitly asks for ("just run `cargo check` directly").
+
+Default behavior is still: check `angreal tree` first; only bypass when the task genuinely can't express what's needed.
