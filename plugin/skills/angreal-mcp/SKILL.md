@@ -6,19 +6,29 @@ version: 2.8.7
 
 # Angreal MCP Server
 
-Angreal ships with a built-in [Model Context Protocol](https://modelcontextprotocol.io/) server (`angreal mcp`) that injects a project's task tree into any connected MCP client. This is the canonical way to make a project's automation available to AI assistants without writing plugin code.
+`angreal mcp` is a built-in [Model Context Protocol](https://modelcontextprotocol.io/) stdio server that injects a project's task tree into any connected MCP client at handshake time. It is the portable, client-agnostic way to make a project's automation discoverable to AI assistants.
 
-## What It Is
+## What It Actually Is (and Isn't)
 
-`angreal mcp` is a stdio-based MCP server implementing protocol version `2024-11-05`. It exposes **no MCP tools and no resources** — its only job is **context injection**.
+**It is**: structured context/prompt injection delivered over the MCP protocol. The server implements MCP 2024-11-05 and responds to five methods (`initialize`, `tools/list`, `resources/list`, `prompts/list`, `ping`). The entire useful payload is the `instructions` string returned in the `initialize` response — a markdown document containing:
 
-When an MCP client connects, the server's `initialize` response includes an `instructions` markdown document containing:
+1. A preamble: "Angreal IS the operational task orchestration system for this project."
+2. The decision rule: "Before running ANY build/test/lint/docs/deploy command, check the task list; use the angreal task if one exists."
+3. The full task tree (equivalent to `angreal tree --long`), including each command's name, argument signature, `about` line, and any `ToolDescription` prose + `risk_level`.
 
-1. A preamble: "Angreal tasks are authoritative for this project's operations."
-2. A decision rule: "If an angreal task covers the operation, use it instead of running the underlying tool directly."
-3. The full task tree (same content as `angreal tree --long`), including every command's name, argument signature, `about` line, and any `ToolDescription` prose + `risk_level`.
+That `instructions` field is a documented MCP feature meant exactly for this purpose — context an agent carries for the duration of the session. The client receives it once at connect, treats it as system-level guidance, and proceeds.
 
-That `instructions` field is loaded into the client's system context, so the AI agent knows about every task the project exposes from the moment it connects — no trial-and-error discovery, no manual onboarding.
+**It is NOT** a callable-tool MCP server. `tools/list`, `resources/list`, and `prompts/list` all return `[]`. The agent never calls back into the server after the handshake — it runs tasks the normal way (`angreal <command>` via its own shell tool).
+
+## Why No Callable Tools — This Is Deliberate
+
+Exposing each angreal task as an MCP tool would seem more "MCP-native," but it doesn't fit the workload:
+
+- **Angreal tasks tend to be long-running** (test suites, builds, deploys, doc generation). MCP tool-call semantics assume bounded, request/response interactions — long-running calls break client timeouts, lose streaming output, and create awkward reconnect/recovery edges that the agent has to handle.
+- **It would duplicate the CLI surface.** Every task would exist in two execution channels (shell and MCP tool call) with different error paths, different env handling, and different output capture. Agents would have to learn two ways to invoke the same thing.
+- **The shell is already the right channel.** Agents have a battle-tested bash/shell tool with streaming output, exit codes, env passthrough, and ergonomic interruption. There is no reason to re-implement any of that inside MCP.
+
+So Angreal splits the concerns cleanly: **MCP is the discovery channel, the shell is the execution channel.** The handshake teaches the agent what tasks exist and when to use them; the agent then invokes them through the channel that's actually good at long-running processes.
 
 ## Running the Server
 
@@ -57,12 +67,13 @@ Any MCP client that supports stdio servers will work. The pattern is the same: i
 | Method | Behavior |
 |--------|----------|
 | `initialize` | Returns server info, capabilities, and the task instructions document |
-| `tools/list` | Returns `[]` (empty) — Angreal exposes context, not callable MCP tools |
-| `resources/list` | Returns `[]` |
-| `prompts/list` | Returns `[]` |
-| `ping` | Returns `{}` (health check) |
+| `tools/list` | `[]` |
+| `resources/list` | `[]` |
+| `prompts/list` | `[]` |
+| `ping` | `{}` (health check) |
+| anything else | JSON-RPC `-32601 Method not found` |
 
-Because no MCP tools are exposed, the agent does not "call" angreal through MCP — it learns *that* angreal exists and *what* tasks are available, then invokes `angreal <command>` through its own shell/bash tool. This is intentional: it keeps the agent's existing shell tooling as the single execution path and avoids duplicating every task as an MCP tool.
+The `initialize` response is the only one that carries real payload. The empty `*/list` responses exist so MCP-conformant clients don't error out when they probe for tools/resources/prompts at startup.
 
 ## How `ToolDescription` Flows In
 
