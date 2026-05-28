@@ -1,7 +1,7 @@
 ---
 name: angreal-patterns
-description: This skill should be used when the user asks to "test angreal tasks", "mock angreal", "document tasks", "angreal best practices", "error handling in tasks", "subprocess patterns", "dry run mode", "verbose mode", or needs guidance on testing patterns, development workflows, documentation strategies, or common implementation patterns for angreal tasks.
-version: 2.8.6
+description: This skill should be used when the user asks to "test angreal tasks", "mock angreal", "document tasks", "angreal best practices", "error handling in tasks", "subprocess patterns", "dry run mode", "verbose mode", "debug an angreal task", "ANGREAL_DEBUG", "propagate subprocess returncode", "angreal exit code 56", or needs guidance on testing patterns, development workflows, documentation strategies, or common implementation patterns for angreal tasks.
+version: 2.8.7
 ---
 
 # Angreal Patterns
@@ -75,6 +75,18 @@ def test_task_output(capsys):
 ```
 
 ## Development Patterns
+
+### Angreal Debug Logging (`ANGREAL_DEBUG`)
+
+For debugging Angreal itself (task discovery, command registration, argument parsing, template rendering) — independent of any task-internal `-v` flag your task author wired up:
+
+```bash
+ANGREAL_DEBUG=true angreal test rust --unit-only
+```
+
+`ANGREAL_DEBUG=true` forces debug-level logging from the Angreal runtime and overrides CLI `-v`/`-vv` flags. Output goes to stderr. Use this when a task isn't being discovered, an argument isn't parsing as expected, or a template render fails silently.
+
+In CI, also set `ANGREAL_NO_AUTO_COMPLETION=1` to suppress the auto-install of shell completion on first run.
 
 ### Verbose Mode
 
@@ -367,6 +379,8 @@ def cmd(name):
 ## Composing Tasks
 
 ### Calling Other Task Functions
+
+These imports only resolve when `.angreal/` is on `sys.path` (Angreal puts it there during task execution, but pytest does not — see the `pytest.ini` snippet below to make tests work the same way):
 
 ```python
 from task_test import test_all

@@ -42,6 +42,26 @@ This is an **angreal project** (detected \`.angreal\` directory).
 - \`angreal tree --long\` — list with full descriptions
 - \`angreal <command> --help\` — help for a specific task
 
+## Operational Essentials
+
+### Top-level CLI surface
+- \`angreal tree\` / \`angreal tree --long\` — discover tasks
+- \`angreal mcp\` — start MCP stdio server so AI clients can consume this project's task tree
+- \`angreal init <template>\` — scaffold a new project from a template (bare name → \`github.com/angreal/<name>\`); add \`--in-place\` / \`-i\` to render into the current directory instead of a new subdir
+- \`angreal alias create <name>\` — create a shell alias for an angreal command
+- \`angreal completion\` — install shell completion (auto-detects bash/zsh from \`\$SHELL\`)
+- \`-v\` / \`-vv\` / \`-vvv\` — increase verbosity. Set \`ANGREAL_DEBUG=true\` to force debug logging regardless of \`-v\` flags. Set \`ANGREAL_NO_AUTO_COMPLETION=1\` in CI to suppress completion auto-install.
+
+### Exit codes
+| Code | Meaning |
+|------|---------|
+| \`0\` | Success — also returned for \`None\` or \`True\` from the task function |
+| \`1\` | General failure — also returned for \`False\`, or when Angreal itself errors (missing task, no \`.angreal\`, template not found) |
+| \`56\` | Unhandled Python exception in the task (Angreal-specific — distinguishes task crashes from other failures) |
+| \`N\`  | Custom — task function returns int \`N\` (non-zero) or raises \`SystemExit(N)\` |
+
+Tasks should propagate subprocess exit codes (\`return result.returncode\`) rather than swallowing them.
+
 ## Available Tasks (with ToolDescriptions)
 
 \`\`\`
@@ -57,6 +77,7 @@ When authoring or working with angreal tasks:
 - \`/angreal-integrations\` - Using VirtualEnv, Git, Docker, Flox integrations
 - \`/angreal-init\` - Adding angreal to an existing project
 - \`/angreal-templates\` - Creating templates and using the official ones (\`angreal init python\`, \`--in-place\`)
+- \`/angreal-mcp\` - Exposing tasks to AI assistants via the built-in \`angreal mcp\` server
 - \`/angreal-patterns\` - Development best practices
 EOF
 

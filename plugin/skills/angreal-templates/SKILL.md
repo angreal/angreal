@@ -1,7 +1,7 @@
 ---
 name: angreal-templates
 description: This skill should be used when the user asks to "create an angreal template", "make a project template", "build a reusable template", "share a template", "write angreal.toml", "use Tera templating", "template variables", "conditional templates", "render a template in place", "use an official angreal template", "start a python/rust project with angreal", or needs guidance on creating templates that others can consume via `angreal init`, consuming the official angreal templates, in-place rendering, template configuration, Tera syntax, or publishing templates.
-version: 2.8.6
+version: 2.8.7
 ---
 
 # Creating Angreal Templates

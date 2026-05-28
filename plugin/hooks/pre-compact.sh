@@ -35,9 +35,11 @@ read -r -d '' CONTEXT << EOF
 ${TREE_OUTPUT}
 \`\`\`
 
-### Quick Reference
-- \`angreal tree\` — list all tasks
-- \`angreal <command> --help\` — help for specific task
+### Operational Essentials
+
+**Top-level CLI**: \`tree\` / \`tree --long\` (discover), \`mcp\` (start MCP stdio server for AI clients), \`init <template>\` (scaffold; \`--in-place\` renders into cwd), \`alias create\`, \`completion\` (bash/zsh), \`-v\`/\`-vv\`/\`-vvv\` (verbosity), \`<command> --help\` (per-task help). Set \`ANGREAL_DEBUG=true\` to force debug logging; \`ANGREAL_NO_AUTO_COMPLETION=1\` to suppress completion install in CI.
+
+**Exit codes**: \`0\` success (also \`None\`/\`True\`); \`1\` general failure (also \`False\` or Angreal-level errors); \`56\` unhandled Python exception; \`N\` custom (task returns int \`N\` or raises \`SystemExit(N)\`). Propagate subprocess exit codes via \`return result.returncode\`.
 
 ### Skills for Angreal Development
 - \`/angreal-usage\` - Running and discovering tasks
@@ -47,6 +49,7 @@ ${TREE_OUTPUT}
 - \`/angreal-integrations\` - VirtualEnv, Git, Docker, Flox
 - \`/angreal-init\` - Adding angreal to an existing project
 - \`/angreal-templates\` - Templates + official templates (\`angreal init python\`, \`--in-place\`)
+- \`/angreal-mcp\` - Expose tasks to AI assistants via \`angreal mcp\` server
 - \`/angreal-patterns\` - Best practices
 EOF
 

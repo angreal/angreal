@@ -13,7 +13,8 @@ Task automation skills for angreal projects. Focused skills for each job to be d
 | `angreal-init` | "initialize angreal", "add angreal to project" | Adding angreal to existing projects |
 | `angreal-templates` | "create a template", "angreal.toml", "Tera templating", "in-place", "official templates" | Creating reusable templates for others (and consuming the official ones) |
 | `angreal-patterns` | "test tasks", "best practices", "error handling" | Testing, development, and documentation patterns |
-| `angreal-integrations` | "use Git in task", "create venv", "docker-compose", "use Flox", "render template" | Built-in Git, VirtualEnv, Docker, Flox, and Tera templating |
+| `angreal-integrations` | "use Git in task", "create venv", "docker-compose", "use Docker class", "use Flox", "render template" | Built-in Git, VirtualEnv, Docker, Flox, and Tera templating |
+| `angreal-mcp` | "expose tasks to Claude / Cursor", "set up MCP for angreal", "AI agent integration" | The built-in `angreal mcp` server and `.mcp.json` configuration |
 
 ## Auto-Activation
 
@@ -94,9 +95,17 @@ For built-in tool integrations:
 - `angreal.render_template()` / `angreal.render_directory()` - Tera templating for file scaffolding
 - `angreal.integrations.git.Git` - Repository operations
 - `angreal.integrations.venv.VirtualEnv` - Virtual environment management
+- `angreal.integrations.docker.Docker` - Low-level Docker client (containers, images, networks, volumes)
 - `angreal.integrations.docker.DockerCompose` - Docker Compose operations
 - `angreal.integrations.flox.Flox` - Cross-language environments and services
 - `@venv_required` / `@flox_required` decorators for automatic environment handling
+
+### angreal-mcp
+For making project tasks discoverable by AI assistants:
+- The built-in `angreal mcp` stdio server (Model Context Protocol)
+- `.mcp.json` configuration for Claude Code / Cursor / other MCP clients
+- How `ToolDescription` and `risk_level` flow into agent context
+- When to recommend MCP setup vs. relying on this plugin's SessionStart hook
 
 ## Quick Reference
 
