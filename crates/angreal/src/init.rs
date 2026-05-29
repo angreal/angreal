@@ -113,6 +113,15 @@ pub fn init(
 
 /// get the schema for the provided template
 fn get_scheme(u: &str) -> Result<String, String> {
+    // Short-circuit local filesystem paths before URL parsing.
+    // git_url_parse rejects Windows-style absolute paths (drive letter +
+    // backslashes, e.g. C:\Users\...\template) and would panic the caller.
+    // If the input names an extant directory on disk, classify it as "file"
+    // without going through URL parsing at all.
+    if Path::new(u).is_dir() {
+        return Ok("file".to_string());
+    }
+
     let s = GitUrl::parse(u).map_err(|_| format!("Failed to parse URL: {u}"))?;
 
     match s.scheme {

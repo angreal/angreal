@@ -205,9 +205,12 @@ jobs:
               apk add --no-cache python3 py3-pip git
               pip install --break-system-packages --find-links /dist angreal
               pip install --break-system-packages pytest
-              # CLI smoke: must not panic on bare invocation
-              angreal tree || [ $? -eq 1 ]
-              # Argv regression test — guards the musl sys.argv path
+              # CLI smoke: --help is project-independent and always exits 0
+              # when the wheel loads and argv handling works. A musl-broken
+              # wheel would panic before clap ever ran.
+              angreal --help
+              # Argv regression test — exercises the musl sys.argv path
+              # directly and asserts no Rust panic regression.
               python3 -m pytest /py_tests/test_argv_handling.py -v
             '
 
