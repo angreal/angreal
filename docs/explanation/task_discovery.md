@@ -159,6 +159,6 @@ The decorated function must use `@angreal.command` to register itself. Simply de
 
 ## See Also
 
-- [Command System Guide](/angreal/reference/python-api/commands/commands_guide) - How to define commands
+- [Command System Guide](../how-to-guides/command-system-guide.md) - How to define commands
 - [CLI Reference](/angreal/reference/cli) - Command-line interface documentation
 - [Angreal Init Behavior](/angreal/explanation/angreal_init_behaviour) - Template resolution

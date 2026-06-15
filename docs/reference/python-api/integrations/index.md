@@ -24,9 +24,3 @@ The `angreal.integrations.flox` module provides cross-language development envir
 ### Docker Compose Integration
 
 The `angreal.integrations.docker` module provides Docker container orchestration through Docker Compose. It enables starting, stopping, and managing multi-container applications defined in compose files.
-
-## Choosing an Integration
-
-Different integrations serve different needs. For Python-only projects, the virtual environment integration offers the simplest path with the best performance. Multi-language projects benefit from Flox's ability to manage packages across Python, Node.js, Rust, and other ecosystems. Projects requiring containerized services should use Docker Compose for its networking and isolation capabilities.
-
-The integration pages provide detailed API documentation, usage examples, and guidance for each module.

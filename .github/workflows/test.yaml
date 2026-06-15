@@ -56,7 +56,7 @@ jobs:
       - name: Spell Check
         uses: crate-ci/typos@v1.16.26
         with:
-          files: ./docs/content
+          files: ./docs
       - name: Spell Check
         uses: crate-ci/typos@v1.16.26
         with:

@@ -1,11 +1,16 @@
 ---
-title: "UV Installation and Management"
+title: "Install & Configure uv"
 weight: 10
 ---
 
-# UV Installation and Management
+# Install & Configure uv
 
-This document explains how Angreal manages the UV binary for ultra-fast virtual environment operations.
+This guide shows how to control the uv binary that Angreal uses for its virtual
+environment operations: letting Angreal install it automatically, installing it
+yourself, and pinning a specific version. For the rationale behind the
+binary-first, auto-install design, see the
+[uv Integration Architecture](../explanation/uv_integration_architecture.md)
+explanation.
 
 ## Automatic Installation
 

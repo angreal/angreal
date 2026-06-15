@@ -14,81 +14,84 @@
 
 """
 Documentation tasks for Angreal.
+
+The documentation site is built with MkDocs (Material theme) from the markdown
+under ``docs/``. Rust/PyO3 API reference pages under ``docs/api/`` are generated
+by Plissken (``plissken render``, configured by ``plissken.toml``). This mirrors
+the CI pipeline in ``.github/workflows/docs.yaml``.
 """
 
+import shutil
 import subprocess
 import sys
-import shutil
 from pathlib import Path
 
 import angreal  # type: ignore
+from angreal.integrations.venv import VirtualEnv
 
 # Project root for accessing docs, etc. (one level up from .angreal)
 PROJECT_ROOT = Path(angreal.get_root()).parent
+
+# Build dependencies installed into the isolated docs virtualenv. Keep in sync
+# with the "Install MkDocs" step in .github/workflows/docs.yaml.
+DOCS_VENV = "angreal-docs-venv"
+DOCS_DEPS = ["mkdocs", "mkdocs-material"]
 
 # Define command group
 docs = angreal.command_group(name="docs", about="commands for documentation tasks")
 
 
 def _clean_docs():
-    """Clean the documentation build directory."""
-    public_dir = PROJECT_ROOT / "docs" / "public"
-    if public_dir.exists():
-        print("Cleaning documentation build directory...")
-        shutil.rmtree(public_dir)
+    """Remove build artifacts: the MkDocs site/ and generated API docs."""
+    cleaned = False
+    for target in (PROJECT_ROOT / "site", PROJECT_ROOT / "docs" / "api"):
+        if target.exists():
+            print(f"Removing {target.relative_to(PROJECT_ROOT)}...")
+            shutil.rmtree(target)
+            cleaned = True
+    if cleaned:
         print("Clean complete!")
+    else:
+        print("Nothing to clean.")
     return 0
 
 
-def _integrate_rustdoc():
-    """Generate rustdoc and integrate it with the Hugo documentation site."""
-    print("Generating rustdoc...")
+def _render_api_docs():
+    """Generate the API reference markdown with Plissken (writes to docs/api)."""
+    if shutil.which("plissken") is None:
+        print(
+            "ERROR: plissken is not installed. Install it with:\n"
+            "  curl -fsSL https://raw.githubusercontent.com/colliery-io/"
+            "plissken/main/install.sh | bash",
+            file=sys.stderr,
+        )
+        return 1
 
-    # Generate rustdoc
+    print("Generating API documentation with Plissken...")
     try:
-        subprocess.run(
-            ["cargo", "doc", "--no-deps"],
-            check=True
+        result = subprocess.run(
+            ["plissken", "render"],
+            cwd=str(PROJECT_ROOT),
+            check=True,
         )
     except subprocess.CalledProcessError as e:
-        print(f"Failed to generate rustdoc: {e}", file=sys.stderr)
+        print(f"Failed to render API docs: {e}", file=sys.stderr)
         return e.returncode
-
-    # Setup paths
-    hugo_docs_dir = PROJECT_ROOT / "docs"
-    rustdoc_output_dir = PROJECT_ROOT / "target/doc"
-    hugo_api_dir = hugo_docs_dir / "static/api"
-
-    # Create Hugo API directory if it doesn't exist
-    hugo_api_dir.mkdir(parents=True, exist_ok=True)
-
-    # Copy rustdoc output to Hugo static directory
-    print("Copying rustdoc output to Hugo...")
-    try:
-        # Use rsync for better file copying (preserves permissions,
-        # handles existing files better)
-        subprocess.run(
-            ["rsync", "-av", "--delete", f"{rustdoc_output_dir}/", str(hugo_api_dir)],
-            check=True
-        )
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to copy rustdoc output: {e}", file=sys.stderr)
-        return e.returncode
-
-    print("Rustdoc integration complete!")
-    return 0
+    print("API documentation generated in docs/api")
+    return result.returncode
 
 
 @docs()
 @angreal.command(
     name="clean",
-    about="Clean documentation build artifacts and cache",
+    about="Clean documentation build artifacts and generated API docs",
     tool=angreal.ToolDescription("""
-Clean the documentation build directory (docs/public).
+Clean documentation build output: the MkDocs ``site/`` directory and the
+Plissken-generated ``docs/api/`` reference pages.
 
 ## When to use
 - Before fresh documentation builds
-- When build artifacts are corrupted
+- When build artifacts are stale or corrupted
 - During documentation troubleshooting
 
 ## When NOT to use
@@ -102,7 +105,7 @@ angreal docs clean
 """, risk_level="destructive")
 )
 def clean():
-    """Clean the documentation build directory."""
+    """Clean documentation build artifacts and generated API docs."""
     return _clean_docs()
 
 
@@ -111,7 +114,8 @@ def clean():
     name="serve",
     about="Start local documentation server with live reload",
     tool=angreal.ToolDescription("""
-Start local Hugo server with live reload for documentation development.
+Render the API docs with Plissken, then start the MkDocs dev server with live
+reload for documentation development.
 
 ## When to use
 - During documentation writing
@@ -120,73 +124,61 @@ Start local Hugo server with live reload for documentation development.
 
 ## When NOT to use
 - In production environments
-- For final documentation builds
+- For final documentation builds (use ``build``)
 
 ## Examples
 ```
-angreal docs serve         # Include drafts
-angreal docs serve --prod  # Exclude drafts
+angreal docs serve                 # serve on http://127.0.0.1:8000
+angreal docs serve --addr 0.0.0.0:8001
 ```
 """, risk_level="safe")
 )
 @angreal.argument(
-    name="prod",
-    long="prod",
-    help="exclude draft content from the build",
+    name="addr",
+    long="addr",
+    help="address:port for the dev server (default 127.0.0.1:8000)",
     required=False,
-    takes_value=False,
-    is_flag=True
+    takes_value=True,
 )
-def serve(prod: bool = False):
-    """Serve the Hugo documentation site locally with integrated API docs.
+def serve(addr: str = "127.0.0.1:8000"):
+    """Serve the MkDocs documentation site locally with regenerated API docs.
 
     Args:
-        prod: If True, excludes draft content from the build. Defaults to False.
+        addr: address:port to bind the dev server to. Defaults to 127.0.0.1:8000.
     """
     print("=== Setting up documentation ===")
 
-    # Clean the build directory first
-    clean_result = _clean_docs()
-    if clean_result != 0:
-        return clean_result
+    # Regenerate the API reference first so the served site is current.
+    api_result = _render_api_docs()
+    if api_result != 0:
+        return api_result
 
-    # First integrate rustdoc
-    print("\nIntegrating API documentation...")
-    rustdoc_result = _integrate_rustdoc()
-    if rustdoc_result != 0:
-        return rustdoc_result
-
-    # Then start Hugo server
-    print("\n=== Starting Hugo server ===")
-    print("Documentation will be available at http://localhost:1313")
+    print("\n=== Starting MkDocs server ===")
+    print(f"Documentation will be available at http://{addr}")
     print("Press Ctrl+C to stop the server")
 
-    try:
-        # By default include drafts (-D), unless prod flag is set
-        cmd = ["hugo", "server", "-D"]
-        if prod:
-            cmd.remove("-D")
-            print("Excluding draft content from build")
-        else:
-            print("Including draft content in build")
-
-        result = subprocess.run(
-            cmd,
-            cwd=str(PROJECT_ROOT / "docs"),
-            check=True
-        )
-        return result.returncode
-    except subprocess.CalledProcessError as e:
-        print(f"Hugo server failed: {e}", file=sys.stderr)
-        return e.returncode
+    with VirtualEnv(DOCS_VENV, now=True) as venv:
+        print("Installing documentation dependencies (mkdocs, mkdocs-material)...")
+        venv.install(DOCS_DEPS)
+        try:
+            result = subprocess.run(
+                [venv.python_executable, "-m", "mkdocs", "serve", "--dev-addr", addr],
+                cwd=str(PROJECT_ROOT),
+                check=True,
+            )
+            return result.returncode
+        except subprocess.CalledProcessError as e:
+            print(f"MkDocs server failed: {e}", file=sys.stderr)
+            return e.returncode
 
 
 @docs()
 @angreal.command(
     name="build",
-    about="Build production documentation site with Rust API docs",
+    about="Build production documentation site with generated API docs",
     tool=angreal.ToolDescription("""
-Build the Hugo documentation site with integrated Rust API docs.
+Render the API docs with Plissken, then build the MkDocs site into ``site/``.
+By default the build is strict (warnings fail the build), matching CI.
 
 ## When to use
 - For production deployments
@@ -194,63 +186,64 @@ Build the Hugo documentation site with integrated Rust API docs.
 - For final documentation review
 
 ## When NOT to use
-- During active documentation writing (use serve instead)
+- During active documentation writing (use ``serve`` instead)
 - For quick local previews
 
 ## Examples
 ```
-angreal docs build          # Production build (no drafts)
-angreal docs build --draft  # Include draft content
+angreal docs build              # strict production build (warnings fail)
+angreal docs build --no-strict  # tolerate warnings while drafting
 ```
 """, risk_level="safe")
 )
 @angreal.argument(
-    name="draft",
-    long="draft",
-    help="include draft content in the build",
+    name="no_strict",
+    long="no-strict",
+    help="do not fail the build on warnings",
     required=False,
     takes_value=False,
-    is_flag=True
+    is_flag=True,
 )
-def build(draft: bool = False):
-    """Build the Hugo documentation site with integrated API docs.
+def build(no_strict: bool = False):
+    """Build the MkDocs documentation site with regenerated API docs.
 
     Args:
-        draft: If True, includes draft content in the build. Defaults to False.
+        no_strict: If True, warnings do not fail the build. Defaults to False
+            (strict, matching CI).
     """
     print("=== Building documentation site ===")
 
-    # Clean the build directory first
+    # Clean previous artifacts for a reproducible build.
     clean_result = _clean_docs()
     if clean_result != 0:
         return clean_result
 
-    # First integrate rustdoc
-    print("\nIntegrating API documentation...")
-    rustdoc_result = _integrate_rustdoc()
-    if rustdoc_result != 0:
-        return rustdoc_result
+    # Regenerate the API reference.
+    api_result = _render_api_docs()
+    if api_result != 0:
+        return api_result
 
-    # Then build Hugo site
-    print("\nBuilding Hugo site...")
-    try:
-        # By default exclude drafts, unless draft flag is set
-        cmd = ["hugo"]
-        if draft:
-            cmd.append("-D")
-            print("Including draft content in build")
-        else:
-            print("Excluding draft content from build (production mode)")
+    print("\nBuilding MkDocs site...")
+    cmd_tail = ["-m", "mkdocs", "build"]
+    if no_strict:
+        print("Strict mode disabled (warnings will not fail the build)")
+    else:
+        cmd_tail.append("--strict")
+        print("Strict mode enabled (warnings fail the build)")
 
-        result = subprocess.run(
-            cmd,
-            cwd=str(PROJECT_ROOT / "docs"),
-            check=True
-        )
-        if result.returncode == 0:
-            print("\n=== Build complete ===")
-            print(f"Documentation site built in {PROJECT_ROOT}/docs/public")
-        return result.returncode
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to build documentation: {e}", file=sys.stderr)
-        return e.returncode
+    with VirtualEnv(DOCS_VENV, now=True) as venv:
+        print("Installing documentation dependencies (mkdocs, mkdocs-material)...")
+        venv.install(DOCS_DEPS)
+        try:
+            result = subprocess.run(
+                [venv.python_executable, *cmd_tail],
+                cwd=str(PROJECT_ROOT),
+                check=True,
+            )
+            if result.returncode == 0:
+                print("\n=== Build complete ===")
+                print(f"Documentation site built in {PROJECT_ROOT}/site")
+            return result.returncode
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to build documentation: {e}", file=sys.stderr)
+            return e.returncode

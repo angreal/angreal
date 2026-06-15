@@ -9,14 +9,7 @@ Cross-language development environment and services management powered by Flox.
 
 ## Overview
 
-Angreal's Flox integration provides environment activation and services management using Flox, a Nix-based development environment manager. Unlike VirtualEnv (Python-only) or Docker (containerized), Flox provides lightweight, declarative environments that work across multiple languages with optional background services.
-
-**Key Benefits:**
-- Cross-language support (Python, Node.js, Rust, Go, etc.)
-- Declarative environments via `manifest.toml`
-- Built-in services management (databases, caches, etc.)
-- Lower overhead than containers
-- Reproducible across machines
+Angreal's Flox integration provides environment activation and services management using Flox, a Nix-based development environment manager. It activates a Flox environment — applying its environment variables to the current process — and manages the declarative background services defined in the environment's `manifest.toml`.
 
 ## Prerequisites
 
@@ -40,17 +33,6 @@ cd your-project
 flox init
 flox install python@3.11 nodejs@20
 ```
-
-## When to Use Flox
-
-| Use Case | Best Integration |
-|----------|------------------|
-| Python-only project | VirtualEnv (simplest) |
-| Multi-language project | **Flox** (cross-language) |
-| Need containerized services | Docker Compose |
-| Need lightweight services | **Flox** (process-based) |
-| CI/CD reproducibility | **Flox** (declarative) |
-| Team-wide consistency | **Flox** (manifest.toml) |
 
 ## Functions
 
@@ -432,174 +414,6 @@ def as_tuple() -> tuple[str, str, int | None]
 
 **Returns:**
 - `tuple`: (name, status, pid)
-
-## Usage Patterns
-
-### Pattern 1: Decorator (Recommended for Tasks)
-
-Best for task-scoped environments with automatic cleanup.
-
-```python
-from angreal.integrations.flox import flox_required
-import angreal
-
-@angreal.command(name="test")
-@flox_required(".", services=["postgres"])
-def run_tests():
-    """Run tests with database."""
-    import subprocess
-    subprocess.run(["pytest", "tests/"])
-```
-
-### Pattern 2: Context Manager
-
-Best for scoped operations within a function.
-
-```python
-from angreal.integrations.flox import Flox
-
-def deploy():
-    with Flox(".") as flox:
-        flox.run("npm", ["run", "build"])
-        flox.run("npm", ["run", "deploy"])
-```
-
-### Pattern 3: Explicit Control
-
-Best for long-running sessions or complex workflows.
-
-```python
-from angreal.integrations.flox import Flox
-
-flox = Flox(".")
-flox.activate()
-
-try:
-    # Start services
-    handle = flox.services.start("postgres", "redis")
-    handle.save()  # Save for later cleanup
-
-    # Do work...
-    flox.run("python", ["app.py"])
-
-finally:
-    flox.services.stop()
-    flox.deactivate()
-```
-
-### Pattern 4: Cross-Session Services
-
-For persistent services across multiple task invocations.
-
-```python
-# Start services (e.g., at beginning of dev session)
-@angreal.command(name="dev-start")
-def start_dev():
-    flox = Flox(".")
-    handle = flox.services.start("postgres", "redis")
-    handle.save()
-    print("Development services started")
-
-# Stop services (e.g., at end of dev session)
-@angreal.command(name="dev-stop")
-def stop_dev():
-    from angreal.integrations.flox import FloxServiceHandle
-    handle = FloxServiceHandle.load()
-    handle.stop()
-    print("Development services stopped")
-```
-
-## Comparison: Flox vs VirtualEnv vs Docker
-
-| Feature | VirtualEnv | Docker Compose | Flox |
-|---------|------------|----------------|------|
-| **Scope** | Python only | Any language | Any language |
-| **Isolation** | Python packages | Full container | Environment vars |
-| **Services** | No | Yes (containers) | Yes (processes) |
-| **Overhead** | Minimal | High (container runtime) | Low |
-| **Startup Time** | ~100ms | ~1-5s | ~200ms |
-| **Reproducibility** | requirements.txt | Dockerfile | manifest.toml |
-| **Cross-Platform** | Yes | Yes (with Docker) | Yes (with Nix) |
-| **Networking** | N/A | Virtual network | Host network |
-| **File System** | Shared | Volumes/mounts | Shared |
-
-### When to Use Each
-
-**VirtualEnv:**
-- Python-only projects
-- Simple dependency management
-- Fastest startup time
-
-**Docker Compose:**
-- Need container isolation
-- Complex service networking
-- Production parity
-- Already have Docker infrastructure
-
-**Flox:**
-- Multi-language projects
-- Need services without container overhead
-- Reproducible dev environments
-- Cross-team consistency
-
-## Troubleshooting
-
-### "Flox environment does not exist"
-
-**Cause:** The `.flox/` directory is missing.
-
-**Solution:**
-```bash
-cd your-project
-flox init
-```
-
-### "Failed to get Flox services status: does not have any services"
-
-**Cause:** No services defined in manifest.toml.
-
-**Solution:** Add services to your `.flox/env/manifest.toml`:
-```toml
-[services.postgres]
-command = "postgres -D $PGDATA"
-
-[services.redis]
-command = "redis-server"
-```
-
-### "Flox CLI not installed"
-
-**Solution:**
-```bash
-curl -fsSL https://flox.dev/install | bash
-```
-
-### Services not starting
-
-**Check service status:**
-```python
-for svc in flox.services.status():
-    print(f"{svc.name}: {svc.status}")
-```
-
-**View service logs:**
-```python
-logs = flox.services.logs("postgres", tail=50)
-print(logs)
-```
-
-### Environment variables not applied
-
-The `activate()` method modifies `os.environ` in the current process. For subprocesses, use `flox.run()` instead:
-
-```python
-# This works - runs in Flox environment
-exit_code, stdout, stderr = flox.run("python", ["script.py"])
-
-# This may not inherit Flox environment
-import subprocess
-subprocess.run(["python", "script.py"])  # May not have Flox vars
-```
 
 ## Examples
 

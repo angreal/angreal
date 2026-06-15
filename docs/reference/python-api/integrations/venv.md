@@ -5,16 +5,11 @@ weight: 1
 
 # angreal.integrations.venv
 
-Ultra-fast virtual environment and package management powered by UV (ultrafast Python package installer).
+Virtual environment and package management powered by UV.
 
 ## Overview
 
-Angreal's virtual environment integration uses UV to provide 10-50x performance improvements over traditional Python virtual environment tools. UV is automatically installed when first used, requiring no additional setup.
-
-**Performance Benefits:**
-- Virtual environment creation: ~10x faster than venv
-- Package installation: ~50x faster than pip
-- Overall workflow: 3x faster execution times
+Angreal's virtual environment integration uses UV to create virtual environments, install packages, and manage Python versions. UV is automatically installed when first used, requiring no additional setup.
 
 ## Installation Requirements
 
@@ -205,15 +200,15 @@ with VirtualEnv("myenv", now=True) as venv:
 # Virtual environment is automatically deactivated here
 ```
 
-#### Static Methods
+#### Class Methods
 
 ##### discover_available_pythons
 
 Discover all Python installations on the system using UV.
 
 ```python
-@staticmethod
-def discover_available_pythons() -> List[tuple[str, str]]
+@classmethod
+def discover_available_pythons(cls) -> List[tuple[str, str]]
 ```
 
 **Returns:**
@@ -231,8 +226,8 @@ for version, path in pythons:
 Ensure a specific Python version is available, installing if needed.
 
 ```python
-@staticmethod
-def ensure_python(version: str) -> str
+@classmethod
+def ensure_python(cls, version: str) -> str
 ```
 
 **Parameters:**
@@ -252,12 +247,144 @@ print(f"Python 3.11 available at: {python_path}")
 Get UV version information.
 
 ```python
-@staticmethod
-def version() -> str
+@classmethod
+def version(cls) -> str
 ```
 
 **Returns:**
 - `str`: UV version string
+
+## Module-level Functions
+
+The following functions are exported at the top level of the `angreal` module. They operate directly on UV and virtual environment paths without constructing a `VirtualEnv` instance.
+
+### ensure_uv_installed
+
+Ensure the UV binary is installed, installing it if not present.
+
+```python
+def ensure_uv_installed() -> None
+```
+
+**Raises:**
+- `RuntimeError`: If UV installation fails
+
+### uv_version
+
+Get the installed UV version.
+
+```python
+def uv_version() -> str
+```
+
+**Returns:**
+- `str`: UV version string
+
+**Raises:**
+- `RuntimeError`: If the UV version cannot be determined
+
+### create_virtualenv
+
+Create a virtual environment at the given path.
+
+```python
+def create_virtualenv(path: str, python_version: str | None = None) -> None
+```
+
+**Parameters:**
+- `path` (str): Path at which to create the virtual environment
+- `python_version` (str, optional): Python version to use (e.g., "3.11")
+
+**Raises:**
+- `RuntimeError`: If creation fails
+
+### install_packages
+
+Install a list of packages into an existing virtual environment.
+
+```python
+def install_packages(venv_path: str, packages: list[str]) -> None
+```
+
+**Parameters:**
+- `venv_path` (str): Path to the virtual environment
+- `packages` (list[str]): Package names to install
+
+**Raises:**
+- `RuntimeError`: If installation fails
+
+### install_requirements
+
+Install packages from a requirements file into an existing virtual environment.
+
+```python
+def install_requirements(venv_path: str, requirements_file: str) -> None
+```
+
+**Parameters:**
+- `venv_path` (str): Path to the virtual environment
+- `requirements_file` (str): Path to the requirements file
+
+**Raises:**
+- `RuntimeError`: If installation fails
+
+### discover_pythons
+
+Discover available Python installations using UV.
+
+```python
+def discover_pythons() -> list[tuple[str, str]]
+```
+
+**Returns:**
+- `list[tuple[str, str]]`: List of (version, path) tuples
+
+**Raises:**
+- `RuntimeError`: If discovery fails
+
+### install_python
+
+Ensure a Python version is installed, installing it if needed.
+
+```python
+def install_python(version: str) -> str
+```
+
+**Parameters:**
+- `version` (str): Python version to ensure (e.g., "3.11")
+
+**Returns:**
+- `str`: Path to the Python installation
+
+**Raises:**
+- `RuntimeError`: If the version cannot be installed
+
+### get_venv_activation_info
+
+Get activation details for a virtual environment.
+
+```python
+def get_venv_activation_info(venv_path: str) -> ActivationInfo
+```
+
+**Parameters:**
+- `venv_path` (str): Path to the virtual environment
+
+**Returns:**
+- `ActivationInfo`: Activation details for the environment
+
+**Raises:**
+- `RuntimeError`: If the information cannot be determined
+
+### ActivationInfo
+
+Activation details for a virtual environment. All attributes are read-only.
+
+**Attributes:**
+- `venv_path` (str): Path to the virtual environment
+- `venv_prefix` (str): Prefix (`sys.prefix`) for the virtual environment
+- `site_packages` (str): Path to the environment's site-packages directory
+- `python_executable` (str): Path to the environment's Python executable
 
 ## Activation Behavior
 
@@ -367,7 +494,7 @@ venv = VirtualEnv("/path/to/env", now=False)
 
 # Check and create if needed manually
 if not venv.exists:
-    venv._create()
+    venv.create()
 
 # Install specific packages
 venv.install(["flask", "sqlalchemy", "pytest"])
@@ -417,35 +544,18 @@ with VirtualEnv("analysis-env", now=True) as venv:
 # Environment is automatically deactivated here
 ```
 
-### Performance Monitoring
+### Querying UV Version
 
 ```python
 from angreal.integrations.venv import VirtualEnv
-import time
 
 # Check UV version
 print(f"Using UV version: {VirtualEnv.version()}")
-
-# Time environment creation (typically <1 second)
-start = time.time()
-venv = VirtualEnv("fast-env", requirements=["requests"])
-end = time.time()
-print(f"Environment created in {end - start:.2f} seconds")
 ```
 
 ## Performance Characteristics
 
-### Benchmark Comparisons
-
-| Operation | Traditional Tool | UV | Improvement |
-|-----------|------------------|----|-----------  |
-| Virtual Environment Creation | ~5-10 seconds | ~0.5-1 second | 10x faster |
-| Package Installation (10 packages) | ~30-60 seconds | ~1-2 seconds | 50x faster |
-| Requirements File (50 packages) | ~2-5 minutes | ~5-10 seconds | 20-30x faster |
-
-### Memory Usage
-
-UV operations run as separate processes and clean up automatically, resulting in minimal memory overhead compared to in-process package management.
+UV operations run as separate processes and clean up automatically.
 
 ## Error Handling
 
@@ -468,45 +578,6 @@ RuntimeError: Python 3.11 installed but not found
 RuntimeError: Failed to install packages: network timeout
 ```
 **Solution:** Check network connectivity and package names
-
-### Best Practices
-
-1. **Version Specification**: Use specific Python versions (e.g., "3.11") rather than "3" for consistency
-2. **Error Handling**: Wrap UV operations in try-catch blocks for production code
-3. **Environment Isolation**: Use separate environments for different projects
-4. **Requirements Files**: Prefer requirements.txt files for complex dependency specifications
-
-## Migration from Traditional Tools
-
-### From venv + pip
-
-```python
-# Traditional approach
-import subprocess
-import sys
-
-subprocess.run([sys.executable, "-m", "venv", "myenv"])
-subprocess.run(["myenv/bin/pip", "install", "requests"])
-
-# Angreal UV approach (much faster)
-from angreal.integrations.venv import VirtualEnv
-
-venv = VirtualEnv("myenv", requirements=["requests"])  # Done!
-```
-
-### From virtualenv
-
-```python
-# Traditional virtualenv
-import virtualenv
-
-virtualenv.create_environment("myenv")
-
-# Angreal UV approach
-from angreal.integrations.venv import VirtualEnv
-
-venv = VirtualEnv("myenv", python="3.11")
-```
 
 ## UV Binary Management
 

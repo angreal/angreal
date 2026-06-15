@@ -5,9 +5,8 @@ weight: 20
 
 # Use Shell Completion
 
-Angreal provides shell completion to make working with commands and arguments easier.
-
-## Overview
+This guide walks you through enabling and managing shell completion so that
+`angreal` commands, template names, task names, and arguments complete on `[TAB]`.
 
 Shell completion helps you:
 
@@ -16,68 +15,85 @@ Shell completion helps you:
 - Complete task names within Angreal projects
 - Complete command arguments
 
-## Installation
+Supported shells: **bash** and **zsh**.
 
-Shell completion is automatically installed when you first run Angreal. To manually install:
+## 1. Install completion
+
+The first time you run Angreal, it auto-installs completion for your current
+shell. If you need to install (or reinstall) it manually, run:
 
 ```bash
-# Install for current shell
-angreal _completion install
+# Install for the current shell (auto-detected from $SHELL)
+angreal completion install
 
-# Generate completion script for specific shell
-angreal _completion bash  # For bash
-angreal _completion zsh   # For zsh
+# Or install for a specific shell
+angreal completion install bash
+angreal completion install zsh
 ```
 
-After installation, restart your shell or run:
+The `[shell]` argument is optional; when omitted, Angreal detects your shell from
+the `$SHELL` environment variable.
+
+## 2. Activate completion in your current shell
+
+Installation writes the completion script, but your already-open shell session
+won't pick it up until it re-reads its startup file. Restart your shell, or
+reload it:
 
 ```bash
-# For bash
+# bash
 source ~/.bashrc
 
-# For zsh
+# zsh
 source ~/.zshrc
 ```
 
-## Supported Shells
+## 3. Verify it's working
 
-- Bash
-- Zsh
+Check the installation status:
 
-## Usage Examples
+```bash
+angreal completion status
+```
 
-### Command Completion
+Then try completion in a shell:
 
 ```bash
 # Type 'angreal ' and press TAB to see available commands
 angreal [TAB]
-init    run     test    ...
 
-# Type 'angreal i' and press TAB to complete to 'init'
-angreal i[TAB]
-```
-
-### Template Completion
-
-```bash
 # Type 'angreal init ' and press TAB to see available templates
 angreal init [TAB]
-python-cli    django-api    rust-project  ...
 
-# Type 'angreal init p' and press TAB to complete to 'python-cli'
-angreal init p[TAB]
+# Inside an Angreal project, TAB completes project task names
+angreal [TAB]
 ```
 
-### Task Completion
+## Uninstall completion
+
+To remove the completion script:
 
 ```bash
-# Inside an Angreal project, type 'angreal ' and press TAB to see available tasks
-angreal [TAB]
-build    test     deploy   ...
+# Uninstall for the current shell (auto-detected)
+angreal completion uninstall
 
-# Type 'angreal t' and press TAB to complete to 'test'
-angreal t[TAB]
+# Or for a specific shell
+angreal completion uninstall bash
+angreal completion uninstall zsh
 ```
+
+## Disable auto-install (e.g. in CI)
+
+Angreal auto-installs completion on first run. To prevent that — for example in
+a CI environment where you don't want it modifying shell startup files — set the
+`ANGREAL_NO_AUTO_COMPLETION` environment variable before running Angreal:
+
+```bash
+export ANGREAL_NO_AUTO_COMPLETION=1
+```
+
+When this variable is set, the first-run auto-install is skipped. You can still
+install completion explicitly with `angreal completion install`.
 
 ## Related Documentation
 

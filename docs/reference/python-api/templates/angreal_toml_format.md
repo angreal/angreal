@@ -43,14 +43,6 @@ role = "Select a role (admin, user, guest)"
 role.allowed_values = ["admin", "user", "guest"]
 ```
 
-### Benefits of Enhanced Inputs
-
-- Clearer instructions for users filling out template variables
-- Input validation to prevent errors
-- Separation of default values from prompt text
-- Better user experience when initializing projects
-- Backward compatible with existing templates
-
 ### Validation Methods
 
 The validation system uses a dotted notation to apply validation methods to specific variables:

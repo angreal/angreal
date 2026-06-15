@@ -35,7 +35,10 @@ pip install 'angreal>=2'
 # Initialize from a template
 angreal init https://github.com/angreal/python.git
 
-# Define a custom task in .angreal/tasks.py
+# Define a custom task in .angreal/task_test.py
+import angreal
+import subprocess
+
 @angreal.command(name="test", about="Run tests")
 def run_tests():
     subprocess.run(["pytest", "tests/"])

@@ -31,7 +31,7 @@ angreal dev check-deps
 ```
 
 ## Output
-Shows a checklist of required tools (hugo, cargo) with installation
+Shows a checklist of required tools (plissken, cargo) with installation
 instructions for any that are missing.
 """, risk_level="read_only")
 )
@@ -40,7 +40,8 @@ def check_system_dependencies():
     Check for required system-level dependencies
     """
     dependencies_required = (
-        ("hugo" , "please visit : https://gohugo.io/installation/"),
+        ("plissken", "curl -fsSL https://raw.githubusercontent.com/"
+         "colliery-io/plissken/main/install.sh | bash"),
         ("cargo", "curl --proto '=https' --tlsv1.2"
          " -sSf https://sh.rustup.rs | sh && rustup update")
     )

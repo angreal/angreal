@@ -22,6 +22,10 @@ A meeting notes system with:
 
 ## Project Structure
 
+Angreal renders templates with [Tera](https://keats.github.io/tera/docs/), a
+Jinja2-like template engine, so names wrapped in `{{ }}` get filled in from the
+values you supply during `init`.
+
 Here's what we'll create:
 
 ```
@@ -203,20 +207,40 @@ def list_notes():
         print(f"  - {date_str}: {note.name}")
 ```
 
+Note the call to `angreal.get_context()` in the agenda section: it returns the
+template variables the user supplied during `init` (here, `standing_agenda`), so
+the task can reuse the values the project was created with.
+
 ## Step 6: Test Your Template
 
 ### Initialize from the Template
 
-From the parent directory of `meeting_notes`:
+Step 1 left you inside `meeting_notes`, so first move back up to its parent —
+`angreal init` resolves a local template relative to the current directory:
 
 ```bash
-angreal init meeting_notes my_team_standup
-
-# You'll be prompted for:
-# name? ["weekly_standup"] > my_team_standup
-# cadence? ["weekly"] > daily
-# standing_agenda? ["Updates, blockers, and next steps"] >
+cd ..   # back to the parent of meeting_notes
+angreal init meeting_notes
 ```
+
+`angreal init` takes a single argument — the template. It then prompts you for
+each variable defined in `angreal.toml`. The value you give for `name` becomes
+the name of the generated project directory, so enter `my_team_standup` at that
+prompt. Pressing Enter at any prompt accepts the default shown in brackets, which
+is why leaving `standing_agenda?` blank keeps the default agenda in the generated
+README:
+
+```text
+name? ["weekly_standup"] > my_team_standup
+cadence? ["weekly"] > daily
+standing_agenda? ["Updates, blockers, and next steps"] >
+Meeting notes project initialized!
+Run 'angreal notes' to take meeting notes
+See README.md for meeting details
+```
+
+Because you entered `my_team_standup` for `name`, Angreal renders the
+`{{ name }}` template directory into a new directory called `my_team_standup`.
 
 ### Explore the Generated Project
 
@@ -251,23 +275,43 @@ List available commands:
 
 ```bash
 angreal --help
-
-# You should see:
-# - notes: Take meeting notes
-# - list: List all meeting notes
 ```
 
-Take notes:
+The two commands from `task_notes.py` appear in the output:
+
+```text
+Commands:
+  notes  Take meeting notes
+  list   List all meeting notes
+```
+
+Take notes. Running `angreal notes` (without `--now`) writes the file and prints
+the line from the task's `print(f"Created {filename}")`:
 
 ```bash
-# Create a notes file without opening editor
 angreal notes
+```
 
-# Or open in editor immediately
+```text
+Created notes_2026-06-15_09-30.md
+Use 'angreal notes --now' to open in editor
+```
+
+You can also open the editor immediately instead of just writing the file:
+
+```bash
 angreal notes --now
+```
 
-# List all notes
+List all notes. `angreal list` reads the `notes_*.md` files and prints them:
+
+```bash
 angreal list
+```
+
+```text
+Meeting Notes:
+  - 2026-06-15_09-30: notes_2026-06-15_09-30.md
 ```
 
 ## Step 7: Share Your Template
@@ -275,7 +319,7 @@ angreal list
 Push to GitHub:
 
 ```bash
-cd meeting_notes
+cd ../meeting_notes   # back to the template directory you created in Step 1
 git init
 git add .
 git commit -m "Meeting notes Angreal template"
@@ -283,10 +327,12 @@ git remote add origin https://github.com/yourusername/meeting-notes-template.git
 git push -u origin main
 ```
 
-Others can now use your template:
+Others can now use your template by passing its URL to `angreal init`. They'll
+answer the same prompts, and the `name` they enter becomes their project
+directory:
 
 ```bash
-angreal init https://github.com/yourusername/meeting-notes-template.git their_meeting
+angreal init https://github.com/yourusername/meeting-notes-template.git
 ```
 
 ## What You've Learned

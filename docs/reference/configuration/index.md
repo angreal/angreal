@@ -47,7 +47,7 @@ use_docker.type = "boolean"
 
 ## Variable Types
 
-Angreal supports these variable types:
+Only top-level scalar keys become template variables. The supported scalar types are string, boolean, and numeric (integer/float). Array values and `[table]` sections are not inserted into the template context — they are ignored when rendering.
 
 ### String Variables
 ```toml
@@ -66,24 +66,6 @@ include_tests = true
 port = 8080
 timeout = 30
 version_major = 1
-```
-
-### List Variables
-```toml
-dependencies = ["requests", "click", "pydantic"]
-authors = ["John Doe", "Jane Smith"]
-```
-
-### Nested Objects
-```toml
-[database]
-type = "postgresql"
-host = "localhost"
-port = 5432
-
-[api]
-version = "v1"
-base_url = "/api/v1"
 ```
 
 ## Custom Prompts
@@ -193,8 +175,12 @@ Enable debug logging:
 
 ```bash
 export ANGREAL_DEBUG=true
-angreal init template/ project/
+angreal init template/
 ```
+
+`angreal init` takes a single positional argument: the template. The output
+directory is determined by the template's top-level templated directory (its
+`name` variable), not by a second positional argument.
 
 **Values:**
 - `true` - Enable debug logging
@@ -215,7 +201,7 @@ export UV_INSTALL_DIR="/path/to/uv"
 export UV_NO_PROGRESS=1
 ```
 
-See [UV Installation and Management](/angreal/reference/configuration/uv-installation) for complete details.
+See [Install & Configure uv](../../how-to-guides/install-and-configure-uv.md) for complete details.
 
 ## Global Cache Directory
 

@@ -18,7 +18,7 @@ Welcome to the Angreal tutorials! These step-by-step guides will help you learn 
 Make sure you have:
 
 - ✅ Installed Angreal ([Quick Start](/angreal/quick-start))
-- ✅ Basic familiarity with Python
+- ✅ Comfort reading Python (the tutorial uses functions, decorators, and a bit of `subprocess`/`pathlib` — no need to know them deeply)
 - ✅ A code editor or IDE
 - ✅ About 15-30 minutes per tutorial
 

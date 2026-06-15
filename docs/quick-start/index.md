@@ -32,33 +32,17 @@ Install the latest development version:
 pip install git+https://github.com/angreal/angreal.git
 ```
 
-### Development Installation
-
-For contributing to Angreal:
-
-```bash
-# Clone the repository
-git clone https://github.com/angreal/angreal.git
-cd angreal
-
-# Angreal uses itself for development setup!
-pip install angreal  # Install angreal first
-angreal dev install  # Set up development environment
-
-# This will:
-# - Create a .venv virtual environment
-# - Install maturin, pre-commit, and pytest
-# - Set up pre-commit hooks
-# - Check for required system dependencies (Hugo, Cargo)
-```
+Setting up Angreal for local development is a different workflow — see the
+[contributing docs](../contributing/).
 
 ## Verify Installation
 
-After installation, verify that Angreal is working:
+After installation, verify that Angreal is working. It prints the installed
+version number:
 
 ```bash
 angreal --version
-# Expected output: angreal 2.2.0 (or current version)
+# Expected output: angreal X.Y.Z
 ```
 
 You can also check available commands:
@@ -76,13 +60,15 @@ mkdir my-project
 cd my-project
 ```
 
-2. Create an `.angreal` directory:
+2. Create an `.angreal` directory — the directory Angreal looks in for your task
+files:
 
 ```bash
 mkdir .angreal
 ```
 
-3. Create your first task file `.angreal/task_hello.py`:
+3. Create your first task file `.angreal/task_hello.py`. Task files must be named
+`task_*.py`:
 
 ```python
 import angreal
@@ -106,16 +92,16 @@ angreal hello --name Alice
 
 ## Using Templates
 
-Angreal can create projects from templates:
+Angreal can create projects from templates. Pass `angreal init` a single
+argument — a template URL or a local path — and answer the prompts. The name you
+provide becomes your new project's directory:
 
 ```bash
 # Initialize from a GitHub template
-angreal init https://github.com/angreal/python.git my-new-project
+angreal init https://github.com/angreal/python.git
 
 # Or use a local template
-angreal init /path/to/template my-new-project
-
-# Answer the prompts to customize your project
+angreal init /path/to/template
 ```
 
 Popular templates:

@@ -55,6 +55,10 @@ plugins:
 
 docs_dir: docs
 
+# Tutorial template artifacts (rendered example files), not authored pages.
+exclude_docs: |
+  tutorials/meeting_notes.files/
+
 nav:
   - Home: index.md
   - Quick Start: quick-start/index.md
@@ -64,58 +68,90 @@ nav:
   - How-to Guides:
     - how-to-guides/index.md
     - Add Arguments: how-to-guides/add-arguments.md
+    - Command System Guide: how-to-guides/command-system-guide.md
+    - Create a Task: how-to-guides/create-a-task.md
     - Create Prompts: how-to-guides/create-prompts.md
     - Create Task Groups: how-to-guides/create-task-group.md
     - Create Templates: how-to-guides/create-templates.md
     - Include Jinja Templates: how-to-guides/include-jinja-templates.md
+    - Install & Configure uv: how-to-guides/install-and-configure-uv.md
     - Render a Template In Place: how-to-guides/render-template-in-place.md
+    - Template System Guide: how-to-guides/template-system-guide.md
+    - Use Docker Compose: how-to-guides/use-docker-compose.md
     - Use Shell Completion: how-to-guides/use-shell-completion.md
     - Use Validation Rules: how-to-guides/use-validation-rules.md
     - Work with Virtual Environments: how-to-guides/work-with-virtual-environments.md
-    - Configuration:
-      - reference/configuration/index.md
-      - UV Installation: reference/configuration/uv-installation.md
-    - Templates:
-      - reference/python-api/templates/index.md
-      - angreal.toml Format: reference/python-api/templates/angreal_toml_format.md
-      - Template Guide: reference/python-api/templates/template_guide.md
   - Reference:
+    - reference/index.md
+    - CLI: reference/cli/index.md
+    - Configuration: reference/configuration/index.md
     - Python API:
-      - angreal: api/angreal.md
-      - angreal.task: api/angreal/task.md
-      - angreal.decorators: api/angreal/python_bindings/decorators.md
+      - reference/python-api/index.md
+      - Commands:
+        - reference/python-api/commands/index.md
+        - "@command": reference/python-api/commands/command_decorator.md
+        - "@argument": reference/python-api/commands/argument_decorator.md
+        - command_group: reference/python-api/commands/command_group.md
       - Integrations:
-        - angreal.integrations.compose: api/angreal/python_bindings/integrations/compose.md
-        - angreal.integrations.flox: api/angreal/python_bindings/integrations/flox.md
-        - angreal.integrations.git: api/angreal/python_bindings/integrations/git.md
-        - angreal.integrations.venv: api/angreal/python_bindings/venv.md
-        - angreal.integrations.uv: api/angreal/integrations/uv.md
-      - angreal.utils: api/angreal/utils.md
-    - Rust API:
-      - angreal: api/rust/angreal.md
-      - Core:
-        - angreal::task: api/rust/angreal/task.md
-        - angreal::builder: api/rust/angreal/builder.md
-        - angreal::init: api/rust/angreal/init.md
-        - angreal::utils: api/rust/angreal/utils.md
-      - Integrations:
-        - angreal::integrations: api/rust/angreal/integrations.md
-        - angreal::integrations::git: api/rust/angreal/integrations/git.md
-        - angreal::integrations::docker_compose: api/rust/angreal/integrations/docker_compose.md
-        - angreal::integrations::flox: api/rust/angreal/integrations/flox.md
-        - angreal::integrations::uv: api/rust/angreal/integrations/uv.md
-      - angreal::validation: api/rust/angreal/validation.md
-      - Shell Completion:
-        - angreal::completion: api/rust/angreal/completion.md
-        - angreal::completion::bash: api/rust/angreal/completion/bash.md
-        - angreal::completion::zsh: api/rust/angreal/completion/zsh.md
+        - reference/python-api/integrations/index.md
+        - Virtual Environments: reference/python-api/integrations/venv.md
+        - Git: reference/python-api/integrations/git.md
+        - Docker Compose: reference/python-api/integrations/docker-compose.md
+        - Flox: reference/python-api/integrations/flox.md
+      - Templates:
+        - reference/python-api/templates/index.md
+        - angreal.toml Format: reference/python-api/templates/angreal_toml_format.md
+        - render_template: reference/python-api/templates/render_template.md
+        - render_directory: reference/python-api/templates/render_directory.md
+        - generate_context: reference/python-api/templates/generate_context.md
+      - Utilities:
+        - reference/python-api/utils/index.md
+        - get_root: reference/python-api/utils/get_root.md
+        - get_context: reference/python-api/utils/get_context.md
+        - required_version: reference/python-api/utils/required_version.md
+        - register_entrypoint: reference/python-api/utils/register_entrypoint.md
+        - unregister_entrypoint: reference/python-api/utils/unregister_entrypoint.md
+        - list_entrypoints: reference/python-api/utils/list_entrypoints.md
+        - cleanup_entrypoints: reference/python-api/utils/cleanup_entrypoints.md
+    - Generated API Reference:
+      - Python:
+        - angreal: api/angreal.md
+        - angreal.task: api/angreal/task.md
+        - angreal.decorators: api/angreal/python_bindings/decorators.md
+        - Integrations:
+          - angreal.integrations.compose: api/angreal/python_bindings/integrations/compose.md
+          - angreal.integrations.flox: api/angreal/python_bindings/integrations/flox.md
+          - angreal.integrations.git: api/angreal/python_bindings/integrations/git.md
+          - angreal.integrations.venv: api/angreal/python_bindings/venv.md
+          - angreal.integrations.uv: api/angreal/integrations/uv.md
+        - angreal.utils: api/angreal/utils.md
+      - Rust:
+        - angreal: api/rust/angreal.md
+        - Core:
+          - angreal::task: api/rust/angreal/task.md
+          - angreal::builder: api/rust/angreal/builder.md
+          - angreal::init: api/rust/angreal/init.md
+          - angreal::utils: api/rust/angreal/utils.md
+        - Integrations:
+          - angreal::integrations: api/rust/angreal/integrations.md
+          - angreal::integrations::git: api/rust/angreal/integrations/git.md
+          - angreal::integrations::docker_compose: api/rust/angreal/integrations/docker_compose.md
+          - angreal::integrations::flox: api/rust/angreal/integrations/flox.md
+          - angreal::integrations::uv: api/rust/angreal/integrations/uv.md
+        - angreal::validation: api/rust/angreal/validation.md
+        - Shell Completion:
+          - angreal::completion: api/rust/angreal/completion.md
+          - angreal::completion::bash: api/rust/angreal/completion/bash.md
+          - angreal::completion::zsh: api/rust/angreal/completion/zsh.md
   - Explanation:
     - explanation/index.md
     - Why Angreal: explanation/why_angreal.md
     - Aliasing System: explanation/aliasing_system.md
     - angreal init Behavior: explanation/angreal_init_behaviour.md
+    - Task Discovery: explanation/task_discovery.md
     - Rust-Python Interface: explanation/rust_python_interface.md
     - UV Integration Architecture: explanation/uv_integration_architecture.md
   - Contributing:
     - contributing/index.md
     - Code of Conduct: contributing/code_of_conduct.md
+    - Documentation Style Guide: contributing/documentation_style_guide.md

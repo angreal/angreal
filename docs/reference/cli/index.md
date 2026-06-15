@@ -130,6 +130,16 @@ The long format (`--long`) adds the full `ToolDescription` prose for each comman
 
 This enables AI agents to understand available commands and make informed decisions about when and how to use them.
 
+### mcp
+
+Start a Model Context Protocol (MCP) server that exposes the project's task tree as system instructions to MCP-aware AI clients. Project-only command (available only inside an Angreal project containing `.angreal/`).
+
+```bash
+angreal mcp
+```
+
+The server speaks JSON-RPC 2.0 over stdio, reading requests from standard input and writing responses to standard output. It takes no flags or arguments.
+
 ### alias
 
 Create and manage command aliases for white-labeling Angreal.
@@ -312,6 +322,17 @@ source ~/.bashrc
 where angreal
 # Add to PATH: %APPDATA%\Python\Scripts
 ```
+
+## Exit Codes
+
+Angreal returns the following process exit codes:
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success. The task returned a truthy value or `None`, or called `sys.exit(0)`. |
+| `1` | General failure. The task returned `False` or another falsy value, a command was missing, or Angreal itself encountered an error. |
+| `56` | An unhandled Python exception was raised while running a task. |
+| `N` | Custom code. A task that calls `sys.exit(N)` or returns integer `N` propagates that value as the exit code. |
 
 ## See Also
 

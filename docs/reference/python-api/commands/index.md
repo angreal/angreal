@@ -25,7 +25,7 @@ Angreal's command system consists of:
 
 ## Comprehensive Guide
 
-For a complete walkthrough of creating commands and arguments, see the [Command System Guide](commands_guide).
+For a complete walkthrough of creating commands and arguments, see the [Command System Guide](../../../how-to-guides/command-system-guide.md).
 
 ## Examples
 

@@ -28,7 +28,7 @@ Templates use the [Tera](https://keats.github.io/tera/docs/) templating engine, 
 
 ## Comprehensive Guide
 
-For a complete walkthrough of using templates, see the [Template System Guide](template_guide/).
+For a complete walkthrough of using templates, see the [Template System Guide](../../../how-to-guides/template-system-guide.md).
 
 ## Example
 

@@ -10,7 +10,7 @@ A decorator that identifies a function as an Angreal command.
 ## Signature
 
 ```python
-command(name=None, about="", long_about="", tool=None, **attrs) -> None
+command(name=None, about=None, long_about=None, tool=None, **attrs) -> None
 ```
 
 ## Example
@@ -49,8 +49,8 @@ def command_function():
 ## Parameters
 
 - **name** (str, optional): The name to be used to invoke a command. Defaults to the function name.
-- **about** (str, optional): A short description of what the command does. Defaults to "".
-- **long_about** (str, optional): A longer description of what the command does. Defaults to the docstring on the decorated function.
+- **about** (str, optional): A short description of what the command does. Defaults to `None`.
+- **long_about** (str, optional): A longer description of what the command does. Defaults to `None`.
 - **tool** (ToolDescription, optional): Rich description for AI agent integration. Includes prose guidance and risk level annotation. See [ToolDescription](#tooldescription) below.
 
 ## ToolDescription
@@ -58,12 +58,12 @@ def command_function():
 The `ToolDescription` class provides rich metadata for AI agent integration:
 
 ```python
-angreal.ToolDescription(description, risk_level="safe")
+angreal.ToolDescription(description, *, risk_level="safe")
 ```
 
 **Parameters:**
 - **description** (str): Prose description with markdown formatting. Include "When to use", "When NOT to use", and "Examples" sections.
-- **risk_level** (str): One of "safe", "read_only", or "destructive". Indicates the command's safety level.
+- **risk_level** (str, keyword-only): One of "safe", "read_only", or "destructive". Indicates the command's safety level. Defaults to "safe".
 
 Tool descriptions are displayed with `angreal tree --long`.
 
