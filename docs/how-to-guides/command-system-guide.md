@@ -60,7 +60,7 @@ angreal hello --name=John
 
 ## Creating Command Groups
 
-Command groups help organize related commands:
+Command groups help organize related commands. Create a reusable group with `angreal.command_group(...)` and apply it (with parentheses) above each command's `@angreal.command` decorator:
 
 ```python
 import angreal
@@ -108,6 +108,8 @@ These commands can be run with:
 angreal dev build
 angreal dev test
 ```
+
+`angreal.command_group(name, about)` and `angreal.group(name, about)` return the same kind of group decorator; `command_group` is just the conventional spelling for a named, reusable group. The decorator can be applied with parentheses (`@dev()`) or without (`@dev`) — both behave identically — but it must always sit above `@angreal.command`.
 
 ## Command Arguments
 

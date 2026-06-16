@@ -69,6 +69,7 @@ nav:
     - how-to-guides/index.md
     - Add Arguments: how-to-guides/add-arguments.md
     - Command System Guide: how-to-guides/command-system-guide.md
+    - Connect an AI Assistant: how-to-guides/connect-an-ai-assistant.md
     - Create a Task: how-to-guides/create-a-task.md
     - Create Prompts: how-to-guides/create-prompts.md
     - Create Task Groups: how-to-guides/create-task-group.md

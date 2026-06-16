@@ -146,7 +146,7 @@ Activate the virtual environment in the current Python process.
 def activate(self) -> None
 ```
 
-This method modifies `sys.prefix` and `sys.path` to make the virtual environment's packages available for import. Unlike shell activation, this affects only the current Python process.
+This method modifies the current Python process's `sys.prefix`, `sys.exec_prefix`, and `sys.path` so the virtual environment's packages are importable. It also updates `os.environ`, setting `VIRTUAL_ENV` to the environment's path and prepending the environment's `bin` (`Scripts` on Windows) directory to `PATH`. Because environment variables are inherited by child processes, subprocesses spawned after activation run with the virtual environment on `PATH`.
 
 **Example:**
 ```python
@@ -175,7 +175,7 @@ Restore the original Python environment.
 def deactivate(self) -> None
 ```
 
-This method restores `sys.prefix` and `sys.path` to their original values before activation. Safe to call multiple times.
+This method restores the `sys` state (`sys.prefix`, `sys.exec_prefix`, `sys.path`) and the `os.environ` state (`PATH`, and `VIRTUAL_ENV` — removed if it was unset before activation) to their values prior to activation. Safe to call multiple times.
 
 **Example:**
 ```python
@@ -390,19 +390,21 @@ Activation details for a virtual environment. All attributes are read-only.
 
 ### How Activation Works
 
-Unlike shell-based virtual environment activation (which modifies environment variables), the VirtualEnv activation methods work within the Python process by:
+Activation modifies both in-process Python state and the process environment:
 
-1. Modifying `sys.prefix` to point to the virtual environment
-2. Updating `sys.path` to prioritize the virtual environment's site-packages
-3. Preserving the original state for restoration during deactivation
+1. Modifying `sys.prefix` and `sys.exec_prefix` to point to the virtual environment
+2. Updating `sys.path` to prioritize the virtual environment's site-packages, so `import`s resolve against the venv
+3. Setting `os.environ["VIRTUAL_ENV"]` to the environment's path and prepending the environment's `bin` (`Scripts` on Windows) directory to `os.environ["PATH"]`
+4. Preserving the original `sys` and `os.environ` state for restoration during deactivation
 
 ### Activation Notes
 
-- **Process-Only**: Activation only affects the current Python process, not subprocesses or the shell
+- **In-Process State**: Activation modifies the running Python process's `sys.prefix`, `sys.exec_prefix`, and `sys.path`. It does not modify the parent shell or its prompt
 - **Import Availability**: After activation, packages installed in the venv become importable
+- **Environment Variables**: Activation also sets `VIRTUAL_ENV` and prepends the venv's `bin` (`Scripts` on Windows) directory to `PATH` in `os.environ`
+- **Subprocess Behavior**: Because `os.environ` is inherited by child processes, subprocesses started after activation (e.g. via `subprocess.run([...])`) run with the venv on `PATH`. For fully explicit, robust invocation that does not depend on `PATH` ordering or activation state, pass the venv's `python_executable` directly
 - **Multiple Activations**: Only one virtual environment can be active at a time. Activating a second venv will override the first
-- **Thread Safety**: Activation modifies global Python state (`sys.prefix`, `sys.path`) and is not thread-safe
-- **Subprocess Behavior**: Subprocesses will not inherit the activation - use the venv's Python executable directly for subprocesses
+- **Thread Safety**: Activation modifies global Python state (`sys.prefix`, `sys.path`) and process state (`os.environ`) and is not thread-safe
 
 ### Limitations
 

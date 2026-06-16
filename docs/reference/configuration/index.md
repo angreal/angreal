@@ -186,6 +186,25 @@ directory is determined by the template's top-level templated directory (its
 - `true` - Enable debug logging
 - Any other value - Normal logging
 
+**Relationship to `-v`/`--verbose` flags:**
+
+Setting `ANGREAL_DEBUG=true` forces debug-level logging and takes precedence
+over the CLI verbosity flags. When `ANGREAL_DEBUG=true`, angreal uses debug
+level and does not apply the `-v` count; the `-v`/`-vv`/`-vvv` flags are only
+consulted when `ANGREAL_DEBUG` is unset.
+
+For reference, the verbosity mapping is:
+
+| Flag | Log level |
+|------|-----------|
+| (none) | Warnings only |
+| `-v` | Info |
+| `-vv` | Debug |
+| `-vvv` | Trace |
+
+See [Global Options → Verbose Levels](../cli/index.md) in the CLI reference for
+details on the flags themselves.
+
 ### UV Configuration
 
 UV-related environment variables for virtual environment management:

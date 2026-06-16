@@ -92,6 +92,31 @@ OPTIONS:
     -h, --help             Print help information
 ```
 
+### Required named option
+
+To make an option mandatory, set `required=True`. Because `takes_value` defaults to `True`, the option consumes a value (it is _not_ a flag), and `required=True` makes the CLI refuse to run unless the option is supplied. Stack the `@argument` under `@command`, and give the wrapped function a matching parameter:
+
+```python
+import angreal
+
+@angreal.command(name="greet", about="greet someone by name")
+@angreal.argument(name="name", long="name", required=True, help="who to greet")
+def command_greet(name):
+    print(f"Hello, {name}!")
+```
+
+```bash
+$ angreal greet --name=World
+Hello, World!
+
+$ angreal greet                                                                                                                                 ─╯
+error: The following required arguments were not provided:
+    --name <name>
+
+USAGE:
+    greet --name <name>
+```
+
 ## Flags
 
 A flag is just a binary value that will set a resulting value to True without taking a value.

@@ -21,13 +21,27 @@ angreal [OPTIONS] <SUBCOMMAND>
 
 ### Verbose Levels
 
-The verbose flag can be repeated for increased verbosity:
+The verbose flag can be repeated to raise the log level. Each count maps to a
+specific level (logs are written to stderr):
+
+| Flag | Log level |
+|------|-----------|
+| _(none)_ | `warn` (default) |
+| `-v` | `info` |
+| `-vv` | `debug` |
+| `-vvv` (or more) | `trace` |
 
 ```bash
-angreal -v init template/     # Basic verbose output
-angreal -vv init template/    # More detailed output
-angreal -vvv init template/   # Maximum verbosity
+angreal -v init template/     # info-level output
+angreal -vv init template/    # debug-level output
+angreal -vvv init template/   # trace-level output (maximum verbosity)
 ```
+
+Setting the `ANGREAL_DEBUG=true` environment variable forces debug-level logging
+and takes precedence over the `-v` flags: when `ANGREAL_DEBUG` is set, the `-v`
+count is ignored. See the
+[`ANGREAL_DEBUG`](../configuration/index.md#angreal_debug) entry in the
+configuration reference.
 
 ## Core Commands
 
@@ -83,14 +97,38 @@ angreal init template/ --in-place
 {{< /hint >}}
 
 **Template Resolution:**
-Angreal resolves templates in the following order:
-1. Local path if it exists
-2. Path in `~/.angrealrc/` if it exists
-3. GitHub repository at `https://github.com/angreal/template_name`
-4. Git repository at the specified URL
+
+The template argument is first classified by scheme. A full Git URL (`https`,
+`ssh`, `git`, `git+ssh`) or an existing local directory is used directly and
+bypasses the bare-name expansion below:
+
+- **Git URL**: cloned into the cache directory on first use, or fast-forward
+  pulled there if it already exists.
+- **Existing local directory**: used in place as the template (it must contain
+  an `angreal.toml`).
+
+For a **bare name** such as `python` (anything that is not a recognized URL and
+is not an existing directory), Angreal resolves it in the following order:
+
+1. `~/.angrealrc/<name>` — if this directory exists: when it is a Git checkout
+   (contains `.git`), fast-forward pull it and use it; otherwise use the plain
+   folder as a local template.
+2. `./<name>` — a literal local path. If this directory exists and contains an
+   `angreal.toml`, use it; if the directory exists without an `angreal.toml`,
+   fail with an error.
+3. `~/.angrealrc/angreal/<name>` — if this directory exists and is a Git
+   checkout, fast-forward pull it and use it; if it exists but is not a Git
+   checkout, fail with an error.
+4. Otherwise, clone `https://github.com/angreal/<name>.git` into the cache
+   directory; if that repository does not exist, fail with "template not found".
+
+!!! note "Cache directory"
+    `~/.angrealrc/` is Angreal's template cache directory, where cloned or
+    downloaded templates are stored. It is created and managed automatically.
+    See [Global Cache Directory](../configuration/index.md#global-cache-directory).
 
 {{< hint type=info >}}
-For a detailed explanation of how Angreal resolves and processes templates, see [Angreal Init Behavior](/angreal/explanation/angreal_init_behaviour/).
+For a detailed explanation (including a decision tree) of how Angreal resolves and processes templates, see [Angreal Init Behavior](/angreal/explanation/angreal_init_behaviour/).
 {{< /hint >}}
 
 ### tree
@@ -139,6 +177,8 @@ angreal mcp
 ```
 
 The server speaks JSON-RPC 2.0 over stdio, reading requests from standard input and writing responses to standard output. It takes no flags or arguments.
+
+To connect an AI assistant to this server, see the how-to guide [Connect an AI Assistant](../../how-to-guides/connect-an-ai-assistant.md).
 
 ### alias
 
