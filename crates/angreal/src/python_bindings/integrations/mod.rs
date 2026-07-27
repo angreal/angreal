@@ -7,6 +7,7 @@ pub mod compose;
 pub mod docker;
 pub mod flox;
 pub mod git;
+pub mod oci;
 pub mod venv;
 
 /// Create the integrations submodule
@@ -28,12 +29,17 @@ pub fn integrations(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     let flox_module = wrap_pymodule!(flox::flox)(py);
     m.add_submodule(flox_module.bind(py))?;
 
+    // Create and register the oci submodule
+    let oci_module = wrap_pymodule!(oci::oci)(py);
+    m.add_submodule(oci_module.bind(py))?;
+
     // Also register all modules in sys.modules for proper import support
     let sys = py.import("sys")?;
     let modules = sys.getattr("modules")?;
     modules.set_item("angreal.integrations.git", git_module)?;
     modules.set_item("angreal.integrations.venv", venv_module)?;
     modules.set_item("angreal.integrations.flox", flox_module)?;
+    modules.set_item("angreal.integrations.oci", oci_module)?;
 
     Ok(())
 }

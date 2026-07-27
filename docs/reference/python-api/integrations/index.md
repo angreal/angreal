@@ -24,3 +24,7 @@ The `angreal.integrations.flox` module provides cross-language development envir
 ### Docker Compose Integration
 
 The `angreal.integrations.docker` module provides Docker container orchestration through Docker Compose. It enables starting, stopping, and managing multi-container applications defined in compose files.
+
+### OCI Registry Integration
+
+The `angreal.integrations.oci` module pulls and pushes angreal templates as OCI artifacts and lists repository tags — daemonless and self-contained. It is the plugin-layer counterpart to consuming templates from the CLI with `angreal init oci://…`.
