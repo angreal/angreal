@@ -151,7 +151,18 @@ angreal test rust --integration-only  # Run integration tests only
     takes_value=False,
     is_flag=True
 )
-def rust_tests_combined(unit_only: bool = False, integration_only: bool = False):
+@angreal.argument(
+    name="filter",
+    long="filter",
+    help="only run tests whose name matches this filter (cargo test <FILTER>)",
+    required=False,
+    takes_value=True
+)
+def rust_tests_combined(
+    unit_only: bool = False,
+    integration_only: bool = False,
+    filter: str = None,
+):
     """
     Run Rust unit and integration tests
     """
@@ -161,16 +172,16 @@ def rust_tests_combined(unit_only: bool = False, integration_only: bool = False)
 
     if integration_only:
         print("Running Rust integration tests only...")
-        return integration_rust_tests()
+        return integration_rust_tests(filter)
     elif unit_only:
         print("Running Rust unit tests only...")
-        return unit_rust_tests()
+        return unit_rust_tests(filter)
     else:
         print("Running all Rust tests...")
-        result = unit_rust_tests()
+        result = unit_rust_tests(filter)
         if result:
             return result
-        return integration_rust_tests()
+        return integration_rust_tests(filter)
 
 
 def _maturin_develop():
@@ -202,35 +213,35 @@ def _maturin_develop():
     return 0
 
 
-def integration_rust_tests():
+def integration_rust_tests(filter: str = None):
     """
     Run the Rust integration tests
     """
     rc = _maturin_develop()
     if rc != 0:
         return rc
-    result = subprocess.run(
-        ["cargo", "test", "--workspace", "--test", "integration", "-v",
-         "--", "--nocapture", "--test-threads=1"],
-        cwd=str(project_root)
-    )
+    cmd = ["cargo", "test", "--workspace", "--test", "integration", "-v"]
+    if filter:
+        cmd.append(filter)
+    cmd += ["--", "--nocapture", "--test-threads=1"]
+    result = subprocess.run(cmd, cwd=str(project_root))
     if result.returncode != 0:
         return result.returncode
     return 0
 
 
-def unit_rust_tests():
+def unit_rust_tests(filter: str = None):
     """
     Run the Rust unit tests
     """
     rc = _maturin_develop()
     if rc != 0:
         return rc
-    result = subprocess.run(
-        ["cargo", "test", "--workspace", "--lib", "-v",
-         "--", "--nocapture", "--test-threads=1"],
-        cwd=str(project_root)
-    )
+    cmd = ["cargo", "test", "--workspace", "--lib", "-v"]
+    if filter:
+        cmd.append(filter)
+    cmd += ["--", "--nocapture", "--test-threads=1"]
+    result = subprocess.run(cmd, cwd=str(project_root))
     if result.returncode != 0:
         return result.returncode
     return 0

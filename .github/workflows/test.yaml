@@ -187,11 +187,6 @@ jobs:
     name: "OSX Tests (Python ${{ matrix.python-version }})"
     runs-on: macos-14
     needs: [pre-commit, build-verification]
-    # Exercise the real HTTPS registry path on macOS (native-tls -> Apple
-    # SecureTransport). Service containers aren't available here, so instead of
-    # a localhost registry this runs the opt-in public-registry HTTPS smoke test.
-    env:
-      ANGREAL_OCI_HTTPS_SMOKE: "1"
     strategy:
       fail-fast: false
       matrix:
@@ -221,6 +216,14 @@ jobs:
           angreal test rust --unit-only
           angreal test python
           angreal --version
+      # Hard gate: the real HTTPS registry path on macOS (native-tls -> Apple
+      # SecureTransport) that `angreal init oci://...` depends on. Isolated to
+      # just the smoke test so it is NOT swallowed by the continue-on-error
+      # integration step below (which also runs flaky git-SSH tests).
+      - name: OCI HTTPS smoke (macOS TLS gate)
+        env:
+          ANGREAL_OCI_HTTPS_SMOKE: "1"
+        run: angreal test rust --integration-only --filter test_https_public_registry_smoke
       - name: Integration Tests
         continue-on-error: true
         run: angreal test rust --integration-only
