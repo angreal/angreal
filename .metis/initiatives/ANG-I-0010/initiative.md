@@ -174,6 +174,12 @@ docs):
 - **musl + TLS**: CI builds musl wheels. Reuse the existing vendored-OpenSSL
   native-tls backend for `oci-client` (its default) rather than adding rustls —
   one TLS stack, already proven on musl. Confirm the compile early.
+- **macOS TLS (RESOLVED)**: `native-tls` resolves to Apple SecureTransport on
+  macOS (not the vendored OpenSSL). Verified working: the `ANGREAL_OCI_HTTPS_SMOKE`
+  integration test does a live anonymous `list_tags` over HTTPS against Docker
+  Hub and passes on macOS (SecureTransport) locally. CI runs this smoke on the
+  macOS job every run (and on Linux, exercising the OpenSSL HTTPS path); the
+  localhost round-trip tests only cover HTTP.
 - **tokio footprint**: first async dep; keep it feature-minimal (`rt`,
   `macros`) and confined to the oci module.
 - **Registry test harness**: integration tests need a throwaway registry.

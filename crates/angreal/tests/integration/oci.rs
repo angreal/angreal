@@ -60,6 +60,32 @@ fn make_template(root: &Path) -> PathBuf {
     template
 }
 
+/// HTTPS smoke test against a public registry.
+///
+/// The localhost round-trip tests talk plain HTTP, so they never exercise TLS.
+/// Real use (`angreal init oci://ghcr.io/...`) is HTTPS, and on macOS the
+/// native-tls backend resolves to Apple's SecureTransport — a different code
+/// path from Linux's OpenSSL. This proves that path reaches a real registry
+/// (DNS + TLS + the anonymous bearer-token dance + the tags API).
+///
+/// Opt-in via `ANGREAL_OCI_HTTPS_SMOKE=1` (needs network + Docker Hub) so it
+/// never runs in the default/offline suite.
+#[test]
+fn test_https_public_registry_smoke() {
+    if env::var("ANGREAL_OCI_HTTPS_SMOKE").ok().as_deref() != Some("1") {
+        eprintln!("skipping HTTPS smoke: set ANGREAL_OCI_HTTPS_SMOKE=1 to run");
+        return;
+    }
+
+    let tags = Oci::list_tags("docker.io/library/hello-world", &OciAuth::Anonymous)
+        .expect("list_tags over HTTPS should succeed against Docker Hub");
+    assert!(
+        !tags.is_empty(),
+        "expected at least one tag for hello-world"
+    );
+    eprintln!("HTTPS smoke OK: hello-world has {} tags", tags.len());
+}
+
 /// push → pull round-trip through the core is byte-faithful.
 #[test]
 fn test_oci_push_pull_roundtrip() {

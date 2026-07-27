@@ -86,8 +86,10 @@ jobs:
     # Local OCI registry for the oci:// template + angreal.integrations.oci tests.
     # Service containers are Linux-only, so this coverage runs here; the same
     # tests skip on the macOS/Windows jobs (ANGREAL_OCI_TEST_REGISTRY unset).
+    # ANGREAL_OCI_HTTPS_SMOKE also exercises the HTTPS path (OpenSSL here).
     env:
       ANGREAL_OCI_TEST_REGISTRY: localhost:5000
+      ANGREAL_OCI_HTTPS_SMOKE: "1"
     services:
       registry:
         image: registry:2
@@ -185,6 +187,11 @@ jobs:
     name: "OSX Tests (Python ${{ matrix.python-version }})"
     runs-on: macos-14
     needs: [pre-commit, build-verification]
+    # Exercise the real HTTPS registry path on macOS (native-tls -> Apple
+    # SecureTransport). Service containers aren't available here, so instead of
+    # a localhost registry this runs the opt-in public-registry HTTPS smoke test.
+    env:
+      ANGREAL_OCI_HTTPS_SMOKE: "1"
     strategy:
       fail-fast: false
       matrix:
