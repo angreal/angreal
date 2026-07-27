@@ -83,6 +83,16 @@ jobs:
     name: "Linux Tests (Python ${{ matrix.python-version }})"
     runs-on: ubuntu-latest
     needs: [pre-commit, build-verification]
+    # Local OCI registry for the oci:// template + angreal.integrations.oci tests.
+    # Service containers are Linux-only, so this coverage runs here; the same
+    # tests skip on the macOS/Windows jobs (ANGREAL_OCI_TEST_REGISTRY unset).
+    env:
+      ANGREAL_OCI_TEST_REGISTRY: localhost:5000
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     strategy:
       fail-fast: false
       matrix:
