@@ -12,6 +12,7 @@ fn test_init_from_git() {
         false,
         None,
         false,
+        false,
     );
     let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     rendered_root.push(Path::new("angreal_test_project"));
@@ -29,6 +30,7 @@ fn test_init_long() {
         false,
         None,
         false,
+        false,
     );
     // clean up rendered
     let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -36,7 +38,14 @@ fn test_init_long() {
     let _ = fs::remove_dir_all(&rendered_root);
     // use the long version
 
-    init("angreal/angreal_test_template", true, false, None, false);
+    init(
+        "angreal/angreal_test_template",
+        true,
+        false,
+        None,
+        false,
+        false,
+    );
     let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     rendered_root.push(Path::new("angreal_test_project"));
     let _ = fs::remove_dir_all(&rendered_root);
@@ -55,13 +64,21 @@ fn test_init_values() {
         false,
         values_toml.to_str(),
         false,
+        false,
     );
     // clean up rendered
     let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     rendered_root.push(Path::new("folder_name"));
     let _ = fs::remove_dir_all(&rendered_root);
     // use the long version
-    init("angreal/angreal_test_template", true, false, None, false);
+    init(
+        "angreal/angreal_test_template",
+        true,
+        false,
+        None,
+        false,
+        false,
+    );
 
     let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     rendered_root.push(Path::new("angreal_test_project"));
@@ -72,7 +89,7 @@ fn test_init_values() {
 #[test]
 fn test_init_short() {
     // clone
-    init("angreal_test_template", true, false, None, false);
+    init("angreal_test_template", true, false, None, false, false);
 
     let mut rendered_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     rendered_root.push(Path::new("angreal_test_project"));

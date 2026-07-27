@@ -556,6 +556,7 @@ fn main(py: Python<'_>) -> PyResult<()> {
                 None
             },
             _sub_matches.is_present("in_place"),
+            _sub_matches.is_present("insecure"),
         ),
         Some(("_complete", _sub_matches)) => {
             // Hidden command for shell completion

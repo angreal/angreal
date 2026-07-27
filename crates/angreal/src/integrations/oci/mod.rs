@@ -71,10 +71,17 @@ impl Oci {
     /// Pull a template artifact and unpack its layer into `dest`.
     ///
     /// Accepts a bare reference (`registry/repo:tag`) or one with an `oci://`
-    /// scheme prefix. Returns the destination path on success.
-    pub fn pull_artifact(reference: &str, dest: &Path, auth: &OciAuth) -> Result<PathBuf> {
+    /// scheme prefix. When `insecure` is set, the registry is contacted over
+    /// plain HTTP (for self-hosted registries without TLS). Returns the
+    /// destination path on success.
+    pub fn pull_artifact(
+        reference: &str,
+        dest: &Path,
+        auth: &OciAuth,
+        insecure: bool,
+    ) -> Result<PathBuf> {
         let reference = parse_reference(reference)?;
-        let client = build_client(&reference);
+        let client = build_client(&reference, insecure);
         let registry_auth = auth.to_registry_auth();
 
         let image_data = run_async(async {
@@ -108,8 +115,14 @@ impl Oci {
     }
 
     /// Package `src_dir` as an angreal template artifact and push it to
-    /// `reference`.
-    pub fn push_artifact(reference: &str, src_dir: &Path, auth: &OciAuth) -> Result<()> {
+    /// `reference`. When `insecure` is set, the registry is contacted over plain
+    /// HTTP.
+    pub fn push_artifact(
+        reference: &str,
+        src_dir: &Path,
+        auth: &OciAuth,
+        insecure: bool,
+    ) -> Result<()> {
         if !src_dir.is_dir() {
             bail!(
                 "cannot push OCI template: '{}' is not a directory",
@@ -118,7 +131,7 @@ impl Oci {
         }
 
         let reference = parse_reference(reference)?;
-        let client = build_client(&reference);
+        let client = build_client(&reference, insecure);
         let registry_auth = auth.to_registry_auth();
 
         let tar_gz = pack_targz(src_dir).with_context(|| {
@@ -145,10 +158,11 @@ impl Oci {
         Ok(())
     }
 
-    /// List the tags available for a repository.
-    pub fn list_tags(repository: &str, auth: &OciAuth) -> Result<Vec<String>> {
+    /// List the tags available for a repository. When `insecure` is set, the
+    /// registry is contacted over plain HTTP.
+    pub fn list_tags(repository: &str, auth: &OciAuth, insecure: bool) -> Result<Vec<String>> {
         let reference = parse_reference(repository)?;
-        let client = build_client(&reference);
+        let client = build_client(&reference, insecure);
         let registry_auth = auth.to_registry_auth();
 
         let response = run_async(async {
@@ -250,13 +264,19 @@ fn parse_reference(reference: &str) -> Result<Reference> {
         .map_err(|e| anyhow!("invalid OCI reference '{reference}': {e}"))
 }
 
-/// Build a client for the given reference. Registries on `localhost` /
-/// `127.0.0.1` are contacted over plain HTTP (test registries); everything else
-/// uses HTTPS, riding the vendored-OpenSSL native-tls backend already in the
-/// tree.
-fn build_client(reference: &Reference) -> Client {
+/// Whether to talk to `registry` over plain HTTP: always for `localhost` /
+/// `127.0.0.1` (test/loopback registries), or when the caller opts into
+/// `insecure` (a self-hosted registry without TLS).
+fn use_http_for(registry: &str, insecure: bool) -> bool {
+    insecure || registry.starts_with("localhost") || registry.starts_with("127.0.0.1")
+}
+
+/// Build a client for the given reference. HTTPS by default, riding the
+/// vendored-OpenSSL native-tls backend already in the tree; plain HTTP for
+/// loopback registries or when `insecure` is set.
+fn build_client(reference: &Reference, insecure: bool) -> Client {
     let registry = reference.registry();
-    let protocol = if registry.starts_with("localhost") || registry.starts_with("127.0.0.1") {
+    let protocol = if use_http_for(registry, insecure) {
         ClientProtocol::HttpsExcept(vec![registry.to_string()])
     } else {
         ClientProtocol::Https
@@ -346,6 +366,17 @@ mod tests {
     #[test]
     fn is_available_is_true() {
         assert!(Oci::is_available());
+    }
+
+    #[test]
+    fn use_http_for_loopback_and_insecure() {
+        // Loopback registries are always plain HTTP.
+        assert!(use_http_for("localhost:5000", false));
+        assert!(use_http_for("127.0.0.1:5000", false));
+        // Real registries are HTTPS unless the caller opts into insecure.
+        assert!(!use_http_for("ghcr.io", false));
+        assert!(use_http_for("ghcr.io", true));
+        assert!(use_http_for("registry.internal:5000", true));
     }
 
     #[test]

@@ -66,6 +66,15 @@ fn add_init_subcommand(app: App<'static>) -> App<'static> {
                     .takes_value(true)
                     .help("Provide Values to template, bypassing template toml."),
             )
+            .arg(
+                Arg::new("insecure")
+                    .long("--insecure")
+                    .takes_value(false)
+                    .help(
+                        "Allow pulling an oci:// template from a plain-HTTP registry \
+                         (e.g. a self-hosted registry without TLS).",
+                    ),
+            )
             .arg(Arg::new("template").takes_value(true).required(true).help(
                 "The template to use. Either a pre-downloaded template name, or url to a git repo.",
             )),
