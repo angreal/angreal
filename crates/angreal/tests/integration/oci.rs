@@ -77,7 +77,7 @@ fn test_https_public_registry_smoke() {
         return;
     }
 
-    let tags = Oci::list_tags("docker.io/library/hello-world", &OciAuth::Anonymous)
+    let tags = Oci::list_tags("docker.io/library/hello-world", &OciAuth::Anonymous, false)
         .expect("list_tags over HTTPS should succeed against Docker Hub");
     assert!(
         !tags.is_empty(),
@@ -98,11 +98,11 @@ fn test_oci_push_pull_roundtrip() {
     let template = make_template(&tmp);
 
     let reference = format!("oci://{registry}/angreal-test/roundtrip:v1");
-    Oci::push_artifact(&reference, &template, &OciAuth::Anonymous)
+    Oci::push_artifact(&reference, &template, &OciAuth::Anonymous, false)
         .expect("push should succeed against the test registry");
 
     let dest = tmp.join("pulled");
-    let out = Oci::pull_artifact(&reference, &dest, &oci::resolve_auth(&reference))
+    let out = Oci::pull_artifact(&reference, &dest, &oci::resolve_auth(&reference), false)
         .expect("pull should succeed");
 
     assert_eq!(out, dest);
@@ -128,7 +128,7 @@ fn test_init_from_oci() {
     let template = make_template(&tmp);
 
     let reference = format!("oci://{registry}/angreal-test/init:v1");
-    Oci::push_artifact(&reference, &template, &OciAuth::Anonymous)
+    Oci::push_artifact(&reference, &template, &OciAuth::Anonymous, false)
         .expect("push should succeed against the test registry");
 
     // init() renders relative to the process cwd; render into an isolated temp.
@@ -137,7 +137,7 @@ fn test_init_from_oci() {
     let original = env::current_dir().unwrap();
     env::set_current_dir(&cwd).unwrap();
 
-    init(&reference, true, false, None, false);
+    init(&reference, true, false, None, false, false);
 
     env::set_current_dir(&original).unwrap();
 

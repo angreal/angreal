@@ -30,6 +30,7 @@ pub fn init(
     take_inputs: bool,
     values_file: Option<&str>,
     in_place: bool,
+    insecure: bool,
 ) {
     let angreal_home = create_home_dot_angreal();
     let template_type = get_scheme(template).unwrap();
@@ -44,7 +45,7 @@ pub fn init(
             handle_git_template(template, angreal_home)
         }
         "file" => PathBuf::from(handle_file_template(template, &angreal_home)),
-        "oci" => handle_oci_template(template, &angreal_home),
+        "oci" => handle_oci_template(template, &angreal_home, insecure),
         &_ => {
             error!(
                 "Unhandled template type {} from {}, exiting.",
@@ -262,7 +263,7 @@ fn handle_git_template(template: &str, angreal_home: PathBuf) -> PathBuf {
 /// git templates (which ff-pull), the artifact is re-fetched each run so a moved
 /// tag is honored; the cache dir is cleared first to avoid mixing in stale files
 /// from a previous pull of the same tag.
-fn handle_oci_template(template: &str, angreal_home: &Path) -> PathBuf {
+fn handle_oci_template(template: &str, angreal_home: &Path, insecure: bool) -> PathBuf {
     use crate::integrations::oci;
 
     let subpath = match oci::cache_subpath(template) {
@@ -283,7 +284,7 @@ fn handle_oci_template(template: &str, angreal_home: &Path) -> PathBuf {
     }
 
     debug!("Pulling OCI template {} into {:?}", template, dst);
-    match oci::Oci::pull_artifact(template, &dst, &oci::resolve_auth(template)) {
+    match oci::Oci::pull_artifact(template, &dst, &oci::resolve_auth(template), insecure) {
         Ok(path) => path,
         Err(e) => {
             error!("Failed to pull OCI template {}: {}", template, e);

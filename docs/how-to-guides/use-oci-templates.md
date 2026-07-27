@@ -45,6 +45,19 @@ angreal init oci://ghcr.io/acme/private-template:latest
 
 …or, from a task, register credentials on an `Oci` client (see below).
 
+### Self-hosted / plain-HTTP registries
+
+By default angreal pulls over HTTPS. `localhost` and `127.0.0.1` registries are
+automatically treated as plain HTTP. For any other registry served without TLS
+(e.g. a self-hosted registry on your network), pass `--insecure`:
+
+```bash
+angreal init oci://registry.internal:5000/acme/py-template:latest --insecure
+```
+
+From a task, the `Oci` client methods take an `insecure=True` keyword for the
+same effect (`pull`, `push`, `tags`).
+
 ## Publish a template
 
 Publishing packages your template directory (the tree containing `angreal.toml`)

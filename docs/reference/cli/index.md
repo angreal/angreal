@@ -54,13 +54,14 @@ angreal init <TEMPLATE> [OPTIONS]
 ```
 
 **Arguments:**
-- `TEMPLATE` - Template source (local path, Git URL, or GitHub shorthand)
+- `TEMPLATE` - Template source (local path, Git URL, GitHub shorthand, or OCI reference `oci://...`)
 
 **Options:**
 - `-f, --force` - Force the rendering of a template, even if paths/files already exist
 - `-d, --defaults` - Use default values provided in the angreal.toml
 - `-i, --in-place` - Render the template's contents into the current directory, stripping the template's top-level directory
 - `--values <FILE>` - Provide values to template, bypassing template toml
+- `--insecure` - Allow pulling an `oci://` template from a plain-HTTP registry (self-hosted registry without TLS)
 
 **Template Sources & Examples:**
 

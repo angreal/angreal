@@ -69,9 +69,10 @@ impl PyOci {
     }
 
     /// Pull a template artifact to `dest` (default: a directory named after the
-    /// repository, under the current directory). Returns the destination path.
-    #[pyo3(signature = (reference, dest=None))]
-    fn pull(&self, reference: &str, dest: Option<PathBuf>) -> PyResult<String> {
+    /// repository, under the current directory). Set `insecure=True` to pull
+    /// from a plain-HTTP registry. Returns the destination path.
+    #[pyo3(signature = (reference, dest=None, insecure=false))]
+    fn pull(&self, reference: &str, dest: Option<PathBuf>, insecure: bool) -> PyResult<String> {
         let dest = match dest {
             Some(d) => d,
             None => {
@@ -80,21 +81,24 @@ impl PyOci {
             }
         };
         let auth = self.auth_for(reference);
-        let out = Oci::pull_artifact(reference, &dest, &auth).map_err(to_pyerr)?;
+        let out = Oci::pull_artifact(reference, &dest, &auth, insecure).map_err(to_pyerr)?;
         Ok(out.display().to_string())
     }
 
     /// Package the directory at `path` as a template artifact and push it to
-    /// `reference`.
-    fn push(&self, reference: &str, path: PathBuf) -> PyResult<()> {
+    /// `reference`. Set `insecure=True` to push to a plain-HTTP registry.
+    #[pyo3(signature = (reference, path, insecure=false))]
+    fn push(&self, reference: &str, path: PathBuf, insecure: bool) -> PyResult<()> {
         let auth = self.auth_for(reference);
-        Oci::push_artifact(reference, &path, &auth).map_err(to_pyerr)
+        Oci::push_artifact(reference, &path, &auth, insecure).map_err(to_pyerr)
     }
 
-    /// List the tags available for `repository`.
-    fn tags(&self, repository: &str) -> PyResult<Vec<String>> {
+    /// List the tags available for `repository`. Set `insecure=True` for a
+    /// plain-HTTP registry.
+    #[pyo3(signature = (repository, insecure=false))]
+    fn tags(&self, repository: &str, insecure: bool) -> PyResult<Vec<String>> {
         let auth = self.auth_for(repository);
-        Oci::list_tags(repository, &auth).map_err(to_pyerr)
+        Oci::list_tags(repository, &auth, insecure).map_err(to_pyerr)
     }
 }
 
