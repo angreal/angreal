@@ -18,9 +18,17 @@ Functionally this means if you run `angreal init python` at least once the follo
 - `angreal init angreal/python`
 - `angreal init ${HOME}/.angrealrc/python`
 
+A template name that begins with the `oci://` scheme is treated as an OCI
+registry artifact rather than a git remote or local path. Angreal pulls it into
+`${HOME}/.angrealrc/oci/<registry>/<repository>/<tag>/` and renders it. The
+artifact is re-fetched on each run (so a moved tag is honored), mirroring the
+fast-forward-pull behavior used for git templates. See
+[Use OCI Template Targets](/angreal/how-to-guides/use-oci-templates).
+
 ```mermaid
 graph TD;
   A[What does the template name look like]
+  A -->|oci:// scheme| P[Pull artifact into $HOME/.angrealrc/oci, then use the template]
   A -->|Git Remote| B[Does the destination directory exist?]
   A -->|Local File| C[Does the template folder exist at $HOME/.angrealrc ?]
   B -->|Yes| D[Fast forward pull, then use for template.]

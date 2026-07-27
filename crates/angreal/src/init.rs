@@ -44,6 +44,7 @@ pub fn init(
             handle_git_template(template, angreal_home)
         }
         "file" => PathBuf::from(handle_file_template(template, &angreal_home)),
+        "oci" => handle_oci_template(template, &angreal_home),
         &_ => {
             error!(
                 "Unhandled template type {} from {}, exiting.",
@@ -120,6 +121,12 @@ fn get_scheme(u: &str) -> Result<String, String> {
     // without going through URL parsing at all.
     if Path::new(u).is_dir() {
         return Ok("file".to_string());
+    }
+
+    // OCI references carry an explicit `oci://` scheme. Short-circuit before git
+    // URL parsing, which does not understand it.
+    if u.starts_with("oci://") {
+        return Ok("oci".to_string());
     }
 
     let s = GitUrl::parse(u).map_err(|_| format!("Failed to parse URL: {u}"))?;
@@ -248,6 +255,43 @@ fn handle_git_template(template: &str, angreal_home: PathBuf) -> PathBuf {
     dst
 }
 
+/// Pull an OCI template artifact into the local cache and return the unpacked
+/// template directory, ready for rendering.
+///
+/// The cache lives at `~/.angrealrc/oci/<registry>/<repository>/<tag>/`. As with
+/// git templates (which ff-pull), the artifact is re-fetched each run so a moved
+/// tag is honored; the cache dir is cleared first to avoid mixing in stale files
+/// from a previous pull of the same tag.
+fn handle_oci_template(template: &str, angreal_home: &Path) -> PathBuf {
+    use crate::integrations::oci;
+
+    let subpath = match oci::cache_subpath(template) {
+        Ok(p) => p,
+        Err(e) => {
+            error!("{}", e);
+            exit(1);
+        }
+    };
+    let dst = angreal_home.join("oci").join(subpath);
+
+    if dst.exists() {
+        debug!("OCI template cache exists at {:?}, refreshing.", dst);
+        if let Err(e) = fs::remove_dir_all(&dst) {
+            error!("Failed to clear OCI template cache at {:?}: {}", dst, e);
+            exit(1);
+        }
+    }
+
+    debug!("Pulling OCI template {} into {:?}", template, dst);
+    match oci::Oci::pull_artifact(template, &dst, &oci::resolve_auth(template)) {
+        Ok(path) => path,
+        Err(e) => {
+            error!("Failed to pull OCI template {}: {}", template, e);
+            exit(1);
+        }
+    }
+}
+
 /// create the angreal caching directory for storing cloned templates
 pub fn create_home_dot_angreal() -> PathBuf {
     let mut home_dir = home_dir().unwrap();
@@ -314,4 +358,26 @@ pub fn render_template(
     // angreal_path
     String::new()
     // return path to .angreal
+}
+
+#[cfg(test)]
+mod tests {
+    use super::get_scheme;
+
+    #[test]
+    fn get_scheme_detects_oci() {
+        assert_eq!(
+            get_scheme("oci://ghcr.io/angreal/python:latest").unwrap(),
+            "oci"
+        );
+        assert_eq!(get_scheme("oci://localhost:5000/demo:v1").unwrap(), "oci");
+    }
+
+    #[test]
+    fn get_scheme_still_detects_git_https() {
+        assert_eq!(
+            get_scheme("https://github.com/angreal/angreal.git").unwrap(),
+            "https"
+        );
+    }
 }

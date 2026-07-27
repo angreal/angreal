@@ -76,6 +76,7 @@ nav:
     - Create Templates: how-to-guides/create-templates.md
     - Include Jinja Templates: how-to-guides/include-jinja-templates.md
     - Install & Configure uv: how-to-guides/install-and-configure-uv.md
+    - Use OCI Template Targets: how-to-guides/use-oci-templates.md
     - Render a Template In Place: how-to-guides/render-template-in-place.md
     - Template System Guide: how-to-guides/template-system-guide.md
     - Use Docker Compose: how-to-guides/use-docker-compose.md
@@ -99,6 +100,7 @@ nav:
         - Git: reference/python-api/integrations/git.md
         - Docker Compose: reference/python-api/integrations/docker-compose.md
         - Flox: reference/python-api/integrations/flox.md
+        - OCI Registry: reference/python-api/integrations/oci.md
       - Templates:
         - reference/python-api/templates/index.md
         - angreal.toml Format: reference/python-api/templates/angreal_toml_format.md
