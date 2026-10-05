@@ -168,31 +168,16 @@ impl UvVirtualEnv {
     pub fn site_packages(&self) -> Result<PathBuf> {
         let python_exe = self.python_executable();
 
-        // Use a more reliable method to get site-packages for both Unix and Windows
-        let python_script = r#"
-import site
-import sys
-import os
-
-# Try to get site-packages path that belongs to this virtual environment
-site_packages_paths = site.getsitepackages()
-
-# Find the site-packages that belongs to our venv
-for path in site_packages_paths:
-    # Check if this site-packages path is within our virtual environment
-    if sys.prefix in path:
-        print(path)
-        break
-else:
-    # Fallback: construct manually
-    if os.name == 'nt':  # Windows
-        print(os.path.join(sys.prefix, 'Lib', 'site-packages'))
-    else:  # Unix/Linux/macOS
-        # Find python version
-        import sysconfig
-        version = sysconfig.get_python_version()
-        print(os.path.join(sys.prefix, 'lib', f'python{version}', 'site-packages'))
-"#;
+        // Ask the venv's own interpreter where it installs pure-Python packages.
+        // `sysconfig` resolves this against `sys.prefix`, so inside a virtual
+        // environment it is the venv's site-packages on every platform:
+        // `<venv>/lib/pythonX.Y/site-packages` on Unix and
+        // `<venv>\Lib\site-packages` on Windows.
+        //
+        // Do not derive this from `site.getsitepackages()`: on Windows its first
+        // entry is `sys.prefix` itself (the venv root), so a "first path inside
+        // the prefix" search returns the venv root instead of site-packages.
+        let python_script = "import sysconfig; print(sysconfig.get_paths()['purelib'])";
 
         let output = Command::new(&python_exe)
             .arg("-c")
@@ -200,38 +185,43 @@ else:
             .output()
             .context("Failed to get site-packages path")?;
 
-        if !output.status.success() {
-            // Fallback: construct the path manually based on platform
-            let site_packages_path = if cfg!(windows) {
-                self.path.join("Lib").join("site-packages")
-            } else {
-                // Find the lib directory with version-specific path
-                let lib_dir = self.path.join("lib");
-                if lib_dir.exists() {
-                    // Look for python3.x directory
-                    if let Ok(entries) = std::fs::read_dir(&lib_dir) {
-                        for entry in entries.flatten() {
-                            let name = entry.file_name();
-                            if let Some(name_str) = name.to_str() {
-                                if name_str.starts_with("python") {
-                                    let site_packages = entry.path().join("site-packages");
-                                    if site_packages.exists() {
-                                        return Ok(site_packages);
-                                    }
-                                }
-                            }
+        if output.status.success() {
+            let site_packages_str = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            if !site_packages_str.is_empty() {
+                return Ok(PathBuf::from(site_packages_str));
+            }
+        }
+
+        // The interpreter did not answer: construct the path from the known
+        // venv layout for the platform.
+        Ok(self.fallback_site_packages())
+    }
+
+    /// Site-packages path derived from the venv layout alone, used when the
+    /// venv's interpreter cannot be asked.
+    fn fallback_site_packages(&self) -> PathBuf {
+        if cfg!(windows) {
+            return self.path.join("Lib").join("site-packages");
+        }
+
+        // Look for lib/python3.x/site-packages
+        let lib_dir = self.path.join("lib");
+        if let Ok(entries) = std::fs::read_dir(&lib_dir) {
+            for entry in entries.flatten() {
+                let name = entry.file_name();
+                if let Some(name_str) = name.to_str() {
+                    if name_str.starts_with("python") {
+                        let site_packages = entry.path().join("site-packages");
+                        if site_packages.exists() {
+                            return site_packages;
                         }
                     }
                 }
-                // Final fallback for Unix
-                self.path.join("lib").join("python3").join("site-packages")
-            };
-
-            return Ok(site_packages_path);
+            }
         }
 
-        let site_packages_str = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        Ok(PathBuf::from(site_packages_str))
+        // Final fallback for Unix
+        self.path.join("lib").join("python3").join("site-packages")
     }
 
     pub fn get_activation_info(&self) -> Result<ActivationInfo> {
@@ -411,10 +401,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg_attr(
-        windows,
-        ignore = "UV site-packages path discovery broken on Windows CI"
-    )]
     fn test_site_packages() {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let venv_path = temp_dir.path().join("test_venv_site");
@@ -430,17 +416,25 @@ mod tests {
             "Site-packages should exist at {:?}",
             site_path
         );
+        assert_eq!(
+            site_path.file_name().and_then(|n| n.to_str()),
+            Some("site-packages"),
+            "Path should be the site-packages directory itself, got {:?}",
+            site_path
+        );
+        // Compare canonical forms: on Windows the temp dir can be spelled with
+        // a short (8.3) name by Rust and with its long name by Python.
+        let canonical_site = fs::canonicalize(&site_path).expect("canonicalize site-packages");
+        let canonical_venv = fs::canonicalize(&venv.path).expect("canonicalize venv");
         assert!(
-            site_path.to_string_lossy().contains("site-packages"),
-            "Path should contain 'site-packages'"
+            canonical_site.starts_with(&canonical_venv),
+            "Site-packages {:?} should be inside the venv {:?}",
+            canonical_site,
+            canonical_venv
         );
     }
 
     #[test]
-    #[cfg_attr(
-        windows,
-        ignore = "UV site-packages path discovery broken on Windows CI"
-    )]
     fn test_install_packages() {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let venv_path = temp_dir.path().join("test_venv_install");
