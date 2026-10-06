@@ -140,9 +140,14 @@ pub fn git_clone_here(remote: &str) -> PathBuf {
 }
 
 /// Pull changes from a remote repository
-pub fn git_pull_ff(path: &str) -> PathBuf {
+/// Fast-forward the `main` branch of the repository at `path` from `origin`.
+///
+/// Returns an error instead of panicking when the repository cannot be
+/// opened, fetched or fast-forwarded.
+pub fn try_git_pull_ff(path: &str) -> Result<PathBuf, String> {
     let mut callbacks = RemoteCallbacks::new();
-    let git_config = git2::Config::open_default().unwrap();
+    let git_config =
+        git2::Config::open_default().map_err(|e| format!("Failed to open git config: {}", e))?;
     let mut handler = CredentialHandler::new(git_config);
     callbacks.credentials(move |url, username, allowed| {
         handler.try_next_credential(url, username, allowed)
@@ -153,32 +158,32 @@ pub fn git_pull_ff(path: &str) -> PathBuf {
 
     let repo = match Repository::open(path) {
         Ok(repo) => repo,
-        Err(e) => panic!("Failed to open: {}", e),
+        Err(e) => return Err(format!("Failed to open: {}", e)),
     };
 
     let mut remote = match repo.find_remote("origin") {
         Ok(r) => r,
-        Err(e) => panic!("Failed to find remote: {}", e),
+        Err(e) => return Err(format!("Failed to find remote: {}", e)),
     };
 
     match remote.fetch(&["main"], Some(&mut fetch_options), None) {
         Ok(_) => (),
-        Err(e) => panic!("Failed to fetch: {}", e),
+        Err(e) => return Err(format!("Failed to fetch: {}", e)),
     }
 
     let fetch_head = match repo.find_reference("FETCH_HEAD") {
         Ok(head) => head,
-        Err(e) => panic!("Failed to find FETCH_HEAD: {}", e),
+        Err(e) => return Err(format!("Failed to find FETCH_HEAD: {}", e)),
     };
 
     let fetch_commit = match repo.reference_to_annotated_commit(&fetch_head) {
         Ok(commit) => commit,
-        Err(e) => panic!("Failed to find commit: {}", e),
+        Err(e) => return Err(format!("Failed to find commit: {}", e)),
     };
 
     let analysis = match repo.merge_analysis(&[&fetch_commit]) {
         Ok(analysis) => analysis,
-        Err(e) => panic!("Failed to analyze merge: {}", e),
+        Err(e) => return Err(format!("Failed to analyze merge: {}", e)),
     };
 
     if analysis.0.is_up_to_date() {
@@ -188,19 +193,28 @@ pub fn git_pull_ff(path: &str) -> PathBuf {
         let refname = format!("refs/heads/{}", "main");
         match repo.find_reference(&refname) {
             Ok(mut r) => {
-                r.set_target(fetch_commit.id(), "Fast-Forward").unwrap();
+                r.set_target(fetch_commit.id(), "Fast-Forward")
+                    .map_err(|e| format!("Failed to fast-forward: {}", e))?;
             }
             Err(_) => {
                 repo.reference(&refname, fetch_commit.id(), true, "Fast-Forward")
-                    .unwrap();
+                    .map_err(|e| format!("Failed to fast-forward: {}", e))?;
             }
         }
-        repo.set_head(&refname).unwrap();
+        repo.set_head(&refname)
+            .map_err(|e| format!("Failed to set HEAD: {}", e))?;
         repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()))
-            .unwrap();
+            .map_err(|e| format!("Failed to check out HEAD: {}", e))?;
     } else {
-        panic!("Can't fast-forward");
+        return Err("Can't fast-forward".to_string());
     }
 
-    PathBuf::from(path)
+    Ok(PathBuf::from(path))
+}
+
+/// Fast-forward the `main` branch of the repository at `path` from `origin`.
+///
+/// Panics when the pull fails. Use [`try_git_pull_ff`] to handle the error.
+pub fn git_pull_ff(path: &str) -> PathBuf {
+    try_git_pull_ff(path).unwrap_or_else(|e| panic!("{}", e))
 }
