@@ -27,7 +27,7 @@ cd my-existing-project
 angreal init python --in-place
 ```
 
-`--in-place` / `-i` strips the template's top-level templated directory and renders directly into the current working directory — this is the canonical path for "add angreal to my existing repo." Add `--force` if existing files would be overwritten, `--defaults` to skip prompts, or `--values <file>` to supply variables non-interactively. See the `angreal-templates` skill for the full template catalog (`python`, `python-gh`, `python-gl`, `rust`, `data-science`, `airflow`, …).
+`--in-place` / `-i` strips the template's top-level templated directory and renders directly into the current working directory — this is the canonical path for "add angreal to my existing repo." Add `--force` if existing files would be overwritten, `--defaults` to skip prompts, or `--values <file>` to supply variables non-interactively. See the `angreal-templates` skill for the full template catalog (`python`, `rust`, `data-science`, `airflow`, `airflow-provider`, …).
 
 ### Option B: Hand-roll the .angreal directory
 

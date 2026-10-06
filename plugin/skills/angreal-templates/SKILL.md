@@ -34,8 +34,6 @@ angreal init rust        # Rust project template
 | Template | `angreal init` | What it scaffolds |
 |----------|----------------|-------------------|
 | `python` | `angreal init python` | Standard Python project |
-| `python-gh` | `angreal init python-gh` | Python project wired for GitHub (Actions CI) |
-| `python-gl` | `angreal init python-gl` | Python project wired for GitLab (GitLab CI) |
 | `rust` | `angreal init rust` | Rust project: workspace layout, unified versioning, CI/CD, optional Tauri v2 desktop UI |
 | `data-science` | `angreal init data-science` | Modern data-science project with epoch-based notebook organization and scientific computing patterns |
 | `airflow` | `angreal init airflow` | Apache Airflow project scaffold |
@@ -43,7 +41,8 @@ angreal init rust        # Rust project template
 
 This list changes over time — browse [github.com/angreal](https://github.com/angreal)
 for the current, authoritative catalog (any non-fork repo containing an
-`angreal.toml` is a consumable template).
+`angreal.toml` is a consumable template). Archived repositories are retired
+templates: do not use them for new projects.
 
 Resolution order for `angreal init <name>`:
 1. A local path, if it exists
