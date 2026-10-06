@@ -1,7 +1,7 @@
 //! The angreal `init` command.
 //!
 use crate::{
-    git::{git_clone, git_pull_ff, remote_exists},
+    git::{git_clone, remote_exists, try_git_pull_ff},
     utils::{context_to_map, render_dir, repl_context_from_toml},
 };
 
@@ -21,7 +21,7 @@ use std::{
 };
 use toml::Value;
 
-use log::{debug, error};
+use log::{debug, error, warn};
 
 /// Initialize a new project by rendering a template.
 pub fn init(
@@ -142,17 +142,37 @@ fn get_scheme(u: &str) -> Result<String, String> {
     }
 }
 
+/// Bring a template cached under `~/.angrealrc` up to date with a fast-forward
+/// pull. If the pull fails (no network, a refused key, a diverged branch), warn
+/// and use the cached copy as it is.
+fn refresh_cached_template(path: &Path) -> PathBuf {
+    match try_git_pull_ff(&path.to_string_lossy()) {
+        Ok(p) => p,
+        Err(e) => {
+            warn!(
+                "Could not update the cached template at {}: {}. Using the cached copy.",
+                path.display(),
+                e
+            );
+            path.to_path_buf()
+        }
+    }
+}
+
 fn handle_file_template(template: &str, angreal_home: &Path) -> String {
     let mut try_template = angreal_home.to_path_buf();
     try_template.push(Path::new(template));
 
-    if try_template.is_dir() {
+    // Only a relative name can refer to a cached template. An absolute path
+    // replaces the base in `push`, so without this check a local git checkout
+    // given by its absolute path would be treated as a cache entry and pulled.
+    if Path::new(template).is_relative() && try_template.is_dir() {
         let mut git_location = try_template.clone();
         git_location.push(Path::new(".git"));
 
         if git_location.exists() {
             debug!("Template exists at {:?}, attempting ff-pull.", try_template);
-            git_pull_ff(try_template.to_str().unwrap())
+            refresh_cached_template(&try_template)
                 .to_string_lossy()
                 .to_string()
         } else {
@@ -190,7 +210,7 @@ fn handle_file_template(template: &str, angreal_home: &Path) -> String {
 
             if git_location.exists() {
                 debug!("Template exists at {:?}, attempting ff-pull.", try_template);
-                git_pull_ff(try_supported.to_str().unwrap())
+                refresh_cached_template(&try_supported)
                     .to_string_lossy()
                     .to_string()
             } else {
@@ -247,7 +267,7 @@ fn handle_git_template(template: &str, angreal_home: PathBuf) -> PathBuf {
 
     if dst.exists() {
         debug!("Template exists, attempting ff-pull at {:?}", dst);
-        git_pull_ff(dst.to_str().unwrap());
+        refresh_cached_template(&dst);
     } else {
         debug!("Template does not exist, attempting clone to {:?}", dst);
         git_clone(template, dst.to_str().unwrap());
@@ -380,5 +400,119 @@ mod tests {
             get_scheme("https://github.com/angreal/angreal.git").unwrap(),
             "https"
         );
+    }
+
+    mod file_templates {
+        use super::super::handle_file_template;
+        use git2::{Repository, RepositoryInitOptions, Signature};
+        use std::fs;
+        use std::path::Path;
+        use tempfile::TempDir;
+
+        /// A repository on `main` with one commit that adds `angreal.toml`.
+        fn template_repo(path: &Path) -> Repository {
+            let mut opts = RepositoryInitOptions::new();
+            opts.initial_head("main");
+            let repo = Repository::init_opts(path, &opts).unwrap();
+            commit_file(&repo, "angreal.toml", "key = \"v1\"\n", "first");
+            repo
+        }
+
+        fn commit_file(repo: &Repository, name: &str, contents: &str, msg: &str) {
+            let root = repo.workdir().unwrap().to_path_buf();
+            fs::write(root.join(name), contents).unwrap();
+            let mut index = repo.index().unwrap();
+            index.add_path(Path::new(name)).unwrap();
+            index.write().unwrap();
+            let tree = repo.find_tree(index.write_tree().unwrap()).unwrap();
+            let sig = Signature::now("test", "test@example.com").unwrap();
+            let parents: Vec<git2::Commit> = match repo.head() {
+                Ok(h) => vec![h.peel_to_commit().unwrap()],
+                Err(_) => vec![],
+            };
+            let parent_refs: Vec<&git2::Commit> = parents.iter().collect();
+            repo.commit(Some("HEAD"), &sig, &sig, msg, &tree, &parent_refs)
+                .unwrap();
+        }
+
+        #[test]
+        fn absolute_local_checkout_is_rendered_as_is_without_a_pull() {
+            let home = TempDir::new().unwrap();
+            let work = TempDir::new().unwrap();
+            let checkout = work.path().join("my-template");
+            let repo = template_repo(&checkout);
+            // An origin that cannot be reached: any fetch would fail.
+            repo.remote("origin", "/nonexistent/angreal/remote.git")
+                .unwrap();
+            fs::write(checkout.join("angreal.toml"), "key = \"local edit\"\n").unwrap();
+
+            let abs = checkout.to_str().unwrap();
+            let resolved = handle_file_template(abs, home.path());
+
+            assert_eq!(resolved, abs);
+            // The uncommitted local edit is untouched.
+            assert_eq!(
+                fs::read_to_string(checkout.join("angreal.toml")).unwrap(),
+                "key = \"local edit\"\n"
+            );
+        }
+
+        #[test]
+        fn absolute_local_checkout_is_not_pulled_even_when_origin_is_ahead() {
+            let home = TempDir::new().unwrap();
+            let origin_dir = TempDir::new().unwrap();
+            let origin = template_repo(origin_dir.path());
+            let work = TempDir::new().unwrap();
+            let checkout = work.path().join("my-template");
+            Repository::clone(origin_dir.path().to_str().unwrap(), &checkout).unwrap();
+            // Origin moves ahead, and the author has an uncommitted edit. A
+            // fast-forward pull with a forced checkout would replace the edit.
+            commit_file(&origin, "angreal.toml", "key = \"v2\"\n", "second");
+            fs::write(checkout.join("angreal.toml"), "key = \"local edit\"\n").unwrap();
+
+            let abs = checkout.to_str().unwrap();
+            let resolved = handle_file_template(abs, home.path());
+
+            assert_eq!(resolved, abs);
+            assert_eq!(
+                fs::read_to_string(checkout.join("angreal.toml")).unwrap(),
+                "key = \"local edit\"\n"
+            );
+        }
+
+        #[test]
+        fn cached_template_is_still_fast_forwarded() {
+            let home = TempDir::new().unwrap();
+            let origin_dir = TempDir::new().unwrap();
+            let origin = template_repo(origin_dir.path());
+            let cached = home.path().join("cached-template");
+            Repository::clone(origin_dir.path().to_str().unwrap(), &cached).unwrap();
+            commit_file(&origin, "angreal.toml", "key = \"v2\"\n", "second");
+
+            let resolved = handle_file_template("cached-template", home.path());
+
+            assert_eq!(Path::new(&resolved), cached.as_path());
+            assert_eq!(
+                fs::read_to_string(cached.join("angreal.toml")).unwrap(),
+                "key = \"v2\"\n"
+            );
+        }
+
+        #[test]
+        fn failed_pull_of_a_cached_template_uses_the_cached_copy() {
+            let home = TempDir::new().unwrap();
+            let cached = home.path().join("cached-template");
+            let repo = template_repo(&cached);
+            repo.remote("origin", "/nonexistent/angreal/remote.git")
+                .unwrap();
+
+            let resolved = handle_file_template("cached-template", home.path());
+
+            assert_eq!(Path::new(&resolved), cached.as_path());
+            assert_eq!(
+                fs::read_to_string(cached.join("angreal.toml")).unwrap(),
+                "key = \"v1\"\n"
+            );
+        }
     }
 }
