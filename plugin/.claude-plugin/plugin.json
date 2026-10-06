@@ -1,6 +1,6 @@
 {
   "name": "angreal",
-  "version": "2.9.1",
+  "version": "2.9.2",
   "description": "Task automation skills for angreal projects. Focused skills for running tasks, authoring tasks, arguments, ToolDescriptions, project setup, creating templates, and development patterns.",
   "author": {
     "name": "angreal",
