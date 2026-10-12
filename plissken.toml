@@ -4,8 +4,8 @@ version_from = "cargo"
 
 [output]
 format = "markdown"
-path = "docs/api"
-template = "mkdocs-material"
+path = "docs/src/content/docs/reference/api"
+template = "starlight"
 
 [rust]
 crates = ["crates/angreal"]

@@ -1,9 +1,18 @@
 ---
+# Builds the docs in docs/ (Astro Starlight with starlight-aurora) and
+# publishes them to GitHub Pages. A pull request builds the site only; a push
+# to main builds and publishes it.
 name: "Angreal Docs Deploy"
 
 on:  # yamllint disable-line rule:truthy
   push:
     branches: ["main"]
+  pull_request:
+    paths:
+      - "docs/**"
+      - "plissken.toml"
+      - "crates/angreal/src/**"
+      - ".github/workflows/docs.yaml"
   workflow_dispatch:
 
 permissions:
@@ -12,12 +21,15 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: docs-${{ github.ref }}
   cancel-in-progress: true
 
 defaults:
   run:
     shell: bash
+
+env:
+  PLISSKEN_VERSION: "0.1.0"
 
 jobs:
   build:
@@ -25,43 +37,49 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
 
       - name: Install Plissken
         run: |
-          curl -fsSL https://raw.githubusercontent.com/colliery-io/plissken/main/install.sh | bash || true
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL "https://github.com/colliery-io/plissken/releases/download/v${PLISSKEN_VERSION}/plissken-${PLISSKEN_VERSION}-x86_64-unknown-linux-gnu.tar.gz" \
+            | tar xz -C "$HOME/.local/bin" plissken
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
+      # The pages are committed; render them again so the site has the API of
+      # this commit.
       - name: Generate API Documentation
         run: plissken render
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
+      - name: Setup Node
+        uses: actions/setup-node@v7
         with:
-          python-version: '3.12'
-
-      - name: Install MkDocs
-        run: pip install mkdocs mkdocs-material
+          node-version: 22
 
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v6
+        if: github.event_name != 'pull_request'
 
+      - name: Install dependencies
+        working-directory: docs
+        run: npm ci --no-audit --no-fund
+
+      # On a pull request DOCS_SITE and DOCS_BASE are empty: the site is at /.
       - name: Build Documentation
-        run: mkdocs build --strict
+        working-directory: docs
+        run: npm run build
         env:
-          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          DOCS_SITE: ${{ steps.pages.outputs.origin }}
+          DOCS_BASE: ${{ steps.pages.outputs.base_path }}
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
+        if: github.event_name != 'pull_request'
         with:
-          path: ./site
+          path: docs/dist
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -70,4 +88,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

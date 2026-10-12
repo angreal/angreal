@@ -1,0 +1,158 @@
+// The angreal docs (ANG-T-0040): Astro Starlight with the Colliery theme
+// starlight-aurora, in the four Diátaxis sections.
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import mermaid from 'astro-mermaid';
+import starlightAurora from 'starlight-aurora';
+import apiSidebar from './src/content/docs/reference/api/_sidebar.mjs';
+import movedPages from './redirects.mjs';
+
+// The Pages workflow sets DOCS_SITE and DOCS_BASE. On a pull request and
+// locally they are empty, and the site is at /.
+const site = process.env.DOCS_SITE || undefined;
+const base = process.env.DOCS_BASE || '/';
+
+const PROJECT = 'Angreal';
+const REPO = 'https://github.com/angreal/angreal';
+
+// The sidebar is written out, not generated: it keeps the order and the labels
+// of the old MkDocs nav. Add a new page here.
+const page = (slug, label) => ({ slug, label });
+
+const sidebar = [
+	{ label: 'Home', link: '/' },
+	{
+		label: 'Tutorials',
+		items: [
+			page('tutorials', 'Overview'),
+			page('tutorials/quick-start', 'Quick Start'),
+			page('tutorials/your_first_angreal', 'Your First Angreal'),
+		],
+	},
+	{
+		label: 'How-to Guides',
+		items: [
+			page('how-to-guides', 'Overview'),
+			page('how-to-guides/add-arguments', 'Add Arguments'),
+			page('how-to-guides/command-system-guide', 'Command System Guide'),
+			page('how-to-guides/connect-an-ai-assistant', 'Connect an AI Assistant'),
+			page('how-to-guides/create-a-task', 'Create a Task'),
+			page('how-to-guides/create-prompts', 'Create Prompts'),
+			page('how-to-guides/create-task-group', 'Create Task Groups'),
+			page('how-to-guides/create-templates', 'Create Templates'),
+			page('how-to-guides/include-jinja-templates', 'Include Jinja Templates'),
+			page('how-to-guides/install-and-configure-uv', 'Install & Configure uv'),
+			page('how-to-guides/use-oci-templates', 'Use OCI Template Targets'),
+			page('how-to-guides/render-template-in-place', 'Render a Template In Place'),
+			page('how-to-guides/template-system-guide', 'Template System Guide'),
+			page('how-to-guides/use-docker-compose', 'Use Docker Compose'),
+			page('how-to-guides/use-shell-completion', 'Use Shell Completion'),
+			page('how-to-guides/use-validation-rules', 'Use Validation Rules'),
+			page('how-to-guides/work-with-virtual-environments', 'Work with Virtual Environments'),
+			{
+				label: 'Contributing',
+				items: [
+					page('how-to-guides/contributing', 'Overview'),
+					page('how-to-guides/contributing/code_of_conduct', 'Code of Conduct'),
+					page('how-to-guides/contributing/documentation_style_guide', 'Documentation Style Guide'),
+				],
+			},
+		],
+	},
+	{
+		label: 'Reference',
+		items: [
+			page('reference', 'Overview'),
+			page('reference/cli', 'CLI'),
+			page('reference/configuration', 'Configuration'),
+			{
+				label: 'Python API',
+				items: [
+					page('reference/python-api', 'Overview'),
+					{
+						label: 'Commands',
+						items: [
+							page('reference/python-api/commands', 'Overview'),
+							page('reference/python-api/commands/command_decorator', '@command'),
+							page('reference/python-api/commands/argument_decorator', '@argument'),
+							page('reference/python-api/commands/command_group', 'command_group'),
+						],
+					},
+					{
+						label: 'Integrations',
+						items: [
+							page('reference/python-api/integrations', 'Overview'),
+							page('reference/python-api/integrations/venv', 'Virtual Environments'),
+							page('reference/python-api/integrations/git', 'Git'),
+							page('reference/python-api/integrations/docker-compose', 'Docker Compose'),
+							page('reference/python-api/integrations/flox', 'Flox'),
+							page('reference/python-api/integrations/oci', 'OCI Registry'),
+						],
+					},
+					{
+						label: 'Templates',
+						items: [
+							page('reference/python-api/templates', 'Overview'),
+							page('reference/python-api/templates/angreal_toml_format', 'angreal.toml Format'),
+							page('reference/python-api/templates/render_template', 'render_template'),
+							page('reference/python-api/templates/render_directory', 'render_directory'),
+							page('reference/python-api/templates/generate_context', 'generate_context'),
+						],
+					},
+					{
+						label: 'Utilities',
+						items: [
+							page('reference/python-api/utils', 'Overview'),
+							page('reference/python-api/utils/get_root', 'get_root'),
+							page('reference/python-api/utils/get_context', 'get_context'),
+							page('reference/python-api/utils/required_version', 'required_version'),
+							page('reference/python-api/utils/register_entrypoint', 'register_entrypoint'),
+							page('reference/python-api/utils/unregister_entrypoint', 'unregister_entrypoint'),
+							page('reference/python-api/utils/list_entrypoints', 'list_entrypoints'),
+							page('reference/python-api/utils/cleanup_entrypoints', 'cleanup_entrypoints'),
+						],
+					},
+				],
+			},
+			// Generated by plissken (`plissken render`, see plissken.toml).
+			{ ...apiSidebar, label: 'Generated API Reference' },
+		],
+	},
+	{
+		label: 'Explanation',
+		items: [
+			page('explanation', 'Overview'),
+			page('explanation/why_angreal', 'Why Angreal'),
+			page('explanation/aliasing_system', 'Aliasing System'),
+			page('explanation/angreal_init_behaviour', 'angreal init Behavior'),
+			page('explanation/task_discovery', 'Task Discovery'),
+			page('explanation/rust_python_interface', 'Rust-Python Interface'),
+			page('explanation/uv_integration_architecture', 'UV Integration Architecture'),
+		],
+	},
+];
+
+export default defineConfig({
+	site,
+	base,
+	// Mermaid is one large chunk, loaded only on a page with a diagram.
+	vite: { build: { chunkSizeWarningLimit: 4096 } },
+	integrations: [
+		// Before Starlight. Light diagrams in the light theme; dark diagrams in
+		// the dark theme and in hyper.
+		mermaid({ theme: 'dark', autoTheme: true }),
+		starlight({
+			title: PROJECT,
+			description: 'Task automation and project templating that scales.',
+			social: [{ icon: 'github', label: 'GitHub', href: REPO }],
+			editLink: { baseUrl: `${REPO}/edit/main/docs/` },
+			// Keep a comment line such as "# .angreal/task_dev.py" in the code,
+			// not as the title of the block.
+			expressiveCode: { frames: { extractFileNameFromCode: false } },
+			plugins: [starlightAurora({ hyper: true })],
+			sidebar,
+		}),
+		// The old MkDocs addresses of the pages that moved go to the new pages.
+		movedPages(),
+	],
+});
