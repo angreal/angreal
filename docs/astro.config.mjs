@@ -146,9 +146,6 @@ export default defineConfig({
 			description: 'Task automation and project templating that scales.',
 			social: [{ icon: 'github', label: 'GitHub', href: REPO }],
 			editLink: { baseUrl: `${REPO}/edit/main/docs/` },
-			// Keep a comment line such as "# .angreal/task_dev.py" in the code,
-			// not as the title of the block.
-			expressiveCode: { frames: { extractFileNameFromCode: false } },
 			plugins: [starlightAurora({ hyper: true })],
 			sidebar,
 		}),
