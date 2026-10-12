@@ -1,25 +1,24 @@
 ---
 title: "angreal::git"
 description: "Git operations for Angreal"
+editUrl: false
 sidebar:
-  order: 21
+  order: 18
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 Git operations for Angreal
 
 ## Functions
 
-### <span id="fn.remote_exists"></span>`fn remote_exists`
+### <span id="fn.remote_exists"></span><code style="font-size: 0.85em">fn remote_​exists</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn remote_exists (remote : & str) -> bool
+fn remote_exists(remote: &str) -> bool
 ```
 
 Check if a remote repository exists
@@ -98,15 +97,12 @@ pub fn remote_exists(remote: &str) -> bool {
 
 </details>
 
-
-
-### <span id="fn.git_clone"></span>`fn git_clone`
+### <span id="fn.git_clone"></span><code style="font-size: 0.85em">fn git_​clone</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn git_clone (remote : & str , path : & str) -> PathBuf
+fn git_clone(remote: &str, path: &str) -> PathBuf
 ```
 
 Clone a git repository to a specific location
@@ -137,15 +133,12 @@ pub fn git_clone(remote: &str, path: &str) -> PathBuf {
 
 </details>
 
-
-
-### <span id="fn.git_clone_here"></span>`fn git_clone_here`
+### <span id="fn.git_clone_here"></span><code style="font-size: 0.85em">fn git_​clone_​here</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn git_clone_here (remote : & str) -> PathBuf
+fn git_clone_here(remote: &str) -> PathBuf
 ```
 
 Clone a git repository to the current directory
@@ -202,15 +195,12 @@ pub fn git_clone_here(remote: &str) -> PathBuf {
 
 </details>
 
-
-
-### <span id="fn.try_git_pull_ff"></span>`fn try_git_pull_ff`
+### <span id="fn.try_git_pull_ff"></span><code style="font-size: 0.85em">fn try_​git_​pull_​ff</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn try_git_pull_ff (path : & str) -> Result < PathBuf , String >
+fn try_git_pull_ff(path: &str) -> Result<PathBuf, String>
 ```
 
 Pull changes from a remote repository Fast-forward the `main` branch of the repository at `path` from `origin`.
@@ -293,20 +283,17 @@ pub fn try_git_pull_ff(path: &str) -> Result<PathBuf, String> {
 
 </details>
 
-
-
-### <span id="fn.git_pull_ff"></span>`fn git_pull_ff`
+### <span id="fn.git_pull_ff"></span><code style="font-size: 0.85em">fn git_​pull_​ff</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn git_pull_ff (path : & str) -> PathBuf
+fn git_pull_ff(path: &str) -> PathBuf
 ```
 
 Fast-forward the `main` branch of the repository at `path` from `origin`.
 
-Panics when the pull fails. Use [`try_git_pull_ff`] to handle the error.
+Panics when the pull fails. Use [`try_git_pull_ff`](../../../rust/angreal/git/#fn.try_git_pull_ff) to handle the error.
 
 <details>
 <summary>Source</summary>

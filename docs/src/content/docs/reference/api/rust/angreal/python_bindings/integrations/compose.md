@@ -1,24 +1,23 @@
 ---
 title: "angreal::python_bindings::integrations::compose"
 description: "PyO3 bindings for Docker Compose integration"
+editUrl: false
 sidebar:
-  order: 36
+  order: 31
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 PyO3 bindings for Docker Compose integration
 
 ## Structs
 
-### <span id="struct.PyDockerCompose"></span>`class DockerCompose`
+### <span id="struct.PyDockerCompose"></span><code style="font-size: 0.85em">class DockerCompose</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose](../../../../../angreal/python_bindings/integrations/compose/#class.DockerCompose)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose`](../../../../../angreal/integrations/docker_integration/#class.DockerCompose)
 
 Python wrapper for Docker Compose operations
 
@@ -30,13 +29,13 @@ Python wrapper for Docker Compose operations
 
 #### Methods
 
-##### <span id="PyDockerCompose.new"></span>`new`
+##### <span id="PyDockerCompose.new"></span><code>new</code>
 
 ```rust
-fn new (file : & str , project_name : Option < & str >) -> PyResult < Self >
+fn new(file: &str, project_name: Option<&str>) -> PyResult<Self>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.new](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.new)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.new`](../../../../../angreal/integrations/docker_integration/#DockerCompose.new)
 
 Create a new DockerCompose instance
 
@@ -59,15 +58,13 @@ Create a new DockerCompose instance
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.is_available"></span>`is_available`
+##### <span id="PyDockerCompose.is_available"></span><code>is_​available</code>
 
 ```rust
-fn is_available () -> bool
+fn is_available() -> bool
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.is_available](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.is_available)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.is_available`](../../../../../angreal/integrations/docker_integration/#DockerCompose.is_available)
 
 Check if Docker Compose is available
 
@@ -82,15 +79,13 @@ Check if Docker Compose is available
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.compose_file"></span>`compose_file`
+##### <span id="PyDockerCompose.compose_file"></span><code>compose_​file</code>
 
 ```rust
-fn compose_file (& self) -> String
+fn compose_file(&self) -> String
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.compose_file](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.compose_file)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.compose_file`](../../../../../angreal/integrations/docker_integration/#DockerCompose.compose_file)
 
 Get the compose file path
 
@@ -105,15 +100,13 @@ Get the compose file path
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.working_dir"></span>`working_dir`
+##### <span id="PyDockerCompose.working_dir"></span><code>working_​dir</code>
 
 ```rust
-fn working_dir (& self) -> String
+fn working_dir(&self) -> String
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.working_dir](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.working_dir)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.working_dir`](../../../../../angreal/integrations/docker_integration/#DockerCompose.working_dir)
 
 Get the working directory
 
@@ -128,15 +121,13 @@ Get the working directory
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.project_name"></span>`project_name`
+##### <span id="PyDockerCompose.project_name"></span><code>project_​name</code>
 
 ```rust
-fn project_name (& self) -> Option < String >
+fn project_name(&self) -> Option<String>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.project_name](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.project_name)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.project_name`](../../../../../angreal/integrations/docker_integration/#DockerCompose.project_name)
 
 Get the project name
 
@@ -151,15 +142,21 @@ Get the project name
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.up"></span>`up`
+##### <span id="PyDockerCompose.up"></span><code>up</code>
 
 ```rust
-fn up (& self , detach : bool , build : bool , remove_orphans : bool , force_recreate : bool , no_recreate : bool , services : Option < Vec < String > > ,) -> PyResult < PyComposeOutput >
+fn up(
+    &self,
+    detach: bool,
+    build: bool,
+    remove_orphans: bool,
+    force_recreate: bool,
+    no_recreate: bool,
+    services: Option<Vec<String>>,
+) -> PyResult<PyComposeOutput>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.up](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.up)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.up`](../../../../../angreal/integrations/docker_integration/#DockerCompose.up)
 
 Start services (docker-compose up)
 
@@ -196,15 +193,18 @@ Start services (docker-compose up)
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.down"></span>`down`
+##### <span id="PyDockerCompose.down"></span><code>down</code>
 
 ```rust
-fn down (& self , volumes : bool , remove_orphans : bool , timeout : Option < String > ,) -> PyResult < PyComposeOutput >
+fn down(
+    &self,
+    volumes: bool,
+    remove_orphans: bool,
+    timeout: Option<String>,
+) -> PyResult<PyComposeOutput>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.down](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.down)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.down`](../../../../../angreal/integrations/docker_integration/#DockerCompose.down)
 
 Stop and remove services (docker-compose down)
 
@@ -235,15 +235,17 @@ Stop and remove services (docker-compose down)
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.restart"></span>`restart`
+##### <span id="PyDockerCompose.restart"></span><code>restart</code>
 
 ```rust
-fn restart (& self , services : Option < Vec < String > > , timeout : Option < String > ,) -> PyResult < PyComposeOutput >
+fn restart(
+    &self,
+    services: Option<Vec<String>>,
+    timeout: Option<String>,
+) -> PyResult<PyComposeOutput>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.restart](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.restart)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.restart`](../../../../../angreal/integrations/docker_integration/#DockerCompose.restart)
 
 Restart services (docker-compose restart)
 
@@ -271,15 +273,20 @@ Restart services (docker-compose restart)
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.logs"></span>`logs`
+##### <span id="PyDockerCompose.logs"></span><code>logs</code>
 
 ```rust
-fn logs (& self , services : Option < Vec < String > > , follow : bool , timestamps : bool , tail : Option < String > , since : Option < String > ,) -> PyResult < PyComposeOutput >
+fn logs(
+    &self,
+    services: Option<Vec<String>>,
+    follow: bool,
+    timestamps: bool,
+    tail: Option<String>,
+    since: Option<String>,
+) -> PyResult<PyComposeOutput>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.logs](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.logs)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.logs`](../../../../../angreal/integrations/docker_integration/#DockerCompose.logs)
 
 View service logs (docker-compose logs)
 
@@ -314,15 +321,19 @@ View service logs (docker-compose logs)
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.ps"></span>`ps`
+##### <span id="PyDockerCompose.ps"></span><code>ps</code>
 
 ```rust
-fn ps (& self , all : bool , quiet : bool , services : bool , filter_services : Option < Vec < String > > ,) -> PyResult < PyComposeOutput >
+fn ps(
+    &self,
+    all: bool,
+    quiet: bool,
+    services: bool,
+    filter_services: Option<Vec<String>>,
+) -> PyResult<PyComposeOutput>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.ps](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.ps)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.ps`](../../../../../angreal/integrations/docker_integration/#DockerCompose.ps)
 
 List running services (docker-compose ps)
 
@@ -355,15 +366,19 @@ List running services (docker-compose ps)
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.build"></span>`build`
+##### <span id="PyDockerCompose.build"></span><code>build</code>
 
 ```rust
-fn build (& self , services : Option < Vec < String > > , no_cache : bool , pull : bool , parallel : bool ,) -> PyResult < PyComposeOutput >
+fn build(
+    &self,
+    services: Option<Vec<String>>,
+    no_cache: bool,
+    pull: bool,
+    parallel: bool,
+) -> PyResult<PyComposeOutput>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.build](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.build)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.build`](../../../../../angreal/integrations/docker_integration/#DockerCompose.build)
 
 Build services (docker-compose build)
 
@@ -396,15 +411,16 @@ Build services (docker-compose build)
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.start"></span>`start`
+##### <span id="PyDockerCompose.start"></span><code>start</code>
 
 ```rust
-fn start (& self , services : Option < Vec < String > >) -> PyResult < PyComposeOutput >
+fn start(
+    &self,
+    services: Option<Vec<String>>,
+) -> PyResult<PyComposeOutput>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.start](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.start)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.start`](../../../../../angreal/integrations/docker_integration/#DockerCompose.start)
 
 Start services (docker-compose start)
 
@@ -425,15 +441,17 @@ Start services (docker-compose start)
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.stop"></span>`stop`
+##### <span id="PyDockerCompose.stop"></span><code>stop</code>
 
 ```rust
-fn stop (& self , services : Option < Vec < String > > , timeout : Option < String > ,) -> PyResult < PyComposeOutput >
+fn stop(
+    &self,
+    services: Option<Vec<String>>,
+    timeout: Option<String>,
+) -> PyResult<PyComposeOutput>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.stop](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.stop)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.stop`](../../../../../angreal/integrations/docker_integration/#DockerCompose.stop)
 
 Stop services (docker-compose stop)
 
@@ -462,15 +480,22 @@ Stop services (docker-compose stop)
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.exec"></span>`exec`
+##### <span id="PyDockerCompose.exec"></span><code>exec</code>
 
 ```rust
-fn exec (& self , service : & str , command : Vec < String > , detach : bool , tty : bool , user : Option < String > , workdir : Option < String > , env : Option < HashMap < String , String > > ,) -> PyResult < PyComposeOutput >
+fn exec(
+    &self,
+    service: &str,
+    command: Vec<String>,
+    detach: bool,
+    tty: bool,
+    user: Option<String>,
+    workdir: Option<String>,
+    env: Option<HashMap<String, String>>,
+) -> PyResult<PyComposeOutput>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.exec](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.exec)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.exec`](../../../../../angreal/integrations/docker_integration/#DockerCompose.exec)
 
 Execute a command in a service container (docker-compose exec)
 
@@ -511,15 +536,16 @@ Execute a command in a service container (docker-compose exec)
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.pull"></span>`pull`
+##### <span id="PyDockerCompose.pull"></span><code>pull</code>
 
 ```rust
-fn pull (& self , services : Option < Vec < String > >) -> PyResult < PyComposeOutput >
+fn pull(
+    &self,
+    services: Option<Vec<String>>,
+) -> PyResult<PyComposeOutput>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.pull](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.pull)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.pull`](../../../../../angreal/integrations/docker_integration/#DockerCompose.pull)
 
 Pull service images (docker-compose pull)
 
@@ -540,15 +566,18 @@ Pull service images (docker-compose pull)
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.config"></span>`config`
+##### <span id="PyDockerCompose.config"></span><code>config</code>
 
 ```rust
-fn config (& self , quiet : bool , services : bool , volumes : bool) -> PyResult < PyComposeOutput >
+fn config(
+    &self,
+    quiet: bool,
+    services: bool,
+    volumes: bool,
+) -> PyResult<PyComposeOutput>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.config](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.config)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.config`](../../../../../angreal/integrations/docker_integration/#DockerCompose.config)
 
 Validate and view the compose configuration (docker-compose config)
 
@@ -574,15 +603,13 @@ Validate and view the compose configuration (docker-compose config)
 
 </details>
 
-
-
-##### <span id="PyDockerCompose.__repr__"></span>`__repr__`
+##### <span id="PyDockerCompose.__repr__"></span><code>_​_​repr_​_​</code>
 
 ```rust
-fn __repr__ (& self) -> String
+fn __repr__(&self) -> String
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.compose.DockerCompose.__repr__](../../../../../angreal/python_bindings/integrations/compose/#DockerCompose.__repr__)
+> **Python API**: [`angreal.integrations.docker_integration.DockerCompose.__repr__`](../../../../../angreal/integrations/docker_integration/#DockerCompose.__repr__)
 
 String representation
 
@@ -601,16 +628,11 @@ String representation
 
 </details>
 
-
-
-
-
-### <span id="struct.PyComposeOutput"></span>`class ComposeResult`
+### <span id="struct.PyComposeOutput"></span><code style="font-size: 0.85em">class ComposeResult</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.integrations.compose.ComposeResult](../../../../../angreal/python_bindings/integrations/compose/#class.ComposeResult)
+> **Python API**: [`angreal.integrations.docker_integration.ComposeResult`](../../../../../angreal/integrations/docker_integration/#class.ComposeResult)
 
 Python wrapper for compose command output
 
@@ -623,19 +645,19 @@ Python wrapper for compose command output
 | `stdout` | `String` |  |
 | `stderr` | `String` |  |
 
-
-
 ## Functions
 
-### <span id="fn.compose"></span>`fn compose`
+### <span id="fn.compose"></span><code style="font-size: 0.85em">fn compose</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.integrations.compose.compose](../../../../../angreal/python_bindings/integrations/compose/#fn.compose)
+> **Python API**: [`angreal.integrations.docker_integration.compose`](../../../../../angreal/integrations/docker_integration/#fn.compose)
 
 ```rust
-fn compose (file : & str , project_name : Option < & str >) -> PyResult < PyDockerCompose >
+fn compose(
+    file: &str,
+    project_name: Option<&str>,
+) -> PyResult<PyDockerCompose>
 ```
 
 Convenience function to create a DockerCompose instance
@@ -651,15 +673,15 @@ pub fn compose(file: &str, project_name: Option<&str>) -> PyResult<PyDockerCompo
 
 </details>
 
-
-
-### <span id="fn.compose_integration"></span>`fn compose_integration`
+### <span id="fn.compose_integration"></span><code style="font-size: 0.85em">fn compose_​integration</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn compose_integration (_py : Python , m : & Bound < '_ , PyModule >) -> PyResult < () >
+fn compose_integration(
+    _py: Python) -> PyResult<(,
+    m: &Bound<'_, PyModule>) -> PyResult<(,
+) -> PyResult<()>
 ```
 
 Compose integration module

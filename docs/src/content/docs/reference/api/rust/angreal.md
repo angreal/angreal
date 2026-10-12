@@ -1,28 +1,27 @@
 ---
 title: "angreal"
 description: "Angreal - project templating and task management"
+editUrl: false
 sidebar:
-  order: 12
+  order: 9
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 Angreal - project templating and task management
 
-A package for templating code based projects and providing methods
+ A package for templating code based projects and providing methods
 for the creation and management of common operational tasks associated with the
 project.
 
 ## Structs
 
-### <span id="struct.PyGit"></span>`class PyGit`
+### <span id="struct.PyGit"></span><code style="font-size: 0.85em">class PyGit</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.PyGit](../../angreal/#class.PyGit)
+> **Python API**: [`angreal._integrations.git_module.PyGit`](../../angreal/_integrations/git_module/#class.PyGit)
 
 #### Fields
 
@@ -32,13 +31,13 @@ project.
 
 #### Methods
 
-##### <span id="PyGit.new"></span>`new`
+##### <span id="PyGit.new"></span><code>new</code>
 
 ```rust
-fn new (working_dir : Option < & str >) -> PyResult < Self >
+fn new(working_dir: Option<&str>) -> PyResult<Self>
 ```
 
-> **Python API**: [angreal.PyGit.new](../../angreal/#PyGit.new)
+> **Python API**: [`angreal._integrations.git_module.PyGit.new`](../../angreal/_integrations/git_module/#PyGit.new)
 
 <details>
 <summary>Source</summary>
@@ -53,15 +52,17 @@ fn new (working_dir : Option < & str >) -> PyResult < Self >
 
 </details>
 
-
-
-##### <span id="PyGit.execute"></span>`execute`
+##### <span id="PyGit.execute"></span><code>execute</code>
 
 ```rust
-fn execute (& self , subcommand : & str , args : Vec < String >) -> PyResult < (i32 , String , String) >
+fn execute(
+    &self,
+    subcommand: &str,
+    args: Vec<String>,
+) -> PyResult<(i32, String, String)>
 ```
 
-> **Python API**: [angreal.PyGit.execute](../../angreal/#PyGit.execute)
+> **Python API**: [`angreal._integrations.git_module.PyGit.execute`](../../angreal/_integrations/git_module/#PyGit.execute)
 
 <details>
 <summary>Source</summary>
@@ -79,15 +80,13 @@ fn execute (& self , subcommand : & str , args : Vec < String >) -> PyResult < (
 
 </details>
 
-
-
-##### <span id="PyGit.init"></span>`init`
+##### <span id="PyGit.init"></span><code>init</code>
 
 ```rust
-fn init (& self , bare : Option < bool >) -> PyResult < () >
+fn init(&self, bare: Option<bool>) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.PyGit.init](../../angreal/#PyGit.init)
+> **Python API**: [`angreal._integrations.git_module.PyGit.init`](../../angreal/_integrations/git_module/#PyGit.init)
 
 <details>
 <summary>Source</summary>
@@ -102,15 +101,13 @@ fn init (& self , bare : Option < bool >) -> PyResult < () >
 
 </details>
 
-
-
-##### <span id="PyGit.add"></span>`add`
+##### <span id="PyGit.add"></span><code>add</code>
 
 ```rust
-fn add (& self , paths : Vec < String >) -> PyResult < () >
+fn add(&self, paths: Vec<String>) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.PyGit.add](../../angreal/#PyGit.add)
+> **Python API**: [`angreal._integrations.git_module.PyGit.add`](../../angreal/_integrations/git_module/#PyGit.add)
 
 <details>
 <summary>Source</summary>
@@ -126,15 +123,13 @@ fn add (& self , paths : Vec < String >) -> PyResult < () >
 
 </details>
 
-
-
-##### <span id="PyGit.commit"></span>`commit`
+##### <span id="PyGit.commit"></span><code>commit</code>
 
 ```rust
-fn commit (& self , message : & str , all : Option < bool >) -> PyResult < () >
+fn commit(&self, message: &str, all: Option<bool>) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.PyGit.commit](../../angreal/#PyGit.commit)
+> **Python API**: [`angreal._integrations.git_module.PyGit.commit`](../../angreal/_integrations/git_module/#PyGit.commit)
 
 <details>
 <summary>Source</summary>
@@ -149,15 +144,17 @@ fn commit (& self , message : & str , all : Option < bool >) -> PyResult < () >
 
 </details>
 
-
-
-##### <span id="PyGit.push"></span>`push`
+##### <span id="PyGit.push"></span><code>push</code>
 
 ```rust
-fn push (& self , remote : Option < & str > , branch : Option < & str >) -> PyResult < () >
+fn push(
+    &self) -> PyResult<(,
+    remote: Option<&str>) -> PyResult<(,
+    branch: Option<&str>) -> PyResult<(,
+) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.PyGit.push](../../angreal/#PyGit.push)
+> **Python API**: [`angreal._integrations.git_module.PyGit.push`](../../angreal/_integrations/git_module/#PyGit.push)
 
 <details>
 <summary>Source</summary>
@@ -172,15 +169,17 @@ fn push (& self , remote : Option < & str > , branch : Option < & str >) -> PyRe
 
 </details>
 
-
-
-##### <span id="PyGit.pull"></span>`pull`
+##### <span id="PyGit.pull"></span><code>pull</code>
 
 ```rust
-fn pull (& self , remote : Option < & str > , branch : Option < & str >) -> PyResult < () >
+fn pull(
+    &self) -> PyResult<(,
+    remote: Option<&str>) -> PyResult<(,
+    branch: Option<&str>) -> PyResult<(,
+) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.PyGit.pull](../../angreal/#PyGit.pull)
+> **Python API**: [`angreal._integrations.git_module.PyGit.pull`](../../angreal/_integrations/git_module/#PyGit.pull)
 
 <details>
 <summary>Source</summary>
@@ -195,15 +194,13 @@ fn pull (& self , remote : Option < & str > , branch : Option < & str >) -> PyRe
 
 </details>
 
-
-
-##### <span id="PyGit.status"></span>`status`
+##### <span id="PyGit.status"></span><code>status</code>
 
 ```rust
-fn status (& self , short : Option < bool >) -> PyResult < String >
+fn status(&self, short: Option<bool>) -> PyResult<String>
 ```
 
-> **Python API**: [angreal.PyGit.status](../../angreal/#PyGit.status)
+> **Python API**: [`angreal._integrations.git_module.PyGit.status`](../../angreal/_integrations/git_module/#PyGit.status)
 
 <details>
 <summary>Source</summary>
@@ -218,15 +215,17 @@ fn status (& self , short : Option < bool >) -> PyResult < String >
 
 </details>
 
-
-
-##### <span id="PyGit.branch"></span>`branch`
+##### <span id="PyGit.branch"></span><code>branch</code>
 
 ```rust
-fn branch (& self , name : Option < & str > , delete : Option < bool >) -> PyResult < String >
+fn branch(
+    &self,
+    name: Option<&str>,
+    delete: Option<bool>,
+) -> PyResult<String>
 ```
 
-> **Python API**: [angreal.PyGit.branch](../../angreal/#PyGit.branch)
+> **Python API**: [`angreal._integrations.git_module.PyGit.branch`](../../angreal/_integrations/git_module/#PyGit.branch)
 
 <details>
 <summary>Source</summary>
@@ -241,15 +240,13 @@ fn branch (& self , name : Option < & str > , delete : Option < bool >) -> PyRes
 
 </details>
 
-
-
-##### <span id="PyGit.checkout"></span>`checkout`
+##### <span id="PyGit.checkout"></span><code>checkout</code>
 
 ```rust
-fn checkout (& self , branch : & str , create : Option < bool >) -> PyResult < () >
+fn checkout(&self, branch: &str, create: Option<bool>) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.PyGit.checkout](../../angreal/#PyGit.checkout)
+> **Python API**: [`angreal._integrations.git_module.PyGit.checkout`](../../angreal/_integrations/git_module/#PyGit.checkout)
 
 <details>
 <summary>Source</summary>
@@ -264,15 +261,13 @@ fn checkout (& self , branch : & str , create : Option < bool >) -> PyResult < (
 
 </details>
 
-
-
-##### <span id="PyGit.tag"></span>`tag`
+##### <span id="PyGit.tag"></span><code>tag</code>
 
 ```rust
-fn tag (& self , name : & str , message : Option < & str >) -> PyResult < () >
+fn tag(&self, name: &str, message: Option<&str>) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.PyGit.tag](../../angreal/#PyGit.tag)
+> **Python API**: [`angreal._integrations.git_module.PyGit.tag`](../../angreal/_integrations/git_module/#PyGit.tag)
 
 <details>
 <summary>Source</summary>
@@ -287,15 +282,18 @@ fn tag (& self , name : & str , message : Option < & str >) -> PyResult < () >
 
 </details>
 
-
-
-##### <span id="PyGit.__call__"></span>`__call__`
+##### <span id="PyGit.__call__"></span><code>_​_​call_​_​</code>
 
 ```rust
-fn __call__ (& self , command : & str , args : Vec < String > , kwargs : Option < & Bound < '_ , pyo3 :: types :: PyDict > > ,) -> PyResult < (i32 , String , String) >
+fn __call__(
+    &self,
+    command: &str,
+    args: Vec<String>,
+    kwargs: Option<&Bound<'_, pyo3::types::PyDict>>,
+) -> PyResult<(i32, String, String)>
 ```
 
-> **Python API**: [angreal.PyGit.__call__](../../angreal/#PyGit.__call__)
+> **Python API**: [`angreal._integrations.git_module.PyGit.__call__`](../../angreal/_integrations/git_module/#PyGit.__call__)
 
 <details>
 <summary>Source</summary>
@@ -336,21 +334,19 @@ fn __call__ (& self , command : & str , args : Vec < String > , kwargs : Option 
 
 </details>
 
-
-
-
-
 ## Functions
 
-### <span id="fn.git_clone"></span>`fn git_clone`
+### <span id="fn.git_clone"></span><code style="font-size: 0.85em">fn git_​clone</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.git_clone](../../angreal/#fn.git_clone)
+> **Python API**: [`angreal._integrations.git_module.git_clone`](../../angreal/_integrations/git_module/#fn.git_clone)
 
 ```rust
-fn git_clone (remote : & str , destination : Option < & str >) -> PyResult < String >
+fn git_clone(
+    remote: &str,
+    destination: Option<&str>,
+) -> PyResult<String>
 ```
 
 <details>
@@ -366,17 +362,14 @@ fn git_clone(remote: &str, destination: Option<&str>) -> PyResult<String> {
 
 </details>
 
-
-
-### <span id="fn.ensure_uv_installed"></span>`fn ensure_uv_installed`
+### <span id="fn.ensure_uv_installed"></span><code style="font-size: 0.85em">fn ensure_​uv_​installed</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.ensure_uv_installed](../../angreal/#fn.ensure_uv_installed)
+> **Python API**: [`angreal.ensure_uv_installed`](../../angreal/#fn.ensure_uv_installed)
 
 ```rust
-fn ensure_uv_installed () -> PyResult < () >
+fn ensure_uv_installed() -> PyResult<()>
 ```
 
 <details>
@@ -391,17 +384,14 @@ fn ensure_uv_installed() -> PyResult<()> {
 
 </details>
 
-
-
-### <span id="fn.uv_version"></span>`fn uv_version`
+### <span id="fn.uv_version"></span><code style="font-size: 0.85em">fn uv_​version</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.uv_version](../../angreal/#fn.uv_version)
+> **Python API**: [`angreal.uv_version`](../../angreal/#fn.uv_version)
 
 ```rust
-fn uv_version () -> PyResult < String >
+fn uv_version() -> PyResult<String>
 ```
 
 <details>
@@ -416,17 +406,17 @@ fn uv_version() -> PyResult<String> {
 
 </details>
 
-
-
-### <span id="fn.create_virtualenv"></span>`fn create_virtualenv`
+### <span id="fn.create_virtualenv"></span><code style="font-size: 0.85em">fn create_​virtualenv</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.create_virtualenv](../../angreal/#fn.create_virtualenv)
+> **Python API**: [`angreal.create_virtualenv`](../../angreal/#fn.create_virtualenv)
 
 ```rust
-fn create_virtualenv (path : & str , python_version : Option < & str >) -> PyResult < () >
+fn create_virtualenv(
+    path: &str) -> PyResult<(,
+    python_version: Option<&str>) -> PyResult<(,
+) -> PyResult<()>
 ```
 
 <details>
@@ -442,17 +432,17 @@ fn create_virtualenv(path: &str, python_version: Option<&str>) -> PyResult<()> {
 
 </details>
 
-
-
-### <span id="fn.install_packages"></span>`fn install_packages`
+### <span id="fn.install_packages"></span><code style="font-size: 0.85em">fn install_​packages</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.install_packages](../../angreal/#fn.install_packages)
+> **Python API**: [`angreal.install_packages`](../../angreal/#fn.install_packages)
 
 ```rust
-fn install_packages (venv_path : & str , packages : Vec < String >) -> PyResult < () >
+fn install_packages(
+    venv_path: &str) -> PyResult<(,
+    packages: Vec<String>) -> PyResult<(,
+) -> PyResult<()>
 ```
 
 <details>
@@ -470,17 +460,17 @@ fn install_packages(venv_path: &str, packages: Vec<String>) -> PyResult<()> {
 
 </details>
 
-
-
-### <span id="fn.install_requirements"></span>`fn install_requirements`
+### <span id="fn.install_requirements"></span><code style="font-size: 0.85em">fn install_​requirements</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.install_requirements](../../angreal/#fn.install_requirements)
+> **Python API**: [`angreal.install_requirements`](../../angreal/#fn.install_requirements)
 
 ```rust
-fn install_requirements (venv_path : & str , requirements_file : & str) -> PyResult < () >
+fn install_requirements(
+    venv_path: &str) -> PyResult<(,
+    requirements_file: &str) -> PyResult<(,
+) -> PyResult<()>
 ```
 
 <details>
@@ -498,17 +488,14 @@ fn install_requirements(venv_path: &str, requirements_file: &str) -> PyResult<()
 
 </details>
 
-
-
-### <span id="fn.discover_pythons"></span>`fn discover_pythons`
+### <span id="fn.discover_pythons"></span><code style="font-size: 0.85em">fn discover_​pythons</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.discover_pythons](../../angreal/#fn.discover_pythons)
+> **Python API**: [`angreal.discover_pythons`](../../angreal/#fn.discover_pythons)
 
 ```rust
-fn discover_pythons () -> PyResult < Vec < (String , String) > >
+fn discover_pythons() -> PyResult<Vec<(String, String)>>
 ```
 
 <details>
@@ -529,17 +516,14 @@ fn discover_pythons() -> PyResult<Vec<(String, String)>> {
 
 </details>
 
-
-
-### <span id="fn.install_python"></span>`fn install_python`
+### <span id="fn.install_python"></span><code style="font-size: 0.85em">fn install_​python</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.install_python](../../angreal/#fn.install_python)
+> **Python API**: [`angreal.install_python`](../../angreal/#fn.install_python)
 
 ```rust
-fn install_python (version : & str) -> PyResult < String >
+fn install_python(version: &str) -> PyResult<String>
 ```
 
 <details>
@@ -555,17 +539,16 @@ fn install_python(version: &str) -> PyResult<String> {
 
 </details>
 
-
-
-### <span id="fn.get_venv_activation_info"></span>`fn get_venv_activation_info`
+### <span id="fn.get_venv_activation_info"></span><code style="font-size: 0.85em">fn get_​venv_​activation_​info</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.get_venv_activation_info](../../angreal/#fn.get_venv_activation_info)
+> **Python API**: [`angreal.get_venv_activation_info`](../../angreal/#fn.get_venv_activation_info)
 
 ```rust
-fn get_venv_activation_info (venv_path : & str) -> PyResult < integrations :: uv :: ActivationInfo >
+fn get_venv_activation_info(
+    venv_path: &str,
+) -> PyResult<integrations::uv::ActivationInfo>
 ```
 
 <details>
@@ -583,17 +566,14 @@ fn get_venv_activation_info(venv_path: &str) -> PyResult<integrations::uv::Activ
 
 </details>
 
-
-
-### <span id="fn.register_entrypoint"></span>`fn register_entrypoint`
+### <span id="fn.register_entrypoint"></span><code style="font-size: 0.85em">fn register_​entrypoint</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.register_entrypoint](../../angreal/#fn.register_entrypoint)
+> **Python API**: [`angreal.register_entrypoint`](../../angreal/#fn.register_entrypoint)
 
 ```rust
-fn register_entrypoint (name : & str) -> PyResult < () >
+fn register_entrypoint(name: &str) -> PyResult<()>
 ```
 
 <details>
@@ -734,17 +714,14 @@ fn register_entrypoint(name: &str) -> PyResult<()> {
 
 </details>
 
-
-
-### <span id="fn.list_entrypoints"></span>`fn list_entrypoints`
+### <span id="fn.list_entrypoints"></span><code style="font-size: 0.85em">fn list_​entrypoints</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.list_entrypoints](../../angreal/#fn.list_entrypoints)
+> **Python API**: [`angreal.list_entrypoints`](../../angreal/#fn.list_entrypoints)
 
 ```rust
-fn list_entrypoints () -> PyResult < Vec < String > >
+fn list_entrypoints() -> PyResult<Vec<String>>
 ```
 
 <details>
@@ -782,17 +759,14 @@ fn list_entrypoints() -> PyResult<Vec<String>> {
 
 </details>
 
-
-
-### <span id="fn.unregister_entrypoint"></span>`fn unregister_entrypoint`
+### <span id="fn.unregister_entrypoint"></span><code style="font-size: 0.85em">fn unregister_​entrypoint</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.unregister_entrypoint](../../angreal/#fn.unregister_entrypoint)
+> **Python API**: [`angreal.unregister_entrypoint`](../../angreal/#fn.unregister_entrypoint)
 
 ```rust
-fn unregister_entrypoint (name : & str) -> PyResult < () >
+fn unregister_entrypoint(name: &str) -> PyResult<()>
 ```
 
 <details>
@@ -865,17 +839,14 @@ fn unregister_entrypoint(name: &str) -> PyResult<()> {
 
 </details>
 
-
-
-### <span id="fn.cleanup_entrypoints"></span>`fn cleanup_entrypoints`
+### <span id="fn.cleanup_entrypoints"></span><code style="font-size: 0.85em">fn cleanup_​entrypoints</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.cleanup_entrypoints](../../angreal/#fn.cleanup_entrypoints)
+> **Python API**: [`angreal.cleanup_entrypoints`](../../angreal/#fn.cleanup_entrypoints)
 
 ```rust
-fn cleanup_entrypoints () -> PyResult < () >
+fn cleanup_entrypoints() -> PyResult<()>
 ```
 
 <details>
@@ -898,17 +869,14 @@ fn cleanup_entrypoints() -> PyResult<()> {
 
 </details>
 
-
-
-### <span id="fn.main"></span>`fn main`
+### <span id="fn.main"></span><code style="font-size: 0.85em">fn main</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.main](../../angreal/#fn.main)
+> **Python API**: [`angreal.main`](../../angreal/#fn.main)
 
 ```rust
-fn main (py : Python < '_ >) -> PyResult < () >
+fn main(py: Python<'_>) -> PyResult<()>
 ```
 
 The main function is just an entry point to be called from the core angreal library.
@@ -1322,15 +1290,12 @@ fn main(py: Python<'_>) -> PyResult<()> {
 
 </details>
 
-
-
-### <span id="fn.initialize_python_tasks"></span>`fn initialize_python_tasks`
+### <span id="fn.initialize_python_tasks"></span><code style="font-size: 0.85em">fn initialize_​python_​tasks</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn initialize_python_tasks () -> Result < () , Box < dyn std :: error :: Error > >
+fn initialize_python_tasks() -> Result<(), Box<dyn std::error::Error>>
 ```
 
 Initialize Python bindings and load angreal tasks for external tools This function should be called by any external tool that needs to discover angreal commands
@@ -1438,197 +1403,6 @@ pub fn initialize_python_tasks() -> Result<(), Box<dyn std::error::Error>> {
     let task_count = ANGREAL_TASKS.lock().unwrap().len();
     debug!("Successfully initialized {} angreal tasks", task_count);
 
-    Ok(())
-}
-```
-
-</details>
-
-
-
-### <span id="fn.angreal"></span>`fn angreal`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn angreal (m : & Bound < '_ , PyModule >) -> PyResult < () >
-```
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn angreal(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add("__version__", env!("CARGO_PKG_VERSION"))?;
-
-    py_logger::register();
-    m.add_function(wrap_pyfunction!(main, m)?)?;
-    task::register(m.py(), m)?;
-    utils::register(m.py(), m)?;
-
-    // Register decorators from our new python_bindings module
-    python_bindings::decorators::register_decorators(m.py(), m)?;
-
-    // UV integration functions
-    m.add_function(wrap_pyfunction!(ensure_uv_installed, m)?)?;
-    m.add_function(wrap_pyfunction!(uv_version, m)?)?;
-    m.add_function(wrap_pyfunction!(create_virtualenv, m)?)?;
-    m.add_function(wrap_pyfunction!(install_packages, m)?)?;
-    m.add_function(wrap_pyfunction!(install_requirements, m)?)?;
-    m.add_function(wrap_pyfunction!(discover_pythons, m)?)?;
-    m.add_function(wrap_pyfunction!(install_python, m)?)?;
-    m.add_function(wrap_pyfunction!(get_venv_activation_info, m)?)?;
-    m.add_class::<integrations::uv::ActivationInfo>()?;
-
-    // Entrypoint registration functions
-    m.add_function(wrap_pyfunction!(register_entrypoint, m)?)?;
-    m.add_function(wrap_pyfunction!(list_entrypoints, m)?)?;
-    m.add_function(wrap_pyfunction!(unregister_entrypoint, m)?)?;
-    m.add_function(wrap_pyfunction!(cleanup_entrypoints, m)?)?;
-
-    let integrations_module = PyModule::new(m.py(), "integrations")?;
-    python_bindings::integrations::integrations(m.py(), &integrations_module)?;
-    m.add_submodule(&integrations_module)?;
-
-    let sys = PyModule::import(m.py(), "sys")?;
-    let modules_attr = sys.getattr("modules")?;
-    let sys_modules = modules_attr.cast::<PyDict>()?;
-    sys_modules.set_item("angreal.integrations", m.getattr("integrations")?)?;
-    sys_modules.set_item(
-        "angreal.integrations.docker",
-        m.getattr("integrations")?.getattr("docker_integration")?,
-    )?;
-
-    sys_modules.set_item(
-        "angreal.integrations.docker.image",
-        m.getattr("integrations")?
-            .getattr("docker_integration")?
-            .getattr("image")?,
-    )?;
-    sys_modules.set_item(
-        "angreal.integrations.docker.container",
-        m.getattr("integrations")?
-            .getattr("docker_integration")?
-            .getattr("container")?,
-    )?;
-    sys_modules.set_item(
-        "angreal.integrations.docker.network",
-        m.getattr("integrations")?
-            .getattr("docker_integration")?
-            .getattr("network")?,
-    )?;
-    sys_modules.set_item(
-        "angreal.integrations.docker.volume",
-        m.getattr("integrations")?
-            .getattr("docker_integration")?
-            .getattr("volume")?,
-    )?;
-
-    sys_modules.set_item(
-        "angreal.integrations.git",
-        m.getattr("integrations")?.getattr("git_integration")?,
-    )?;
-
-    sys_modules.set_item(
-        "angreal.integrations.venv",
-        m.getattr("integrations")?.getattr("venv")?,
-    )?;
-
-    sys_modules.set_item(
-        "angreal.integrations.flox",
-        m.getattr("integrations")?.getattr("flox")?,
-    )?;
-
-    Ok(())
-}
-```
-
-</details>
-
-
-
-### <span id="fn._integrations"></span>`fn _integrations`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn _integrations (m : & Bound < '_ , PyModule >) -> PyResult < () >
-```
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn _integrations(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    let docker_module = pyo3::wrap_pymodule!(docker)(m.py());
-    m.add_submodule(docker_module.bind(m.py()))?;
-    let git = pyo3::wrap_pymodule!(git_module)(m.py());
-    m.add_submodule(git.bind(m.py()))?;
-    Ok(())
-}
-```
-
-</details>
-
-
-
-### <span id="fn.docker"></span>`fn docker`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn docker (m : & Bound < '_ , PyModule >) -> PyResult < () >
-```
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn docker(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<docker_pyo3::Pyo3Docker>()?;
-
-    let image_module = PyModule::new(m.py(), "image")?;
-    docker_pyo3::image::image(m.py(), &image_module)?;
-    m.add_submodule(&image_module)?;
-
-    let container_module = PyModule::new(m.py(), "container")?;
-    docker_pyo3::container::container(m.py(), &container_module)?;
-    m.add_submodule(&container_module)?;
-
-    let network_module = PyModule::new(m.py(), "network")?;
-    docker_pyo3::network::network(m.py(), &network_module)?;
-    m.add_submodule(&network_module)?;
-
-    let volume_module = PyModule::new(m.py(), "volume")?;
-    docker_pyo3::volume::volume(m.py(), &volume_module)?;
-    m.add_submodule(&volume_module)?;
-    Ok(())
-}
-```
-
-</details>
-
-
-
-### <span id="fn.git_module"></span>`fn git_module`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn git_module (m : & Bound < '_ , PyModule >) -> PyResult < () >
-```
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn git_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<PyGit>()?;
-    m.add_function(wrap_pyfunction!(git_clone, m)?)?;
     Ok(())
 }
 ```

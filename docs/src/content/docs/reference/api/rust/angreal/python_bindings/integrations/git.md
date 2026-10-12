@@ -1,24 +1,23 @@
 ---
 title: "angreal::python_bindings::integrations::git"
 description: "Git integration bindings"
+editUrl: false
 sidebar:
-  order: 39
+  order: 34
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 Git integration bindings
 
 ## Structs
 
-### <span id="struct.GitException"></span>`class GitException`
+### <span id="struct.GitException"></span><code style="font-size: 0.85em">class GitException</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.integrations.git.GitException](../../../../../angreal/python_bindings/integrations/git/#class.GitException)
+> **Python API**: [`angreal.integrations.git_integration.GitException`](../../../../../angreal/integrations/git_integration/#class.GitException)
 
 #### Fields
 
@@ -28,13 +27,13 @@ Git integration bindings
 
 #### Methods
 
-##### <span id="GitException.new"></span>`new`
+##### <span id="GitException.new"></span><code>new</code>
 
 ```rust
-fn new (message : String) -> Self
+fn new(message: String) -> Self
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.git.GitException.new](../../../../../angreal/python_bindings/integrations/git/#GitException.new)
+> **Python API**: [`angreal.integrations.git_integration.GitException.new`](../../../../../angreal/integrations/git_integration/#GitException.new)
 
 <details>
 <summary>Source</summary>
@@ -47,15 +46,13 @@ fn new (message : String) -> Self
 
 </details>
 
-
-
-##### <span id="GitException.__str__"></span>`__str__`
+##### <span id="GitException.__str__"></span><code>_​_​str_​_​</code>
 
 ```rust
-fn __str__ (& self) -> String
+fn __str__(&self) -> String
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.git.GitException.__str__](../../../../../angreal/python_bindings/integrations/git/#GitException.__str__)
+> **Python API**: [`angreal.integrations.git_integration.GitException.__str__`](../../../../../angreal/integrations/git_integration/#GitException.__str__)
 
 <details>
 <summary>Source</summary>
@@ -68,16 +65,9 @@ fn __str__ (& self) -> String
 
 </details>
 
-
-
-
-
-### <span id="struct.PyGit"></span>`class Git`
+### <span id="struct.PyGit"></span><code style="font-size: 0.85em">class Git</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
-
-
-> **Python API**: [angreal.PyGit](../../../../../angreal/#class.PyGit)
 
 #### Fields
 
@@ -87,13 +77,11 @@ fn __str__ (& self) -> String
 
 #### Methods
 
-##### <span id="PyGit.new"></span>`new`
+##### <span id="PyGit.new"></span><code>new</code>
 
 ```rust
-fn new (working_dir : Option < & str >) -> PyResult < Self >
+fn new(working_dir: Option<&str>) -> PyResult<Self>
 ```
-
-> **Python API**: [angreal.PyGit.new](../../../../../angreal/#PyGit.new)
 
 <details>
 <summary>Source</summary>
@@ -108,15 +96,15 @@ fn new (working_dir : Option < & str >) -> PyResult < Self >
 
 </details>
 
-
-
-##### <span id="PyGit.execute"></span>`execute`
+##### <span id="PyGit.execute"></span><code>execute</code>
 
 ```rust
-fn execute (& self , subcommand : & str , args : Vec < String > ,) -> PyResult < (i32 , Py < PyAny > , Py < PyAny >) >
+fn execute(
+    &self,
+    subcommand: &str,
+    args: Vec<String>,
+) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)>
 ```
-
-> **Python API**: [angreal.PyGit.execute](../../../../../angreal/#PyGit.execute)
 
 <details>
 <summary>Source</summary>
@@ -144,15 +132,14 @@ fn execute (& self , subcommand : & str , args : Vec < String > ,) -> PyResult <
 
 </details>
 
-
-
-##### <span id="PyGit.init"></span>`init`
+##### <span id="PyGit.init"></span><code>init</code>
 
 ```rust
-fn init (& self , bare : Option < bool >) -> PyResult < (i32 , Py < PyAny > , Py < PyAny >) >
+fn init(
+    &self) -> PyResult<(i32, Py<PyAny>, Py<PyAny>,
+    bare: Option<bool>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>,
+) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)>
 ```
-
-> **Python API**: [angreal.PyGit.init](../../../../../angreal/#PyGit.init)
 
 <details>
 <summary>Source</summary>
@@ -177,15 +164,14 @@ fn init (& self , bare : Option < bool >) -> PyResult < (i32 , Py < PyAny > , Py
 
 </details>
 
-
-
-##### <span id="PyGit.add"></span>`add`
+##### <span id="PyGit.add"></span><code>add</code>
 
 ```rust
-fn add (& self , paths : & Bound < '_ , pyo3 :: types :: PyTuple > ,) -> PyResult < (i32 , Py < PyAny > , Py < PyAny >) >
+fn add(
+    &self,
+    paths: &Bound<'_, pyo3::types::PyTuple>,
+) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)>
 ```
-
-> **Python API**: [angreal.PyGit.add](../../../../../angreal/#PyGit.add)
 
 <details>
 <summary>Source</summary>
@@ -216,15 +202,15 @@ fn add (& self , paths : & Bound < '_ , pyo3 :: types :: PyTuple > ,) -> PyResul
 
 </details>
 
-
-
-##### <span id="PyGit.commit"></span>`commit`
+##### <span id="PyGit.commit"></span><code>commit</code>
 
 ```rust
-fn commit (& self , message : & str , all : Option < bool >) -> PyResult < (i32 , Py < PyAny > , Py < PyAny >) >
+fn commit(
+    &self,
+    message: &str,
+    all: Option<bool>,
+) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)>
 ```
-
-> **Python API**: [angreal.PyGit.commit](../../../../../angreal/#PyGit.commit)
 
 <details>
 <summary>Source</summary>
@@ -252,15 +238,15 @@ fn commit (& self , message : & str , all : Option < bool >) -> PyResult < (i32 
 
 </details>
 
-
-
-##### <span id="PyGit.push"></span>`push`
+##### <span id="PyGit.push"></span><code>push</code>
 
 ```rust
-fn push (& self , remote : Option < & str > , branch : Option < & str > ,) -> PyResult < (i32 , Py < PyAny > , Py < PyAny >) >
+fn push(
+    &self,
+    remote: Option<&str>,
+    branch: Option<&str>,
+) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)>
 ```
-
-> **Python API**: [angreal.PyGit.push](../../../../../angreal/#PyGit.push)
 
 <details>
 <summary>Source</summary>
@@ -294,15 +280,15 @@ fn push (& self , remote : Option < & str > , branch : Option < & str > ,) -> Py
 
 </details>
 
-
-
-##### <span id="PyGit.pull"></span>`pull`
+##### <span id="PyGit.pull"></span><code>pull</code>
 
 ```rust
-fn pull (& self , remote : Option < & str > , branch : Option < & str > ,) -> PyResult < (i32 , Py < PyAny > , Py < PyAny >) >
+fn pull(
+    &self,
+    remote: Option<&str>,
+    branch: Option<&str>,
+) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)>
 ```
-
-> **Python API**: [angreal.PyGit.pull](../../../../../angreal/#PyGit.pull)
 
 <details>
 <summary>Source</summary>
@@ -336,15 +322,14 @@ fn pull (& self , remote : Option < & str > , branch : Option < & str > ,) -> Py
 
 </details>
 
-
-
-##### <span id="PyGit.status"></span>`status`
+##### <span id="PyGit.status"></span><code>status</code>
 
 ```rust
-fn status (& self , short : Option < bool >) -> PyResult < (i32 , Py < PyAny > , Py < PyAny >) >
+fn status(
+    &self) -> PyResult<(i32, Py<PyAny>, Py<PyAny>,
+    short: Option<bool>) -> PyResult<(i32, Py<PyAny>, Py<PyAny>,
+) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)>
 ```
-
-> **Python API**: [angreal.PyGit.status](../../../../../angreal/#PyGit.status)
 
 <details>
 <summary>Source</summary>
@@ -372,15 +357,15 @@ fn status (& self , short : Option < bool >) -> PyResult < (i32 , Py < PyAny > ,
 
 </details>
 
-
-
-##### <span id="PyGit.branch"></span>`branch`
+##### <span id="PyGit.branch"></span><code>branch</code>
 
 ```rust
-fn branch (& self , name : Option < & str > , delete : Option < bool > ,) -> PyResult < (i32 , Py < PyAny > , Py < PyAny >) >
+fn branch(
+    &self,
+    name: Option<&str>,
+    delete: Option<bool>,
+) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)>
 ```
-
-> **Python API**: [angreal.PyGit.branch](../../../../../angreal/#PyGit.branch)
 
 <details>
 <summary>Source</summary>
@@ -414,15 +399,15 @@ fn branch (& self , name : Option < & str > , delete : Option < bool > ,) -> PyR
 
 </details>
 
-
-
-##### <span id="PyGit.checkout"></span>`checkout`
+##### <span id="PyGit.checkout"></span><code>checkout</code>
 
 ```rust
-fn checkout (& self , branch : & str , create : Option < bool > ,) -> PyResult < (i32 , Py < PyAny > , Py < PyAny >) >
+fn checkout(
+    &self,
+    branch: &str,
+    create: Option<bool>,
+) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)>
 ```
-
-> **Python API**: [angreal.PyGit.checkout](../../../../../angreal/#PyGit.checkout)
 
 <details>
 <summary>Source</summary>
@@ -454,15 +439,15 @@ fn checkout (& self , branch : & str , create : Option < bool > ,) -> PyResult <
 
 </details>
 
-
-
-##### <span id="PyGit.tag"></span>`tag`
+##### <span id="PyGit.tag"></span><code>tag</code>
 
 ```rust
-fn tag (& self , name : & str , message : Option < & str >) -> PyResult < (i32 , Py < PyAny > , Py < PyAny >) >
+fn tag(
+    &self,
+    name: &str,
+    message: Option<&str>,
+) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)>
 ```
-
-> **Python API**: [angreal.PyGit.tag](../../../../../angreal/#PyGit.tag)
 
 <details>
 <summary>Source</summary>
@@ -490,15 +475,16 @@ fn tag (& self , name : & str , message : Option < & str >) -> PyResult < (i32 ,
 
 </details>
 
-
-
-##### <span id="PyGit.__call__"></span>`__call__`
+##### <span id="PyGit.__call__"></span><code>_​_​call_​_​</code>
 
 ```rust
-fn __call__ (& self , command : & str , args : & Bound < '_ , pyo3 :: types :: PyTuple > , kwargs : Option < & Bound < '_ , PyDict > > ,) -> PyResult < (i32 , Py < PyAny > , Py < PyAny >) >
+fn __call__(
+    &self,
+    command: &str,
+    args: &Bound<'_, pyo3::types::PyTuple>,
+    kwargs: Option<&Bound<'_, PyDict>>,
+) -> PyResult<(i32, Py<PyAny>, Py<PyAny>)>
 ```
-
-> **Python API**: [angreal.PyGit.__call__](../../../../../angreal/#PyGit.__call__)
 
 <details>
 <summary>Source</summary>
@@ -559,15 +545,11 @@ fn __call__ (& self , command : & str , args : & Bound < '_ , pyo3 :: types :: P
 
 </details>
 
-
-
-##### <span id="PyGit.working_dir"></span>`working_dir`
+##### <span id="PyGit.working_dir"></span><code>working_​dir</code>
 
 ```rust
-fn working_dir (& self) -> String
+fn working_dir(&self) -> String
 ```
-
-> **Python API**: [angreal.PyGit.working_dir](../../../../../angreal/#PyGit.working_dir)
 
 <details>
 <summary>Source</summary>
@@ -580,15 +562,11 @@ fn working_dir (& self) -> String
 
 </details>
 
-
-
-##### <span id="PyGit.__getattr__"></span>`__getattr__`
+##### <span id="PyGit.__getattr__"></span><code>_​_​getattr_​_​</code>
 
 ```rust
-fn __getattr__ (& self , _py : Python , name : & str) -> PyResult < Py < PyAny > >
+fn __getattr__(&self, _py: Python, name: &str) -> PyResult<Py<PyAny>>
 ```
-
-> **Python API**: [angreal.PyGit.__getattr__](../../../../../angreal/#PyGit.__getattr__)
 
 <details>
 <summary>Source</summary>
@@ -605,21 +583,17 @@ fn __getattr__ (& self , _py : Python , name : & str) -> PyResult < Py < PyAny >
 
 </details>
 
-
-
-
-
 ## Functions
 
-### <span id="fn.git_clone"></span>`fn git_clone`
+### <span id="fn.git_clone"></span><code style="font-size: 0.85em">fn git_​clone</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.git_clone](../../../../../angreal/#fn.git_clone)
-
 ```rust
-fn git_clone (remote : & str , destination : Option < & str >) -> PyResult < String >
+fn git_clone(
+    remote: &str,
+    destination: Option<&str>,
+) -> PyResult<String>
 ```
 
 <details>
@@ -635,15 +609,12 @@ pub fn git_clone(remote: &str, destination: Option<&str>) -> PyResult<String> {
 
 </details>
 
-
-
-### <span id="fn.git_integration"></span>`fn git_integration`
+### <span id="fn.git_integration"></span><code style="font-size: 0.85em">fn git_​integration</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn git_integration (_py : Python , m : & Bound < '_ , PyModule >) -> PyResult < () >
+fn git_integration(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()>
 ```
 
 Git integration module

@@ -1,13 +1,13 @@
 ---
 title: "angreal::integrations::flox"
 description: "Flox development environment integration"
+editUrl: false
 sidebar:
-  order: 25
+  order: 21
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
-
 
 Flox development environment integration
 
@@ -16,22 +16,20 @@ environment activation and services management.
 
 ## Structs
 
-### <span id="struct.FloxIntegration"></span>`struct FloxIntegration`
+### <span id="struct.FloxIntegration"></span><code style="font-size: 0.85em">struct FloxIntegration</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 Core integration for the Flox CLI
 
 #### Methods
 
-##### <span id="FloxIntegration.is_available"></span>`is_available`
+##### <span id="FloxIntegration.is_available"></span><code>is_​available</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn is_available () -> bool
+fn is_available() -> bool
 ```
 
 Check if the `flox` binary is available in PATH
@@ -51,15 +49,12 @@ Check if the `flox` binary is available in PATH
 
 </details>
 
-
-
-##### <span id="FloxIntegration.version"></span>`version`
+##### <span id="FloxIntegration.version"></span><code>version</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn version () -> Result < String >
+fn version() -> Result<String>
 ```
 
 Get the Flox version string
@@ -84,14 +79,9 @@ Get the Flox version string
 
 </details>
 
-
-
-
-
-### <span id="struct.ServiceStatus"></span>`struct ServiceStatus`
+### <span id="struct.ServiceStatus"></span><code style="font-size: 0.85em">struct ServiceStatus</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Clone`, `PartialEq`
 
@@ -103,14 +93,11 @@ Represents a service status entry from `flox services status`
 |------|------|-------------|
 | `name` | `String` |  |
 | `status` | `String` |  |
-| `pid` | `Option < u32 >` |  |
+| `pid` | `Option<u32>` |  |
 
-
-
-### <span id="struct.FloxEnvironment"></span>`struct FloxEnvironment`
+### <span id="struct.FloxEnvironment"></span><code style="font-size: 0.85em">struct FloxEnvironment</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 Flox environment wrapper for a specific directory
 
@@ -122,13 +109,12 @@ Flox environment wrapper for a specific directory
 
 #### Methods
 
-##### <span id="FloxEnvironment.new"></span>`new`
+##### <span id="FloxEnvironment.new"></span><code>new</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn new < P : AsRef < Path > > (path : P) -> Self
+fn new<P: AsRef<Path>>(path: P) -> Self
 ```
 
 Create a new FloxEnvironment reference for the given path
@@ -146,15 +132,12 @@ Create a new FloxEnvironment reference for the given path
 
 </details>
 
-
-
-##### <span id="FloxEnvironment.exists"></span>`exists`
+##### <span id="FloxEnvironment.exists"></span><code>exists</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn exists (& self) -> bool
+fn exists(&self) -> bool
 ```
 
 Check if this directory contains a Flox environment
@@ -170,15 +153,12 @@ Check if this directory contains a Flox environment
 
 </details>
 
-
-
-##### <span id="FloxEnvironment.manifest_path"></span>`manifest_path`
+##### <span id="FloxEnvironment.manifest_path"></span><code>manifest_​path</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn manifest_path (& self) -> PathBuf
+fn manifest_path(&self) -> PathBuf
 ```
 
 Get the path to the manifest.toml if it exists
@@ -194,15 +174,12 @@ Get the path to the manifest.toml if it exists
 
 </details>
 
-
-
-##### <span id="FloxEnvironment.has_manifest"></span>`has_manifest`
+##### <span id="FloxEnvironment.has_manifest"></span><code>has_​manifest</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn has_manifest (& self) -> bool
+fn has_manifest(&self) -> bool
 ```
 
 Check if the manifest.toml exists
@@ -218,15 +195,12 @@ Check if the manifest.toml exists
 
 </details>
 
-
-
-##### <span id="FloxEnvironment.get_activation_env"></span>`get_activation_env`
+##### <span id="FloxEnvironment.get_activation_env"></span><code>get_​activation_​env</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn get_activation_env (& self) -> Result < HashMap < String , String > >
+fn get_activation_env(&self) -> Result<HashMap<String, String>>
 ```
 
 Get environment variable modifications from `flox activate --print-script`
@@ -259,91 +233,12 @@ Returns a HashMap of variable names to their new values.
 
 </details>
 
-
-
-##### <span id="FloxEnvironment.parse_activation_script"></span>`parse_activation_script`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn parse_activation_script (script : & str) -> Result < HashMap < String , String > >
-```
-
-Parse the activation script to extract environment variable exports
-
-Looks for patterns like:
-- `export VAR="value"`
-- `export VAR='value'`
-- `export VAR=value`
-- `VAR="value"; export VAR`
-
-<details>
-<summary>Source</summary>
-
-```rust
-    fn parse_activation_script(script: &str) -> Result<HashMap<String, String>> {
-        let mut env_vars = HashMap::new();
-
-        for line in script.lines() {
-            let line = line.trim();
-
-            // Handle `export VAR=value` or `export VAR="value"` or `export VAR='value'`
-            if let Some(rest) = line.strip_prefix("export ") {
-                if let Some((name, value)) = rest.split_once('=') {
-                    let name = name.trim();
-                    let value = Self::unquote_value(value.trim());
-                    env_vars.insert(name.to_string(), value);
-                }
-            }
-        }
-
-        Ok(env_vars)
-    }
-```
-
-</details>
-
-
-
-##### <span id="FloxEnvironment.unquote_value"></span>`unquote_value`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn unquote_value (value : & str) -> String
-```
-
-Remove surrounding quotes from a value
-
-<details>
-<summary>Source</summary>
-
-```rust
-    fn unquote_value(value: &str) -> String {
-        let value = value.trim();
-        if (value.starts_with('"') && value.ends_with('"'))
-            || (value.starts_with('\'') && value.ends_with('\''))
-        {
-            value[1..value.len() - 1].to_string()
-        } else {
-            value.to_string()
-        }
-    }
-```
-
-</details>
-
-
-
-##### <span id="FloxEnvironment.run_in_env"></span>`run_in_env`
+##### <span id="FloxEnvironment.run_in_env"></span><code>run_​in_​env</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn run_in_env (& self , command : & str , args : & [& str]) -> Result < Output >
+fn run_in_env(&self, command: &str, args: &[&str]) -> Result<Output>
 ```
 
 Run a command within the Flox environment
@@ -373,15 +268,12 @@ Executes: `flox activate -d <path> -- <command> [args...]`
 
 </details>
 
-
-
-##### <span id="FloxEnvironment.services_start"></span>`services_start`
+##### <span id="FloxEnvironment.services_start"></span><code>services_​start</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn services_start (& self , services : & [& str]) -> Result < () >
+fn services_start(&self, services: &[&str]) -> Result<()>
 ```
 
 Start Flox services
@@ -414,15 +306,12 @@ Otherwise, starts only the specified services.
 
 </details>
 
-
-
-##### <span id="FloxEnvironment.services_stop"></span>`services_stop`
+##### <span id="FloxEnvironment.services_stop"></span><code>services_​stop</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn services_stop (& self , services : & [& str]) -> Result < () >
+fn services_stop(&self, services: &[&str]) -> Result<()>
 ```
 
 Stop Flox services
@@ -455,15 +344,12 @@ Otherwise, stops only the specified services.
 
 </details>
 
-
-
-##### <span id="FloxEnvironment.services_status"></span>`services_status`
+##### <span id="FloxEnvironment.services_status"></span><code>services_​status</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn services_status (& self) -> Result < Vec < ServiceStatus > >
+fn services_status(&self) -> Result<Vec<ServiceStatus>>
 ```
 
 Get status of all Flox services
@@ -508,63 +394,17 @@ redis     Running  12346
 
 </details>
 
-
-
-##### <span id="FloxEnvironment.parse_services_status"></span>`parse_services_status`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn parse_services_status (output : & str) -> Result < Vec < ServiceStatus > >
-```
-
-Parse the output of `flox services status`
-
-<details>
-<summary>Source</summary>
-
-```rust
-    fn parse_services_status(output: &str) -> Result<Vec<ServiceStatus>> {
-        let mut services = Vec::new();
-        let mut lines = output.lines();
-
-        // Skip header line (NAME STATUS PID)
-        if lines.next().is_none() {
-            return Ok(services);
-        }
-
-        for line in lines {
-            let line = line.trim();
-            if line.is_empty() {
-                continue;
-            }
-
-            let parts: Vec<&str> = line.split_whitespace().collect();
-            if parts.len() >= 2 {
-                let name = parts[0].to_string();
-                let status = parts[1].to_string();
-                let pid = parts.get(2).and_then(|p| p.parse::<u32>().ok());
-
-                services.push(ServiceStatus { name, status, pid });
-            }
-        }
-
-        Ok(services)
-    }
-```
-
-</details>
-
-
-
-##### <span id="FloxEnvironment.services_logs"></span>`services_logs`
+##### <span id="FloxEnvironment.services_logs"></span><code>services_​logs</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn services_logs (& self , service : & str , follow : bool , tail : Option < u32 >) -> Result < String >
+fn services_logs(
+    &self,
+    service: &str,
+    follow: bool,
+    tail: Option<u32>,
+) -> Result<String>
 ```
 
 Get logs for a specific service
@@ -600,15 +440,12 @@ Get logs for a specific service
 
 </details>
 
-
-
-##### <span id="FloxEnvironment.services_restart"></span>`services_restart`
+##### <span id="FloxEnvironment.services_restart"></span><code>services_​restart</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn services_restart (& self , services : & [& str]) -> Result < () >
+fn services_restart(&self, services: &[&str]) -> Result<()>
 ```
 
 Restart services

@@ -1,13 +1,13 @@
 ---
 title: "angreal::python_bindings::venv"
 description: "Virtual environment integration"
+editUrl: false
 sidebar:
-  order: 43
+  order: 38
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
-
 
 Virtual environment integration
 
@@ -16,12 +16,11 @@ using UV for fast venv creation and package installation.
 
 ## Structs
 
-### <span id="struct.VirtualEnv"></span>`class VirtualEnv`
+### <span id="struct.VirtualEnv"></span><code style="font-size: 0.85em">class VirtualEnv</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv](../../../../angreal/python_bindings/venv/#class.VirtualEnv)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv`](../../../../angreal/integrations/venv/#class.VirtualEnv)
 
 Virtual environment manager
 
@@ -32,24 +31,29 @@ Virtual environment manager
 | `path` | `PathBuf` |  |
 | `name` | `String` |  |
 | `python_executable` | `PathBuf` |  |
-| `python_version` | `Option < String >` |  |
-| `requirements` | `Option < Py < PyAny > >` |  |
+| `python_version` | `Option<String>` |  |
+| `requirements` | `Option<Py<PyAny>>` |  |
 | `_is_activated` | `bool` |  |
-| `_original_prefix` | `Option < String >` |  |
-| `_original_exec_prefix` | `Option < String >` |  |
-| `_original_path` | `Option < Vec < String > >` |  |
-| `_original_env_path` | `Option < String >` |  |
-| `_original_virtual_env` | `Option < Option < String > >` |  |
+| `_original_prefix` | `Option<String>` |  |
+| `_original_exec_prefix` | `Option<String>` |  |
+| `_original_path` | `Option<Vec<String>>` |  |
+| `_original_env_path` | `Option<String>` |  |
+| `_original_virtual_env` | `Option<Option<String>>` |  |
 
 #### Methods
 
-##### <span id="VirtualEnv.__new__"></span>`__new__`
+##### <span id="VirtualEnv.__new__"></span><code>_​_​new_​_​</code>
 
 ```rust
-fn __new__ (path : Option < Py < PyAny > > , python : Option < & str > , requirements : Option < Py < PyAny > > , now : bool ,) -> PyResult < Self >
+fn __new__(
+    path: Option<Py<PyAny>>,
+    python: Option<&str>,
+    requirements: Option<Py<PyAny>>,
+    now: bool,
+) -> PyResult<Self>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.__new__](../../../../angreal/python_bindings/venv/#VirtualEnv.__new__)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.__new__`](../../../../angreal/integrations/venv/#VirtualEnv.__new__)
 
 <details>
 <summary>Source</summary>
@@ -147,15 +151,13 @@ fn __new__ (path : Option < Py < PyAny > > , python : Option < & str > , require
 
 </details>
 
-
-
-##### <span id="VirtualEnv.create"></span>`create`
+##### <span id="VirtualEnv.create"></span><code>create</code>
 
 ```rust
-fn create (& self) -> PyResult < () >
+fn create(&self) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.create](../../../../angreal/python_bindings/venv/#VirtualEnv.create)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.create`](../../../../angreal/integrations/venv/#VirtualEnv.create)
 
 <details>
 <summary>Source</summary>
@@ -180,15 +182,13 @@ fn create (& self) -> PyResult < () >
 
 </details>
 
-
-
-##### <span id="VirtualEnv.activate"></span>`activate`
+##### <span id="VirtualEnv.activate"></span><code>activate</code>
 
 ```rust
-fn activate (& mut self) -> PyResult < () >
+fn activate(&mut self) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.activate](../../../../angreal/python_bindings/venv/#VirtualEnv.activate)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.activate`](../../../../angreal/integrations/venv/#VirtualEnv.activate)
 
 <details>
 <summary>Source</summary>
@@ -303,15 +303,13 @@ fn activate (& mut self) -> PyResult < () >
 
 </details>
 
-
-
-##### <span id="VirtualEnv.remove"></span>`remove`
+##### <span id="VirtualEnv.remove"></span><code>remove</code>
 
 ```rust
-fn remove (& self) -> PyResult < () >
+fn remove(&self) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.remove](../../../../angreal/python_bindings/venv/#VirtualEnv.remove)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.remove`](../../../../angreal/integrations/venv/#VirtualEnv.remove)
 
 <details>
 <summary>Source</summary>
@@ -332,15 +330,13 @@ fn remove (& self) -> PyResult < () >
 
 </details>
 
-
-
-##### <span id="VirtualEnv.__enter__"></span>`__enter__`
+##### <span id="VirtualEnv.__enter__"></span><code>_​_​enter_​_​</code>
 
 ```rust
-fn __enter__ (mut slf : PyRefMut < Self >) -> PyResult < PyRefMut < Self > >
+fn __enter__(mut slf: PyRefMut<Self>) -> PyResult<PyRefMut<Self>>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.__enter__](../../../../angreal/python_bindings/venv/#VirtualEnv.__enter__)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.__enter__`](../../../../angreal/integrations/venv/#VirtualEnv.__enter__)
 
 <details>
 <summary>Source</summary>
@@ -356,15 +352,18 @@ fn __enter__ (mut slf : PyRefMut < Self >) -> PyResult < PyRefMut < Self > >
 
 </details>
 
-
-
-##### <span id="VirtualEnv.__exit__"></span>`__exit__`
+##### <span id="VirtualEnv.__exit__"></span><code>_​_​exit_​_​</code>
 
 ```rust
-fn __exit__ (& mut self , _exc_type : & Bound < '_ , PyAny > , _exc_val : & Bound < '_ , PyAny > , _exc_tb : & Bound < '_ , PyAny > ,) -> PyResult < () >
+fn __exit__(
+    &mut self,
+    _exc_type: &Bound<'_, PyAny>,
+    _exc_val: &Bound<'_, PyAny>,
+    _exc_tb: &Bound<'_, PyAny>,
+) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.__exit__](../../../../angreal/python_bindings/venv/#VirtualEnv.__exit__)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.__exit__`](../../../../angreal/integrations/venv/#VirtualEnv.__exit__)
 
 <details>
 <summary>Source</summary>
@@ -383,15 +382,13 @@ fn __exit__ (& mut self , _exc_type : & Bound < '_ , PyAny > , _exc_val : & Boun
 
 </details>
 
-
-
-##### <span id="VirtualEnv.exists"></span>`exists`
+##### <span id="VirtualEnv.exists"></span><code>exists</code>
 
 ```rust
-fn exists (& self , _py : Python) -> PyResult < bool >
+fn exists(&self, _py: Python) -> PyResult<bool>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.exists](../../../../angreal/python_bindings/venv/#VirtualEnv.exists)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.exists`](../../../../angreal/integrations/venv/#VirtualEnv.exists)
 
 <details>
 <summary>Source</summary>
@@ -404,15 +401,13 @@ fn exists (& self , _py : Python) -> PyResult < bool >
 
 </details>
 
-
-
-##### <span id="VirtualEnv.path"></span>`path`
+##### <span id="VirtualEnv.path"></span><code>path</code>
 
 ```rust
-fn path (& self , py : Python) -> PyResult < Py < PyAny > >
+fn path(&self, py: Python) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.path](../../../../angreal/python_bindings/venv/#VirtualEnv.path)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.path`](../../../../angreal/integrations/venv/#VirtualEnv.path)
 
 <details>
 <summary>Source</summary>
@@ -428,15 +423,13 @@ fn path (& self , py : Python) -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-##### <span id="VirtualEnv.python_executable"></span>`python_executable`
+##### <span id="VirtualEnv.python_executable"></span><code>python_​executable</code>
 
 ```rust
-fn python_executable (& self , py : Python) -> PyResult < Py < PyAny > >
+fn python_executable(&self, py: Python) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.python_executable](../../../../angreal/python_bindings/venv/#VirtualEnv.python_executable)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.python_executable`](../../../../angreal/integrations/venv/#VirtualEnv.python_executable)
 
 <details>
 <summary>Source</summary>
@@ -452,15 +445,13 @@ fn python_executable (& self , py : Python) -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-##### <span id="VirtualEnv.deactivate"></span>`deactivate`
+##### <span id="VirtualEnv.deactivate"></span><code>deactivate</code>
 
 ```rust
-fn deactivate (& mut self) -> PyResult < () >
+fn deactivate(&mut self) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.deactivate](../../../../angreal/python_bindings/venv/#VirtualEnv.deactivate)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.deactivate`](../../../../angreal/integrations/venv/#VirtualEnv.deactivate)
 
 <details>
 <summary>Source</summary>
@@ -518,15 +509,13 @@ fn deactivate (& mut self) -> PyResult < () >
 
 </details>
 
-
-
-##### <span id="VirtualEnv.install_requirements"></span>`install_requirements`
+##### <span id="VirtualEnv.install_requirements"></span><code>install_​requirements</code>
 
 ```rust
-fn install_requirements (& self) -> PyResult < () >
+fn install_requirements(&self) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.install_requirements](../../../../angreal/python_bindings/venv/#VirtualEnv.install_requirements)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.install_requirements`](../../../../angreal/integrations/venv/#VirtualEnv.install_requirements)
 
 <details>
 <summary>Source</summary>
@@ -557,15 +546,13 @@ fn install_requirements (& self) -> PyResult < () >
 
 </details>
 
-
-
-##### <span id="VirtualEnv.install"></span>`install`
+##### <span id="VirtualEnv.install"></span><code>install</code>
 
 ```rust
-fn install (& self , packages : Py < PyAny >) -> PyResult < () >
+fn install(&self, packages: Py<PyAny>) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.install](../../../../angreal/python_bindings/venv/#VirtualEnv.install)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.install`](../../../../angreal/integrations/venv/#VirtualEnv.install)
 
 <details>
 <summary>Source</summary>
@@ -630,15 +617,15 @@ fn install (& self , packages : Py < PyAny >) -> PyResult < () >
 
 </details>
 
-
-
-##### <span id="VirtualEnv.discover_available_pythons"></span>`discover_available_pythons`
+##### <span id="VirtualEnv.discover_available_pythons"></span><code>discover_​available_​pythons</code>
 
 ```rust
-fn discover_available_pythons (_cls : & Bound < '_ , PyType >) -> PyResult < Vec < (String , String) > >
+fn discover_available_pythons(
+    _cls: &Bound<'_, PyType>,
+) -> PyResult<Vec<(String, String)>>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.discover_available_pythons](../../../../angreal/python_bindings/venv/#VirtualEnv.discover_available_pythons)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.discover_available_pythons`](../../../../angreal/integrations/venv/#VirtualEnv.discover_available_pythons)
 
 <details>
 <summary>Source</summary>
@@ -664,15 +651,16 @@ fn discover_available_pythons (_cls : & Bound < '_ , PyType >) -> PyResult < Vec
 
 </details>
 
-
-
-##### <span id="VirtualEnv.ensure_python"></span>`ensure_python`
+##### <span id="VirtualEnv.ensure_python"></span><code>ensure_​python</code>
 
 ```rust
-fn ensure_python (_cls : & Bound < '_ , PyType > , version : & str) -> PyResult < String >
+fn ensure_python(
+    _cls: &Bound<'_, PyType>,
+    version: &str,
+) -> PyResult<String>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.ensure_python](../../../../angreal/python_bindings/venv/#VirtualEnv.ensure_python)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.ensure_python`](../../../../angreal/integrations/venv/#VirtualEnv.ensure_python)
 
 <details>
 <summary>Source</summary>
@@ -693,15 +681,13 @@ fn ensure_python (_cls : & Bound < '_ , PyType > , version : & str) -> PyResult 
 
 </details>
 
-
-
-##### <span id="VirtualEnv.version"></span>`version`
+##### <span id="VirtualEnv.version"></span><code>version</code>
 
 ```rust
-fn version (_cls : & Bound < '_ , PyType >) -> PyResult < String >
+fn version(_cls: &Bound<'_, PyType>) -> PyResult<String>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VirtualEnv.version](../../../../angreal/python_bindings/venv/#VirtualEnv.version)
+> **Python API**: [`angreal.integrations.venv.VirtualEnv.version`](../../../../angreal/integrations/venv/#VirtualEnv.version)
 
 <details>
 <summary>Source</summary>
@@ -720,16 +706,11 @@ fn version (_cls : & Bound < '_ , PyType >) -> PyResult < String >
 
 </details>
 
-
-
-
-
-### <span id="struct.VenvRequiredDecorator"></span>`class VenvRequiredDecorator`
+### <span id="struct.VenvRequiredDecorator"></span><code style="font-size: 0.85em">class VenvRequiredDecorator</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.venv.VenvRequiredDecorator](../../../../angreal/python_bindings/venv/#class.VenvRequiredDecorator)
+> **Python API**: [`angreal.integrations.venv.VenvRequiredDecorator`](../../../../angreal/integrations/venv/#class.VenvRequiredDecorator)
 
 A Python callable that wraps the venv_required decorator logic
 
@@ -738,17 +719,17 @@ A Python callable that wraps the venv_required decorator logic
 | Name | Type | Description |
 |------|------|-------------|
 | `path` | `String` |  |
-| `requirements` | `Option < Py < PyAny > >` |  |
+| `requirements` | `Option<Py<PyAny>>` |  |
 
 #### Methods
 
-##### <span id="VenvRequiredDecorator.__call__"></span>`__call__`
+##### <span id="VenvRequiredDecorator.__call__"></span><code>_​_​call_​_​</code>
 
 ```rust
-fn __call__ (& self , py : Python , func : Py < PyAny >) -> PyResult < Py < PyAny > >
+fn __call__(&self, py: Python, func: Py<PyAny>) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VenvRequiredDecorator.__call__](../../../../angreal/python_bindings/venv/#VenvRequiredDecorator.__call__)
+> **Python API**: [`angreal.integrations.venv.VenvRequiredDecorator.__call__`](../../../../angreal/integrations/venv/#VenvRequiredDecorator.__call__)
 
 <details>
 <summary>Source</summary>
@@ -771,36 +752,35 @@ fn __call__ (& self , py : Python , func : Py < PyAny >) -> PyResult < Py < PyAn
 
 </details>
 
-
-
-
-
-### <span id="struct.VenvRequiredWrapper"></span>`class VenvRequiredWrapper`
+### <span id="struct.VenvRequiredWrapper"></span><code style="font-size: 0.85em">class VenvRequiredWrapper</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.venv.VenvRequiredWrapper](../../../../angreal/python_bindings/venv/#class.VenvRequiredWrapper)
+> **Python API**: [`angreal.integrations.venv.VenvRequiredWrapper`](../../../../angreal/integrations/venv/#class.VenvRequiredWrapper)
 
 #### Fields
 
 | Name | Type | Description |
 |------|------|-------------|
-| `original_func` | `Py < PyAny >` |  |
+| `original_func` | `Py<PyAny>` |  |
 | `path` | `String` |  |
-| `requirements` | `Option < Py < PyAny > >` |  |
-| `command` | `Option < Py < PyAny > >` | Storage for __command attribute set by @angreal.command decorator |
-| `arguments` | `Option < Py < PyAny > >` | Storage for __arguments attribute set by @angreal.argument decorator |
+| `requirements` | `Option<Py<PyAny>>` |  |
+| `command` | `Option<Py<PyAny>>` | Storage for __command attribute set by @angreal.command decorator |
+| `arguments` | `Option<Py<PyAny>>` | Storage for __arguments attribute set by @angreal.argument decorator |
 
 #### Methods
 
-##### <span id="VenvRequiredWrapper.__call__"></span>`__call__`
+##### <span id="VenvRequiredWrapper.__call__"></span><code>_​_​call_​_​</code>
 
 ```rust
-fn __call__ (& self , args : & Bound < '_ , pyo3 :: types :: PyTuple > , kwargs : Option < & Bound < '_ , pyo3 :: types :: PyDict > > ,) -> PyResult < Py < PyAny > >
+fn __call__(
+    &self,
+    args: &Bound<'_, pyo3::types::PyTuple>,
+    kwargs: Option<&Bound<'_, pyo3::types::PyDict>>,
+) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VenvRequiredWrapper.__call__](../../../../angreal/python_bindings/venv/#VenvRequiredWrapper.__call__)
+> **Python API**: [`angreal.integrations.venv.VenvRequiredWrapper.__call__`](../../../../angreal/integrations/venv/#VenvRequiredWrapper.__call__)
 
 <details>
 <summary>Source</summary>
@@ -845,15 +825,13 @@ fn __call__ (& self , args : & Bound < '_ , pyo3 :: types :: PyTuple > , kwargs 
 
 </details>
 
-
-
-##### <span id="VenvRequiredWrapper.get_command"></span>`get_command`
+##### <span id="VenvRequiredWrapper.get_command"></span><code>get_​command</code>
 
 ```rust
-fn get_command (& self) -> PyResult < Py < PyAny > >
+fn get_command(&self) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VenvRequiredWrapper.get_command](../../../../angreal/python_bindings/venv/#VenvRequiredWrapper.get_command)
+> **Python API**: [`angreal.integrations.venv.VenvRequiredWrapper.get_command`](../../../../angreal/integrations/venv/#VenvRequiredWrapper.get_command)
 
 <details>
 <summary>Source</summary>
@@ -873,15 +851,13 @@ fn get_command (& self) -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-##### <span id="VenvRequiredWrapper.set_command"></span>`set_command`
+##### <span id="VenvRequiredWrapper.set_command"></span><code>set_​command</code>
 
 ```rust
-fn set_command (& mut self , value : Py < PyAny >)
+fn set_command(&mut self, value: Py<PyAny>)
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VenvRequiredWrapper.set_command](../../../../angreal/python_bindings/venv/#VenvRequiredWrapper.set_command)
+> **Python API**: [`angreal.integrations.venv.VenvRequiredWrapper.set_command`](../../../../angreal/integrations/venv/#VenvRequiredWrapper.set_command)
 
 <details>
 <summary>Source</summary>
@@ -894,15 +870,13 @@ fn set_command (& mut self , value : Py < PyAny >)
 
 </details>
 
-
-
-##### <span id="VenvRequiredWrapper.get_arguments"></span>`get_arguments`
+##### <span id="VenvRequiredWrapper.get_arguments"></span><code>get_​arguments</code>
 
 ```rust
-fn get_arguments (& self) -> PyResult < Py < PyAny > >
+fn get_arguments(&self) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VenvRequiredWrapper.get_arguments](../../../../angreal/python_bindings/venv/#VenvRequiredWrapper.get_arguments)
+> **Python API**: [`angreal.integrations.venv.VenvRequiredWrapper.get_arguments`](../../../../angreal/integrations/venv/#VenvRequiredWrapper.get_arguments)
 
 <details>
 <summary>Source</summary>
@@ -923,15 +897,13 @@ fn get_arguments (& self) -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-##### <span id="VenvRequiredWrapper.set_arguments"></span>`set_arguments`
+##### <span id="VenvRequiredWrapper.set_arguments"></span><code>set_​arguments</code>
 
 ```rust
-fn set_arguments (& mut self , value : Py < PyAny >)
+fn set_arguments(&mut self, value: Py<PyAny>)
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VenvRequiredWrapper.set_arguments](../../../../angreal/python_bindings/venv/#VenvRequiredWrapper.set_arguments)
+> **Python API**: [`angreal.integrations.venv.VenvRequiredWrapper.set_arguments`](../../../../angreal/integrations/venv/#VenvRequiredWrapper.set_arguments)
 
 <details>
 <summary>Source</summary>
@@ -944,15 +916,13 @@ fn set_arguments (& mut self , value : Py < PyAny >)
 
 </details>
 
-
-
-##### <span id="VenvRequiredWrapper.__name__"></span>`__name__`
+##### <span id="VenvRequiredWrapper.__name__"></span><code>_​_​name_​_​</code>
 
 ```rust
-fn __name__ (& self) -> PyResult < Py < PyAny > >
+fn __name__(&self) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VenvRequiredWrapper.__name__](../../../../angreal/python_bindings/venv/#VenvRequiredWrapper.__name__)
+> **Python API**: [`angreal.integrations.venv.VenvRequiredWrapper.__name__`](../../../../angreal/integrations/venv/#VenvRequiredWrapper.__name__)
 
 <details>
 <summary>Source</summary>
@@ -969,15 +939,13 @@ fn __name__ (& self) -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-##### <span id="VenvRequiredWrapper.__doc__"></span>`__doc__`
+##### <span id="VenvRequiredWrapper.__doc__"></span><code>_​_​doc_​_​</code>
 
 ```rust
-fn __doc__ (& self) -> PyResult < Py < PyAny > >
+fn __doc__(&self) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VenvRequiredWrapper.__doc__](../../../../angreal/python_bindings/venv/#VenvRequiredWrapper.__doc__)
+> **Python API**: [`angreal.integrations.venv.VenvRequiredWrapper.__doc__`](../../../../angreal/integrations/venv/#VenvRequiredWrapper.__doc__)
 
 <details>
 <summary>Source</summary>
@@ -994,15 +962,13 @@ fn __doc__ (& self) -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-##### <span id="VenvRequiredWrapper.__getattr__"></span>`__getattr__`
+##### <span id="VenvRequiredWrapper.__getattr__"></span><code>_​_​getattr_​_​</code>
 
 ```rust
-fn __getattr__ (& self , name : & str) -> PyResult < Py < PyAny > >
+fn __getattr__(&self, name: &str) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.venv.VenvRequiredWrapper.__getattr__](../../../../angreal/python_bindings/venv/#VenvRequiredWrapper.__getattr__)
+> **Python API**: [`angreal.integrations.venv.VenvRequiredWrapper.__getattr__`](../../../../angreal/integrations/venv/#VenvRequiredWrapper.__getattr__)
 
 <details>
 <summary>Source</summary>
@@ -1015,21 +981,19 @@ fn __getattr__ (& self , name : & str) -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-
-
 ## Functions
 
-### <span id="fn.venv_required"></span>`fn venv_required`
+### <span id="fn.venv_required"></span><code style="font-size: 0.85em">fn venv_​required</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.venv.venv_required](../../../../angreal/python_bindings/venv/#fn.venv_required)
+> **Python API**: [`angreal.integrations.venv.venv_required`](../../../../angreal/integrations/venv/#fn.venv_required)
 
 ```rust
-fn venv_required (path : & str , requirements : Option < Py < PyAny > > ,) -> PyResult < VenvRequiredDecorator >
+fn venv_required(
+    path: &str,
+    requirements: Option<Py<PyAny>>,
+) -> PyResult<VenvRequiredDecorator>
 ```
 
 Decorator that wraps a function to run in a virtual environment
@@ -1053,15 +1017,12 @@ pub fn venv_required(
 
 </details>
 
-
-
-### <span id="fn.register_venv"></span>`fn register_venv`
+### <span id="fn.register_venv"></span><code style="font-size: 0.85em">fn register_​venv</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn register_venv (_py : Python , m : & Bound < '_ , PyModule >) -> PyResult < () >
+fn register_venv(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()>
 ```
 
 Register the venv module

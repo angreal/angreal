@@ -1,25 +1,24 @@
 ---
 title: "angreal::validation::min"
 description: "Validation for minimum value"
+editUrl: false
 sidebar:
-  order: 50
+  order: 45
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 Validation for minimum value
 
 ## Functions
 
-### <span id="fn.min"></span>`fn min`
+### <span id="fn.min"></span><code style="font-size: 0.85em">fn min</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn min (input : & str , min_value : & Value) -> Result < () , String >
+fn min(input: &str, min_value: &Value) -> Result<(), String>
 ```
 
 Validate that input is greater than or equal to the minimum value
@@ -28,13 +27,13 @@ Validate that input is greater than or equal to the minimum value
 
 | Name | Type | Description |
 |------|------|-------------|
-| `input` | `-` | The user input to validate |
-| `min_value` | `-` | The minimum allowed value |
-
+| `input` | `&str` | The user input to validate |
+| `min_value` | `&Value` | The minimum allowed value |
 
 **Returns:**
 
-* `Ok(())` if input is >= min_value * `Err(message)` with descriptive error message if validation fails
+* `Ok(())` if input is >= min_value
+* `Err(message)` with descriptive error message if validation fails
 
 <details>
 <summary>Source</summary>

@@ -1,24 +1,23 @@
 ---
 title: "angreal::task"
 description: "Core structures for describing tasks and arguments"
+editUrl: false
 sidebar:
-  order: 44
+  order: 39
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 Core structures for describing tasks and arguments
 
 ## Structs
 
-### <span id="struct.AngrealGroup"></span>`class Group`
+### <span id="struct.AngrealGroup"></span><code style="font-size: 0.85em">class Group</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.task.Group](../../../angreal/task/#class.Group)
+> **Python API**: [`angreal.Group`](../../../angreal/#class.Group)
 
 A group is just a special type of sub-command
 
@@ -27,17 +26,17 @@ A group is just a special type of sub-command
 | Name | Type | Description |
 |------|------|-------------|
 | `name` | `String` | The name of the command group |
-| `about` | `Option < String >` | The about of the command group |
+| `about` | `Option<String>` | The about of the command group |
 
 #### Methods
 
-##### <span id="AngrealGroup.__new__"></span>`__new__`
+##### <span id="AngrealGroup.__new__"></span><code>_​_​new_​_​</code>
 
 ```rust
-fn __new__ (name : & str , about : Option < & str >) -> Self
+fn __new__(name: &str, about: Option<&str>) -> Self
 ```
 
-> **Python API**: [angreal.task.Group.__new__](../../../angreal/task/#Group.__new__)
+> **Python API**: [`angreal.Group.__new__`](../../../angreal/#Group.__new__)
 
 <details>
 <summary>Source</summary>
@@ -67,16 +66,11 @@ fn __new__ (name : & str , about : Option < & str >) -> Self
 
 </details>
 
-
-
-
-
-### <span id="struct.ToolDescription"></span>`class ToolDescription`
+### <span id="struct.ToolDescription"></span><code style="font-size: 0.85em">class ToolDescription</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.task.ToolDescription](../../../angreal/task/#class.ToolDescription)
+> **Python API**: [`angreal.ToolDescription`](../../../angreal/#class.ToolDescription)
 
 Rich description for exposing a command to AI agents
 
@@ -106,9 +100,9 @@ Compiles all Rust crates and creates the Python wheel for distribution.
 ```
 angreal build
 angreal build --release
-```
+```rust
 
-## Preconditions
+# Preconditions
 - Rust toolchain installed
 - Run `angreal dev check-deps` first if unsure
 """)
@@ -126,13 +120,13 @@ def build():
 
 #### Methods
 
-##### <span id="ToolDescription.__new__"></span>`__new__`
+##### <span id="ToolDescription.__new__"></span><code>_​_​new_​_​</code>
 
 ```rust
-fn __new__ (description : & str , risk_level : Option < & str >) -> Self
+fn __new__(description: &str, risk_level: Option<&str>) -> Self
 ```
 
-> **Python API**: [angreal.task.ToolDescription.__new__](../../../angreal/task/#ToolDescription.__new__)
+> **Python API**: [`angreal.ToolDescription.__new__`](../../../angreal/#ToolDescription.__new__)
 
 <details>
 <summary>Source</summary>
@@ -161,15 +155,13 @@ fn __new__ (description : & str , risk_level : Option < & str >) -> Self
 
 </details>
 
-
-
-##### <span id="ToolDescription.__repr__"></span>`__repr__`
+##### <span id="ToolDescription.__repr__"></span><code>_​_​repr_​_​</code>
 
 ```rust
-fn __repr__ (& self) -> String
+fn __repr__(&self) -> String
 ```
 
-> **Python API**: [angreal.task.ToolDescription.__repr__](../../../angreal/task/#ToolDescription.__repr__)
+> **Python API**: [`angreal.ToolDescription.__repr__`](../../../angreal/#ToolDescription.__repr__)
 
 <details>
 <summary>Source</summary>
@@ -186,16 +178,11 @@ fn __repr__ (& self) -> String
 
 </details>
 
-
-
-
-
-### <span id="struct.AngrealCommand"></span>`class Command`
+### <span id="struct.AngrealCommand"></span><code style="font-size: 0.85em">class Command</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.task.Command](../../../angreal/task/#class.Command)
+> **Python API**: [`angreal.Command`](../../../angreal/#class.Command)
 
 A command describes a subcommand to be registered with the CLI
 
@@ -204,24 +191,29 @@ A command describes a subcommand to be registered with the CLI
 | Name | Type | Description |
 |------|------|-------------|
 | `name` | `String` | The name of the sub command |
-| `about` | `Option < String >` | A short description of what the command does |
-| `long_about` | `Option < String >` | A longer description of what the command does |
-| `func` | `Py < PyAny >` | The actual function that is executed when the command is run |
-| `group` | `Option < Vec < AngrealGroup > >` | The group this command belongs to |
-| `tool` | `Option < ToolDescription >` | Rich tool description for AI agent integration |
-| `registry_key` | `Option < String >` | Internal unique key used for registry tracking during decoration.
-This prevents collisions when two commands share the same base name
-before group decorators have run (e.g. top-level "build" vs "docs build"). |
+| `about` | `Option<String>` | A short description of what the command does |
+| `long_about` | `Option<String>` | A longer description of what the command does |
+| `func` | `Py<PyAny>` | The actual function that is executed when the command is run |
+| `group` | `Option<Vec<AngrealGroup>>` | The group this command belongs to |
+| `tool` | `Option<ToolDescription>` | Rich tool description for AI agent integration |
+| `registry_key` | `Option<String>` | Internal unique key used for registry tracking during decoration. This prevents collisions when two commands share the same base name before group decorators have run (e.g. top-level "build" vs "docs build"). |
 
 #### Methods
 
-##### <span id="AngrealCommand.__new__"></span>`__new__`
+##### <span id="AngrealCommand.__new__"></span><code>_​_​new_​_​</code>
 
 ```rust
-fn __new__ (name : & str , func : Py < PyAny > , about : Option < & str > , long_about : Option < & str > , group : Option < Vec < AngrealGroup > > , tool : Option < ToolDescription > ,) -> Self
+fn __new__(
+    name: &str,
+    func: Py<PyAny>,
+    about: Option<&str>,
+    long_about: Option<&str>,
+    group: Option<Vec<AngrealGroup>>,
+    tool: Option<ToolDescription>,
+) -> Self
 ```
 
-> **Python API**: [angreal.task.Command.__new__](../../../angreal/task/#Command.__new__)
+> **Python API**: [`angreal.Command.__new__`](../../../angreal/#Command.__new__)
 
 Initialization method for the object. The command is registered to `ANGREAL_TASKS` upon instantiation from the python api
 
@@ -303,15 +295,13 @@ long_about='a much longer message`, func=test-message)
 
 </details>
 
-
-
-##### <span id="AngrealCommand.add_group"></span>`add_group`
+##### <span id="AngrealCommand.add_group"></span><code>add_​group</code>
 
 ```rust
-fn add_group (& mut self , group : AngrealGroup) -> PyResult < () >
+fn add_group(&mut self, group: AngrealGroup) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.task.Command.add_group](../../../angreal/task/#Command.add_group)
+> **Python API**: [`angreal.Command.add_group`](../../../angreal/#Command.add_group)
 
 Add a (task::AngrealGroup) to the task::AngrealCommand called on
 
@@ -386,16 +376,11 @@ Add a (task::AngrealGroup) to the task::AngrealCommand called on
 
 </details>
 
-
-
-
-
-### <span id="struct.AngrealArg"></span>`class Arg`
+### <span id="struct.AngrealArg"></span><code style="font-size: 0.85em">class Arg</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.task.Arg](../../../angreal/task/#class.Arg)
+> **Python API**: [`angreal.Arg`](../../../angreal/#class.Arg)
 
 An argument to augment the behavior of an angreal command
 
@@ -406,30 +391,47 @@ An argument to augment the behavior of an angreal command
 | `name` | `String` | The name of the argument, required to match the name in the function being executed by the command |
 | `command_name` | `String` | The command name associated with this argument (for backward compatibility) |
 | `command_path` | `String` | The full command path (internal use for collision resolution) |
-| `takes_value` | `Option < bool >` | Whether or not the argument consumes a value from the command line |
-| `default_value` | `Option < String >` | The default value to be applied to the arg. |
-| `is_flag` | `Option < bool >` | whether or not the argument is a flag (bool) |
-| `require_equals` | `Option < bool >` | Whether or not the argument requires an `=` behind it to set a value |
-| `multiple_values` | `Option < bool >` | Whether or not the argument takes multiple values |
-| `number_of_values` | `Option < u32 >` | The number of values the argument takes |
-| `max_values` | `Option < u32 >` | The maximum number of values the argument takes |
-| `min_values` | `Option < u32 >` | The minimum number of values the argument takes |
-| `python_type` | `Option < String >` | The python type to apply the the consumed value (int, string, float) |
-| `short` | `Option < char >` | the short flag to be used on the command line (i.e. `-s`) |
-| `long` | `Option < String >` | the long flag to be used on the command line (i.e. `--long`) |
-| `long_help` | `Option < String >` | A verbose help message to be displayed |
-| `help` | `Option < String >` | a shorter help message to be displayed |
-| `required` | `Option < bool >` | whether or not the argument is required |
+| `takes_value` | `Option<bool>` | Whether or not the argument consumes a value from the command line |
+| `default_value` | `Option<String>` | The default value to be applied to the arg. |
+| `is_flag` | `Option<bool>` | whether or not the argument is a flag (bool) |
+| `require_equals` | `Option<bool>` | Whether or not the argument requires an `=` behind it to set a value |
+| `multiple_values` | `Option<bool>` | Whether or not the argument takes multiple values |
+| `number_of_values` | `Option<u32>` | The number of values the argument takes |
+| `max_values` | `Option<u32>` | The maximum number of values the argument takes |
+| `min_values` | `Option<u32>` | The minimum number of values the argument takes |
+| `python_type` | `Option<String>` | The python type to apply the the consumed value (int, string, float) |
+| `short` | `Option<char>` | the short flag to be used on the command line (i.e. `-s`) |
+| `long` | `Option<String>` | the long flag to be used on the command line (i.e. `--long`) |
+| `long_help` | `Option<String>` | A verbose help message to be displayed |
+| `help` | `Option<String>` | a shorter help message to be displayed |
+| `required` | `Option<bool>` | whether or not the argument is required |
 
 #### Methods
 
-##### <span id="AngrealArg.__new__"></span>`__new__`
+##### <span id="AngrealArg.__new__"></span><code>_​_​new_​_​</code>
 
 ```rust
-fn __new__ (name : & str , command_name : & str , default_value : Option < & str > , is_flag : Option < bool > , require_equals : Option < bool > , multiple_values : Option < bool > , number_of_values : Option < u32 > , max_values : Option < u32 > , min_values : Option < u32 > , short : Option < char > , long : Option < & str > , long_help : Option < & str > , help : Option < & str > , required : Option < bool > , takes_value : Option < bool > , python_type : Option < & str > ,) -> Self
+fn __new__(
+    name: &str,
+    command_name: &str,
+    default_value: Option<&str>,
+    is_flag: Option<bool>,
+    require_equals: Option<bool>,
+    multiple_values: Option<bool>,
+    number_of_values: Option<u32>,
+    max_values: Option<u32>,
+    min_values: Option<u32>,
+    short: Option<char>,
+    long: Option<&str>,
+    long_help: Option<&str>,
+    help: Option<&str>,
+    required: Option<bool>,
+    takes_value: Option<bool>,
+    python_type: Option<&str>,
+) -> Self
 ```
 
-> **Python API**: [angreal.task.Arg.__new__](../../../angreal/task/#Arg.__new__)
+> **Python API**: [`angreal.Arg.__new__`](../../../angreal/#Arg.__new__)
 
 Adds an argument to an angreal command.
 
@@ -527,19 +529,14 @@ angreal.Arg(name="phrase", help="the phrase to echo", required=True, command_nam
 
 </details>
 
-
-
-
-
 ## Functions
 
-### <span id="fn.register"></span>`fn register`
+### <span id="fn.register"></span><code style="font-size: 0.85em">fn register</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn register (_py : Python < '_ > , m : & Bound < '_ , PyModule >) -> PyResult < () >
+fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()>
 ```
 
 Registers the Command and Arg structs to the python api in the `angreal` module
@@ -561,15 +558,12 @@ pub fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
 </details>
 
-
-
-### <span id="fn.set_current_command_path"></span>`fn set_current_command_path`
+### <span id="fn.set_current_command_path"></span><code style="font-size: 0.85em">fn set_​current_​command_​path</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn set_current_command_path (path : String)
+fn set_current_command_path(path: String)
 ```
 
 Set the current command path for argument registration
@@ -585,15 +579,12 @@ pub fn set_current_command_path(path: String) {
 
 </details>
 
-
-
-### <span id="fn.get_current_command_path"></span>`fn get_current_command_path`
+### <span id="fn.get_current_command_path"></span><code style="font-size: 0.85em">fn get_​current_​command_​path</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn get_current_command_path () -> Option < String >
+fn get_current_command_path() -> Option<String>
 ```
 
 Get the current command path for argument registration
@@ -609,15 +600,12 @@ pub fn get_current_command_path() -> Option<String> {
 
 </details>
 
-
-
-### <span id="fn.generate_command_path_key"></span>`fn generate_command_path_key`
+### <span id="fn.generate_command_path_key"></span><code style="font-size: 0.85em">fn generate_​command_​path_​key</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn generate_command_path_key (command : & AngrealCommand) -> String
+fn generate_command_path_key(command: &AngrealCommand) -> String
 ```
 
 Generate a full path key for a command based on its group hierarchy
@@ -633,15 +621,15 @@ pub fn generate_command_path_key(command: &AngrealCommand) -> String {
 
 </details>
 
-
-
-### <span id="fn.generate_command_path_key_from_parts"></span>`fn generate_command_path_key_from_parts`
+### <span id="fn.generate_command_path_key_from_parts"></span><code style="font-size: 0.85em">fn generate_​command_​path_​key_​from_​parts</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn generate_command_path_key_from_parts (groups : Option < & [AngrealGroup] > , name : & str) -> String
+fn generate_command_path_key_from_parts(
+    groups: Option<&[AngrealGroup]>,
+    name: &str,
+) -> String
 ```
 
 Generate a path key from group list and command name
@@ -669,15 +657,15 @@ pub fn generate_command_path_key_from_parts(groups: Option<&[AngrealGroup]>, nam
 
 </details>
 
-
-
-### <span id="fn.generate_path_key_from_parts"></span>`fn generate_path_key_from_parts`
+### <span id="fn.generate_path_key_from_parts"></span><code style="font-size: 0.85em">fn generate_​path_​key_​from_​parts</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn generate_path_key_from_parts (groups : & [String] , command_name : & str) -> String
+fn generate_path_key_from_parts(
+    groups: &[String],
+    command_name: &str,
+) -> String
 ```
 
 Generate a full path key for a command based on group names and command name

@@ -1,13 +1,13 @@
 ---
 title: "angreal::python_bindings::decorators"
 description: "Python decorator functions"
+editUrl: false
 sidebar:
-  order: 34
+  order: 29
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
-
 
 Python decorator functions
 
@@ -20,12 +20,11 @@ This module contains PyO3 functions for the decorators:
 
 ## Structs
 
-### <span id="struct.GroupDecorator"></span>`class GroupDecorator`
+### <span id="struct.GroupDecorator"></span><code style="font-size: 0.85em">class GroupDecorator</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.decorators.GroupDecorator](../../../../angreal/python_bindings/decorators/#class.GroupDecorator)
+> **Python API**: [`angreal.GroupDecorator`](../../../../angreal/#class.GroupDecorator)
 
 A Python callable that wraps the group decorator logic
 
@@ -34,17 +33,17 @@ A Python callable that wraps the group decorator logic
 | Name | Type | Description |
 |------|------|-------------|
 | `name` | `String` |  |
-| `about` | `Option < String >` |  |
+| `about` | `Option<String>` |  |
 
 #### Methods
 
-##### <span id="GroupDecorator.__call__"></span>`__call__`
+##### <span id="GroupDecorator.__call__"></span><code>_​_​call_​_​</code>
 
 ```rust
-fn __call__ (& self , func : Option < Py < PyAny > >) -> PyResult < Py < PyAny > >
+fn __call__(&self, func: Option<Py<PyAny>>) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.decorators.GroupDecorator.__call__](../../../../angreal/python_bindings/decorators/#GroupDecorator.__call__)
+> **Python API**: [`angreal.GroupDecorator.__call__`](../../../../angreal/#GroupDecorator.__call__)
 
 <details>
 <summary>Source</summary>
@@ -86,16 +85,11 @@ fn __call__ (& self , func : Option < Py < PyAny > >) -> PyResult < Py < PyAny >
 
 </details>
 
-
-
-
-
-### <span id="struct.CommandDecorator"></span>`class CommandDecorator`
+### <span id="struct.CommandDecorator"></span><code style="font-size: 0.85em">class CommandDecorator</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.decorators.CommandDecorator](../../../../angreal/python_bindings/decorators/#class.CommandDecorator)
+> **Python API**: [`angreal.CommandDecorator`](../../../../angreal/#class.CommandDecorator)
 
 A Python callable that wraps the command decorator logic
 
@@ -103,20 +97,20 @@ A Python callable that wraps the command decorator logic
 
 | Name | Type | Description |
 |------|------|-------------|
-| `name` | `Option < String >` |  |
-| `about` | `Option < String >` |  |
-| `long_about` | `Option < String >` |  |
-| `tool` | `Option < crate :: task :: ToolDescription >` |  |
+| `name` | `Option<String>` |  |
+| `about` | `Option<String>` |  |
+| `long_about` | `Option<String>` |  |
+| `tool` | `Option<crate::task::ToolDescription>` |  |
 
 #### Methods
 
-##### <span id="CommandDecorator.__call__"></span>`__call__`
+##### <span id="CommandDecorator.__call__"></span><code>_​_​call_​_​</code>
 
 ```rust
-fn __call__ (& self , func : Py < PyAny >) -> PyResult < Py < PyAny > >
+fn __call__(&self, func: Py<PyAny>) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.decorators.CommandDecorator.__call__](../../../../angreal/python_bindings/decorators/#CommandDecorator.__call__)
+> **Python API**: [`angreal.CommandDecorator.__call__`](../../../../angreal/#CommandDecorator.__call__)
 
 <details>
 <summary>Source</summary>
@@ -295,16 +289,11 @@ fn __call__ (& self , func : Py < PyAny >) -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-
-
-### <span id="struct.ArgumentDecorator"></span>`class ArgumentDecorator`
+### <span id="struct.ArgumentDecorator"></span><code style="font-size: 0.85em">class ArgumentDecorator</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.decorators.ArgumentDecorator](../../../../angreal/python_bindings/decorators/#class.ArgumentDecorator)
+> **Python API**: [`angreal.ArgumentDecorator`](../../../../angreal/#class.ArgumentDecorator)
 
 A Python callable that wraps the argument decorator logic
 
@@ -313,17 +302,17 @@ A Python callable that wraps the argument decorator logic
 | Name | Type | Description |
 |------|------|-------------|
 | `name` | `String` |  |
-| `kwargs_dict` | `Option < Py < PyAny > >` |  |
+| `kwargs_dict` | `Option<Py<PyAny>>` |  |
 
 #### Methods
 
-##### <span id="ArgumentDecorator.__call__"></span>`__call__`
+##### <span id="ArgumentDecorator.__call__"></span><code>_​_​call_​_​</code>
 
 ```rust
-fn __call__ (& self , func : Py < PyAny >) -> PyResult < Py < PyAny > >
+fn __call__(&self, func: Py<PyAny>) -> PyResult<Py<PyAny>>
 ```
 
-> **Python API**: [angreal.python_bindings.decorators.ArgumentDecorator.__call__](../../../../angreal/python_bindings/decorators/#ArgumentDecorator.__call__)
+> **Python API**: [`angreal.ArgumentDecorator.__call__`](../../../../angreal/#ArgumentDecorator.__call__)
 
 <details>
 <summary>Source</summary>
@@ -359,21 +348,16 @@ fn __call__ (& self , func : Py < PyAny >) -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-
-
 ## Functions
 
-### <span id="fn.required_version"></span>`fn required_version`
+### <span id="fn.required_version"></span><code style="font-size: 0.85em">fn required_​version</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.decorators.required_version](../../../../angreal/python_bindings/decorators/#fn.required_version)
+> **Python API**: [`angreal.required_version`](../../../../angreal/#fn.required_version)
 
 ```rust
-fn required_version (specifier : & str) -> PyResult < () >
+fn required_version(specifier: &str) -> PyResult<()>
 ```
 
 Check if the current angreal version meets the specified requirement
@@ -421,15 +405,15 @@ pub fn required_version(specifier: &str) -> PyResult<()> {
 
 </details>
 
-
-
-### <span id="fn.register_decorators"></span>`fn register_decorators`
+### <span id="fn.register_decorators"></span><code style="font-size: 0.85em">fn register_​decorators</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn register_decorators (_py : Python , m : & Bound < '_ , PyModule >) -> PyResult < () >
+fn register_decorators(
+    _py: Python) -> PyResult<(,
+    m: &Bound<'_, PyModule>) -> PyResult<(,
+) -> PyResult<()>
 ```
 
 Register decorator functions to a Python module
@@ -453,17 +437,14 @@ pub fn register_decorators(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()>
 
 </details>
 
-
-
-### <span id="fn.group"></span>`fn group`
+### <span id="fn.group"></span><code style="font-size: 0.85em">fn group</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.decorators.group](../../../../angreal/python_bindings/decorators/#fn.group)
+> **Python API**: [`angreal.group`](../../../../angreal/#fn.group)
 
 ```rust
-fn group (kwargs : Option < & Bound < '_ , PyDict > >) -> PyResult < GroupDecorator >
+fn group(kwargs: Option<&Bound<'_, PyDict>>) -> PyResult<GroupDecorator>
 ```
 
 Create a group decorator that assigns commands to a group
@@ -494,17 +475,17 @@ pub fn group(kwargs: Option<&Bound<'_, PyDict>>) -> PyResult<GroupDecorator> {
 
 </details>
 
-
-
-### <span id="fn.command_group"></span>`fn command_group`
+### <span id="fn.command_group"></span><code style="font-size: 0.85em">fn command_​group</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.decorators.command_group](../../../../angreal/python_bindings/decorators/#fn.command_group)
+> **Python API**: [`angreal.command_group`](../../../../angreal/#fn.command_group)
 
 ```rust
-fn command_group (name : & str , about : Option < & str >) -> PyResult < GroupDecorator >
+fn command_group(
+    name: &str,
+    about: Option<&str>,
+) -> PyResult<GroupDecorator>
 ```
 
 Generate a reusable command group decorator
@@ -527,17 +508,16 @@ pub fn command_group(name: &str, about: Option<&str>) -> PyResult<GroupDecorator
 
 </details>
 
-
-
-### <span id="fn.command"></span>`fn command`
+### <span id="fn.command"></span><code style="font-size: 0.85em">fn command</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.decorators.command](../../../../angreal/python_bindings/decorators/#fn.command)
+> **Python API**: [`angreal.command`](../../../../angreal/#fn.command)
 
 ```rust
-fn command (kwargs : Option < & Bound < '_ , PyDict > >) -> PyResult < CommandDecorator >
+fn command(
+    kwargs: Option<&Bound<'_, PyDict>>,
+) -> PyResult<CommandDecorator>
 ```
 
 Create a command decorator that registers functions as commands
@@ -586,17 +566,16 @@ pub fn command(kwargs: Option<&Bound<'_, PyDict>>) -> PyResult<CommandDecorator>
 
 </details>
 
-
-
-### <span id="fn.argument"></span>`fn argument`
+### <span id="fn.argument"></span><code style="font-size: 0.85em">fn argument</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.decorators.argument](../../../../angreal/python_bindings/decorators/#fn.argument)
+> **Python API**: [`angreal.argument`](../../../../angreal/#fn.argument)
 
 ```rust
-fn argument (kwargs : Option < & Bound < '_ , PyDict > >) -> PyResult < ArgumentDecorator >
+fn argument(
+    kwargs: Option<&Bound<'_, PyDict>>,
+) -> PyResult<ArgumentDecorator>
 ```
 
 Create an argument decorator that adds command-line arguments to commands

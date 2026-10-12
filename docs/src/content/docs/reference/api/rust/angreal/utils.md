@@ -1,25 +1,24 @@
 ---
 title: "angreal::utils"
 description: "Filesystem utilities"
+editUrl: false
 sidebar:
-  order: 45
+  order: 40
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 Filesystem utilities
 
 ## Functions
 
-### <span id="fn.context_to_map"></span>`fn context_to_map`
+### <span id="fn.context_to_map"></span><code style="font-size: 0.85em">fn context_​to_​map</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn context_to_map (ctx : Context) -> Map < String , Value >
+fn context_to_map(ctx: Context) -> Map<String, Value>
 ```
 
 <details>
@@ -33,15 +32,15 @@ pub fn context_to_map(ctx: Context) -> Map<String, Value> {
 
 </details>
 
-
-
-### <span id="fn.repl_context_from_toml"></span>`fn repl_context_from_toml`
+### <span id="fn.repl_context_from_toml"></span><code style="font-size: 0.85em">fn repl_​context_​from_​toml</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn repl_context_from_toml (toml_path : PathBuf , take_input : bool) -> Context
+fn repl_context_from_toml(
+    toml_path: PathBuf,
+    take_input: bool,
+) -> Context
 ```
 
 <details>
@@ -167,139 +166,18 @@ pub fn repl_context_from_toml(toml_path: PathBuf, take_input: bool) -> Context {
 
 </details>
 
-
-
-### <span id="fn.is_templated_segment"></span>`fn is_templated_segment`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn is_templated_segment (segment : & str) -> bool
-```
-
-Test whether a single path segment is a Tera-templated name (e.g. `{{ name }}`).
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn is_templated_segment(segment: &str) -> bool {
-    segment.starts_with("{{") && segment.contains("}}")
-}
-```
-
-</details>
-
-
-
-### <span id="fn.in_place_root"></span>`fn in_place_root`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn in_place_root (src : & Path) -> String
-```
-
-Identify the single top-level templated directory of a template `src`.
-
-In-place rendering strips this directory and renders its contents directly
-into the destination. Exactly one top-level templated directory is required;
-zero or more than one is a hard error (the template is ambiguous for
-in-place use).
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn in_place_root(src: &Path) -> String {
-    let mut roots: Vec<String> = Vec::new();
-    let entries = fs::read_dir(src).unwrap_or_else(|e| {
-        error!("Failed to read template directory {}: {}", src.display(), e);
-        exit(1);
-    });
-    for entry in entries.flatten() {
-        if entry.path().is_dir() {
-            let name = entry.file_name().to_string_lossy().to_string();
-            if is_templated_segment(&name) {
-                roots.push(name);
-            }
-        }
-    }
-
-    match roots.len() {
-        1 => roots.pop().unwrap(),
-        0 => {
-            error!(
-                "--in-place requires the template to have exactly one top-level templated directory (e.g. `{{{{ project_name }}}}`), but none was found in {}.",
-                src.display()
-            );
-            exit(1);
-        }
-        n => {
-            error!(
-                "--in-place requires exactly one top-level templated directory, but found {} in {}: {}. In-place rendering cannot determine which directory to strip.",
-                n,
-                src.display(),
-                roots.join(", ")
-            );
-            exit(1);
-        }
-    }
-}
-```
-
-</details>
-
-
-
-### <span id="fn.dest_rel_path"></span>`fn dest_rel_path`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn dest_rel_path (rendered : & str , in_place : bool) -> Option < PathBuf >
-```
-
-Compute the destination-relative path for a rendered template path.
-
-In normal rendering this is the rendered path unchanged. In in-place mode
-the leading (root) path component is stripped so contents land directly in
-`dst`; `None` means the path *is* the stripped root itself and should be
-skipped (we never create the root directory in-place).
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn dest_rel_path(rendered: &str, in_place: bool) -> Option<PathBuf> {
-    if !in_place {
-        return Some(PathBuf::from(rendered));
-    }
-    let mut components = Path::new(rendered).components();
-    components.next(); // drop the root component
-    let rest = components.as_path();
-    if rest.as_os_str().is_empty() {
-        None
-    } else {
-        Some(rest.to_path_buf())
-    }
-}
-```
-
-</details>
-
-
-
-### <span id="fn.render_dir"></span>`fn render_dir`
+### <span id="fn.render_dir"></span><code style="font-size: 0.85em">fn render_​dir</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn render_dir (src : & Path , context : Context , dst : & Path , force : bool , in_place : bool ,) -> Vec < String >
+fn render_dir(
+    src: &Path,
+    context: Context,
+    dst: &Path,
+    force: bool,
+    in_place: bool,
+) -> Vec<String>
 ```
 
 <details>
@@ -479,15 +357,12 @@ pub fn render_dir(
 
 </details>
 
-
-
-### <span id="fn.check_up_to_date"></span>`fn check_up_to_date`
+### <span id="fn.check_up_to_date"></span><code style="font-size: 0.85em">fn check_​up_​to_​date</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn check_up_to_date () -> Result < () >
+fn check_up_to_date() -> Result<()>
 ```
 
 <details>
@@ -532,22 +407,19 @@ pub fn check_up_to_date() -> Result<()> {
 
 </details>
 
-
-
-### <span id="fn.get_task_files"></span>`fn get_task_files`
+### <span id="fn.get_task_files"></span><code style="font-size: 0.85em">fn get_​task_​files</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn get_task_files (path : PathBuf) -> Result < Vec < PathBuf > >
+fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>>
 ```
 
 Get a list of task files in given a path
 
 **Examples:**
 
-```
+```rust
 use angreal::utils::get_task_files;
 use std::path::PathBuf;
 
@@ -587,15 +459,12 @@ pub fn get_task_files(path: PathBuf) -> Result<Vec<PathBuf>> {
 
 </details>
 
-
-
-### <span id="fn.register"></span>`fn register`
+### <span id="fn.register"></span><code style="font-size: 0.85em">fn register</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn register (_py : Python < '_ > , m : & Bound < '_ , PyModule >) -> PyResult < () >
+fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()>
 ```
 
 Registers the Command and Arg structs to the python api in the `angreal` module
@@ -616,17 +485,17 @@ pub fn register(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
 </details>
 
-
-
-### <span id="fn.render_directory"></span>`fn render_directory`
+### <span id="fn.render_directory"></span><code style="font-size: 0.85em">fn render_​directory</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.utils.render_directory](../../../angreal/utils/#fn.render_directory)
-
 ```rust
-fn render_directory (src : & str , dst : & str , force : bool , context : Option < & Bound < '_ , PyDict > > ,) -> PyResult < Py < PyAny > >
+fn render_directory(
+    src: &str,
+    dst: &str,
+    force: bool,
+    context: Option<&Bound<'_, PyDict>>,
+) -> PyResult<Py<PyAny>>
 ```
 
 <details>
@@ -661,17 +530,12 @@ pub fn render_directory(
 
 </details>
 
-
-
-### <span id="fn.generate_context"></span>`fn generate_context`
+### <span id="fn.generate_context"></span><code style="font-size: 0.85em">fn generate_​context</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.utils.generate_context](../../../angreal/utils/#fn.generate_context)
-
 ```rust
-fn generate_context (path : & str , take_input : bool) -> PyResult < Py < PyAny > >
+fn generate_context(path: &str, take_input: bool) -> PyResult<Py<PyAny>>
 ```
 
 Generate a templating context from a toml file.
@@ -697,17 +561,12 @@ fn generate_context(path: &str, take_input: bool) -> PyResult<Py<PyAny>> {
 
 </details>
 
-
-
-### <span id="fn.get_root"></span>`fn get_root`
+### <span id="fn.get_root"></span><code style="font-size: 0.85em">fn get_​root</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.utils.get_root](../../../angreal/utils/#fn.get_root)
-
 ```rust
-fn get_root () -> PyResult < String >
+fn get_root() -> PyResult<String>
 ```
 
 Get the root path of a current angreal project.
@@ -737,17 +596,15 @@ fn get_root() -> PyResult<String> {
 
 </details>
 
-
-
-### <span id="fn.render_template"></span>`fn render_template`
+### <span id="fn.render_template"></span><code style="font-size: 0.85em">fn render_​template</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.utils.render_template](../../../angreal/utils/#fn.render_template)
-
 ```rust
-fn render_template (template : & str , context : & Bound < '_ , PyDict >) -> PyResult < String >
+fn render_template(
+    template: &str,
+    context: &Bound<'_, PyDict>,
+) -> PyResult<String>
 ```
 
 <details>
@@ -769,17 +626,12 @@ fn render_template(template: &str, context: &Bound<'_, PyDict>) -> PyResult<Stri
 
 </details>
 
-
-
-### <span id="fn.get_context"></span>`fn get_context`
+### <span id="fn.get_context"></span><code style="font-size: 0.85em">fn get_​context</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.utils.get_context](../../../angreal/utils/#fn.get_context)
-
 ```rust
-fn get_context () -> PyResult < Py < PyAny > >
+fn get_context() -> PyResult<Py<PyAny>>
 ```
 
 Read the angreal.toml file from the .angreal folder and return it as a dictionary
@@ -828,15 +680,12 @@ fn get_context() -> PyResult<Py<PyAny>> {
 
 </details>
 
-
-
-### <span id="fn.is_angreal_project"></span>`fn is_angreal_project`
+### <span id="fn.is_angreal_project"></span><code style="font-size: 0.85em">fn is_​angreal_​project</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn is_angreal_project () -> Result < PathBuf >
+fn is_angreal_project() -> Result<PathBuf>
 ```
 
 Tests whether or not a current path is an angreal project
@@ -846,7 +695,7 @@ anywhere in the current and parent directories.
 
 **Examples:**
 
-```
+```rust
 use angreal::utils::is_angreal_project
 
 let project_path = is_angreal_project()
@@ -892,22 +741,19 @@ pub fn is_angreal_project() -> Result<PathBuf> {
 
 </details>
 
-
-
-### <span id="fn.load_python"></span>`fn load_python`
+### <span id="fn.load_python"></span><code style="font-size: 0.85em">fn load_​python</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn load_python (file : PathBuf) -> Result < () , PyErr >
+fn load_python(file: PathBuf) -> Result<(), PyErr>
 ```
 
 Loads a python file as a pyo3 PyModule
 
 **Examples:**
 
-```
+```rust
 use angreal::utils::load_python
 use std::path::PathBuf;
 
@@ -964,22 +810,35 @@ pub fn load_python(file: PathBuf) -> Result<(), PyErr> {
 
 </details>
 
-
-
-### <span id="fn.extract_key_defaults"></span>`fn extract_key_defaults`
+### <span id="fn.extract_key_defaults"></span><code style="font-size: 0.85em">fn extract_​key_​defaults</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn extract_key_defaults (toml_path : PathBuf) -> Result < Map < String , Value > >
+fn extract_key_defaults(
+    toml_path: PathBuf,
+) -> Result<Map<String, Value>>
 ```
 
 Extract key/default value pairs from a TOML file
 
+**Result Structure**
+
+For a TOML entry like:
+```toml
+age = 25
+```
+
+The resulting Map will contain:
+```rust
+{
+    "age": 25
+}
+```
+
 **Examples:**
 
-```
+```rust
 use angreal::utils::extract_key_defaults;
 use std::path::PathBuf;
 
@@ -1011,22 +870,40 @@ pub fn extract_key_defaults(toml_path: PathBuf) -> Result<Map<String, Value>> {
 
 </details>
 
-
-
-### <span id="fn.extract_validation_rules"></span>`fn extract_validation_rules`
+### <span id="fn.extract_validation_rules"></span><code style="font-size: 0.85em">fn extract_​validation_​rules</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn extract_validation_rules (toml_path : PathBuf) -> Result < Map < String , Value > >
+fn extract_validation_rules(
+    toml_path: PathBuf,
+) -> Result<Map<String, Value>>
 ```
 
 Extract validation rules from a TOML file
 
+**Result Structure**
+
+For a TOML entry like:
+```toml
+[validation]
+age.min = 18
+age.max = 65
+age.type = "integer"
+```
+
+The resulting Map will contain:
+```rust
+{
+    "age.min": 18,
+    "age.max": 65,
+    "age.type": "integer"
+}
+```
+
 **Examples:**
 
-```
+```rust
 use angreal::utils::extract_validation_rules;
 use std::path::PathBuf;
 
@@ -1066,22 +943,34 @@ pub fn extract_validation_rules(toml_path: PathBuf) -> Result<Map<String, Value>
 
 </details>
 
-
-
-### <span id="fn.extract_prompts"></span>`fn extract_prompts`
+### <span id="fn.extract_prompts"></span><code style="font-size: 0.85em">fn extract_​prompts</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn extract_prompts (toml_path : PathBuf) -> Result < Map < String , Value > >
+fn extract_prompts(toml_path: PathBuf) -> Result<Map<String, Value>>
 ```
 
 Extract prompts from a TOML file
 
+**Result Structure**
+
+For a TOML entry like:
+```toml
+[prompt]
+age = "Enter your age (must be between 18 and 65)"
+```
+
+The resulting Map will contain:
+```rust
+{
+    "age": "Enter your age (must be between 18 and 65)"
+}
+```
+
 **Examples:**
 
-```
+```rust
 use angreal::utils::extract_prompts;
 use std::path::PathBuf;
 

@@ -1,25 +1,24 @@
 ---
 title: "angreal::py_logger"
 description: "A unified logger to bridge python and rust"
+editUrl: false
 sidebar:
-  order: 32
+  order: 27
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 A unified logger to bridge python and rust
 
 ## Functions
 
-### <span id="fn.register"></span>`fn register`
+### <span id="fn.register"></span><code style="font-size: 0.85em">fn register</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn register ()
+fn register()
 ```
 
 registers the rust logging interface with the python logging interface.
@@ -39,17 +38,12 @@ pub fn register() {
 
 </details>
 
-
-
-### <span id="fn.host_log"></span>`fn host_log`
+### <span id="fn.host_log"></span><code style="font-size: 0.85em">fn host_​log</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.py_logger.host_log](../../../angreal/py_logger/#fn.host_log)
-
 ```rust
-fn host_log (record : & Bound < '_ , PyAny >) -> PyResult < () >
+fn host_log(record: &Bound<'_, PyAny>) -> PyResult<()>
 ```
 
 Consume a Python `logging.LogRecord` and emit a Rust `Log` instead.
@@ -113,18 +107,20 @@ fn host_log(record: &Bound<'_, PyAny>) -> PyResult<()> {
 
 </details>
 
-
-
-### <span id="fn.setup_logging"></span>`fn setup_logging`
+### <span id="fn.setup_logging"></span><code style="font-size: 0.85em">fn setup_​logging</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn setup_logging (py : Python) -> PyResult < () >
+fn setup_logging(py: Python) -> PyResult<()>
 ```
 
-Modifies the Python `logging` module to deliver its log messages to the host `tracing::Subscriber` by default. To achieve this goal, the following changes are made to the module: - A new builtin function `logging.host_log` transcodes `logging.LogRecord`s to `tracing::Event`s. This function is not exported in `logging.__all__`, as it is not intended to be called directly. - A new class `logging.HostHandler` provides a `logging.Handler` that delivers all records to `host_log`. - `logging.basicConfig` is changed to use `logging.HostHandler` by default.
+Modifies the Python `logging` module to deliver its log messages to the host `tracing::Subscriber` by default. To achieve this goal, the following changes are made to the module:
+
+- A new builtin function `logging.host_log` transcodes `logging.LogRecord`s to `tracing::Event`s. This function
+  is not exported in `logging.__all__`, as it is not intended to be called directly.
+- A new class `logging.HostHandler` provides a `logging.Handler` that delivers all records to `host_log`.
+- `logging.basicConfig` is changed to use `logging.HostHandler` by default.
 
 Since any call like `logging.warn(...)` sets up logging via `logging.basicConfig`, all log messages are now
 delivered to `crate::host_log`, which will send them to `tracing::event!`.

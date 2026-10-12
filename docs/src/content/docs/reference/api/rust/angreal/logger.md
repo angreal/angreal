@@ -1,25 +1,24 @@
 ---
 title: "angreal::logger"
 description: "Logging for the core application"
+editUrl: false
 sidebar:
-  order: 29
+  order: 25
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 Logging for the core application
 
 ## Functions
 
-### <span id="fn.init_logger"></span>`fn init_logger`
+### <span id="fn.init_logger"></span><code style="font-size: 0.85em">fn init_​logger</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn init_logger () -> Handle
+fn init_logger() -> Handle
 ```
 
 initializes the angreal logger instance
@@ -45,15 +44,12 @@ pub fn init_logger() -> Handle {
 
 </details>
 
-
-
-### <span id="fn.update_verbosity"></span>`fn update_verbosity`
+### <span id="fn.update_verbosity"></span><code style="font-size: 0.85em">fn update_​verbosity</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn update_verbosity (log_hndl : & Handle , verbosity : u8)
+fn update_verbosity(log_hndl: &Handle, verbosity: u8)
 ```
 
 updates the verbosity of the logger after initialization

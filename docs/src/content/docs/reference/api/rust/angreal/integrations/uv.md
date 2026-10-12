@@ -1,30 +1,28 @@
 ---
 title: "angreal::integrations::uv"
 description: "API reference of the Rust module angreal::integrations::uv."
+editUrl: false
 sidebar:
-  order: 28
+  order: 24
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 ## Structs
 
-### <span id="struct.UvIntegration"></span>`struct UvIntegration`
+### <span id="struct.UvIntegration"></span><code style="font-size: 0.85em">struct UvIntegration</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 #### Methods
 
-##### <span id="UvIntegration.is_available"></span>`is_available`
+##### <span id="UvIntegration.is_available"></span><code>is_​available</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn is_available () -> bool
+fn is_available() -> bool
 ```
 
 <details>
@@ -42,15 +40,12 @@ fn is_available () -> bool
 
 </details>
 
-
-
-##### <span id="UvIntegration.version"></span>`version`
+##### <span id="UvIntegration.version"></span><code>version</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn version () -> Result < String >
+fn version() -> Result<String>
 ```
 
 <details>
@@ -73,15 +68,12 @@ fn version () -> Result < String >
 
 </details>
 
-
-
-##### <span id="UvIntegration.ensure_installed"></span>`ensure_installed`
+##### <span id="UvIntegration.ensure_installed"></span><code>ensure_​installed</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn ensure_installed () -> Result < () >
+fn ensure_installed() -> Result<()>
 ```
 
 <details>
@@ -132,16 +124,11 @@ fn ensure_installed () -> Result < () >
 
 </details>
 
-
-
-
-
-### <span id="struct.ActivationInfo"></span>`class ActivationInfo`
+### <span id="struct.ActivationInfo"></span><code style="font-size: 0.85em">class ActivationInfo</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.integrations.uv.ActivationInfo](../../../../angreal/integrations/uv/#class.ActivationInfo)
+> **Python API**: [`angreal.ActivationInfo`](../../../../angreal/#class.ActivationInfo)
 
 #### Fields
 
@@ -152,12 +139,9 @@ fn ensure_installed () -> Result < () >
 | `site_packages` | `String` |  |
 | `python_executable` | `String` |  |
 
-
-
-### <span id="struct.UvVirtualEnv"></span>`struct UvVirtualEnv`
+### <span id="struct.UvVirtualEnv"></span><code style="font-size: 0.85em">struct UvVirtualEnv</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 #### Fields
 
@@ -167,13 +151,12 @@ fn ensure_installed () -> Result < () >
 
 #### Methods
 
-##### <span id="UvVirtualEnv.create"></span>`create`
+##### <span id="UvVirtualEnv.create"></span><code>create</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn create (path : & Path , python_version : Option < & str >) -> Result < Self >
+fn create(path: &Path, python_version: Option<&str>) -> Result<Self>
 ```
 
 <details>
@@ -205,15 +188,12 @@ fn create (path : & Path , python_version : Option < & str >) -> Result < Self >
 
 </details>
 
-
-
-##### <span id="UvVirtualEnv.install_packages"></span>`install_packages`
+##### <span id="UvVirtualEnv.install_packages"></span><code>install_​packages</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn install_packages (& self , packages : & [String]) -> Result < () >
+fn install_packages(&self, packages: &[String]) -> Result<()>
 ```
 
 <details>
@@ -250,15 +230,12 @@ fn install_packages (& self , packages : & [String]) -> Result < () >
 
 </details>
 
-
-
-##### <span id="UvVirtualEnv.install_requirements"></span>`install_requirements`
+##### <span id="UvVirtualEnv.install_requirements"></span><code>install_​requirements</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn install_requirements (& self , requirements_file : & Path) -> Result < () >
+fn install_requirements(&self, requirements_file: &Path) -> Result<()>
 ```
 
 <details>
@@ -289,15 +266,12 @@ fn install_requirements (& self , requirements_file : & Path) -> Result < () >
 
 </details>
 
-
-
-##### <span id="UvVirtualEnv.python_executable"></span>`python_executable`
+##### <span id="UvVirtualEnv.python_executable"></span><code>python_​executable</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn python_executable (& self) -> PathBuf
+fn python_executable(&self) -> PathBuf
 ```
 
 <details>
@@ -315,15 +289,12 @@ fn python_executable (& self) -> PathBuf
 
 </details>
 
-
-
-##### <span id="UvVirtualEnv.site_packages"></span>`site_packages`
+##### <span id="UvVirtualEnv.site_packages"></span><code>site_​packages</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn site_packages (& self) -> Result < PathBuf >
+fn site_packages(&self) -> Result<PathBuf>
 ```
 
 <details>
@@ -365,60 +336,12 @@ fn site_packages (& self) -> Result < PathBuf >
 
 </details>
 
-
-
-##### <span id="UvVirtualEnv.fallback_site_packages"></span>`fallback_site_packages`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn fallback_site_packages (& self) -> PathBuf
-```
-
-Site-packages path derived from the venv layout alone, used when the venv's interpreter cannot be asked.
-
-<details>
-<summary>Source</summary>
-
-```rust
-    fn fallback_site_packages(&self) -> PathBuf {
-        if cfg!(windows) {
-            return self.path.join("Lib").join("site-packages");
-        }
-
-        // Look for lib/python3.x/site-packages
-        let lib_dir = self.path.join("lib");
-        if let Ok(entries) = std::fs::read_dir(&lib_dir) {
-            for entry in entries.flatten() {
-                let name = entry.file_name();
-                if let Some(name_str) = name.to_str() {
-                    if name_str.starts_with("python") {
-                        let site_packages = entry.path().join("site-packages");
-                        if site_packages.exists() {
-                            return site_packages;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Final fallback for Unix
-        self.path.join("lib").join("python3").join("site-packages")
-    }
-```
-
-</details>
-
-
-
-##### <span id="UvVirtualEnv.get_activation_info"></span>`get_activation_info`
+##### <span id="UvVirtualEnv.get_activation_info"></span><code>get_​activation_​info</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn get_activation_info (& self) -> Result < ActivationInfo >
+fn get_activation_info(&self) -> Result<ActivationInfo>
 ```
 
 <details>
@@ -453,15 +376,12 @@ fn get_activation_info (& self) -> Result < ActivationInfo >
 
 </details>
 
-
-
-##### <span id="UvVirtualEnv.discover_pythons"></span>`discover_pythons`
+##### <span id="UvVirtualEnv.discover_pythons"></span><code>discover_​pythons</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn discover_pythons () -> Result < Vec < (String , PathBuf) > >
+fn discover_pythons() -> Result<Vec<(String, PathBuf)>>
 ```
 
 <details>
@@ -504,15 +424,12 @@ fn discover_pythons () -> Result < Vec < (String , PathBuf) > >
 
 </details>
 
-
-
-##### <span id="UvVirtualEnv.install_python"></span>`install_python`
+##### <span id="UvVirtualEnv.install_python"></span><code>install_​python</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn install_python (version : & str) -> Result < PathBuf >
+fn install_python(version: &str) -> Result<PathBuf>
 ```
 
 <details>

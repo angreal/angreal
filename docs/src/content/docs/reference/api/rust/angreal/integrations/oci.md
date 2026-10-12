@@ -1,41 +1,49 @@
 ---
 title: "angreal::integrations::oci"
 description: "OCI registry integration."
+editUrl: false
 sidebar:
-  order: 27
+  order: 23
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 OCI registry integration.
 
-A synchronous wrapper over the async [`oci_client`] crate. Every public
+A synchronous wrapper over the async `oci_client` crate. Every public
 method blocks on a small current-thread tokio runtime so the rest of angreal
 — which is entirely synchronous — can pull and push OCI artifacts without
 ever touching `async`. This module is the shared core consumed both by
 `angreal init oci://...` (template targets) and by the
 `angreal.integrations.oci` Python binding.
 
+**Template artifact convention (v1)**
+
+An angreal template is distributed as a standard OCI image manifest with:
+- a config blob of media type [`ANGREAL_CONFIG_MEDIA_TYPE`](../../../../rust/angreal/integrations/oci/#const.ANGREAL_CONFIG_MEDIA_TYPE), and
+- one layer of media type [`ANGREAL_LAYER_MEDIA_TYPE`](../../../../rust/angreal/integrations/oci/#const.ANGREAL_LAYER_MEDIA_TYPE) — a gzipped tar of the
+  template directory (the same tree `angreal init` renders).
+
+Because it is a spec-compliant manifest, `oras`/`skopeo` and any OCI registry
+interoperate with artifacts angreal pushes.
+
 ## Structs
 
-### <span id="struct.Oci"></span>`struct Oci`
+### <span id="struct.Oci"></span><code style="font-size: 0.85em">struct Oci</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 Synchronous OCI registry client for angreal template artifacts.
 
 #### Methods
 
-##### <span id="Oci.is_available"></span>`is_available`
+##### <span id="Oci.is_available"></span><code>is_​available</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn is_available () -> bool
+fn is_available() -> bool
 ```
 
 Whether OCI support is available. Always `true` — the client is bundled (pure Rust), with no external binary or daemon required.
@@ -51,15 +59,17 @@ Whether OCI support is available. Always `true` — the client is bundled (pure 
 
 </details>
 
-
-
-##### <span id="Oci.pull_artifact"></span>`pull_artifact`
+##### <span id="Oci.pull_artifact"></span><code>pull_​artifact</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn pull_artifact (reference : & str , dest : & Path , auth : & OciAuth , insecure : bool ,) -> Result < PathBuf >
+fn pull_artifact(
+    reference: &str,
+    dest: &Path,
+    auth: &OciAuth,
+    insecure: bool,
+) -> Result<PathBuf>
 ```
 
 Pull a template artifact and unpack its layer into `dest`.
@@ -116,15 +126,17 @@ destination path on success.
 
 </details>
 
-
-
-##### <span id="Oci.push_artifact"></span>`push_artifact`
+##### <span id="Oci.push_artifact"></span><code>push_​artifact</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn push_artifact (reference : & str , src_dir : & Path , auth : & OciAuth , insecure : bool ,) -> Result < () >
+fn push_artifact(
+    reference: &str,
+    src_dir: &Path,
+    auth: &OciAuth,
+    insecure: bool,
+) -> Result<()>
 ```
 
 Package `src_dir` as an angreal template artifact and push it to `reference`. When `insecure` is set, the registry is contacted over plain HTTP.
@@ -177,15 +189,16 @@ Package `src_dir` as an angreal template artifact and push it to `reference`. Wh
 
 </details>
 
-
-
-##### <span id="Oci.list_tags"></span>`list_tags`
+##### <span id="Oci.list_tags"></span><code>list_​tags</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn list_tags (repository : & str , auth : & OciAuth , insecure : bool) -> Result < Vec < String > >
+fn list_tags(
+    repository: &str,
+    auth: &OciAuth,
+    insecure: bool,
+) -> Result<Vec<String>>
 ```
 
 List the tags available for a repository. When `insecure` is set, the registry is contacted over plain HTTP.
@@ -212,16 +225,11 @@ List the tags available for a repository. When `insecure` is set, the registry i
 
 </details>
 
-
-
-
-
 ## Enums
 
-### <span id="enum.OciAuth"></span>`enum OciAuth`
+### <span id="enum.OciAuth"></span><code style="font-size: 0.85em">enum OciAuth</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 Authentication for a registry operation.
 
@@ -230,17 +238,14 @@ Authentication for a registry operation.
 - **`Anonymous`** - No credentials — for public, read-anonymous repositories.
 - **`Basic`** - HTTP Basic credentials (username + password or token).
 
-
-
 ## Functions
 
-### <span id="fn.docker_config_auth"></span>`fn docker_config_auth`
+### <span id="fn.docker_config_auth"></span><code style="font-size: 0.85em">fn docker_​config_​auth</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn docker_config_auth (registry : & str) -> Option < OciAuth >
+fn docker_config_auth(registry: &str) -> Option<OciAuth>
 ```
 
 Resolve Basic auth for `registry` from the Docker `~/.docker/config.json` credential store, if present. Returns `None` when no matching entry exists.
@@ -277,15 +282,12 @@ pub fn docker_config_auth(registry: &str) -> Option<OciAuth> {
 
 </details>
 
-
-
-### <span id="fn.resolve_auth"></span>`fn resolve_auth`
+### <span id="fn.resolve_auth"></span><code style="font-size: 0.85em">fn resolve_​auth</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn resolve_auth (reference : & str) -> OciAuth
+fn resolve_auth(reference: &str) -> OciAuth
 ```
 
 Resolve auth for a reference: Docker `config.json` credentials for the registry if present, otherwise anonymous. Shared by `angreal init oci://...` and the Python binding so both authenticate the same way.
@@ -304,15 +306,12 @@ pub fn resolve_auth(reference: &str) -> OciAuth {
 
 </details>
 
-
-
-### <span id="fn.reference_registry"></span>`fn reference_registry`
+### <span id="fn.reference_registry"></span><code style="font-size: 0.85em">fn reference_​registry</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn reference_registry (reference : & str) -> Result < String >
+fn reference_registry(reference: &str) -> Result<String>
 ```
 
 The registry host (and port) of a reference, e.g. `ghcr.io` or `localhost:5000`.
@@ -328,15 +327,12 @@ pub fn reference_registry(reference: &str) -> Result<String> {
 
 </details>
 
-
-
-### <span id="fn.reference_basename"></span>`fn reference_basename`
+### <span id="fn.reference_basename"></span><code style="font-size: 0.85em">fn reference_​basename</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn reference_basename (reference : & str) -> Result < String >
+fn reference_basename(reference: &str) -> Result<String>
 ```
 
 The conventional local directory name for a reference — its repository's last path segment — used as the default pull destination.
@@ -354,15 +350,12 @@ pub fn reference_basename(reference: &str) -> Result<String> {
 
 </details>
 
-
-
-### <span id="fn.cache_subpath"></span>`fn cache_subpath`
+### <span id="fn.cache_subpath"></span><code style="font-size: 0.85em">fn cache_​subpath</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn cache_subpath (reference : & str) -> Result < PathBuf >
+fn cache_subpath(reference: &str) -> Result<PathBuf>
 ```
 
 Compute a filesystem-safe cache subpath (`<registry>/<repository>/<version>`) for a reference, used to key the local template cache. `version` is the tag, else the digest, else `latest`.
@@ -386,233 +379,9 @@ pub fn cache_subpath(reference: &str) -> Result<PathBuf> {
 
 </details>
 
-
-
-### <span id="fn.sanitize_segment"></span>`fn sanitize_segment`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn sanitize_segment (s : & str) -> String
-```
-
-Reduce a reference component to a safe single path segment (registries carry ports/colons, digests carry colons — neither is portable in a path).
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn sanitize_segment(s: &str) -> String {
-    s.chars()
-        .map(|c| {
-            if c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_') {
-                c
-            } else {
-                '_'
-            }
-        })
-        .collect()
-}
-```
-
-</details>
-
-
-
-### <span id="fn.parse_reference"></span>`fn parse_reference`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn parse_reference (reference : & str) -> Result < Reference >
-```
-
-Parse a reference, tolerating an optional `oci://` scheme prefix.
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn parse_reference(reference: &str) -> Result<Reference> {
-    let stripped = reference.strip_prefix("oci://").unwrap_or(reference);
-    stripped
-        .parse::<Reference>()
-        .map_err(|e| anyhow!("invalid OCI reference '{reference}': {e}"))
-}
-```
-
-</details>
-
-
-
-### <span id="fn.use_http_for"></span>`fn use_http_for`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn use_http_for (registry : & str , insecure : bool) -> bool
-```
-
-Whether to talk to `registry` over plain HTTP: always for `localhost` / `127.0.0.1` (test/loopback registries), or when the caller opts into `insecure` (a self-hosted registry without TLS).
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn use_http_for(registry: &str, insecure: bool) -> bool {
-    insecure || registry.starts_with("localhost") || registry.starts_with("127.0.0.1")
-}
-```
-
-</details>
-
-
-
-### <span id="fn.build_client"></span>`fn build_client`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn build_client (reference : & Reference , insecure : bool) -> Client
-```
-
-Build a client for the given reference. HTTPS by default, riding the vendored-OpenSSL native-tls backend already in the tree; plain HTTP for loopback registries or when `insecure` is set.
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn build_client(reference: &Reference, insecure: bool) -> Client {
-    let registry = reference.registry();
-    let protocol = if use_http_for(registry, insecure) {
-        ClientProtocol::HttpsExcept(vec![registry.to_string()])
-    } else {
-        ClientProtocol::Https
-    };
-
-    Client::new(ClientConfig {
-        protocol,
-        ..Default::default()
-    })
-}
-```
-
-</details>
-
-
-
-### <span id="fn.run_async"></span>`fn run_async`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn run_async < F : std :: future :: Future > (fut : F) -> F :: Output
-```
-
-Block on `fut` using a lightweight current-thread runtime. The async surface of `oci-client` is fully contained here.
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn run_async<F: std::future::Future>(fut: F) -> F::Output {
-    // A fresh current-thread runtime per operation keeps the async footprint
-    // minimal and avoids holding a runtime across the synchronous API boundary.
-    let runtime = tokio::runtime::Builder::new_current_thread()
-        .enable_all()
-        .build()
-        .expect("failed to build tokio runtime for OCI operation");
-    runtime.block_on(fut)
-}
-```
-
-</details>
-
-
-
-### <span id="fn.template_config_blob"></span>`fn template_config_blob`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn template_config_blob () -> Vec < u8 >
-```
-
-The config blob embedded in a pushed template artifact.
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn template_config_blob() -> Vec<u8> {
-    let config = serde_json::json!({
-        "angrealVersion": env!("CARGO_PKG_VERSION"),
-        "artifactType": "application/vnd.angreal.template",
-    });
-    serde_json::to_vec(&config).unwrap_or_else(|_| b"{}".to_vec())
-}
-```
-
-</details>
-
-
-
-### <span id="fn.pack_targz"></span>`fn pack_targz`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn pack_targz (src_dir : & Path) -> Result < Vec < u8 > >
-```
-
-gzip+tar the contents of `src_dir` (rooted at `.`) into an in-memory buffer.
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn pack_targz(src_dir: &Path) -> Result<Vec<u8>> {
-    let encoder = GzEncoder::new(Vec::new(), Compression::default());
-    let mut builder = tar::Builder::new(encoder);
-    builder.append_dir_all(".", src_dir)?;
-    let encoder = builder.into_inner()?;
-    let bytes = encoder.finish()?;
-    Ok(bytes)
-}
-```
-
-</details>
-
-
-
-### <span id="fn.unpack_targz"></span>`fn unpack_targz`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn unpack_targz (data : & [u8] , dest : & Path) -> Result < () >
-```
-
-Unpack a gzipped tar buffer into `dest`.
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn unpack_targz(data: &[u8], dest: &Path) -> Result<()> {
-    let decoder = GzDecoder::new(data);
-    let mut archive = Archive::new(decoder);
-    archive.unpack(dest)?;
-    Ok(())
-}
-```
-
-</details>
+## Constants
+
+| Name | Type | Value | Description |
+|------|------|-------|-------------|
+| <span id="const.ANGREAL_CONFIG_MEDIA_TYPE"></span>`ANGREAL_CONFIG_MEDIA_TYPE` | `&str` | `"application/vnd.angreal.template.config.v1+json"` | Media type for the angreal template artifact config blob. |
+| <span id="const.ANGREAL_LAYER_MEDIA_TYPE"></span>`ANGREAL_LAYER_MEDIA_TYPE` | `&str` | `"application/vnd.angreal.template.layer.v1.tar+gzip"` | Media type for the angreal template artifact layer: a gzipped tar of the template directory. |

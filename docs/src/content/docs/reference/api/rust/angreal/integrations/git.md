@@ -1,38 +1,30 @@
 ---
 title: "angreal::integrations::git"
 description: "API reference of the Rust module angreal::integrations::git."
+editUrl: false
 sidebar:
-  order: 26
+  order: 22
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 ## Structs
 
-### <span id="struct.Git"></span>`struct Git`
+### <span id="struct.Git"></span><code style="font-size: 0.85em">struct Git</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 Git integration using git2/libgit2 for reliability and self-contained operation
 
-#### Fields
-
-| Name | Type | Description |
-|------|------|-------------|
-| `working_dir` | `PathBuf` |  |
-
 #### Methods
 
-##### <span id="Git.new"></span>`new`
+##### <span id="Git.new"></span><code>new</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn new (working_dir : Option < & Path >) -> Result < Self >
+fn new(working_dir: Option<&Path>) -> Result<Self>
 ```
 
 Create a new Git instance
@@ -59,15 +51,12 @@ Create a new Git instance
 
 </details>
 
-
-
-##### <span id="Git.is_available"></span>`is_available`
+##### <span id="Git.is_available"></span><code>is_​available</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn is_available () -> bool
+fn is_available() -> bool
 ```
 
 Check if git2 is available (always true since it's built-in)
@@ -83,15 +72,12 @@ Check if git2 is available (always true since it's built-in)
 
 </details>
 
-
-
-##### <span id="Git.working_dir"></span>`working_dir`
+##### <span id="Git.working_dir"></span><code>working_​dir</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn working_dir (& self) -> & Path
+fn working_dir(&self) -> &Path
 ```
 
 Get the working directory path
@@ -107,79 +93,12 @@ Get the working directory path
 
 </details>
 
-
-
-##### <span id="Git.get_repo"></span>`get_repo`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn get_repo (& self) -> Result < Repository >
-```
-
-Get or open repository
-
-<details>
-<summary>Source</summary>
-
-```rust
-    fn get_repo(&self) -> Result<Repository> {
-        Repository::open(&self.working_dir).with_context(|| {
-            format!(
-                "Failed to open repository at {}",
-                self.working_dir.display()
-            )
-        })
-    }
-```
-
-</details>
-
-
-
-##### <span id="Git.get_signature"></span>`get_signature`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn get_signature (& self) -> Result < Signature < '_ > >
-```
-
-Get default signature for commits
-
-<details>
-<summary>Source</summary>
-
-```rust
-    fn get_signature(&self) -> Result<Signature<'_>> {
-        // Try to get from git config, fallback to defaults
-        let repo = self.get_repo()?;
-        let config = repo.config()?;
-
-        let name = config
-            .get_string("user.name")
-            .unwrap_or_else(|_| "Angreal User".to_string());
-        let email = config
-            .get_string("user.email")
-            .unwrap_or_else(|_| "angreal@localhost".to_string());
-
-        Signature::now(&name, &email).context("Failed to create git signature")
-    }
-```
-
-</details>
-
-
-
-##### <span id="Git.init"></span>`init`
+##### <span id="Git.init"></span><code>init</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn init (& self , bare : bool) -> Result < () >
+fn init(&self, bare: bool) -> Result<()>
 ```
 
 <details>
@@ -198,15 +117,12 @@ fn init (& self , bare : bool) -> Result < () >
 
 </details>
 
-
-
-##### <span id="Git.clone"></span>`clone`
+##### <span id="Git.clone"></span><code>clone</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn clone (remote : & str , destination : Option < & Path >) -> Result < PathBuf >
+fn clone(remote: &str, destination: Option<&Path>) -> Result<PathBuf>
 ```
 
 <details>
@@ -231,15 +147,12 @@ fn clone (remote : & str , destination : Option < & Path >) -> Result < PathBuf 
 
 </details>
 
-
-
-##### <span id="Git.add"></span>`add`
+##### <span id="Git.add"></span><code>add</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn add (& self , paths : & [& str]) -> Result < () >
+fn add(&self, paths: &[&str]) -> Result<()>
 ```
 
 <details>
@@ -266,15 +179,12 @@ fn add (& self , paths : & [& str]) -> Result < () >
 
 </details>
 
-
-
-##### <span id="Git.commit"></span>`commit`
+##### <span id="Git.commit"></span><code>commit</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn commit (& self , message : & str , all : bool) -> Result < () >
+fn commit(&self, message: &str, all: bool) -> Result<()>
 ```
 
 <details>
@@ -326,15 +236,12 @@ fn commit (& self , message : & str , all : bool) -> Result < () >
 
 </details>
 
-
-
-##### <span id="Git.push"></span>`push`
+##### <span id="Git.push"></span><code>push</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn push (& self , remote : Option < & str > , branch : Option < & str >) -> Result < () >
+fn push(&self, remote: Option<&str>, branch: Option<&str>) -> Result<()>
 ```
 
 <details>
@@ -356,15 +263,16 @@ fn push (& self , remote : Option < & str > , branch : Option < & str >) -> Resu
 
 </details>
 
-
-
-##### <span id="Git.pull"></span>`pull`
+##### <span id="Git.pull"></span><code>pull</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn pull (& self , _remote : Option < & str > , _branch : Option < & str >) -> Result < () >
+fn pull(
+    &self) -> Result<(,
+    _remote: Option<&str>) -> Result<(,
+    _branch: Option<&str>) -> Result<(,
+) -> Result<()>
 ```
 
 <details>
@@ -381,15 +289,12 @@ fn pull (& self , _remote : Option < & str > , _branch : Option < & str >) -> Re
 
 </details>
 
-
-
-##### <span id="Git.status"></span>`status`
+##### <span id="Git.status"></span><code>status</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn status (& self , short : bool) -> Result < String >
+fn status(&self, short: bool) -> Result<String>
 ```
 
 <details>
@@ -489,15 +394,12 @@ fn status (& self , short : bool) -> Result < String >
 
 </details>
 
-
-
-##### <span id="Git.branch"></span>`branch`
+##### <span id="Git.branch"></span><code>branch</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn branch (& self , name : Option < & str > , delete : bool) -> Result < String >
+fn branch(&self, name: Option<&str>, delete: bool) -> Result<String>
 ```
 
 <details>
@@ -542,15 +444,12 @@ fn branch (& self , name : Option < & str > , delete : bool) -> Result < String 
 
 </details>
 
-
-
-##### <span id="Git.checkout"></span>`checkout`
+##### <span id="Git.checkout"></span><code>checkout</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn checkout (& self , branch : & str , create : bool) -> Result < () >
+fn checkout(&self, branch: &str, create: bool) -> Result<()>
 ```
 
 <details>
@@ -581,15 +480,12 @@ fn checkout (& self , branch : & str , create : bool) -> Result < () >
 
 </details>
 
-
-
-##### <span id="Git.remote_add"></span>`remote_add`
+##### <span id="Git.remote_add"></span><code>remote_​add</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn remote_add (& self , name : & str , url : & str) -> Result < () >
+fn remote_add(&self, name: &str, url: &str) -> Result<()>
 ```
 
 <details>
@@ -605,15 +501,12 @@ fn remote_add (& self , name : & str , url : & str) -> Result < () >
 
 </details>
 
-
-
-##### <span id="Git.remote_remove"></span>`remote_remove`
+##### <span id="Git.remote_remove"></span><code>remote_​remove</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn remote_remove (& self , name : & str) -> Result < () >
+fn remote_remove(&self, name: &str) -> Result<()>
 ```
 
 <details>
@@ -629,15 +522,12 @@ fn remote_remove (& self , name : & str) -> Result < () >
 
 </details>
 
-
-
-##### <span id="Git.tag"></span>`tag`
+##### <span id="Git.tag"></span><code>tag</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn tag (& self , name : & str , message : Option < & str >) -> Result < () >
+fn tag(&self, name: &str, message: Option<&str>) -> Result<()>
 ```
 
 <details>
@@ -662,15 +552,12 @@ fn tag (& self , name : & str , message : Option < & str >) -> Result < () >
 
 </details>
 
-
-
-##### <span id="Git.execute"></span>`execute`
+##### <span id="Git.execute"></span><code>execute</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn execute (& self , subcommand : & str , args : & [& str]) -> Result < GitOutput >
+fn execute(&self, subcommand: &str, args: &[&str]) -> Result<GitOutput>
 ```
 
 Compatibility method for subprocess-style interface This maps git commands to git2 operations for backwards compatibility
@@ -758,15 +645,17 @@ Compatibility method for subprocess-style interface This maps git commands to gi
 
 </details>
 
-
-
-##### <span id="Git.execute_with_options"></span>`execute_with_options`
+##### <span id="Git.execute_with_options"></span><code>execute_​with_​options</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn execute_with_options (& self , subcommand : & str , options : HashMap < & str , & str > , args : & [& str] ,) -> Result < GitOutput >
+fn execute_with_options(
+    &self,
+    subcommand: &str,
+    options: HashMap<&str, &str>,
+    args: &[&str],
+) -> Result<GitOutput>
 ```
 
 Compatibility method for options-based interface
@@ -830,14 +719,9 @@ Compatibility method for options-based interface
 
 </details>
 
-
-
-
-
-### <span id="struct.GitOutput"></span>`struct GitOutput`
+### <span id="struct.GitOutput"></span><code style="font-size: 0.85em">struct GitOutput</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Clone`
 
@@ -849,43 +733,3 @@ Compatibility method for options-based interface
 | `exit_code` | `i32` |  |
 | `stdout` | `String` |  |
 | `stderr` | `String` |  |
-
-
-
-## Functions
-
-### <span id="fn.extract_repo_name"></span>`fn extract_repo_name`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn extract_repo_name (url : & str) -> Result < String >
-```
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn extract_repo_name(url: &str) -> Result<String> {
-    let name = if url.starts_with("git@") || url.ends_with(".git") {
-        url.split('/')
-            .next_back()
-            .and_then(|s| s.strip_suffix(".git"))
-            .or_else(|| {
-                url.split(':')
-                    .next_back()?
-                    .split('/')
-                    .next_back()?
-                    .strip_suffix(".git")
-            })
-    } else {
-        url.split('/').next_back()
-    };
-
-    name.map(|s| s.to_string())
-        .ok_or_else(|| anyhow::anyhow!("Cannot extract repository name from URL: {}", url))
-}
-```
-
-</details>
