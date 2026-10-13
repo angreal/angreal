@@ -1,25 +1,39 @@
 ---
 title: "angreal::validation"
 description: "Validation utilities for template variables"
+editUrl: false
 sidebar:
-  order: 46
+  order: 41
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 Validation utilities for template variables
+
+## Re-exports
+
+- [`allowed_values`](../../../rust/angreal/validation/allowed_values/#fn.allowed_values)
+- [`length_max`](../../../rust/angreal/validation/length/#fn.length_max)
+- [`length_min`](../../../rust/angreal/validation/length/#fn.length_min)
+- [`max`](../../../rust/angreal/validation/max/#fn.max)
+- [`min`](../../../rust/angreal/validation/min/#fn.min)
+- [`not_empty`](../../../rust/angreal/validation/not_empty/#fn.not_empty)
+- [`regex_match`](../../../rust/angreal/validation/regex_match/#fn.regex_match)
+- [`type_check`](../../../rust/angreal/validation/type_check/#fn.type_check)
 
 ## Functions
 
-### <span id="fn.validate_input"></span>`fn validate_input`
+### <span id="fn.validate_input"></span><code style="font-size: 0.85em">fn validate_​input</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn validate_input (input : & str , key : & str , validation_table : & Table) -> Result < () , String >
+fn validate_input(
+    input: &str,
+    key: &str,
+    validation_table: &Table,
+) -> Result<(), String>
 ```
 
 Validate input against validation rules defined in TOML
@@ -28,14 +42,14 @@ Validate input against validation rules defined in TOML
 
 | Name | Type | Description |
 |------|------|-------------|
-| `input` | `-` | The user input to validate |
-| `key` | `-` | The key/variable name being validated |
-| `validation_table` | `-` | The validation table from TOML containing rules |
-
+| `input` | `&str` | The user input to validate |
+| `key` | `&str` | The key/variable name being validated |
+| `validation_table` | `&Table` | The validation table from TOML containing rules |
 
 **Returns:**
 
-* `Ok(())` if validation passes * `Err(message)` with descriptive error message if validation fails
+* `Ok(())` if validation passes
+* `Err(message)` with descriptive error message if validation fails
 
 <details>
 <summary>Source</summary>

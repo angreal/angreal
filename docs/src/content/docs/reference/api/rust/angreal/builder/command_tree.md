@@ -1,20 +1,19 @@
 ---
 title: "angreal::builder::command_tree"
 description: "API reference of the Rust module angreal::builder::command_tree."
+editUrl: false
 sidebar:
-  order: 14
+  order: 11
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 ## Structs
 
-### <span id="struct.CommandNode"></span>`struct CommandNode`
+### <span id="struct.CommandNode"></span><code style="font-size: 0.85em">struct CommandNode</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Clone`, `Serialize`
 
@@ -25,19 +24,18 @@ Represents a node in the command tree
 | Name | Type | Description |
 |------|------|-------------|
 | `name` | `String` | Name of the command or group |
-| `command` | `Option < SerializableCommand >` | Command metadata if this is a leaf node (actual command) |
-| `about` | `Option < String >` | About text for groups |
-| `children` | `HashMap < String , CommandNode >` | Child nodes (subgroups and commands) |
+| `command` | `Option<SerializableCommand>` | Command metadata if this is a leaf node (actual command) |
+| `about` | `Option<String>` | About text for groups |
+| `children` | `HashMap<String, CommandNode>` | Child nodes (subgroups and commands) |
 
 #### Methods
 
-##### <span id="CommandNode.new_group"></span>`new_group`
+##### <span id="CommandNode.new_group"></span><code>new_​group</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn new_group (name : String , about : Option < String >) -> Self
+fn new_group(name: String, about: Option<String>) -> Self
 ```
 
 Create a new group node
@@ -58,15 +56,12 @@ Create a new group node
 
 </details>
 
-
-
-##### <span id="CommandNode.new_command"></span>`new_command`
+##### <span id="CommandNode.new_command"></span><code>new_​command</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn new_command (name : String , command : AngrealCommand) -> Self
+fn new_command(name: String, command: AngrealCommand) -> Self
 ```
 
 Create a new command node
@@ -102,15 +97,12 @@ Create a new command node
 
 </details>
 
-
-
-##### <span id="CommandNode.add_command"></span>`add_command`
+##### <span id="CommandNode.add_command"></span><code>add_​command</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn add_command (& mut self , command : AngrealCommand)
+fn add_command(&mut self, command: AngrealCommand)
 ```
 
 Add a command to this node or its children
@@ -151,15 +143,16 @@ Add a command to this node or its children
 
 </details>
 
-
-
-##### <span id="CommandNode.to_project_schema"></span>`to_project_schema`
+##### <span id="CommandNode.to_project_schema"></span><code>to_​project_​schema</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn to_project_schema (& self , angreal_root : String , angreal_version : String ,) -> ProjectSchema
+fn to_project_schema(
+    &self,
+    angreal_root: String,
+    angreal_version: String,
+) -> ProjectSchema
 ```
 
 Convert to new schema format
@@ -186,64 +179,12 @@ Convert to new schema format
 
 </details>
 
-
-
-##### <span id="CommandNode.collect_commands"></span>`collect_commands`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn collect_commands (& self , commands : & mut Vec < CommandSchema > , path_segments : Vec < String >)
-```
-
-Recursively collect all commands from the tree
-
-<details>
-<summary>Source</summary>
-
-```rust
-    fn collect_commands(&self, commands: &mut Vec<CommandSchema>, path_segments: Vec<String>) {
-        // If this node has a command, add it to the list
-        if let Some(command) = &self.command {
-            let full_command = if path_segments.is_empty() {
-                self.name.clone()
-            } else {
-                format!("{} {}", path_segments.join(" "), self.name)
-            };
-
-            commands.push(CommandSchema {
-                command: full_command,
-                description: command.about.clone().unwrap_or_default(),
-                tool: command.tool.clone(),
-                parameters: vec![], // Will be populated by caller
-            });
-        }
-
-        // Recursively process children (skip argument groups)
-        for (child_name, child) in &self.children {
-            if !child_name.contains("arguments") {
-                let mut new_path = path_segments.clone();
-                if self.name != "root" && self.name != "angreal" {
-                    new_path.push(self.name.clone());
-                }
-                child.collect_commands(commands, new_path);
-            }
-        }
-    }
-```
-
-</details>
-
-
-
-##### <span id="CommandNode.to_json"></span>`to_json`
+##### <span id="CommandNode.to_json"></span><code>to_​json</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn to_json (& self) -> Result < String , serde_json :: Error >
+fn to_json(&self) -> Result<String, serde_json::Error>
 ```
 
 Convert to JSON format (legacy)
@@ -259,15 +200,16 @@ Convert to JSON format (legacy)
 
 </details>
 
-
-
-##### <span id="CommandNode.to_schema_json"></span>`to_schema_json`
+##### <span id="CommandNode.to_schema_json"></span><code>to_​schema_​json</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn to_schema_json (& self , angreal_root : String , angreal_version : String ,) -> Result < String , serde_json :: Error >
+fn to_schema_json(
+    &self,
+    angreal_root: String,
+    angreal_version: String,
+) -> Result<String, serde_json::Error>
 ```
 
 Convert to new schema JSON format
@@ -288,14 +230,9 @@ Convert to new schema JSON format
 
 </details>
 
-
-
-
-
-### <span id="struct.SerializableCommand"></span>`struct SerializableCommand`
+### <span id="struct.SerializableCommand"></span><code style="font-size: 0.85em">struct SerializableCommand</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Clone`, `Serialize`
 
@@ -306,18 +243,15 @@ Serializable version of AngrealCommand for JSON output
 | Name | Type | Description |
 |------|------|-------------|
 | `name` | `String` |  |
-| `about` | `Option < String >` |  |
-| `long_about` | `Option < String >` |  |
-| `group` | `Option < Vec < String > >` |  |
-| `tool` | `Option < SerializableToolDescription >` |  |
-| `registry_key` | `Option < String >` | Internal unique registry key for argument lookup |
+| `about` | `Option<String>` |  |
+| `long_about` | `Option<String>` |  |
+| `group` | `Option<Vec<String>>` |  |
+| `tool` | `Option<SerializableToolDescription>` |  |
+| `registry_key` | `Option<String>` | Internal unique registry key for argument lookup |
 
-
-
-### <span id="struct.SerializableToolDescription"></span>`struct SerializableToolDescription`
+### <span id="struct.SerializableToolDescription"></span><code style="font-size: 0.85em">struct SerializableToolDescription</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Clone`, `Serialize`
 
@@ -330,12 +264,9 @@ Serializable version of ToolDescription for JSON output
 | `description` | `String` |  |
 | `risk_level` | `String` |  |
 
-
-
-### <span id="struct.ProjectSchema"></span>`struct ProjectSchema`
+### <span id="struct.ProjectSchema"></span><code style="font-size: 0.85em">struct ProjectSchema</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Clone`, `Serialize`
 
@@ -347,14 +278,11 @@ Tree schema for AI agent consumption
 |------|------|-------------|
 | `angreal_root` | `String` |  |
 | `angreal_version` | `String` |  |
-| `commands` | `Vec < CommandSchema >` |  |
+| `commands` | `Vec<CommandSchema>` |  |
 
-
-
-### <span id="struct.CommandSchema"></span>`struct CommandSchema`
+### <span id="struct.CommandSchema"></span><code style="font-size: 0.85em">struct CommandSchema</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Clone`, `Serialize`
 
@@ -364,15 +292,12 @@ Tree schema for AI agent consumption
 |------|------|-------------|
 | `command` | `String` |  |
 | `description` | `String` |  |
-| `tool` | `Option < SerializableToolDescription >` |  |
-| `parameters` | `Vec < ParameterSchema >` |  |
+| `tool` | `Option<SerializableToolDescription>` |  |
+| `parameters` | `Vec<ParameterSchema>` |  |
 
-
-
-### <span id="struct.ParameterSchema"></span>`struct ParameterSchema`
+### <span id="struct.ParameterSchema"></span><code style="font-size: 0.85em">struct ParameterSchema</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Clone`, `Serialize`
 
@@ -381,7 +306,7 @@ Tree schema for AI agent consumption
 | Name | Type | Description |
 |------|------|-------------|
 | `name` | `String` |  |
-| `flag` | `Option < String >` |  |
+| `flag` | `Option<String>` |  |
 | `param_type` | `String` |  |
 | `required` | `bool` |  |
-| `description` | `Option < String >` |  |
+| `description` | `Option<String>` |  |

@@ -8,6 +8,7 @@
 export default {
   label: "API reference",
   items: [
+    { label: "Overview", slug: "reference/api" },
     {
       label: "Python",
       items: [
@@ -17,33 +18,24 @@ export default {
           items: [
             { label: "Overview", slug: "reference/api/angreal" },
             {
+              label: "_integrations",
+              collapsed: true,
+              items: [
+                { label: "git_module", slug: "reference/api/angreal/_integrations/git_module" },
+              ],
+            },
+            { label: "compose_integration", slug: "reference/api/angreal/compose_integration" },
+            {
               label: "integrations",
               collapsed: true,
               items: [
-                { label: "uv", slug: "reference/api/angreal/integrations/uv" },
+                { label: "docker_integration", slug: "reference/api/angreal/integrations/docker_integration" },
+                { label: "flox", slug: "reference/api/angreal/integrations/flox" },
+                { label: "git_integration", slug: "reference/api/angreal/integrations/git_integration" },
+                { label: "oci", slug: "reference/api/angreal/integrations/oci" },
+                { label: "venv", slug: "reference/api/angreal/integrations/venv" },
               ],
             },
-            { label: "py_logger", slug: "reference/api/angreal/py_logger" },
-            {
-              label: "python_bindings",
-              collapsed: true,
-              items: [
-                { label: "decorators", slug: "reference/api/angreal/python_bindings/decorators" },
-                {
-                  label: "integrations",
-                  collapsed: true,
-                  items: [
-                    { label: "compose", slug: "reference/api/angreal/python_bindings/integrations/compose" },
-                    { label: "flox", slug: "reference/api/angreal/python_bindings/integrations/flox" },
-                    { label: "git", slug: "reference/api/angreal/python_bindings/integrations/git" },
-                    { label: "oci", slug: "reference/api/angreal/python_bindings/integrations/oci" },
-                  ],
-                },
-                { label: "venv", slug: "reference/api/angreal/python_bindings/venv" },
-              ],
-            },
-            { label: "task", slug: "reference/api/angreal/task" },
-            { label: "utils", slug: "reference/api/angreal/utils" },
           ],
         },
       ],
@@ -82,7 +74,6 @@ export default {
               label: "integrations",
               collapsed: true,
               items: [
-                { label: "Overview", slug: "reference/api/rust/angreal/integrations" },
                 { label: "docker_compose", slug: "reference/api/rust/angreal/integrations/docker_compose" },
                 { label: "flox", slug: "reference/api/rust/angreal/integrations/flox" },
                 { label: "git", slug: "reference/api/rust/angreal/integrations/git" },
@@ -91,7 +82,6 @@ export default {
               ],
             },
             { label: "logger", slug: "reference/api/rust/angreal/logger" },
-            { label: "macros", slug: "reference/api/rust/angreal/macros" },
             { label: "mcp", slug: "reference/api/rust/angreal/mcp" },
             { label: "py_logger", slug: "reference/api/rust/angreal/py_logger" },
             {

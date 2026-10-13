@@ -1,13 +1,13 @@
 ---
 title: "angreal::python_bindings::integrations::oci"
 description: "OCI registry integration bindings."
+editUrl: false
 sidebar:
-  order: 40
+  order: 35
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
-
 
 OCI registry integration bindings.
 
@@ -18,12 +18,11 @@ core so this binding stays a thin adapter and matches the `init oci://…` path.
 
 ## Structs
 
-### <span id="struct.PyOci"></span>`class Oci`
+### <span id="struct.PyOci"></span><code style="font-size: 0.85em">class Oci</code>
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-> **Python API**: [angreal.python_bindings.integrations.oci.Oci](../../../../../angreal/python_bindings/integrations/oci/#class.Oci)
+> **Python API**: [`angreal.integrations.oci.Oci`](../../../../../angreal/integrations/oci/#class.Oci)
 
 OCI registry client for angreal template artifacts.
 
@@ -35,52 +34,17 @@ take precedence over Docker `config.json` credentials for that registry.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `credentials` | `Mutex < HashMap < String , OciAuth > >` | Per-registry credentials registered via `login()`. |
+| `credentials` | `Mutex<HashMap<String, OciAuth>>` | Per-registry credentials registered via `login()`. |
 
 #### Methods
 
-##### <span id="PyOci.auth_for"></span>`auth_for`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
+##### <span id="PyOci.new"></span><code>new</code>
 
 ```rust
-fn auth_for (& self , reference : & str) -> OciAuth
+fn new() -> Self
 ```
 
-Resolve auth for a reference: a `login()` credential for its registry if present, otherwise the core default (Docker config → anonymous).
-
-<details>
-<summary>Source</summary>
-
-```rust
-    fn auth_for(&self, reference: &str) -> OciAuth {
-        if let Ok(registry) = core::reference_registry(reference) {
-            if let Some(auth) = self
-                .credentials
-                .lock()
-                .expect("oci credentials mutex poisoned")
-                .get(&registry)
-                .cloned()
-            {
-                return auth;
-            }
-        }
-        core::resolve_auth(reference)
-    }
-```
-
-</details>
-
-
-
-##### <span id="PyOci.new"></span>`new`
-
-```rust
-fn new () -> Self
-```
-
-> **Python API**: [angreal.python_bindings.integrations.oci.Oci.new](../../../../../angreal/python_bindings/integrations/oci/#Oci.new)
+> **Python API**: [`angreal.integrations.oci.Oci.new`](../../../../../angreal/integrations/oci/#Oci.new)
 
 <details>
 <summary>Source</summary>
@@ -95,15 +59,18 @@ fn new () -> Self
 
 </details>
 
-
-
-##### <span id="PyOci.login"></span>`login`
+##### <span id="PyOci.login"></span><code>login</code>
 
 ```rust
-fn login (& self , registry : & str , username : String , password : String) -> PyResult < () >
+fn login(
+    &self) -> PyResult<(,
+    registry: &str) -> PyResult<(,
+    username: String) -> PyResult<(,
+    password: String) -> PyResult<(,
+) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.oci.Oci.login](../../../../../angreal/python_bindings/integrations/oci/#Oci.login)
+> **Python API**: [`angreal.integrations.oci.Oci.login`](../../../../../angreal/integrations/oci/#Oci.login)
 
 Store Basic credentials for `registry` (e.g. `ghcr.io`), used by subsequent pull/push/tags calls against that registry.
 
@@ -122,15 +89,18 @@ Store Basic credentials for `registry` (e.g. `ghcr.io`), used by subsequent pull
 
 </details>
 
-
-
-##### <span id="PyOci.pull"></span>`pull`
+##### <span id="PyOci.pull"></span><code>pull</code>
 
 ```rust
-fn pull (& self , reference : & str , dest : Option < PathBuf > , insecure : bool) -> PyResult < String >
+fn pull(
+    &self,
+    reference: &str,
+    dest: Option<PathBuf>,
+    insecure: bool,
+) -> PyResult<String>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.oci.Oci.pull](../../../../../angreal/python_bindings/integrations/oci/#Oci.pull)
+> **Python API**: [`angreal.integrations.oci.Oci.pull`](../../../../../angreal/integrations/oci/#Oci.pull)
 
 Pull a template artifact to `dest` (default: a directory named after the repository, under the current directory). Set `insecure=True` to pull from a plain-HTTP registry. Returns the destination path.
 
@@ -154,15 +124,18 @@ Pull a template artifact to `dest` (default: a directory named after the reposit
 
 </details>
 
-
-
-##### <span id="PyOci.push"></span>`push`
+##### <span id="PyOci.push"></span><code>push</code>
 
 ```rust
-fn push (& self , reference : & str , path : PathBuf , insecure : bool) -> PyResult < () >
+fn push(
+    &self) -> PyResult<(,
+    reference: &str) -> PyResult<(,
+    path: PathBuf) -> PyResult<(,
+    insecure: bool) -> PyResult<(,
+) -> PyResult<()>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.oci.Oci.push](../../../../../angreal/python_bindings/integrations/oci/#Oci.push)
+> **Python API**: [`angreal.integrations.oci.Oci.push`](../../../../../angreal/integrations/oci/#Oci.push)
 
 Package the directory at `path` as a template artifact and push it to `reference`. Set `insecure=True` to push to a plain-HTTP registry.
 
@@ -178,15 +151,17 @@ Package the directory at `path` as a template artifact and push it to `reference
 
 </details>
 
-
-
-##### <span id="PyOci.tags"></span>`tags`
+##### <span id="PyOci.tags"></span><code>tags</code>
 
 ```rust
-fn tags (& self , repository : & str , insecure : bool) -> PyResult < Vec < String > >
+fn tags(
+    &self,
+    repository: &str,
+    insecure: bool,
+) -> PyResult<Vec<String>>
 ```
 
-> **Python API**: [angreal.python_bindings.integrations.oci.Oci.tags](../../../../../angreal/python_bindings/integrations/oci/#Oci.tags)
+> **Python API**: [`angreal.integrations.oci.Oci.tags`](../../../../../angreal/integrations/oci/#Oci.tags)
 
 List the tags available for `repository`. Set `insecure=True` for a plain-HTTP registry.
 
@@ -202,41 +177,14 @@ List the tags available for `repository`. Set `insecure=True` for a plain-HTTP r
 
 </details>
 
-
-
-
-
 ## Functions
 
-### <span id="fn.to_pyerr"></span>`fn to_pyerr`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn to_pyerr (e : anyhow :: Error) -> PyErr
-```
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn to_pyerr(e: anyhow::Error) -> PyErr {
-    PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string())
-}
-```
-
-</details>
-
-
-
-### <span id="fn.oci"></span>`fn oci`
+### <span id="fn.oci"></span><code style="font-size: 0.85em">fn oci</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn oci (_py : Python , m : & Bound < '_ , PyModule >) -> PyResult < () >
+fn oci(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()>
 ```
 
 OCI integration module, exposed as `angreal.integrations.oci` in Python.

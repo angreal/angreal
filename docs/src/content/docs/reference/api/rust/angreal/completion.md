@@ -1,13 +1,13 @@
 ---
 title: "angreal::completion"
 description: "Shell completion support for Angreal"
+editUrl: false
 sidebar:
-  order: 16
+  order: 13
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
-
 
 Shell completion support for Angreal
 
@@ -18,10 +18,9 @@ Provides auto-installing shell completion for bash and zsh with:
 
 ## Structs
 
-### <span id="struct.CompletionConfig"></span>`struct CompletionConfig`
+### <span id="struct.CompletionConfig"></span><code style="font-size: 0.85em">struct CompletionConfig</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 Configuration for shell completion
 
@@ -35,13 +34,12 @@ Configuration for shell completion
 
 #### Methods
 
-##### <span id="CompletionConfig.for_current_shell"></span>`for_current_shell`
+##### <span id="CompletionConfig.for_current_shell"></span><code>for_​current_​shell</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn for_current_shell () -> Result < Self >
+fn for_current_shell() -> Result<Self>
 ```
 
 Create completion config for detected shell
@@ -84,15 +82,12 @@ Create completion config for detected shell
 
 </details>
 
-
-
-##### <span id="CompletionConfig.is_installed"></span>`is_installed`
+##### <span id="CompletionConfig.is_installed"></span><code>is_​installed</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn is_installed (& self) -> bool
+fn is_installed(&self) -> bool
 ```
 
 Check if completion is already installed
@@ -108,15 +103,12 @@ Check if completion is already installed
 
 </details>
 
-
-
-##### <span id="CompletionConfig.install"></span>`install`
+##### <span id="CompletionConfig.install"></span><code>install</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn install (& self) -> Result < () >
+fn install(&self) -> Result<()>
 ```
 
 Install completion script
@@ -149,101 +141,11 @@ Install completion script
 
 </details>
 
-
-
-##### <span id="CompletionConfig.ensure_sourced"></span>`ensure_sourced`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn ensure_sourced (& self) -> Result < () >
-```
-
-Ensure completion script is sourced in shell rc file
-
-<details>
-<summary>Source</summary>
-
-```rust
-    fn ensure_sourced(&self) -> Result<()> {
-        let home = env::var("HOME").context("HOME environment variable not set")?;
-
-        let rc_file = match self.shell {
-            Shell::Bash => {
-                // Try .bashrc first, then .bash_profile
-                let bashrc = PathBuf::from(&home).join(".bashrc");
-                if bashrc.exists() {
-                    bashrc
-                } else {
-                    PathBuf::from(&home).join(".bash_profile")
-                }
-            }
-            Shell::Zsh => PathBuf::from(&home).join(".zshrc"),
-            Shell::Unknown(_) => return Ok(()), // Skip for unknown shells
-        };
-
-        // Check if sourcing is already present
-        if rc_file.exists() {
-            let content = fs::read_to_string(&rc_file)?;
-
-            match self.shell {
-                Shell::Bash => {
-                    let source_line = format!("source {}", self.install_path.display());
-                    if !content.contains(&source_line) {
-                        // Add source line for bash
-                        let mut new_content = content;
-                        new_content.push('\n');
-                        new_content
-                            .push_str(&format!("# Angreal shell completion\n{}\n", source_line));
-                        fs::write(&rc_file, new_content)?;
-                    }
-                }
-                Shell::Zsh => {
-                    // Check if we need to add custom completion directory to fpath
-                    let completion_dir = self.install_path.parent().unwrap();
-                    let is_custom_dir = !completion_dir.to_str().unwrap().contains("/usr/")
-                        && !completion_dir.to_str().unwrap().contains("/etc/");
-
-                    if is_custom_dir {
-                        let fpath_line = format!("fpath=({} $fpath)", completion_dir.display());
-                        if !content.contains(&fpath_line) {
-                            let mut new_content = content;
-                            new_content.push('\n');
-                            new_content
-                                .push_str(&format!("# Angreal shell completion\n{}\n", fpath_line));
-
-                            // Also ensure compinit is called
-                            if !new_content.contains("autoload -U compinit")
-                                || !new_content.contains("compinit")
-                            {
-                                new_content.push_str("autoload -U compinit && compinit\n");
-                            }
-
-                            fs::write(&rc_file, new_content)?;
-                        }
-                    }
-                }
-                Shell::Unknown(_) => return Ok(()),
-            }
-        }
-
-        Ok(())
-    }
-```
-
-</details>
-
-
-
-
-
 ## Enums
 
-### <span id="enum.Shell"></span>`enum Shell`
+### <span id="enum.Shell"></span><code style="font-size: 0.85em">enum Shell</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 Supported shells for completion
 
@@ -253,72 +155,84 @@ Supported shells for completion
 - **`Zsh`**
 - **`Unknown`**
 
+#### Methods
 
+##### <span id="Shell.detect"></span><code>detect</code>
 
-## Functions
-
-### <span id="fn.find_zsh_completion_dir"></span>`fn find_zsh_completion_dir`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
+<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
 ```rust
-fn find_zsh_completion_dir (home : & str) -> Result < PathBuf >
+fn detect() -> Self
 ```
 
-Find zsh completion directory
+Detect the current shell from environment
 
 <details>
 <summary>Source</summary>
 
 ```rust
-fn find_zsh_completion_dir(home: &str) -> Result<PathBuf> {
-    // Common zsh completion directories in order of preference
-    let candidates = vec![
-        PathBuf::from(home).join(".zsh").join("completions"),
-        PathBuf::from(home).join(".oh-my-zsh").join("completions"),
-        PathBuf::from("/usr/local/share/zsh/site-functions"),
-        PathBuf::from("/usr/share/zsh/site-functions"),
-        // Fallback: create in home directory
-        PathBuf::from(home).join(".zsh_completions"),
-    ];
-
-    for candidate in &candidates {
-        if candidate.exists() && candidate.is_dir() {
-            // Check if we can write to this directory
-            let test_file = candidate.join(".angreal_test_write");
-            if fs::write(&test_file, "test").is_ok() {
-                // Clean up test file
-                let _ = fs::remove_file(&test_file);
-                return Ok(candidate.clone());
+    pub fn detect() -> Self {
+        // Check SHELL environment variable
+        if let Ok(shell_path) = env::var("SHELL") {
+            if shell_path.contains("bash") {
+                return Shell::Bash;
+            } else if shell_path.contains("zsh") {
+                return Shell::Zsh;
             }
         }
+
+        // Fallback: check parent process name
+        if let Ok(output) = Command::new("ps")
+            .args(["-p", &std::process::id().to_string(), "-o", "comm="])
+            .output()
+        {
+            let comm = String::from_utf8_lossy(&output.stdout);
+            if comm.contains("bash") {
+                return Shell::Bash;
+            } else if comm.contains("zsh") {
+                return Shell::Zsh;
+            }
+        }
+
+        Shell::Unknown("unknown".to_string())
     }
-
-    // Create the fallback directory
-    let fallback = &candidates[candidates.len() - 1];
-    fs::create_dir_all(fallback).with_context(|| {
-        format!(
-            "Failed to create zsh completion directory: {}",
-            fallback.display()
-        )
-    })?;
-
-    Ok(fallback.clone())
-}
 ```
 
 </details>
 
-
-
-### <span id="fn.should_auto_install"></span>`fn should_auto_install`
+##### <span id="Shell.name"></span><code>name</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
+```rust
+fn name(&self) -> &str
+```
+
+Get the name of this shell
+
+<details>
+<summary>Source</summary>
 
 ```rust
-fn should_auto_install () -> bool
+    pub fn name(&self) -> &str {
+        match self {
+            Shell::Bash => "bash",
+            Shell::Zsh => "zsh",
+            Shell::Unknown(name) => name,
+        }
+    }
+```
+
+</details>
+
+## Functions
+
+### <span id="fn.should_auto_install"></span><code style="font-size: 0.85em">fn should_​auto_​install</code>
+
+<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
+
+```rust
+fn should_auto_install() -> bool
 ```
 
 Check if completion should be auto-installed
@@ -344,15 +258,12 @@ pub fn should_auto_install() -> bool {
 
 </details>
 
-
-
-### <span id="fn.auto_install_completion"></span>`fn auto_install_completion`
+### <span id="fn.auto_install_completion"></span><code style="font-size: 0.85em">fn auto_​install_​completion</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn auto_install_completion () -> Result < () >
+fn auto_install_completion() -> Result<()>
 ```
 
 Auto-install completion if appropriate
@@ -391,15 +302,12 @@ pub fn auto_install_completion() -> Result<()> {
 
 </details>
 
-
-
-### <span id="fn.force_install_completion"></span>`fn force_install_completion`
+### <span id="fn.force_install_completion"></span><code style="font-size: 0.85em">fn force_​install_​completion</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn force_install_completion (shell : Option < & str >) -> Result < () >
+fn force_install_completion(shell: Option<&str>) -> Result<()>
 ```
 
 Force install completion for specific shell or detected shell
@@ -474,15 +382,12 @@ pub fn force_install_completion(shell: Option<&str>) -> Result<()> {
 
 </details>
 
-
-
-### <span id="fn.uninstall_completion"></span>`fn uninstall_completion`
+### <span id="fn.uninstall_completion"></span><code style="font-size: 0.85em">fn uninstall_​completion</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn uninstall_completion (shell : Option < & str >) -> Result < () >
+fn uninstall_completion(shell: Option<&str>) -> Result<()>
 ```
 
 Uninstall completion for specific shell or detected shell
@@ -559,15 +464,12 @@ pub fn uninstall_completion(shell: Option<&str>) -> Result<()> {
 
 </details>
 
-
-
-### <span id="fn.show_completion_status"></span>`fn show_completion_status`
+### <span id="fn.show_completion_status"></span><code style="font-size: 0.85em">fn show_​completion_​status</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn show_completion_status () -> Result < () >
+fn show_completion_status() -> Result<()>
 ```
 
 Show completion installation status
@@ -634,15 +536,12 @@ pub fn show_completion_status() -> Result<()> {
 
 </details>
 
-
-
-### <span id="fn.generate_completions"></span>`fn generate_completions`
+### <span id="fn.generate_completions"></span><code style="font-size: 0.85em">fn generate_​completions</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn generate_completions (args : & [String]) -> Result < Vec < String > >
+fn generate_completions(args: &[String]) -> Result<Vec<String>>
 ```
 
 Generate completions for current command line
@@ -730,128 +629,6 @@ pub fn generate_completions(args: &[String]) -> Result<Vec<String>> {
         // This will handle cases like "angreal test <TAB>" or "angreal group subgroup <TAB>"
         completions.extend(get_nested_command_completions(&filtered_args)?);
     }
-
-    Ok(completions)
-}
-```
-
-</details>
-
-
-
-### <span id="fn.get_available_tasks"></span>`fn get_available_tasks`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn get_available_tasks () -> Result < Vec < String > >
-```
-
-Get available tasks in current project
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn get_available_tasks() -> Result<Vec<String>> {
-    let mut tasks = Vec::new();
-
-    // Load tasks (this triggers the same discovery as normal angreal execution)
-    let angreal_path = crate::utils::is_angreal_project()?;
-    let task_files = crate::utils::get_task_files(angreal_path)?;
-
-    // Load task files to register commands
-    for task_file in task_files {
-        let _ = crate::utils::load_python(task_file); // Ignore errors for completion
-    }
-
-    // Get registered tasks
-    for (_, task) in crate::task::ANGREAL_TASKS.lock().unwrap().iter() {
-        if task.group.is_none() || task.group.as_ref().unwrap().is_empty() {
-            // Top-level task - add the task name directly
-            tasks.push(task.name.clone());
-        } else {
-            // Grouped task - add only the top-level group name for initial completion
-            // The nested completion will handle deeper levels
-            if let Some(groups) = &task.group {
-                if let Some(first_group) = groups.first() {
-                    tasks.push(first_group.name.clone());
-                }
-            }
-        }
-    }
-
-    // Remove duplicates and sort
-    tasks.sort();
-    tasks.dedup();
-
-    Ok(tasks)
-}
-```
-
-</details>
-
-
-
-### <span id="fn.get_nested_command_completions"></span>`fn get_nested_command_completions`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn get_nested_command_completions (args : & [String]) -> Result < Vec < String > >
-```
-
-Get completions for nested commands
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn get_nested_command_completions(args: &[String]) -> Result<Vec<String>> {
-    use crate::builder::command_tree::CommandNode;
-
-    let mut completions = Vec::new();
-
-    // Build command tree from registered tasks
-    let mut root = CommandNode::new_group("root".to_string(), None);
-
-    // Load tasks
-    let angreal_path = crate::utils::is_angreal_project()?;
-    let task_files = crate::utils::get_task_files(angreal_path)?;
-
-    // Load task files to register commands
-    for task_file in task_files {
-        let _ = crate::utils::load_python(task_file); // Ignore errors for completion
-    }
-
-    // Add all registered tasks to the command tree
-    for (_, task) in crate::task::ANGREAL_TASKS.lock().unwrap().iter() {
-        root.add_command(task.clone());
-    }
-
-    // Navigate the command tree based on the current args
-    let mut current_node = &root;
-    for arg in args {
-        if let Some(child) = current_node.children.get(arg) {
-            current_node = child;
-        } else {
-            // If we can't find this path, return empty completions
-            return Ok(completions);
-        }
-    }
-
-    // Return the names of all children at the current level
-    for (name, child) in &current_node.children {
-        // Only suggest groups if they have children, or commands if they're leaf nodes
-        if !child.children.is_empty() || child.command.is_some() {
-            completions.push(name.clone());
-        }
-    }
-
-    // Sort for consistent output
-    completions.sort();
 
     Ok(completions)
 }

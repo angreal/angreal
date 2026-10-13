@@ -1,25 +1,24 @@
 ---
 title: "angreal::validation::max"
 description: "Validation for maximum value"
+editUrl: false
 sidebar:
-  order: 49
+  order: 44
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 Validation for maximum value
 
 ## Functions
 
-### <span id="fn.max"></span>`fn max`
+### <span id="fn.max"></span><code style="font-size: 0.85em">fn max</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn max (input : & str , max_value : & Value) -> Result < () , String >
+fn max(input: &str, max_value: &Value) -> Result<(), String>
 ```
 
 Validate that input is less than or equal to the maximum value
@@ -28,13 +27,13 @@ Validate that input is less than or equal to the maximum value
 
 | Name | Type | Description |
 |------|------|-------------|
-| `input` | `-` | The user input to validate |
-| `max_value` | `-` | The maximum allowed value |
-
+| `input` | `&str` | The user input to validate |
+| `max_value` | `&Value` | The maximum allowed value |
 
 **Returns:**
 
-* `Ok(())` if input is <= max_value * `Err(message)` with descriptive error message if validation fails
+* `Ok(())` if input is <= max_value
+* `Err(message)` with descriptive error message if validation fails
 
 <details>
 <summary>Source</summary>

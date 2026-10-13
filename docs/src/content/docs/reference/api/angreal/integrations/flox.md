@@ -1,23 +1,21 @@
 ---
-title: "angreal.python_bindings.integrations.flox"
-description: "Flox environment integration submodule"
+title: "angreal.integrations.flox"
+description: "Create the flox submodule"
+editUrl: false
 sidebar:
-  order: 6
+  order: 5
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-purple-low); color: var(--sl-color-purple-high);">Binding</span>
 
-
-Flox environment integration submodule
-
-This module provides the flox submodule for angreal.integrations.flox
+Create the flox submodule
 
 ## Classes
 
-### <span id="class.Flox"></span>`class Flox`
+### <span id="class.Flox"></span><code style="font-size: 0.85em">class Flox</code>
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox](../../../../rust/angreal/python_bindings/integrations/flox/#struct.Flox)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox`](../../../rust/angreal/python_bindings/integrations/flox/#struct.Flox)
 
 Flox environment manager
 
@@ -25,21 +23,18 @@ Provides environment activation and services management for Flox environments.
 
 #### Methods
 
-##### <span id="Flox.__new__"></span>`__new__`
+##### <span id="Flox.__new__"></span><code>_​_​new_​_​</code>
 
 ```python
-def __new__(
-    path: Option < Py < PyAny > >,
-    services: Option < Vec < String > >,
-) -> PyResult < Self >
+def __new__(path: Optional[Py<PyAny>], services: Optional[List[str]]) -> Self
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::__new__](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.__new__)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::__new__`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.__new__)
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn __new__(path: Option<Py<PyAny>>, services: Option<Vec<String>>) -> PyResult<Self> {
         Python::attach(|py| {
             // Convert path to string - handle both str and Path objects
@@ -105,22 +100,20 @@ def __new__(
 
 </details>
 
-
-
-##### <span id="Flox.exists"></span>`exists`
+##### <span id="Flox.exists"></span><code>exists</code>
 
 ```python
 def exists() -> bool
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::exists](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.exists)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::exists`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.exists)
 
 Check if the Flox environment exists (.flox/ directory)
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn exists(&self) -> bool {
         let flox_env = FloxEnvironment::new(&self.path);
         flox_env.exists()
@@ -129,22 +122,20 @@ Check if the Flox environment exists (.flox/ directory)
 
 </details>
 
-
-
-##### <span id="Flox.has_manifest"></span>`has_manifest`
+##### <span id="Flox.has_manifest"></span><code>has_​manifest</code>
 
 ```python
 def has_manifest() -> bool
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::has_manifest](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.has_manifest)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::has_manifest`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.has_manifest)
 
 Check if the manifest.toml exists
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn has_manifest(&self) -> bool {
         let flox_env = FloxEnvironment::new(&self.path);
         flox_env.has_manifest()
@@ -153,22 +144,20 @@ Check if the manifest.toml exists
 
 </details>
 
-
-
-##### <span id="Flox.path"></span>`path`
+##### <span id="Flox.path"></span><code>path</code>
 
 ```python
-def path() -> PyResult < Py < PyAny > >
+def path() -> Py<PyAny>
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::path](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.path)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::path`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.path)
 
 Get the path as a Python Path object
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn path(&self, py: Python) -> PyResult<Py<PyAny>> {
         let pathlib = py.import("pathlib")?;
         let path_class = pathlib.getattr("Path")?;
@@ -179,15 +168,13 @@ Get the path as a Python Path object
 
 </details>
 
-
-
-##### <span id="Flox.activate"></span>`activate`
+##### <span id="Flox.activate"></span><code>activate</code>
 
 ```python
-def activate() -> PyResult < () >
+def activate() -> None
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::activate](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.activate)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::activate`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.activate)
 
 Activate the Flox environment
 
@@ -197,7 +184,7 @@ to the current Python process's os.environ.
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn activate(&mut self) -> PyResult<()> {
         if self._is_activated {
             return Ok(()); // Already activated
@@ -257,15 +244,13 @@ to the current Python process's os.environ.
 
 </details>
 
-
-
-##### <span id="Flox.deactivate"></span>`deactivate`
+##### <span id="Flox.deactivate"></span><code>deactivate</code>
 
 ```python
-def deactivate() -> PyResult < () >
+def deactivate() -> None
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::deactivate](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.deactivate)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::deactivate`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.deactivate)
 
 Deactivate the Flox environment
 
@@ -274,7 +259,7 @@ Restores the original environment state.
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn deactivate(&mut self) -> PyResult<()> {
         if !self._is_activated {
             return Ok(()); // Not activated
@@ -310,15 +295,13 @@ Restores the original environment state.
 
 </details>
 
-
-
-##### <span id="Flox.__enter__"></span>`__enter__`
+##### <span id="Flox.__enter__"></span><code>_​_​enter_​_​</code>
 
 ```python
-def __enter__(slf: PyRefMut < Self >) -> PyResult < PyRefMut < Self > >
+def __enter__(slf: PyRefMut<Self>) -> PyRefMut<Self>
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::__enter__](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.__enter__)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::__enter__`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.__enter__)
 
 Context manager entry - activates environment and starts services
 
@@ -326,13 +309,12 @@ Context manager entry - activates environment and starts services
 
 | Name | Type | Description |
 |------|------|-------------|
-| `slf` | `PyRefMut < Self >` |  |
-
+| `slf` | `PyRefMut<Self>` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn __enter__(mut slf: PyRefMut<Self>) -> PyResult<PyRefMut<Self>> {
         slf.activate()?;
 
@@ -356,19 +338,17 @@ Context manager entry - activates environment and starts services
 
 </details>
 
-
-
-##### <span id="Flox.__exit__"></span>`__exit__`
+##### <span id="Flox.__exit__"></span><code>_​_​exit_​_​</code>
 
 ```python
 def __exit__(
-    _exc_type:  Bound < '_ , PyAny >,
-    _exc_val:  Bound < '_ , PyAny >,
-    _exc_tb:  Bound < '_ , PyAny >,
-) -> PyResult < () >
+    _exc_type: Bound<'_, PyAny>,
+    _exc_val: Bound<'_, PyAny>,
+    _exc_tb: Bound<'_, PyAny>,
+) -> None
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::__exit__](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.__exit__)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::__exit__`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.__exit__)
 
 Context manager exit - stops services and deactivates environment
 
@@ -376,15 +356,14 @@ Context manager exit - stops services and deactivates environment
 
 | Name | Type | Description |
 |------|------|-------------|
-| `_exc_type` | ` Bound < '_ , PyAny >` |  |
-| `_exc_val` | ` Bound < '_ , PyAny >` |  |
-| `_exc_tb` | ` Bound < '_ , PyAny >` |  |
-
+| `_exc_type` | `Bound<'_, PyAny>` |  |
+| `_exc_val` | `Bound<'_, PyAny>` |  |
+| `_exc_tb` | `Bound<'_, PyAny>` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn __exit__(
         &mut self,
         _exc_type: &Bound<'_, PyAny>,
@@ -407,15 +386,13 @@ Context manager exit - stops services and deactivates environment
 
 </details>
 
-
-
-##### <span id="Flox.is_available"></span>`is_available`
+##### <span id="Flox.is_available"></span><code>is_​available</code>
 
 ```python
-def is_available(_cls:  Bound < '_ , PyType >) -> bool
+def is_available(_cls: Bound<'_, PyType>) -> bool
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::is_available](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.is_available)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::is_available`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.is_available)
 
 Check if the Flox CLI is available
 
@@ -423,13 +400,12 @@ Check if the Flox CLI is available
 
 | Name | Type | Description |
 |------|------|-------------|
-| `_cls` | ` Bound < '_ , PyType >` |  |
-
+| `_cls` | `Bound<'_, PyType>` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn is_available(_cls: &Bound<'_, PyType>) -> bool {
         FloxIntegration::is_available()
     }
@@ -437,15 +413,13 @@ Check if the Flox CLI is available
 
 </details>
 
-
-
-##### <span id="Flox.version"></span>`version`
+##### <span id="Flox.version"></span><code>version</code>
 
 ```python
-def version(_cls:  Bound < '_ , PyType >) -> PyResult < String >
+def version(_cls: Bound<'_, PyType>) -> str
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::version](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.version)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::version`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.version)
 
 Get the Flox version string
 
@@ -453,13 +427,12 @@ Get the Flox version string
 
 | Name | Type | Description |
 |------|------|-------------|
-| `_cls` | ` Bound < '_ , PyType >` |  |
-
+| `_cls` | `Bound<'_, PyType>` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn version(_cls: &Bound<'_, PyType>) -> PyResult<String> {
         FloxIntegration::version().map_err(|e| {
             PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!(
@@ -472,18 +445,13 @@ Get the Flox version string
 
 </details>
 
-
-
-##### <span id="Flox.run"></span>`run`
+##### <span id="Flox.run"></span><code>run</code>
 
 ```python
-def run(
-    command:  str,
-    args: Option < Vec < String > >,
-) -> PyResult < (i32 , String , String) >
+def run(command: str, args: Optional[List[str]]) -> (i32, String, String)
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::run](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.run)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::run`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.run)
 
 Run a command within the Flox environment
 
@@ -493,14 +461,13 @@ Executes: `flox activate -d <path> -- <command> [args...]`
 
 | Name | Type | Description |
 |------|------|-------------|
-| `command` | ` str` |  |
-| `args` | `Option < Vec < String > >` |  |
-
+| `command` | `str` |  |
+| `args` | `Optional[List[str]]` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn run(&self, command: &str, args: Option<Vec<String>>) -> PyResult<(i32, String, String)> {
         let flox_env = FloxEnvironment::new(&self.path);
         let args_refs: Vec<&str> = args
@@ -525,22 +492,20 @@ Executes: `flox activate -d <path> -- <command> [args...]`
 
 </details>
 
-
-
-##### <span id="Flox.services"></span>`services`
+##### <span id="Flox.services"></span><code>services</code>
 
 ```python
 def services() -> FloxServices
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::Flox::services](../../../../rust/angreal/python_bindings/integrations/flox/#Flox.services)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::Flox::services`](../../../rust/angreal/python_bindings/integrations/flox/#Flox.services)
 
 Get a FloxServices manager for this environment
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn services(&self) -> FloxServices {
         FloxServices {
             path: self.path.clone(),
@@ -550,97 +515,9 @@ Get a FloxServices manager for this environment
 
 </details>
 
+### <span id="class.FloxServices"></span><code style="font-size: 0.85em">class FloxServices</code>
 
-
-
-
-### <span id="class.ServiceInfo"></span>`class ServiceInfo`
-
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::ServiceInfo](../../../../rust/angreal/python_bindings/integrations/flox/#struct.ServiceInfo)
-
-Information about a single service
-
-#### Methods
-
-##### <span id="ServiceInfo.__new__"></span>`__new__`
-
-```python
-def __new__(name: str, status: str, pid: Option < u32 >) -> Self
-```
-
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::ServiceInfo::__new__](../../../../rust/angreal/python_bindings/integrations/flox/#ServiceInfo.__new__)
-
-<details>
-<summary>Source</summary>
-
-```python
-    fn __new__(name: String, status: String, pid: Option<u32>) -> Self {
-        ServiceInfo { name, status, pid }
-    }
-```
-
-</details>
-
-
-
-##### <span id="ServiceInfo.__repr__"></span>`__repr__`
-
-```python
-def __repr__() -> str
-```
-
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::ServiceInfo::__repr__](../../../../rust/angreal/python_bindings/integrations/flox/#ServiceInfo.__repr__)
-
-<details>
-<summary>Source</summary>
-
-```python
-    fn __repr__(&self) -> String {
-        match self.pid {
-            Some(pid) => format!(
-                "ServiceInfo(name='{}', status='{}', pid={})",
-                self.name, self.status, pid
-            ),
-            None => format!(
-                "ServiceInfo(name='{}', status='{}')",
-                self.name, self.status
-            ),
-        }
-    }
-```
-
-</details>
-
-
-
-##### <span id="ServiceInfo.as_tuple"></span>`as_tuple`
-
-```python
-def as_tuple() -> (String , String , Option < u32 >)
-```
-
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::ServiceInfo::as_tuple](../../../../rust/angreal/python_bindings/integrations/flox/#ServiceInfo.as_tuple)
-
-Convert to a tuple (name, status, pid)
-
-<details>
-<summary>Source</summary>
-
-```python
-    fn as_tuple(&self) -> (String, String, Option<u32>) {
-        (self.name.clone(), self.status.clone(), self.pid)
-    }
-```
-
-</details>
-
-
-
-
-
-### <span id="class.FloxServices"></span>`class FloxServices`
-
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServices](../../../../rust/angreal/python_bindings/integrations/flox/#struct.FloxServices)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServices`](../../../rust/angreal/python_bindings/integrations/flox/#struct.FloxServices)
 
 Flox services manager
 
@@ -648,18 +525,18 @@ Provides methods for starting, stopping, and monitoring Flox services.
 
 #### Methods
 
-##### <span id="FloxServices.__new__"></span>`__new__`
+##### <span id="FloxServices.__new__"></span><code>_​_​new_​_​</code>
 
 ```python
-def __new__(path: Py < PyAny >) -> PyResult < Self >
+def __new__(path: Py<PyAny>) -> Self
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServices::__new__](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.__new__)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServices::__new__`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.__new__)
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn __new__(path: Py<PyAny>) -> PyResult<Self> {
         Python::attach(|py| {
             // Convert path to string - handle both str and Path objects
@@ -715,22 +592,20 @@ def __new__(path: Py < PyAny >) -> PyResult < Self >
 
 </details>
 
-
-
-##### <span id="FloxServices.path"></span>`path`
+##### <span id="FloxServices.path"></span><code>path</code>
 
 ```python
-def path() -> PyResult < Py < PyAny > >
+def path() -> Py<PyAny>
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServices::path](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.path)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServices::path`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.path)
 
 Get the path as a Python Path object
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn path(&self, py: Python) -> PyResult<Py<PyAny>> {
         let pathlib = py.import("pathlib")?;
         let path_class = pathlib.getattr("Path")?;
@@ -741,15 +616,13 @@ Get the path as a Python Path object
 
 </details>
 
-
-
-##### <span id="FloxServices.start"></span>`start`
+##### <span id="FloxServices.start"></span><code>start</code>
 
 ```python
-def start(services:  Bound < '_ , PyAny >) -> PyResult < FloxServiceHandle >
+def start(services: Bound<'_, PyAny>) -> FloxServiceHandle
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServices::start](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.start)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServices::start`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.start)
 
 Start services
 
@@ -760,13 +633,12 @@ Returns a FloxServiceHandle that can be used to stop services later.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `services` | ` Bound < '_ , PyAny >` |  |
-
+| `services` | `Bound<'_, PyAny>` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn start(&self, services: &Bound<'_, PyAny>) -> PyResult<FloxServiceHandle> {
         let flox_env = FloxEnvironment::new(&self.path);
 
@@ -817,15 +689,13 @@ Returns a FloxServiceHandle that can be used to stop services later.
 
 </details>
 
-
-
-##### <span id="FloxServices.stop"></span>`stop`
+##### <span id="FloxServices.stop"></span><code>stop</code>
 
 ```python
-def stop(services:  Bound < '_ , PyAny >) -> PyResult < () >
+def stop(services: Bound<'_, PyAny>) -> None
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServices::stop](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.stop)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServices::stop`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.stop)
 
 Stop services
 
@@ -835,13 +705,12 @@ If no service names are provided, stops all services.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `services` | ` Bound < '_ , PyAny >` |  |
-
+| `services` | `Bound<'_, PyAny>` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn stop(&self, services: &Bound<'_, PyAny>) -> PyResult<()> {
         let flox_env = FloxEnvironment::new(&self.path);
 
@@ -864,15 +733,13 @@ If no service names are provided, stops all services.
 
 </details>
 
-
-
-##### <span id="FloxServices.status"></span>`status`
+##### <span id="FloxServices.status"></span><code>status</code>
 
 ```python
-def status() -> PyResult < Vec < ServiceInfo > >
+def status() -> List[ServiceInfo]
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServices::status](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.status)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServices::status`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.status)
 
 Get status of all services
 
@@ -881,7 +748,7 @@ Returns a list of ServiceInfo objects.
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn status(&self) -> PyResult<Vec<ServiceInfo>> {
         let flox_env = FloxEnvironment::new(&self.path);
         let statuses = flox_env.services_status().map_err(|e| {
@@ -904,15 +771,13 @@ Returns a list of ServiceInfo objects.
 
 </details>
 
-
-
-##### <span id="FloxServices.logs"></span>`logs`
+##### <span id="FloxServices.logs"></span><code>logs</code>
 
 ```python
-def logs(service:  str, follow: bool, tail: Option < u32 >) -> PyResult < String >
+def logs(service: str, follow: bool, tail: Optional[int]) -> str
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServices::logs](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.logs)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServices::logs`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.logs)
 
 Get logs for a specific service
 
@@ -920,15 +785,14 @@ Get logs for a specific service
 
 | Name | Type | Description |
 |------|------|-------------|
-| `service` | ` str` |  |
+| `service` | `str` |  |
 | `follow` | `bool` |  |
-| `tail` | `Option < u32 >` |  |
-
+| `tail` | `Optional[int]` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn logs(&self, service: &str, follow: bool, tail: Option<u32>) -> PyResult<String> {
         if follow {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
@@ -948,15 +812,13 @@ Get logs for a specific service
 
 </details>
 
-
-
-##### <span id="FloxServices.restart"></span>`restart`
+##### <span id="FloxServices.restart"></span><code>restart</code>
 
 ```python
-def restart(services:  Bound < '_ , PyAny >) -> PyResult < () >
+def restart(services: Bound<'_, PyAny>) -> None
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServices::restart](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.restart)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServices::restart`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServices.restart)
 
 Restart services
 
@@ -964,13 +826,12 @@ Restart services
 
 | Name | Type | Description |
 |------|------|-------------|
-| `services` | ` Bound < '_ , PyAny >` |  |
-
+| `services` | `Bound<'_, PyAny>` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn restart(&self, services: &Bound<'_, PyAny>) -> PyResult<()> {
         let flox_env = FloxEnvironment::new(&self.path);
 
@@ -993,13 +854,9 @@ Restart services
 
 </details>
 
+### <span id="class.FloxServiceHandle"></span><code style="font-size: 0.85em">class FloxServiceHandle</code>
 
-
-
-
-### <span id="class.FloxServiceHandle"></span>`class FloxServiceHandle`
-
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServiceHandle](../../../../rust/angreal/python_bindings/integrations/flox/#struct.FloxServiceHandle)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServiceHandle`](../../../rust/angreal/python_bindings/integrations/flox/#struct.FloxServiceHandle)
 
 Handle to started services for persistence and cleanup
 
@@ -1007,20 +864,20 @@ Can be saved to JSON and loaded later to stop services across sessions.
 
 #### Methods
 
-##### <span id="FloxServiceHandle.flox_env_path"></span>`flox_env_path`
+##### <span id="FloxServiceHandle.flox_env_path"></span><code>flox_​env_​path</code>
 
 ```python
-def flox_env_path() -> PyResult < Py < PyAny > >
+def flox_env_path() -> Py<PyAny>
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServiceHandle::flox_env_path](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.flox_env_path)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServiceHandle::flox_env_path`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.flox_env_path)
 
 Get the Flox environment path
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn flox_env_path(&self, py: Python) -> PyResult<Py<PyAny>> {
         let pathlib = py.import("pathlib")?;
         let path_class = pathlib.getattr("Path")?;
@@ -1031,22 +888,20 @@ Get the Flox environment path
 
 </details>
 
-
-
-##### <span id="FloxServiceHandle.services"></span>`services`
+##### <span id="FloxServiceHandle.services"></span><code>services</code>
 
 ```python
-def services() -> Vec < ServiceInfo >
+def services() -> List[ServiceInfo]
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServiceHandle::services](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.services)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServiceHandle::services`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.services)
 
 Get list of services
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn services(&self) -> Vec<ServiceInfo> {
         self.services.clone()
     }
@@ -1054,22 +909,20 @@ Get list of services
 
 </details>
 
-
-
-##### <span id="FloxServiceHandle.started_at"></span>`started_at`
+##### <span id="FloxServiceHandle.started_at"></span><code>started_​at</code>
 
 ```python
 def started_at() -> str
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServiceHandle::started_at](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.started_at)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServiceHandle::started_at`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.started_at)
 
 Get the started_at timestamp
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn started_at(&self) -> String {
         self.started_at.clone()
     }
@@ -1077,22 +930,20 @@ Get the started_at timestamp
 
 </details>
 
-
-
-##### <span id="FloxServiceHandle.stop"></span>`stop`
+##### <span id="FloxServiceHandle.stop"></span><code>stop</code>
 
 ```python
-def stop() -> PyResult < () >
+def stop() -> None
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServiceHandle::stop](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.stop)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServiceHandle::stop`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.stop)
 
 Stop only the services tracked by this handle
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn stop(&self) -> PyResult<()> {
         let flox_env = FloxEnvironment::new(&self.flox_env_path);
         let service_names: Vec<&str> = self.services.iter().map(|s| s.name.as_str()).collect();
@@ -1107,15 +958,13 @@ Stop only the services tracked by this handle
 
 </details>
 
-
-
-##### <span id="FloxServiceHandle.save"></span>`save`
+##### <span id="FloxServiceHandle.save"></span><code>save</code>
 
 ```python
-def save(path: Option < & str >) -> PyResult < () >
+def save(path: Optional[str]) -> None
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServiceHandle::save](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.save)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServiceHandle::save`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.save)
 
 Save handle to a JSON file
 
@@ -1123,13 +972,12 @@ Save handle to a JSON file
 
 | Name | Type | Description |
 |------|------|-------------|
-| `path` | `Option < & str >` |  |
-
+| `path` | `Optional[str]` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn save(&self, path: Option<&str>) -> PyResult<()> {
         let file_path = path.unwrap_or(".flox-services.json");
 
@@ -1165,18 +1013,13 @@ Save handle to a JSON file
 
 </details>
 
-
-
-##### <span id="FloxServiceHandle.load"></span>`load`
+##### <span id="FloxServiceHandle.load"></span><code>load</code>
 
 ```python
-def load(
-    _cls:  Bound < '_ , PyType >,
-    path: Option < & str >,
-) -> PyResult < FloxServiceHandle >
+def load(_cls: Bound<'_, PyType>, path: Optional[str]) -> FloxServiceHandle
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServiceHandle::load](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.load)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServiceHandle::load`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.load)
 
 Load handle from a JSON file
 
@@ -1184,14 +1027,13 @@ Load handle from a JSON file
 
 | Name | Type | Description |
 |------|------|-------------|
-| `_cls` | ` Bound < '_ , PyType >` |  |
-| `path` | `Option < & str >` |  |
-
+| `_cls` | `Bound<'_, PyType>` |  |
+| `path` | `Optional[str]` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn load(_cls: &Bound<'_, PyType>, path: Option<&str>) -> PyResult<FloxServiceHandle> {
         let file_path = path.unwrap_or(".flox-services.json");
 
@@ -1258,20 +1100,18 @@ Load handle from a JSON file
 
 </details>
 
-
-
-##### <span id="FloxServiceHandle.__repr__"></span>`__repr__`
+##### <span id="FloxServiceHandle.__repr__"></span><code>_​_​repr_​_​</code>
 
 ```python
 def __repr__() -> str
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxServiceHandle::__repr__](../../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.__repr__)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxServiceHandle::__repr__`](../../../rust/angreal/python_bindings/integrations/flox/#FloxServiceHandle.__repr__)
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn __repr__(&self) -> String {
         let service_names: Vec<&str> = self.services.iter().map(|s| s.name.as_str()).collect();
         format!(
@@ -1283,30 +1123,102 @@ def __repr__() -> str
 
 </details>
 
+### <span id="class.ServiceInfo"></span><code style="font-size: 0.85em">class ServiceInfo</code>
 
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::ServiceInfo`](../../../rust/angreal/python_bindings/integrations/flox/#struct.ServiceInfo)
 
+Information about a single service
 
+#### Methods
 
-### <span id="class.FloxRequiredDecorator"></span>`class FloxRequiredDecorator`
+##### <span id="ServiceInfo.__new__"></span><code>_​_​new_​_​</code>
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxRequiredDecorator](../../../../rust/angreal/python_bindings/integrations/flox/#struct.FloxRequiredDecorator)
+```python
+def __new__(name: str, status: str, pid: Optional[int]) -> Self
+```
+
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::ServiceInfo::__new__`](../../../rust/angreal/python_bindings/integrations/flox/#ServiceInfo.__new__)
+
+<details>
+<summary>Source</summary>
+
+```rust
+    fn __new__(name: String, status: String, pid: Option<u32>) -> Self {
+        ServiceInfo { name, status, pid }
+    }
+```
+
+</details>
+
+##### <span id="ServiceInfo.__repr__"></span><code>_​_​repr_​_​</code>
+
+```python
+def __repr__() -> str
+```
+
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::ServiceInfo::__repr__`](../../../rust/angreal/python_bindings/integrations/flox/#ServiceInfo.__repr__)
+
+<details>
+<summary>Source</summary>
+
+```rust
+    fn __repr__(&self) -> String {
+        match self.pid {
+            Some(pid) => format!(
+                "ServiceInfo(name='{}', status='{}', pid={})",
+                self.name, self.status, pid
+            ),
+            None => format!(
+                "ServiceInfo(name='{}', status='{}')",
+                self.name, self.status
+            ),
+        }
+    }
+```
+
+</details>
+
+##### <span id="ServiceInfo.as_tuple"></span><code>as_​tuple</code>
+
+```python
+def as_tuple() -> (String, String, Option<u32>)
+```
+
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::ServiceInfo::as_tuple`](../../../rust/angreal/python_bindings/integrations/flox/#ServiceInfo.as_tuple)
+
+Convert to a tuple (name, status, pid)
+
+<details>
+<summary>Source</summary>
+
+```rust
+    fn as_tuple(&self) -> (String, String, Option<u32>) {
+        (self.name.clone(), self.status.clone(), self.pid)
+    }
+```
+
+</details>
+
+### <span id="class.FloxRequiredDecorator"></span><code style="font-size: 0.85em">class FloxRequiredDecorator</code>
+
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxRequiredDecorator`](../../../rust/angreal/python_bindings/integrations/flox/#struct.FloxRequiredDecorator)
 
 A Python callable that wraps the flox_required decorator logic
 
 #### Methods
 
-##### <span id="FloxRequiredDecorator.__call__"></span>`__call__`
+##### <span id="FloxRequiredDecorator.__call__"></span><code>_​_​call_​_​</code>
 
 ```python
-def __call__(func: Py < PyAny >) -> PyResult < Py < PyAny > >
+def __call__(func: Py<PyAny>) -> Py<PyAny>
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxRequiredDecorator::__call__](../../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredDecorator.__call__)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxRequiredDecorator::__call__`](../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredDecorator.__call__)
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn __call__(&self, py: Python, func: Py<PyAny>) -> PyResult<Py<PyAny>> {
         // Create a Rust-based wrapper function
         let wrapper = FloxRequiredWrapper {
@@ -1322,31 +1234,27 @@ def __call__(func: Py < PyAny >) -> PyResult < Py < PyAny > >
 
 </details>
 
+### <span id="class.FloxRequiredWrapper"></span><code style="font-size: 0.85em">class FloxRequiredWrapper</code>
 
-
-
-
-### <span id="class.FloxRequiredWrapper"></span>`class FloxRequiredWrapper`
-
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxRequiredWrapper](../../../../rust/angreal/python_bindings/integrations/flox/#struct.FloxRequiredWrapper)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxRequiredWrapper`](../../../rust/angreal/python_bindings/integrations/flox/#struct.FloxRequiredWrapper)
 
 #### Methods
 
-##### <span id="FloxRequiredWrapper.__call__"></span>`__call__`
+##### <span id="FloxRequiredWrapper.__call__"></span><code>_​_​call_​_​</code>
 
 ```python
 def __call__(
-    args:  Bound < '_ , pyo3 :: types :: PyTuple >,
-    kwargs: Option < & Bound < '_ , pyo3 :: types :: PyDict > >,
-) -> PyResult < Py < PyAny > >
+    args: Bound<'_, pyo3::types::PyTuple>,
+    kwargs: Optional[Bound<'_, pyo3::types::PyDict>],
+) -> Py<PyAny>
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxRequiredWrapper::__call__](../../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredWrapper.__call__)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxRequiredWrapper::__call__`](../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredWrapper.__call__)
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn __call__(
         &self,
         args: &Bound<'_, pyo3::types::PyTuple>,
@@ -1407,20 +1315,18 @@ def __call__(
 
 </details>
 
-
-
-##### <span id="FloxRequiredWrapper.get_arguments"></span>`get_arguments`
+##### <span id="FloxRequiredWrapper.get_arguments"></span><code>get_​arguments</code>
 
 ```python
-def get_arguments() -> PyResult < Py < PyAny > >
+def get_arguments() -> Py<PyAny>
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxRequiredWrapper::get_arguments](../../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredWrapper.get_arguments)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxRequiredWrapper::get_arguments`](../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredWrapper.get_arguments)
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn get_arguments(&self) -> PyResult<Py<PyAny>> {
         Python::attach(|py| {
             self.original_func
@@ -1432,20 +1338,18 @@ def get_arguments() -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-##### <span id="FloxRequiredWrapper.__name__"></span>`__name__`
+##### <span id="FloxRequiredWrapper.__name__"></span><code>_​_​name_​_​</code>
 
 ```python
-def __name__() -> PyResult < Py < PyAny > >
+def __name__() -> Py<PyAny>
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxRequiredWrapper::__name__](../../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredWrapper.__name__)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxRequiredWrapper::__name__`](../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredWrapper.__name__)
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn __name__(&self) -> PyResult<Py<PyAny>> {
         Python::attach(|py| {
             self.original_func
@@ -1457,20 +1361,18 @@ def __name__() -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-##### <span id="FloxRequiredWrapper.__doc__"></span>`__doc__`
+##### <span id="FloxRequiredWrapper.__doc__"></span><code>_​_​doc_​_​</code>
 
 ```python
-def __doc__() -> PyResult < Py < PyAny > >
+def __doc__() -> Py<PyAny>
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxRequiredWrapper::__doc__](../../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredWrapper.__doc__)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxRequiredWrapper::__doc__`](../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredWrapper.__doc__)
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn __doc__(&self) -> PyResult<Py<PyAny>> {
         Python::attach(|py| {
             self.original_func
@@ -1482,20 +1384,18 @@ def __doc__() -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-##### <span id="FloxRequiredWrapper.__getattr__"></span>`__getattr__`
+##### <span id="FloxRequiredWrapper.__getattr__"></span><code>_​_​getattr_​_​</code>
 
 ```python
-def __getattr__(name:  str) -> PyResult < Py < PyAny > >
+def __getattr__(name: str) -> Py<PyAny>
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::FloxRequiredWrapper::__getattr__](../../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredWrapper.__getattr__)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::FloxRequiredWrapper::__getattr__`](../../../rust/angreal/python_bindings/integrations/flox/#FloxRequiredWrapper.__getattr__)
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
     fn __getattr__(&self, name: &str) -> PyResult<Py<PyAny>> {
         Python::attach(|py| self.original_func.getattr(py, name))
     }
@@ -1503,22 +1403,18 @@ def __getattr__(name:  str) -> PyResult < Py < PyAny > >
 
 </details>
 
-
-
-
-
 ## Functions
 
-### <span id="fn.flox_required"></span>`flox_required`
+### <span id="fn.flox_required"></span><code style="font-size: 0.85em">flox_​required</code>
 
 ```python
 def flox_required(
-    path: Option < Py < PyAny > >,
-    services: Option < Vec < String > >,
-) -> PyResult < FloxRequiredDecorator >
+    path: Optional[Py<PyAny>],
+    services: Optional[List[str]],
+) -> FloxRequiredDecorator
 ```
 
-> **Rust Implementation**: [angreal::python_bindings::integrations::flox::flox_required](../../../../rust/angreal/python_bindings/integrations/flox/#fn.flox_required)
+> **Rust Implementation**: [`angreal::python_bindings::integrations::flox::flox_required`](../../../rust/angreal/python_bindings/integrations/flox/#fn.flox_required)
 
 Decorator that wraps a function to run in a Flox environment
 
@@ -1528,14 +1424,13 @@ This is equivalent to the Python @flox_required decorator
 
 | Name | Type | Description |
 |------|------|-------------|
-| `path` | `Option < Py < PyAny > >` |  |
-| `services` | `Option < Vec < String > >` |  |
-
+| `path` | `Optional[Py<PyAny>]` |  |
+| `services` | `Optional[List[str]]` |  |
 
 <details>
 <summary>Source</summary>
 
-```python
+```rust
 pub fn flox_required(
     path: Option<Py<PyAny>>,
     services: Option<Vec<String>>,

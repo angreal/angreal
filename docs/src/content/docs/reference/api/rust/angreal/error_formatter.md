@@ -1,38 +1,30 @@
 ---
 title: "angreal::error_formatter"
 description: "API reference of the Rust module angreal::error_formatter."
+editUrl: false
 sidebar:
-  order: 20
+  order: 17
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 ## Structs
 
-### <span id="struct.PythonErrorFormatter"></span>`struct PythonErrorFormatter`
+### <span id="struct.PythonErrorFormatter"></span><code style="font-size: 0.85em">struct PythonErrorFormatter</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 Formats Python exception information in a more readable way
 
-#### Fields
-
-| Name | Type | Description |
-|------|------|-------------|
-| `error` | `PyErr` |  |
-
 #### Methods
 
-##### <span id="PythonErrorFormatter.new"></span>`new`
+##### <span id="PythonErrorFormatter.new"></span><code>new</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn new (error : PyErr) -> Self
+fn new(error: PyErr) -> Self
 ```
 
 <details>
@@ -46,15 +38,12 @@ fn new (error : PyErr) -> Self
 
 </details>
 
-
-
-##### <span id="PythonErrorFormatter.format"></span>`format`
+##### <span id="PythonErrorFormatter.format"></span><code>format</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn format (& self) -> String
+fn format(&self) -> String
 ```
 
 Formats a Python error in a more readable way

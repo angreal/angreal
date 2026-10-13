@@ -1,25 +1,27 @@
 ---
 title: "angreal::validation::allowed_values"
 description: "Validation for allowed values"
+editUrl: false
 sidebar:
-  order: 47
+  order: 42
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
 
-
 Validation for allowed values
 
 ## Functions
 
-### <span id="fn.allowed_values"></span>`fn allowed_values`
+### <span id="fn.allowed_values"></span><code style="font-size: 0.85em">fn allowed_​values</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn allowed_values (input : & str , allowed_values : & Value) -> Result < () , String >
+fn allowed_values(
+    input: &str) -> Result<(,
+    allowed_values: &Value) -> Result<(,
+) -> Result<(), String>
 ```
 
 Validate that input is one of the allowed values
@@ -28,13 +30,13 @@ Validate that input is one of the allowed values
 
 | Name | Type | Description |
 |------|------|-------------|
-| `input` | `-` | The user input to validate |
-| `allowed_values` | `-` | A TOML array of allowed values |
-
+| `input` | `&str` | The user input to validate |
+| `allowed_values` | `&Value` | A TOML array of allowed values |
 
 **Returns:**
 
-* `Ok(())` if input matches one of the allowed values * `Err(message)` with descriptive error message if validation fails
+* `Ok(())` if input matches one of the allowed values
+* `Err(message)` with descriptive error message if validation fails
 
 <details>
 <summary>Source</summary>

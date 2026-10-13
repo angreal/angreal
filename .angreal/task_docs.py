@@ -32,10 +32,9 @@ import angreal  # type: ignore
 # Project root for accessing docs, etc. (one level up from .angreal)
 PROJECT_ROOT = Path(angreal.get_root()).parent
 DOCS_ROOT = PROJECT_ROOT / "docs"
-API_ROOT = DOCS_ROOT / "src" / "content" / "docs" / "reference" / "api"
 
 # Keep in sync with the "Install Plissken" step in .github/workflows/docs.yaml.
-PLISSKEN_VERSION = "0.1.0"
+PLISSKEN_VERSION = "0.2.0"
 
 # Define command group
 docs = angreal.command_group(name="docs", about="commands for documentation tasks")
@@ -76,12 +75,6 @@ def _render_api_docs():
     except subprocess.CalledProcessError as e:
         print(f"Failed to render API docs: {e}", file=sys.stderr)
         return e.returncode
-    # Plissken ends each page with blank lines; end-of-file-fixer removes them.
-    # Remove them here so a render matches the committed pages.
-    for page in API_ROOT.rglob("*.md"):
-        text = page.read_text()
-        if text.endswith("\n\n"):
-            page.write_text(text.rstrip("\n") + "\n")
     print("API documentation generated in docs/src/content/docs/reference/api")
     return result.returncode
 

@@ -1,13 +1,13 @@
 ---
 title: "angreal::builder::tree_output"
 description: "Human-readable tree output for angreal commands."
+editUrl: false
 sidebar:
-  order: 15
+  order: 12
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
-
 
 Human-readable tree output for angreal commands.
 
@@ -17,13 +17,12 @@ Provides formatted display of the command tree with two modes:
 
 ## Functions
 
-### <span id="fn.format_arg_signature_pub"></span>`fn format_arg_signature_pub`
+### <span id="fn.format_arg_signature_pub"></span><code style="font-size: 0.85em">fn format_​arg_​signature_​pub</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn format_arg_signature_pub (args : & [AngrealArg]) -> String
+fn format_arg_signature_pub(args: &[AngrealArg]) -> String
 ```
 
 Format argument signature for display: [--flag] [--option=<type>]
@@ -39,82 +38,12 @@ pub fn format_arg_signature_pub(args: &[AngrealArg]) -> String {
 
 </details>
 
-
-
-### <span id="fn.format_arg_signature"></span>`fn format_arg_signature`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn format_arg_signature (args : & [AngrealArg]) -> String
-```
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn format_arg_signature(args: &[AngrealArg]) -> String {
-    args.iter()
-        .filter_map(|arg| {
-            // Prefer long flag, fall back to short
-            let flag = arg
-                .long
-                .as_ref()
-                .map(|l| format!("--{}", l))
-                .or_else(|| arg.short.map(|s| format!("-{}", s)))?;
-
-            if arg.is_flag.unwrap_or(false) {
-                Some(format!("[{}]", flag))
-            } else {
-                let typ = arg.python_type.as_deref().unwrap_or("str");
-                Some(format!("[{}=<{}>]", flag, typ))
-            }
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
-}
-```
-
-</details>
-
-
-
-### <span id="fn.get_command_path"></span>`fn get_command_path`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn get_command_path (node : & CommandNode , parent_path : & [String]) -> String
-```
-
-Get the command path for looking up arguments
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn get_command_path(node: &CommandNode, parent_path: &[String]) -> String {
-    if parent_path.is_empty() {
-        node.name.clone()
-    } else {
-        format!("{}.{}", parent_path.join("."), node.name)
-    }
-}
-```
-
-</details>
-
-
-
-### <span id="fn.print_tree"></span>`fn print_tree`
+### <span id="fn.print_tree"></span><code style="font-size: 0.85em">fn print_​tree</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn print_tree (node : & CommandNode , long : bool)
+fn print_tree(node: &CommandNode, long: bool)
 ```
 
 Print the command tree in human-readable format
@@ -123,9 +52,8 @@ Print the command tree in human-readable format
 
 | Name | Type | Description |
 |------|------|-------------|
-| `node` | `-` | The root command node to print |
-| `long` | `-` | If true, include full ToolDescription prose |
-
+| `node` | `&CommandNode` | The root command node to print |
+| `long` | `bool` | If true, include full ToolDescription prose |
 
 <details>
 <summary>Source</summary>
@@ -133,98 +61,6 @@ Print the command tree in human-readable format
 ```rust
 pub fn print_tree(node: &CommandNode, long: bool) {
     print_node(node, long, 0, &[]);
-}
-```
-
-</details>
-
-
-
-### <span id="fn.print_node"></span>`fn print_node`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn print_node (node : & CommandNode , long : bool , depth : usize , parent_path : & [String])
-```
-
-<details>
-<summary>Source</summary>
-
-```rust
-fn print_node(node: &CommandNode, long: bool, depth: usize, parent_path: &[String]) {
-    let indent = "  ".repeat(depth);
-
-    // Skip the root "angreal" node
-    if depth == 0 && node.name == "angreal" {
-        // Just print children
-        let mut children: Vec<_> = node.children.iter().collect();
-        children.sort_by_key(|(name, _)| *name);
-        for (_, child) in children {
-            print_node(child, long, depth, parent_path);
-        }
-        return;
-    }
-
-    if let Some(cmd) = &node.command {
-        // This is a command (leaf node)
-        let command_path = get_command_path(node, parent_path);
-
-        // Get arguments for this command
-        let args = ANGREAL_ARGS
-            .lock()
-            .unwrap()
-            .get(&command_path)
-            .cloned()
-            .unwrap_or_default();
-
-        let arg_sig = format_arg_signature(&args);
-        let about = cmd.about.as_deref().unwrap_or("");
-
-        if arg_sig.is_empty() {
-            println!("{}{} - {}", indent, node.name, about);
-        } else {
-            println!("{}{} {} - {}", indent, node.name, arg_sig, about);
-        }
-
-        // In long mode, print ToolDescription
-        if long {
-            if let Some(tool) = &cmd.tool {
-                let tool_indent = "  ".repeat(depth + 1);
-                println!();
-                // Print each line of the description with proper indentation
-                for line in tool.description.lines() {
-                    if line.trim().is_empty() {
-                        println!();
-                    } else {
-                        println!("{}{}", tool_indent, line);
-                    }
-                }
-                println!("{}Risk level: {}", tool_indent, tool.risk_level);
-                println!();
-            }
-        }
-    } else {
-        // This is a group node - print the group header
-        let about = node.about.as_deref().unwrap_or("");
-        if about.is_empty() {
-            println!("{}{}:", indent, node.name);
-        } else {
-            println!("{}{}: {}", indent, node.name, about);
-        }
-
-        // Build new parent path for children
-        let mut new_parent_path = parent_path.to_vec();
-        new_parent_path.push(node.name.clone());
-
-        // Print children sorted alphabetically
-        let mut children: Vec<_> = node.children.iter().collect();
-        children.sort_by_key(|(name, _)| *name);
-        for (_, child) in children {
-            print_node(child, long, depth + 1, &new_parent_path);
-        }
-    }
 }
 ```
 

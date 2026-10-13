@@ -1,13 +1,13 @@
 ---
 title: "angreal::integrations::docker_compose"
 description: "Docker Compose integration using subprocess execution for reliability"
+editUrl: false
 sidebar:
-  order: 24
+  order: 20
   hidden: true
 ---
 
 <span class="plissken-badge plissken-badge-source" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-orange-low); color: var(--sl-color-orange-high);">Rust</span>
-
 
 Docker Compose integration using subprocess execution for reliability
 
@@ -16,32 +16,22 @@ using subprocess execution to ensure compatibility with all Docker Compose versi
 
 ## Structs
 
-### <span id="struct.DockerCompose"></span>`struct DockerCompose`
+### <span id="struct.DockerCompose"></span><code style="font-size: 0.85em">struct DockerCompose</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Clone`, `Debug`
 
 Docker Compose integration using subprocess execution
 
-#### Fields
-
-| Name | Type | Description |
-|------|------|-------------|
-| `compose_file` | `PathBuf` |  |
-| `working_dir` | `PathBuf` |  |
-| `project_name` | `Option < String >` |  |
-
 #### Methods
 
-##### <span id="DockerCompose.new"></span>`new`
+##### <span id="DockerCompose.new"></span><code>new</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn new < P : AsRef < Path > > (compose_file : P) -> Result < Self >
+fn new<P: AsRef<Path>>(compose_file: P) -> Result<Self>
 ```
 
 Create a new Docker Compose instance
@@ -75,15 +65,12 @@ Create a new Docker Compose instance
 
 </details>
 
-
-
-##### <span id="DockerCompose.with_project_name"></span>`with_project_name`
+##### <span id="DockerCompose.with_project_name"></span><code>with_​project_​name</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn with_project_name < S : Into < String > > (mut self , name : S) -> Self
+fn with_project_name<S: Into<String>>(mut self, name: S) -> Self
 ```
 
 Set a custom project name
@@ -100,15 +87,12 @@ Set a custom project name
 
 </details>
 
-
-
-##### <span id="DockerCompose.is_available"></span>`is_available`
+##### <span id="DockerCompose.is_available"></span><code>is_​available</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn is_available () -> bool
+fn is_available() -> bool
 ```
 
 Check if docker-compose is available
@@ -138,15 +122,12 @@ Check if docker-compose is available
 
 </details>
 
-
-
-##### <span id="DockerCompose.compose_file"></span>`compose_file`
+##### <span id="DockerCompose.compose_file"></span><code>compose_​file</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn compose_file (& self) -> & Path
+fn compose_file(&self) -> &Path
 ```
 
 Get the compose file path
@@ -162,15 +143,12 @@ Get the compose file path
 
 </details>
 
-
-
-##### <span id="DockerCompose.working_dir"></span>`working_dir`
+##### <span id="DockerCompose.working_dir"></span><code>working_​dir</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn working_dir (& self) -> & Path
+fn working_dir(&self) -> &Path
 ```
 
 Get the working directory
@@ -186,15 +164,12 @@ Get the working directory
 
 </details>
 
-
-
-##### <span id="DockerCompose.project_name"></span>`project_name`
+##### <span id="DockerCompose.project_name"></span><code>project_​name</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn project_name (& self) -> Option < & str >
+fn project_name(&self) -> Option<&str>
 ```
 
 Get the project name
@@ -210,80 +185,12 @@ Get the project name
 
 </details>
 
-
-
-##### <span id="DockerCompose.execute_command"></span>`execute_command`
-
-<span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-gray-6); color: var(--sl-color-gray-2);">private</span>
-
-
-```rust
-fn execute_command (& self , args : & [& str]) -> Result < ComposeOutput >
-```
-
-Execute a docker-compose command
-
-<details>
-<summary>Source</summary>
-
-```rust
-    fn execute_command(&self, args: &[&str]) -> Result<ComposeOutput> {
-        let mut cmd = if Command::new("docker")
-            .args(["compose", "version"])
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .status()
-            .map(|s| s.success())
-            .unwrap_or(false)
-        {
-            // Use docker compose (v2)
-            let mut cmd = Command::new("docker");
-            cmd.arg("compose");
-            cmd
-        } else {
-            // Fall back to docker-compose (v1)
-            Command::new("docker-compose")
-        };
-
-        // Add compose file argument
-        cmd.args(["-f", &self.compose_file.to_string_lossy()]);
-
-        // Add project name if specified
-        if let Some(project_name) = &self.project_name {
-            cmd.args(["-p", project_name]);
-        }
-
-        // Add the command arguments
-        cmd.args(args);
-
-        // Set working directory
-        cmd.current_dir(&self.working_dir);
-
-        // Execute the command
-        let output = cmd
-            .output()
-            .context("Failed to execute docker-compose command")?;
-
-        Ok(ComposeOutput {
-            success: output.status.success(),
-            exit_code: output.status.code().unwrap_or(-1),
-            stdout: String::from_utf8_lossy(&output.stdout).to_string(),
-            stderr: String::from_utf8_lossy(&output.stderr).to_string(),
-        })
-    }
-```
-
-</details>
-
-
-
-##### <span id="DockerCompose.up"></span>`up`
+##### <span id="DockerCompose.up"></span><code>up</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn up (& self , options : UpOptions) -> Result < ComposeOutput >
+fn up(&self, options: UpOptions) -> Result<ComposeOutput>
 ```
 
 Start services (docker-compose up)
@@ -322,15 +229,12 @@ Start services (docker-compose up)
 
 </details>
 
-
-
-##### <span id="DockerCompose.down"></span>`down`
+##### <span id="DockerCompose.down"></span><code>down</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn down (& self , options : DownOptions) -> Result < ComposeOutput >
+fn down(&self, options: DownOptions) -> Result<ComposeOutput>
 ```
 
 Stop and remove services (docker-compose down)
@@ -359,15 +263,12 @@ Stop and remove services (docker-compose down)
 
 </details>
 
-
-
-##### <span id="DockerCompose.restart"></span>`restart`
+##### <span id="DockerCompose.restart"></span><code>restart</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn restart (& self , options : RestartOptions) -> Result < ComposeOutput >
+fn restart(&self, options: RestartOptions) -> Result<ComposeOutput>
 ```
 
 Restart services (docker-compose restart)
@@ -395,15 +296,12 @@ Restart services (docker-compose restart)
 
 </details>
 
-
-
-##### <span id="DockerCompose.logs"></span>`logs`
+##### <span id="DockerCompose.logs"></span><code>logs</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn logs (& self , options : LogsOptions) -> Result < ComposeOutput >
+fn logs(&self, options: LogsOptions) -> Result<ComposeOutput>
 ```
 
 View service logs (docker-compose logs)
@@ -441,15 +339,12 @@ View service logs (docker-compose logs)
 
 </details>
 
-
-
-##### <span id="DockerCompose.ps"></span>`ps`
+##### <span id="DockerCompose.ps"></span><code>ps</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn ps (& self , options : PsOptions) -> Result < ComposeOutput >
+fn ps(&self, options: PsOptions) -> Result<ComposeOutput>
 ```
 
 List running services (docker-compose ps)
@@ -482,15 +377,12 @@ List running services (docker-compose ps)
 
 </details>
 
-
-
-##### <span id="DockerCompose.build"></span>`build`
+##### <span id="DockerCompose.build"></span><code>build</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn build (& self , options : BuildOptions) -> Result < ComposeOutput >
+fn build(&self, options: BuildOptions) -> Result<ComposeOutput>
 ```
 
 Build services (docker-compose build)
@@ -523,15 +415,12 @@ Build services (docker-compose build)
 
 </details>
 
-
-
-##### <span id="DockerCompose.start"></span>`start`
+##### <span id="DockerCompose.start"></span><code>start</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn start (& self , services : & [String]) -> Result < ComposeOutput >
+fn start(&self, services: &[String]) -> Result<ComposeOutput>
 ```
 
 Start services (docker-compose start)
@@ -551,15 +440,12 @@ Start services (docker-compose start)
 
 </details>
 
-
-
-##### <span id="DockerCompose.stop"></span>`stop`
+##### <span id="DockerCompose.stop"></span><code>stop</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn stop (& self , options : StopOptions) -> Result < ComposeOutput >
+fn stop(&self, options: StopOptions) -> Result<ComposeOutput>
 ```
 
 Stop services (docker-compose stop)
@@ -587,15 +473,17 @@ Stop services (docker-compose stop)
 
 </details>
 
-
-
-##### <span id="DockerCompose.exec"></span>`exec`
+##### <span id="DockerCompose.exec"></span><code>exec</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn exec (& self , service : & str , command : & [String] , options : ExecOptions ,) -> Result < ComposeOutput >
+fn exec(
+    &self,
+    service: &str,
+    command: &[String],
+    options: ExecOptions,
+) -> Result<ComposeOutput>
 ```
 
 Execute a command in a service container (docker-compose exec)
@@ -648,15 +536,12 @@ Execute a command in a service container (docker-compose exec)
 
 </details>
 
-
-
-##### <span id="DockerCompose.pull"></span>`pull`
+##### <span id="DockerCompose.pull"></span><code>pull</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn pull (& self , services : & [String]) -> Result < ComposeOutput >
+fn pull(&self, services: &[String]) -> Result<ComposeOutput>
 ```
 
 Pull service images (docker-compose pull)
@@ -676,15 +561,12 @@ Pull service images (docker-compose pull)
 
 </details>
 
-
-
-##### <span id="DockerCompose.config"></span>`config`
+##### <span id="DockerCompose.config"></span><code>config</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
 
-
 ```rust
-fn config (& self , options : ConfigOptions) -> Result < ComposeOutput >
+fn config(&self, options: ConfigOptions) -> Result<ComposeOutput>
 ```
 
 Validate and view the compose configuration (docker-compose config)
@@ -712,14 +594,9 @@ Validate and view the compose configuration (docker-compose config)
 
 </details>
 
-
-
-
-
-### <span id="struct.ComposeOutput"></span>`struct ComposeOutput`
+### <span id="struct.ComposeOutput"></span><code style="font-size: 0.85em">struct ComposeOutput</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Clone`
 
@@ -734,12 +611,9 @@ Result structure for Docker Compose operations
 | `stdout` | `String` |  |
 | `stderr` | `String` |  |
 
-
-
-### <span id="struct.UpOptions"></span>`struct UpOptions`
+### <span id="struct.UpOptions"></span><code style="font-size: 0.85em">struct UpOptions</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Default`, `Clone`
 
@@ -754,14 +628,11 @@ Options for docker-compose up command
 | `remove_orphans` | `bool` |  |
 | `force_recreate` | `bool` |  |
 | `no_recreate` | `bool` |  |
-| `services` | `Vec < String >` |  |
+| `services` | `Vec<String>` |  |
 
-
-
-### <span id="struct.DownOptions"></span>`struct DownOptions`
+### <span id="struct.DownOptions"></span><code style="font-size: 0.85em">struct DownOptions</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Default`, `Clone`
 
@@ -773,14 +644,11 @@ Options for docker-compose down command
 |------|------|-------------|
 | `volumes` | `bool` |  |
 | `remove_orphans` | `bool` |  |
-| `timeout` | `Option < String >` |  |
+| `timeout` | `Option<String>` |  |
 
-
-
-### <span id="struct.RestartOptions"></span>`struct RestartOptions`
+### <span id="struct.RestartOptions"></span><code style="font-size: 0.85em">struct RestartOptions</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Default`, `Clone`
 
@@ -790,15 +658,12 @@ Options for docker-compose restart command
 
 | Name | Type | Description |
 |------|------|-------------|
-| `timeout` | `Option < String >` |  |
-| `services` | `Vec < String >` |  |
+| `timeout` | `Option<String>` |  |
+| `services` | `Vec<String>` |  |
 
-
-
-### <span id="struct.LogsOptions"></span>`struct LogsOptions`
+### <span id="struct.LogsOptions"></span><code style="font-size: 0.85em">struct LogsOptions</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Default`, `Clone`
 
@@ -810,16 +675,13 @@ Options for docker-compose logs command
 |------|------|-------------|
 | `follow` | `bool` |  |
 | `timestamps` | `bool` |  |
-| `tail` | `Option < String >` |  |
-| `since` | `Option < String >` |  |
-| `services` | `Vec < String >` |  |
+| `tail` | `Option<String>` |  |
+| `since` | `Option<String>` |  |
+| `services` | `Vec<String>` |  |
 
-
-
-### <span id="struct.PsOptions"></span>`struct PsOptions`
+### <span id="struct.PsOptions"></span><code style="font-size: 0.85em">struct PsOptions</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Default`, `Clone`
 
@@ -832,14 +694,11 @@ Options for docker-compose ps command
 | `all` | `bool` |  |
 | `quiet` | `bool` |  |
 | `services` | `bool` |  |
-| `filter_services` | `Vec < String >` |  |
+| `filter_services` | `Vec<String>` |  |
 
-
-
-### <span id="struct.BuildOptions"></span>`struct BuildOptions`
+### <span id="struct.BuildOptions"></span><code style="font-size: 0.85em">struct BuildOptions</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Default`, `Clone`
 
@@ -852,14 +711,11 @@ Options for docker-compose build command
 | `no_cache` | `bool` |  |
 | `pull` | `bool` |  |
 | `parallel` | `bool` |  |
-| `services` | `Vec < String >` |  |
+| `services` | `Vec<String>` |  |
 
-
-
-### <span id="struct.StopOptions"></span>`struct StopOptions`
+### <span id="struct.StopOptions"></span><code style="font-size: 0.85em">struct StopOptions</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Default`, `Clone`
 
@@ -869,15 +725,12 @@ Options for docker-compose stop command
 
 | Name | Type | Description |
 |------|------|-------------|
-| `timeout` | `Option < String >` |  |
-| `services` | `Vec < String >` |  |
+| `timeout` | `Option<String>` |  |
+| `services` | `Vec<String>` |  |
 
-
-
-### <span id="struct.ExecOptions"></span>`struct ExecOptions`
+### <span id="struct.ExecOptions"></span><code style="font-size: 0.85em">struct ExecOptions</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Default`, `Clone`
 
@@ -889,16 +742,13 @@ Options for docker-compose exec command
 |------|------|-------------|
 | `detach` | `bool` |  |
 | `tty` | `bool` |  |
-| `user` | `Option < String >` |  |
-| `workdir` | `Option < String >` |  |
-| `env` | `HashMap < String , String >` |  |
+| `user` | `Option<String>` |  |
+| `workdir` | `Option<String>` |  |
+| `env` | `HashMap<String, String>` |  |
 
-
-
-### <span id="struct.ConfigOptions"></span>`struct ConfigOptions`
+### <span id="struct.ConfigOptions"></span><code style="font-size: 0.85em">struct ConfigOptions</code>
 
 <span class="plissken-badge plissken-badge-visibility" style="display: inline-block; padding: 0.05em 0.6em; font-family: var(--sl-font-mono); font-size: var(--sl-text-xs); line-height: 1.6; border-radius: var(--radius-pill, 1rem); vertical-align: middle; background: var(--sl-color-green-low); color: var(--sl-color-green-high);">pub</span>
-
 
 **Derives:** `Debug`, `Default`, `Clone`
 
