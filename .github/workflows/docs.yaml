@@ -1,7 +1,8 @@
 ---
 # Builds the docs in docs/ (Astro Starlight with starlight-aurora) and
 # publishes them to GitHub Pages. A pull request builds the site only; a push
-# to main builds and publishes it.
+# to main builds and publishes it. The API reference pages are rendered by
+# plissken (plissken.toml) before the build; they are not in git.
 name: "Angreal Docs Deploy"
 
 on:  # yamllint disable-line rule:truthy
@@ -29,9 +30,10 @@ defaults:
     shell: bash
 
 env:
-  PLISSKEN_VERSION: "0.2.0"
+  # Keep in sync with PLISSKEN_VERSION in .angreal/task_docs.py.
+  PLISSKEN_VERSION: "0.2.1"
   # sha256 of plissken-${PLISSKEN_VERSION}-x86_64-unknown-linux-gnu.tar.gz.
-  PLISSKEN_SHA256: "2166e15d69bd891959704a0f70c60724ccae4615584a70b4e524ed4c9460e253"
+  PLISSKEN_SHA256: "bf41f2fbc6f375552e29cf56a78b675cf857a1fa689c9905a5caba109ad292bf"
 
 jobs:
   build:
@@ -50,8 +52,7 @@ jobs:
           tar xzf "$RUNNER_TEMP/$asset" -C "$HOME/.local/bin" plissken
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      # The pages are committed; render them again so the site has the API of
-      # this commit.
+      # The API pages are not in git: render them for this commit.
       - name: Generate API Documentation
         run: plissken render
 
