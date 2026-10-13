@@ -20,6 +20,28 @@ const MOVED = {
 // reference/api/<module>/.
 const API = 'reference/api/';
 
+// API pages that plissken 0.2.0 no longer writes -> the page that now shows
+// the same items, else the parent module. Paths under reference/api/. Each
+// gets a redirect at reference/api/<old>/ and at api/<old>/.
+const DROPPED = {
+	'angreal/task/': 'angreal/',
+	'angreal/python_bindings/decorators/': 'angreal/',
+	'angreal/integrations/uv/': 'angreal/',
+	'angreal/utils/': 'rust/angreal/utils/',
+	'angreal/py_logger/': 'rust/angreal/py_logger/',
+	'angreal/python_bindings/venv/': 'angreal/integrations/venv/',
+	'angreal/python_bindings/integrations/compose/': 'angreal/integrations/docker_integration/',
+	'angreal/python_bindings/integrations/flox/': 'angreal/integrations/flox/',
+	'angreal/python_bindings/integrations/git/': 'angreal/_integrations/git_module/',
+	'angreal/python_bindings/integrations/oci/': 'angreal/integrations/oci/',
+	'rust/angreal/integrations/': 'rust/angreal/',
+	'rust/angreal/macros/': 'rust/angreal/',
+};
+for (const [from, to] of Object.entries(DROPPED)) {
+	MOVED[API + from] = API + to;
+	MOVED['api/' + from] = API + to;
+}
+
 export default function movedPages() {
 	return {
 		name: 'angreal-moved-pages',
