@@ -368,3 +368,7 @@ angreal-pytest-venv/
 # Docs build virtual environment
 angreal-docs-venv/
 .metis/metis.db
+
+# API reference pages, rendered by plissken (plissken.toml) in CI and by
+# `angreal docs api|build|serve`. Not in git.
+/docs/src/content/docs/reference/api/
